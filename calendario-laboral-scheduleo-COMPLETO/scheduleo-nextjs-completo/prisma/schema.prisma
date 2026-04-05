@@ -1,0 +1,197 @@
+// ============================================
+// ACTUALIZACIÓN SCHEMA PRISMA
+// Agregar campos de tracking multiplataforma
+// ============================================
+
+// MODELO LogAuditoria - VERSIÓN ACTUALIZADA
+// Reemplazar el modelo existente con este:
+
+model LogAuditoria {
+  id              String   @id @default(cuid())
+  
+  usuarioId       String?
+  accion          String   // Descripción de la acción
+  entidad         String   // Usuario, Vacacion, BajaMedica, etc.
+  entidadId       String?
+  
+  detalles        Json?    // Detalles adicionales
+  ipUsuario       String?
+  
+  // ============================================
+  // NUEVO: TRACKING MULTIPLATAFORMA
+  // ============================================
+  platform        String?  // 'mobile_employee' | 'mobile_master' | 'desktop_master'
+  userAgent       String?  // User agent completo del navegador
+  screenWidth     Int?     // Ancho de pantalla en píxeles
+  deviceInfo      String?  // Descripción amigable: "iPhone 13", "Windows PC", etc.
+  // ============================================
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([usuarioId])
+  @@index([createdAt])
+  @@index([entidad])
+  @@index([platform])  // NUEVO: Índice para filtrar por plataforma
+}
+
+// ============================================
+// COMANDOS PARA APLICAR
+// ============================================
+
+/*
+1. Actualizar schema.prisma con el modelo arriba
+2. Ejecutar migración:
+
+   npx prisma migrate dev --name add_platform_tracking
+
+3. Regenerar cliente Prisma:
+
+   npx prisma generate
+
+4. La BD ahora tiene los campos:
+   - platform (string opcional)
+   - userAgent (string opcional)  
+   - screenWidth (int opcional)
+   - deviceInfo (string opcional)
+*/
+
+// ============================================
+// EJEMPLO DE USO EN API
+// ============================================
+
+/*
+// En cualquier API route que cree logs:
+
+import { detectDevice } from '@/lib/device-detection';
+
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  const deviceInfo = detectDevice(request);
+  
+  // Crear log con tracking
+  await prisma.logAuditoria.create({
+    data: {
+      usuarioId: session.user.id,
+      accion: 'APROBAR_VACACION',
+      entidad: 'Vacacion',
+      entidadId: vacacionId,
+      detalles: { ... },
+      ipUsuario: request.headers.get('x-forwarded-for') || 'unknown',
+      
+      // NUEVO: Tracking multiplataforma
+      platform: deviceInfo.platform,
+      userAgent: deviceInfo.userAgent,
+      screenWidth: deviceInfo.screenWidth,
+      deviceInfo: deviceInfo.deviceInfo,
+    }
+  });
+}
+*/
+
+// ============================================
+// UTILIDAD: lib/device-detection.ts
+// ============================================
+
+/*
+import { NextRequest } from 'next/server';
+
+interface DeviceInfo {
+  platform: 'mobile_employee' | 'mobile_master' | 'desktop_master' | 'desktop_employee';
+  userAgent: string;
+  screenWidth: number | null;
+  deviceInfo: string;
+}
+
+export function detectDevice(request: NextRequest, userRole?: string): DeviceInfo {
+  const ua = request.headers.get('user-agent') || '';
+  const screenWidth = parseInt(request.headers.get('x-screen-width') || '0') || null;
+  
+  // Detectar tipo de dispositivo
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
+  
+  // Información del dispositivo
+  let deviceInfo = 'Unknown';
+  if (/iPhone/i.test(ua)) deviceInfo = 'iPhone';
+  else if (/iPad/i.test(ua)) deviceInfo = 'iPad';
+  else if (/Android/i.test(ua)) deviceInfo = 'Android';
+  else if (/Win/i.test(ua)) deviceInfo = 'Windows PC';
+  else if (/Mac/i.test(ua)) deviceInfo = 'Mac';
+  else if (/Linux/i.test(ua)) deviceInfo = 'Linux PC';
+  
+  // Determinar plataforma según dispositivo y rol
+  let platform: DeviceInfo['platform'];
+  
+  if (isMobile) {
+    if (userRole === 'EMPLEADO') {
+      platform = 'mobile_employee';
+    } else if (userRole === 'SUPER_ADMIN' || userRole === 'ADMIN_SEDE') {
+      platform = 'mobile_master';
+    } else {
+      platform = 'mobile_employee'; // fallback
+    }
+  } else {
+    if (userRole === 'EMPLEADO') {
+      platform = 'desktop_employee'; // futuro
+    } else if (userRole === 'SUPER_ADMIN' || userRole === 'ADMIN_SEDE') {
+      platform = 'desktop_master';
+    } else {
+      platform = 'desktop_master'; // fallback
+    }
+  }
+  
+  return {
+    platform,
+    userAgent: ua,
+    screenWidth,
+    deviceInfo
+  };
+}
+*/
+
+// ============================================
+// CONSULTAS ÚTILES EN AUDITORÍA
+// ============================================
+
+/*
+// Filtrar logs por plataforma:
+const logsMobileEmpleado = await prisma.logAuditoria.findMany({
+  where: { platform: 'mobile_employee' },
+  orderBy: { createdAt: 'desc' }
+});
+
+// Contar acciones por plataforma:
+const stats = await prisma.logAuditoria.groupBy({
+  by: ['platform'],
+  _count: true,
+  orderBy: { _count: { platform: 'desc' } }
+});
+
+// Logs de una acción específica desde desktop:
+const aprobasDesktop = await prisma.logAuditoria.findMany({
+  where: {
+    accion: 'APROBAR_VACACION',
+    platform: 'desktop_master'
+  },
+  include: {
+    usuario: {
+      select: { nombre: true, email: true }
+    }
+  }
+});
+
+// Actividad por dispositivo en el último mes:
+const actividadReciente = await prisma.logAuditoria.findMany({
+  where: {
+    createdAt: {
+      gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    }
+  },
+  select: {
+    platform: true,
+    deviceInfo: true,
+    accion: true,
+    createdAt: true
+  },
+  orderBy: { createdAt: 'desc' }
+});
+*/
