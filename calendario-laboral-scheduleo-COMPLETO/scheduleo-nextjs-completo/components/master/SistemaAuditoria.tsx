@@ -14,7 +14,7 @@ import {
   PLATAFORMA_LABELS,
   PLATAFORMA_COLORS,
   SEVERIDAD_COLORS,
-} from '@/types/auditoria';
+} from '@/types/types-auditoria';
 
 interface SistemaAuditoriaProps {
   logs: LogAuditoria[];

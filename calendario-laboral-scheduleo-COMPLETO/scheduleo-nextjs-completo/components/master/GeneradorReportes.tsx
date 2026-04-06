@@ -10,7 +10,7 @@ import {
   TIPO_REPORTE_LABELS,
   TIPO_REPORTE_ICONS,
   TIPO_REPORTE_COLORS,
-} from '@/types/reportes';
+} from '@/types/types-reportes';
 
 export default function GeneradorReportes() {
   const [config, setConfig] = useState<ConfiguracionReporte>({

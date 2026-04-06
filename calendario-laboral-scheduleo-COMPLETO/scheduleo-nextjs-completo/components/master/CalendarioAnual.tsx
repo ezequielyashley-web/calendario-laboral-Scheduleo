@@ -10,7 +10,7 @@ import {
   MESES_LABELS,
   DIAS_SEMANA_LABELS,
   ConfiguracionCalendario,
-} from '@/types/calendario';
+} from '@/types/types-calendario';
 
 interface CalendarioAnualProps {
   comunidadInicial: ComunidadAutonoma;

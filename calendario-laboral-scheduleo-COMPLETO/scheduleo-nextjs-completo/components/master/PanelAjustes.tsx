@@ -13,7 +13,7 @@ import {
   ConfiguracionNotificaciones,
   ConfiguracionHorarios,
   FestivoPersonalizado,
-} from '@/types/ajustes';
+} from '@/types/types-ajustes';
 
 interface PanelAjustesProps {
   sedes: Sede[];
