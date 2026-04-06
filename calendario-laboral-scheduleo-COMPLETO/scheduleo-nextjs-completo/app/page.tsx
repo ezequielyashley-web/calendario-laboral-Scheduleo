@@ -7,7 +7,7 @@ export default function Home() {
         <h1 className="text-6xl font-bold mb-4">Scheduleo Desktop</h1>
         <p className="text-xl mb-8">Sistema de Gestión de Personal</p>
         <Link 
-          href="/(authenticated)/master"
+          href="/master"
           className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
         >
           Acceder al Panel Master
