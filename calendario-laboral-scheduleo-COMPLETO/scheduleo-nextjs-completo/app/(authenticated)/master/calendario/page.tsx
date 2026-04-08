@@ -3,130 +3,95 @@
 import { useState } from 'react'
 
 export default function CalendarioPage() {
-  const [vistaExpandida, setVistaExpandida] = useState<number | null>(null)
-  const [diaSeleccionado, setDiaSeleccionado] = useState<{ mes: number; dia: number } | null>(null)
+  const [mesExpandido, setMesExpandido] = useState<number | null>(null)
+  const [diaSeleccionado, setDiaSeleccionado] = useState<{ mes: number; dia: number; fecha: string } | null>(null)
   const [showPanel, setShowPanel] = useState(false)
 
-  const meses = [
+  const MESES = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ]
 
+  const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+
+  const FESTIVOS_2026: Record<string, string> = {
+    '2026-01-01': 'Año Nuevo',
+    '2026-01-06': 'Reyes Magos',
+    '2026-04-03': 'Viernes Santo',
+    '2026-04-06': 'Lunes de Pascua',
+    '2026-05-01': 'Día del Trabajo',
+    '2026-08-15': 'Asunción',
+    '2026-10-12': 'Día de la Hispanidad',
+    '2026-11-01': 'Todos los Santos',
+    '2026-12-06': 'Constitución',
+    '2026-12-08': 'Inmaculada',
+    '2026-12-25': 'Navidad',
+  }
+
   const getDaysInMonth = (mes: number) => {
-    const date = new Date(2026, mes)
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    const startDayOfWeek = firstDay.getDay()
+    const primerDia = new Date(2026, mes, 1)
+    const ultimoDia = new Date(2026, mes + 1, 0)
+    const diasEnMes = ultimoDia.getDate()
     
-    return { daysInMonth, startDayOfWeek }
+    let primerDiaSemana = primerDia.getDay()
+    primerDiaSemana = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1
+    
+    return { diasEnMes, primerDiaSemana }
   }
 
-  const getDayColor = (tipo: string) => {
-    const colors: Record<string, string> = {
-      trabajo: 'bg-white border-gray-300 hover:border-sky-500',
-      libre: 'bg-green-100 border-green-300 hover:border-green-500',
-      domingo: 'bg-red-100 border-red-300 hover:border-red-500',
-      festivo: 'bg-purple-100 border-purple-300 hover:border-purple-500'
-    }
-    return colors[tipo] || 'bg-gray-50 border-gray-200'
+  const handleMesClick = (mesIndex: number) => {
+    setMesExpandido(mesIndex)
   }
 
-  const handleDiaClick = (mes: number, dia: number) => {
-    setDiaSeleccionado({ mes, dia })
+  const handleDiaClick = (mes: number, dia: number, fecha: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Evitar que se cierre el mes expandido
+    setDiaSeleccionado({ mes, dia, fecha })
     setShowPanel(true)
   }
 
-  const handleGuardar = () => {
-    // Aquí se guardaría el cambio en el día
-    setShowPanel(false)
-    setDiaSeleccionado(null)
-  }
+  // Mini calendario para vista anual
+  const renderMiniMes = (mesIndex: number) => {
+    const { diasEnMes, primerDiaSemana } = getDaysInMonth(mesIndex)
+    const esDiciembre = mesIndex === 11
 
-  const renderMiniCalendario = (mesIndex: number) => {
-    const { daysInMonth, startDayOfWeek } = getDaysInMonth(mesIndex)
-    
     return (
       <div
-        onClick={() => setVistaExpandida(mesIndex)}
-        className="bg-white rounded-lg border border-gray-200 p-3 cursor-pointer hover:shadow-lg transition-shadow"
+        key={mesIndex}
+        onClick={() => handleMesClick(mesIndex)}
+        className="bg-white rounded-lg border border-green-200 shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
       >
-        <h3 className="text-sm font-semibold text-gray-800 mb-2 text-center">
-          {meses[mesIndex]}
-        </h3>
-        <div className="grid grid-cols-7 gap-0.5">
-          {/* Espacios vacíos */}
-          {Array.from({ length: startDayOfWeek }).map((_, i) => (
-            <div key={`empty-${i}`} className="w-5 h-5"></div>
-          ))}
-          {/* Días */}
-          {Array.from({ length: daysInMonth }).map((_, i) => {
-            const dia = i + 1
-            const esDomingo = (startDayOfWeek + i) % 7 === 0
-            return (
-              <div
-                key={dia}
-                className={`w-5 h-5 text-[10px] flex items-center justify-center rounded ${
-                  esDomingo ? 'bg-red-100 text-red-800' : 'text-gray-600'
-                }`}
-              >
-                {dia}
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
-  const renderCalendarioExpandido = (mesIndex: number) => {
-    const { daysInMonth, startDayOfWeek } = getDaysInMonth(mesIndex)
-    const dias = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
-
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setVistaExpandida(null)}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            ← Volver a vista anual
-          </button>
-          <h2 className="text-2xl font-bold text-gray-800">{meses[mesIndex]} 2026</h2>
-          <div className="w-32"></div>
+        {/* Header verde */}
+        <div className="bg-gradient-to-r from-green-500 to-green-600 p-2 text-white">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-center">{MESES[mesIndex]}</h3>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          {/* Días de la semana */}
-          <div className="grid grid-cols-7 gap-2 mb-2">
-            {dias.map((dia) => (
-              <div key={dia} className="text-center font-semibold text-gray-600 py-2">
-                {dia}
-              </div>
-            ))}
-          </div>
-
-          {/* Días del mes */}
-          <div className="grid grid-cols-7 gap-2">
-            {Array.from({ length: startDayOfWeek }).map((_, index) => (
-              <div key={`empty-${index}`} className="aspect-square"></div>
+        <div className="p-2">
+          {/* Grid de días mini */}
+          <div className="grid grid-cols-7 gap-0.5">
+            {/* Días vacíos antes del mes */}
+            {Array.from({ length: primerDiaSemana }).map((_, i) => (
+              <div key={`empty-${i}`} className="w-5 h-5"></div>
             ))}
 
-            {Array.from({ length: daysInMonth }).map((_, index) => {
-              const dia = index + 1
-              const esDomingo = (startDayOfWeek + index) % 7 === 0
-              const tipo = esDomingo ? 'domingo' : 'trabajo'
-              
+            {/* Días del mes */}
+            {Array.from({ length: diasEnMes }).map((_, i) => {
+              const dia = i + 1
+              const esDomingo = new Date(2026, mesIndex, dia).getDay() === 0
+
+              let bgColor = 'text-gray-600'
+              if (esDomingo && !esDiciembre) {
+                bgColor = 'bg-red-100 text-red-800'
+              } else if (esDomingo && esDiciembre) {
+                bgColor = 'bg-red-50 text-red-600'
+              }
+
               return (
-                <button
+                <div
                   key={dia}
-                  onClick={() => handleDiaClick(mesIndex, dia)}
-                  className={`aspect-square border-2 rounded-lg p-2 transition-all ${getDayColor(tipo)}`}
+                  className={`w-5 h-5 text-[10px] flex items-center justify-center rounded ${bgColor}`}
                 >
-                  <div className="font-semibold text-gray-800">{dia}</div>
-                </button>
+                  {dia}
+                </div>
               )
             })}
           </div>
@@ -135,50 +100,189 @@ export default function CalendarioPage() {
     )
   }
 
-  return (
-    <div className="flex gap-6">
-      {/* Contenido principal */}
-      <div className={`flex-1 space-y-6 transition-all ${showPanel ? 'mr-80' : ''}`}>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Calendario Anual 2026</h1>
-          <p className="text-gray-600">
-            {vistaExpandida === null 
-              ? 'Haz clic en un mes para ver los detalles' 
-              : 'Haz clic en un día para editarlo'}
-          </p>
+  // Calendario expandido para vista mensual
+  const renderMesExpandido = (mesIndex: number) => {
+    const { diasEnMes, primerDiaSemana } = getDaysInMonth(mesIndex)
+    const esDiciembre = mesIndex === 11
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setMesExpandido(null)}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+          >
+            ← Volver a vista anual
+          </button>
+          <h2 className="text-2xl font-bold text-blue-900">{MESES[mesIndex]} 2026</h2>
+          <div className="w-40"></div>
         </div>
 
-        {/* Leyenda */}
-        <div className="flex gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-white border-2 border-gray-300"></div>
-            <span>Trabajo</span>
+        <div className="bg-white rounded-lg border border-green-200 shadow-md overflow-hidden">
+          {/* Header verde */}
+          <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 text-white">
+            <h3 className="text-lg font-bold uppercase tracking-wide">{MESES[mesIndex]}</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-100 border-2 border-green-300"></div>
-            <span>Libre</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-100 border-2 border-red-300"></div>
-            <span>Domingo</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-purple-100 border-2 border-purple-300"></div>
-            <span>Festivo</span>
+
+          <div className="p-6">
+            {/* Headers días con fondo gris cálido */}
+            <div className="grid grid-cols-7 gap-2 mb-3 bg-stone-200 rounded p-3">
+              {DIAS_SEMANA.map((dia, idx) => (
+                <div key={idx} className="text-center text-sm font-bold text-stone-700 uppercase">
+                  {dia}
+                </div>
+              ))}
+            </div>
+
+            {/* Grid de días */}
+            <div className="grid grid-cols-7 gap-2">
+              {/* Días vacíos antes del mes */}
+              {Array.from({ length: primerDiaSemana }).map((_, i) => (
+                <div key={`empty-${i}`} className="aspect-square"></div>
+              ))}
+
+              {/* Días del mes */}
+              {Array.from({ length: diasEnMes }).map((_, i) => {
+                const dia = i + 1
+                const fecha = `2026-${String(mesIndex + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
+                const esDomingo = new Date(2026, mesIndex, dia).getDay() === 0
+                const esFestivo = FESTIVOS_2026[fecha]
+
+                let bgColor = 'bg-white hover:bg-blue-50'
+                let borderColor = 'border-blue-200'
+                let textColor = 'text-blue-900'
+                let tooltip = ''
+
+                // LÓGICA ESPECIAL: Solo en diciembre los domingos son laborables
+                if (esDomingo && !esDiciembre) {
+                  // Domingos NO laborables
+                  bgColor = 'bg-red-400 hover:bg-red-500'
+                  borderColor = 'border-red-500'
+                  textColor = 'text-white'
+                } else if (esDomingo && esDiciembre) {
+                  // Domingos laborables en diciembre
+                  bgColor = 'bg-red-100 hover:bg-red-200'
+                  borderColor = 'border-red-300'
+                  textColor = 'text-red-800'
+                  tooltip = 'Domingo laboral (Diciembre)'
+                } else if (esFestivo) {
+                  bgColor = 'bg-purple-300 hover:bg-purple-400'
+                  borderColor = 'border-purple-400'
+                  textColor = 'text-purple-900'
+                  tooltip = esFestivo
+                }
+
+                return (
+                  <button
+                    key={dia}
+                    onClick={(e) => handleDiaClick(mesIndex, dia, fecha, e)}
+                    className={`group relative aspect-square rounded border ${bgColor} ${borderColor} ${textColor} flex items-center justify-center text-sm font-semibold transition-all shadow-sm`}
+                    title={tooltip}
+                  >
+                    {dia}
+                    {tooltip && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                        {tooltip}
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
-
-        {/* Vista Anual o Expandida */}
-        {vistaExpandida === null ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {meses.map((_, index) => (
-              <div key={index}>{renderMiniCalendario(index)}</div>
-            ))}
-          </div>
-        ) : (
-          renderCalendarioExpandido(vistaExpandida)
-        )}
       </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Controles */}
+      <div className="bg-white rounded-lg border border-blue-200 shadow-md p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-md border border-blue-300">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <div className="px-4 py-2 bg-blue-50 rounded-md border border-blue-300">
+              <span className="text-lg font-bold text-blue-900">2026</span>
+            </div>
+            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-md border border-blue-300">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+            <button className="px-4 py-2 text-sm font-semibold text-blue-700 bg-white border border-blue-300 rounded-md hover:bg-blue-50">
+              Hoy
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <select className="px-3 py-2 text-sm font-medium border border-blue-300 rounded-md">
+              <option>Todos los grupos</option>
+              <option>G1A - Azul (12)</option>
+              <option>G1B - Azul (11)</option>
+              <option>G2A - Rojo (11)</option>
+              <option>G2B - Rojo (12)</option>
+              <option>G3A - Verde (11)</option>
+              <option>G3B - Verde (11)</option>
+            </select>
+            <button className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-md">
+              Exportar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Título dinámico */}
+      <div>
+        <h1 className="text-xl font-bold text-blue-900">
+          {mesExpandido === null ? 'Calendario Anual 2026' : `${MESES[mesExpandido]} 2026`}
+        </h1>
+        <p className="text-sm text-blue-600">
+          {mesExpandido === null 
+            ? 'Haz clic en un mes para expandirlo' 
+            : 'Haz clic en un día para editarlo'}
+        </p>
+      </div>
+
+      {/* Leyenda */}
+      <div className="flex items-center gap-6 px-4">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-white border-2 border-blue-300 rounded"></div>
+          <span className="text-xs font-medium text-blue-900">Día laboral</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-red-400 rounded shadow-sm"></div>
+          <span className="text-xs font-medium text-blue-900">Domingo (no laboral)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-purple-300 rounded shadow-sm"></div>
+          <span className="text-xs font-medium text-blue-900">Festivo</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-green-300 rounded shadow-sm"></div>
+          <span className="text-xs font-medium text-blue-900">Vacaciones</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-orange-300 rounded shadow-sm"></div>
+          <span className="text-xs font-medium text-blue-900">Baja médica</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-red-100 border border-red-300 rounded shadow-sm"></div>
+          <span className="text-xs font-medium text-blue-900">Domingo laboral (Diciembre)</span>
+        </div>
+      </div>
+
+      {/* Vista Anual o Expandida */}
+      {mesExpandido === null ? (
+        <div className="grid grid-cols-3 gap-6">
+          {MESES.map((_, index) => renderMiniMes(index))}
+        </div>
+      ) : (
+        renderMesExpandido(mesExpandido)
+      )}
 
       {/* Panel lateral de edición */}
       {showPanel && diaSeleccionado && (
@@ -191,7 +295,7 @@ export default function CalendarioPage() {
                   setShowPanel(false)
                   setDiaSeleccionado(null)
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 text-2xl"
               >
                 ✕
               </button>
@@ -199,8 +303,9 @@ export default function CalendarioPage() {
 
             <div className="space-y-2">
               <p className="text-sm text-gray-600">
-                <strong>Fecha:</strong> {diaSeleccionado.dia} de {meses[diaSeleccionado.mes]} 2026
+                <strong>Fecha:</strong> {diaSeleccionado.dia} de {MESES[diaSeleccionado.mes]} 2026
               </p>
+              <p className="text-xs text-gray-500">{diaSeleccionado.fecha}</p>
             </div>
 
             <div className="space-y-4">
@@ -208,11 +313,13 @@ export default function CalendarioPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Tipo de día
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option value="trabajo">Trabajo</option>
                   <option value="libre">Libre</option>
                   <option value="domingo">Domingo</option>
                   <option value="festivo">Festivo</option>
+                  <option value="vacaciones">Vacaciones</option>
+                  <option value="baja">Baja médica</option>
                 </select>
               </div>
 
@@ -221,13 +328,13 @@ export default function CalendarioPage() {
                   Acción especial
                 </label>
                 <div className="space-y-2">
-                  <button className="w-full px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm">
+                  <button className="w-full px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium">
                     🌴 Crear Libranza
                   </button>
-                  <button className="w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm">
+                  <button className="w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
                     📅 Agregar Evento
                   </button>
-                  <button className="w-full px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm">
+                  <button className="w-full px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium">
                     🎉 Marcar Festivo
                   </button>
                 </div>
@@ -238,7 +345,7 @@ export default function CalendarioPage() {
                   Notas
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   rows={4}
                   placeholder="Agregar notas para este día..."
                 ></textarea>
@@ -246,10 +353,7 @@ export default function CalendarioPage() {
             </div>
 
             <div className="flex gap-2">
-              <button
-                onClick={handleGuardar}
-                className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
-              >
+              <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
                 Guardar
               </button>
               <button
@@ -257,7 +361,7 @@ export default function CalendarioPage() {
                   setShowPanel(false)
                   setDiaSeleccionado(null)
                 }}
-                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
                 Cancelar
               </button>
