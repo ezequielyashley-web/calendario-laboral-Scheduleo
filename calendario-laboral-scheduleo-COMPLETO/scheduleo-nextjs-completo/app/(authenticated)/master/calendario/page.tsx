@@ -1,11 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function CalendarioPage() {
   const [mesExpandido, setMesExpandido] = useState<number | null>(null)
   const [diaSeleccionado, setDiaSeleccionado] = useState<{ mes: number; dia: number; fecha: string } | null>(null)
   const [showPanel, setShowPanel] = useState(false)
+  const [vistaActual, setVistaActual] = useState<'año' | 'mes' | 'semana'>('año')
+  const [empleadoFiltro, setEmpleadoFiltro] = useState('todos')
+  const [tema, setTema] = useState<'claro' | 'oscuro' | 'auto'>('claro')
+  const [temaActivo, setTemaActivo] = useState<'claro' | 'oscuro'>('claro')
+
+  // Detectar preferencia del sistema
+  useEffect(() => {
+    if (tema === 'auto') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      setTemaActivo(mediaQuery.matches ? 'oscuro' : 'claro')
+      
+      const handler = (e: MediaQueryListEvent) => {
+        setTemaActivo(e.matches ? 'oscuro' : 'claro')
+      }
+      
+      mediaQuery.addEventListener('change', handler)
+      return () => mediaQuery.removeEventListener('change', handler)
+    } else {
+      setTemaActivo(tema)
+    }
+  }, [tema])
 
   const MESES = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -13,6 +34,7 @@ export default function CalendarioPage() {
   ]
 
   const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+  const DIAS_SEMANA_MINI = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 
   const FESTIVOS_2026: Record<string, string> = {
     '2026-01-01': 'Año Nuevo',
@@ -28,6 +50,29 @@ export default function CalendarioPage() {
     '2026-12-25': 'Navidad',
   }
 
+  // Colores según tema
+  const colores = temaActivo === 'oscuro' ? {
+    fondo: 'bg-gray-900',
+    card: 'bg-gray-800 border-gray-700',
+    texto: 'text-gray-100',
+    textoSecundario: 'text-gray-400',
+    header: 'bg-cyan-600', // Azul del proyecto
+    headerHover: 'hover:bg-cyan-700',
+    input: 'bg-gray-700 border-gray-600 text-white',
+    boton: 'bg-cyan-600 hover:bg-cyan-700',
+    botonSecundario: 'bg-gray-700 hover:bg-gray-600',
+  } : {
+    fondo: 'bg-gray-50',
+    card: 'bg-white border-gray-200',
+    texto: 'text-slate-800',
+    textoSecundario: 'text-slate-600',
+    header: 'bg-cyan-600', // Azul del proyecto
+    headerHover: 'hover:bg-cyan-700',
+    input: 'bg-white border-gray-300',
+    boton: 'bg-cyan-600 hover:bg-cyan-700',
+    botonSecundario: 'bg-gray-200 hover:bg-gray-300',
+  }
+
   const getDaysInMonth = (mes: number) => {
     const primerDia = new Date(2026, mes, 1)
     const ultimoDia = new Date(2026, mes + 1, 0)
@@ -41,15 +86,16 @@ export default function CalendarioPage() {
 
   const handleMesClick = (mesIndex: number) => {
     setMesExpandido(mesIndex)
+    setVistaActual('mes')
   }
 
-  const handleDiaClick = (mes: number, dia: number, fecha: string, e: React.MouseEvent) => {
-    e.stopPropagation()
+  const handleDiaClick = (mes: number, dia: number, fecha: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
     setDiaSeleccionado({ mes, dia, fecha })
     setShowPanel(true)
   }
 
-  // Mini calendario para vista anual - MÁS PEQUEÑO (50%)
+  // Mini calendario para vista anual
   const renderMiniMes = (mesIndex: number) => {
     const { diasEnMes, primerDiaSemana } = getDaysInMonth(mesIndex)
     const esDiciembre = mesIndex === 11
@@ -58,38 +104,53 @@ export default function CalendarioPage() {
       <div
         key={mesIndex}
         onClick={() => handleMesClick(mesIndex)}
-        className="bg-white rounded-lg border-2 border-green-300 shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+        className={`${colores.card} rounded-lg shadow-md hover:shadow-xl transition-all cursor-pointer border overflow-hidden`}
       >
-        {/* Header verde con año */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 p-1.5 text-white text-center">
-          <h3 className="text-[10px] font-bold uppercase tracking-wide">{MESES[mesIndex]}</h3>
-          <p className="text-[8px] opacity-90">2026</p>
+        <div className={`${colores.header} p-2.5 text-white`}>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-center">{MESES[mesIndex]}</h3>
+          <p className="text-[10px] text-cyan-100 text-center font-medium">2026</p>
         </div>
 
-        <div className="p-1.5">
-          {/* Grid de días mini CON BORDES */}
+        <div className={`p-2.5 ${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+          <div className="grid grid-cols-7 gap-0.5 mb-1.5">
+            {DIAS_SEMANA_MINI.map((dia, idx) => (
+              <div key={idx} className={`text-center text-[8px] font-semibold ${colores.textoSecundario} uppercase`}>
+                {dia}
+              </div>
+            ))}
+          </div>
+
           <div className="grid grid-cols-7 gap-0.5">
-            {/* Días vacíos antes del mes */}
             {Array.from({ length: primerDiaSemana }).map((_, i) => (
-              <div key={`empty-${i}`} className="w-4 h-4"></div>
+              <div key={`empty-${i}`} className="aspect-square"></div>
             ))}
 
-            {/* Días del mes CON BORDES */}
             {Array.from({ length: diasEnMes }).map((_, i) => {
               const dia = i + 1
+              const fecha = `2026-${String(mesIndex + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
               const esDomingo = new Date(2026, mesIndex, dia).getDay() === 0
+              const esFestivo = FESTIVOS_2026[fecha]
 
-              let bgColor = 'bg-white text-gray-700 border border-gray-300'
+              let bgColor = temaActivo === 'oscuro' 
+                ? 'bg-gray-600 text-gray-100 hover:bg-gray-500' 
+                : 'bg-white text-gray-700 hover:bg-blue-50'
+              let borderClass = temaActivo === 'oscuro' ? 'border-gray-500' : 'border-gray-200'
+              
               if (esDomingo && !esDiciembre) {
-                bgColor = 'bg-red-400 text-white border border-red-500'
+                bgColor = 'bg-red-500 text-white'
+                borderClass = 'border-red-600'
               } else if (esDomingo && esDiciembre) {
-                bgColor = 'bg-red-100 text-red-700 border border-red-300'
+                bgColor = 'bg-red-100 text-red-800'
+                borderClass = 'border-red-200'
+              } else if (esFestivo) {
+                bgColor = 'bg-purple-500 text-white'
+                borderClass = 'border-purple-600'
               }
 
               return (
                 <div
                   key={dia}
-                  className={`w-4 h-4 text-[8px] flex items-center justify-center rounded ${bgColor}`}
+                  className={`aspect-square text-[8px] font-medium flex items-center justify-center rounded border ${bgColor} ${borderClass} transition-colors`}
                 >
                   {dia}
                 </div>
@@ -101,7 +162,7 @@ export default function CalendarioPage() {
     )
   }
 
-  // Calendario expandido para vista mensual - BORDES MÁS VISIBLES
+  // Calendario expandido - Días 50% más pequeños
   const renderMesExpandido = (mesIndex: number) => {
     const { diasEnMes, primerDiaSemana } = getDaysInMonth(mesIndex)
     const esDiciembre = mesIndex === 11
@@ -110,66 +171,62 @@ export default function CalendarioPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <button
-            onClick={() => setMesExpandido(null)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
+            onClick={() => {
+              setMesExpandido(null)
+              setVistaActual('año')
+            }}
+            className={`px-4 py-2 ${colores.boton} text-white rounded-lg transition-colors font-medium shadow-md text-sm flex items-center gap-2`}
           >
-            ← Volver a vista anual
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Volver
           </button>
-          <h2 className="text-2xl font-bold text-blue-900">{MESES[mesIndex]} 2026</h2>
-          <div className="w-40"></div>
+          <h2 className={`text-2xl font-bold ${colores.texto}`}>{MESES[mesIndex]} 2026</h2>
+          <div className="w-24"></div>
         </div>
 
-        <div className="bg-white rounded-lg border-2 border-green-300 shadow-lg overflow-hidden">
-          {/* Header verde */}
-          <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 text-white">
-            <h3 className="text-lg font-bold uppercase tracking-wide">{MESES[mesIndex]} 2026</h3>
+        <div className={`${colores.card} rounded-xl shadow-lg border overflow-hidden`}>
+          <div className={`${colores.header} p-4`}>
+            <h3 className="text-lg font-bold text-white uppercase tracking-wide">{MESES[mesIndex]} 2026</h3>
           </div>
 
           <div className="p-6">
-            {/* Headers días con fondo gris cálido */}
-            <div className="grid grid-cols-7 gap-3 mb-3 bg-stone-200 rounded p-3 border-2 border-stone-300">
+            <div className={`grid grid-cols-7 gap-2 mb-3 ${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg p-3 border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'}`}>
               {DIAS_SEMANA.map((dia, idx) => (
-                <div key={idx} className="text-center text-sm font-bold text-stone-700 uppercase">
+                <div key={idx} className={`text-center text-sm font-semibold ${colores.texto} uppercase`}>
                   {dia}
                 </div>
               ))}
             </div>
 
-            {/* Grid de días CON BORDES MÁS VISIBLES */}
-            <div className="grid grid-cols-7 gap-3">
-              {/* Días vacíos antes del mes */}
+            <div className="grid grid-cols-7 gap-2">
               {Array.from({ length: primerDiaSemana }).map((_, i) => (
                 <div key={`empty-${i}`} className="aspect-square"></div>
               ))}
 
-              {/* Días del mes */}
               {Array.from({ length: diasEnMes }).map((_, i) => {
                 const dia = i + 1
                 const fecha = `2026-${String(mesIndex + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
                 const esDomingo = new Date(2026, mesIndex, dia).getDay() === 0
                 const esFestivo = FESTIVOS_2026[fecha]
 
-                let bgColor = 'bg-white hover:bg-blue-50'
-                let borderColor = 'border-blue-400 border-2'
-                let textColor = 'text-blue-900'
+                let bgColor = temaActivo === 'oscuro'
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-100'
+                  : 'bg-white hover:bg-blue-50 text-slate-700'
+                let borderColor = temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'
                 let tooltip = ''
 
-                // LÓGICA ESPECIAL: Solo en diciembre los domingos son laborables
                 if (esDomingo && !esDiciembre) {
-                  // Domingos NO laborables
-                  bgColor = 'bg-red-400 hover:bg-red-500'
-                  borderColor = 'border-red-600 border-2'
-                  textColor = 'text-white'
+                  bgColor = 'bg-red-500 hover:bg-red-600 text-white'
+                  borderColor = 'border-red-600'
                 } else if (esDomingo && esDiciembre) {
-                  // Domingos laborables en diciembre
-                  bgColor = 'bg-red-100 hover:bg-red-200'
-                  borderColor = 'border-red-400 border-2'
-                  textColor = 'text-red-800'
+                  bgColor = 'bg-red-100 hover:bg-red-200 text-red-800'
+                  borderColor = 'border-red-300'
                   tooltip = 'Domingo laboral (Diciembre)'
                 } else if (esFestivo) {
-                  bgColor = 'bg-purple-300 hover:bg-purple-400'
-                  borderColor = 'border-purple-500 border-2'
-                  textColor = 'text-purple-900'
+                  bgColor = 'bg-purple-500 hover:bg-purple-600 text-white'
+                  borderColor = 'border-purple-600'
                   tooltip = esFestivo
                 }
 
@@ -177,7 +234,7 @@ export default function CalendarioPage() {
                   <button
                     key={dia}
                     onClick={(e) => handleDiaClick(mesIndex, dia, fecha, e)}
-                    className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} ${textColor} flex items-center justify-center text-sm font-bold transition-all shadow-md hover:shadow-lg`}
+                    className={`group relative aspect-square rounded-lg ${bgColor} border ${borderColor} flex items-center justify-center text-sm font-semibold transition-all shadow-sm hover:shadow-md`}
                     title={tooltip}
                   >
                     {dia}
@@ -197,126 +254,179 @@ export default function CalendarioPage() {
   }
 
   return (
-    <div className="space-y-6 bg-blue-50 min-h-screen p-6 -m-6">
-      {/* Controles */}
-      <div className="bg-white rounded-lg border-2 border-blue-300 shadow-md p-4">
-        <div className="flex items-center justify-between">
+    <div className={`min-h-screen ${colores.fondo} p-6 -m-6`}>
+      
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className={`text-3xl font-bold ${colores.texto} mb-2`}>
+          {mesExpandido === null ? 'Calendario Anual 2026' : `${MESES[mesExpandido]} 2026`}
+        </h1>
+        <p className={colores.textoSecundario}>
+          {mesExpandido === null ? 'Haz clic en un mes para expandirlo' : 'Haz clic en un día para editarlo'}
+        </p>
+      </div>
+
+      {/* CONTROLES */}
+      <div className={`${colores.card} rounded-xl shadow-md border p-4 mb-6`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-md border-2 border-blue-400">
+            <button className={`p-2 ${colores.textoSecundario} border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} rounded-lg hover:bg-opacity-10 transition-colors`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
               </svg>
             </button>
-            <div className="px-4 py-2 bg-blue-600 text-white rounded-md border-2 border-blue-700 font-bold shadow-md">
-              <span className="text-lg">2026</span>
+            <div className={`px-6 py-2 ${colores.header} text-white rounded-lg font-bold text-lg shadow-md`}>
+              2026
             </div>
-            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-md border-2 border-blue-400">
+            <button className={`p-2 ${colores.textoSecundario} border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} rounded-lg hover:bg-opacity-10 transition-colors`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
               </svg>
             </button>
-            <button className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 border-2 border-blue-700 rounded-md hover:bg-blue-700 shadow-md">
+            <button className={`px-4 py-2 text-sm font-semibold text-white ${colores.boton} rounded-lg shadow-md transition-colors`}>
               Hoy
             </button>
           </div>
+          
           <div className="flex items-center gap-3">
-            <select className="px-3 py-2 text-sm font-medium border-2 border-blue-400 rounded-md">
-              <option>Todos los grupos</option>
-              <option>G1A - Azul (12)</option>
-              <option>G1B - Azul (11)</option>
-              <option>G2A - Rojo (11)</option>
-              <option>G2B - Rojo (12)</option>
-              <option>G3A - Verde (11)</option>
-              <option>G3B - Verde (11)</option>
+            {/* Selector de Tema */}
+            <div className="flex border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} rounded-lg overflow-hidden">
+              <button 
+                className={`px-3 py-2 text-xs font-semibold transition-colors ${tema === 'claro' ? `${colores.header} text-white` : `${colores.card} ${colores.texto}`}`}
+                onClick={() => setTema('claro')}
+                title="Modo Claro"
+              >
+                ☀️
+              </button>
+              <button 
+                className={`px-3 py-2 text-xs font-semibold transition-colors border-l ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} ${tema === 'oscuro' ? `${colores.header} text-white` : `${colores.card} ${colores.texto}`}`}
+                onClick={() => setTema('oscuro')}
+                title="Modo Oscuro"
+              >
+                🌙
+              </button>
+              <button 
+                className={`px-3 py-2 text-xs font-semibold transition-colors border-l ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} ${tema === 'auto' ? `${colores.header} text-white` : `${colores.card} ${colores.texto}`}`}
+                onClick={() => setTema('auto')}
+                title="Automático (sistema)"
+              >
+                🔄
+              </button>
+            </div>
+
+            <select 
+              value={empleadoFiltro}
+              onChange={(e) => setEmpleadoFiltro(e.target.value)}
+              className={`px-4 py-2 text-sm border ${colores.input} rounded-lg font-medium transition-colors`}
+            >
+              <option value="todos">Todos los empleados</option>
+              <option value="g1a">G1A - Azul (12)</option>
+              <option value="g1b">G1B - Azul (11)</option>
+              <option value="g2a">G2A - Rojo (11)</option>
+              <option value="g2b">G2B - Rojo (12)</option>
+              <option value="g3a">G3A - Verde (11)</option>
+              <option value="g3b">G3B - Verde (11)</option>
             </select>
-            <button className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-md border-2 border-blue-700">
+            
+            <div className={`flex border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} rounded-lg overflow-hidden`}>
+              <button 
+                className={`px-3 py-2 text-xs font-semibold transition-colors ${vistaActual === 'año' ? `${colores.header} text-white` : `${colores.card} ${colores.texto}`}`}
+                onClick={() => setVistaActual('año')}
+              >
+                Año
+              </button>
+              <button 
+                className={`px-3 py-2 text-xs font-semibold transition-colors border-l ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} ${vistaActual === 'mes' ? `${colores.header} text-white` : `${colores.card} ${colores.texto}`}`}
+                onClick={() => setVistaActual('mes')}
+              >
+                Mes
+              </button>
+              <button 
+                className={`px-3 py-2 text-xs font-semibold transition-colors border-l ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-300'} ${vistaActual === 'semana' ? `${colores.header} text-white` : `${colores.card} ${colores.texto}`}`}
+                onClick={() => setVistaActual('semana')}
+              >
+                Semana
+              </button>
+            </div>
+            
+            <button className={`px-4 py-2 text-sm ${colores.boton} text-white rounded-lg font-semibold shadow-md transition-colors`}>
               Exportar PDF
             </button>
           </div>
         </div>
       </div>
 
-      {/* Título dinámico */}
-      <div className="bg-white rounded-lg border-2 border-blue-300 shadow-md p-4">
-        <h1 className="text-xl font-bold text-blue-900">
-          {mesExpandido === null ? 'Calendario Anual 2026' : `${MESES[mesExpandido]} 2026`}
-        </h1>
-        <p className="text-sm text-blue-600">
-          {mesExpandido === null 
-            ? 'Haz clic en un mes para expandirlo' 
-            : 'Haz clic en un día para editarlo'}
-        </p>
-      </div>
-
-      {/* Leyenda */}
-      <div className="bg-white rounded-lg border-2 border-blue-300 shadow-md p-4">
+      {/* LEYENDA */}
+      <div className={`${colores.card} rounded-xl shadow-md border p-4 mb-6`}>
         <div className="flex items-center gap-6 flex-wrap">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-white border-2 border-blue-400 rounded"></div>
-            <span className="text-xs font-medium text-blue-900">Día laboral</span>
+            <div className={`w-4 h-4 ${temaActivo === 'oscuro' ? 'bg-gray-600' : 'bg-white'} border ${temaActivo === 'oscuro' ? 'border-gray-500' : 'border-gray-300'} rounded`}></div>
+            <span className={`text-sm font-medium ${colores.texto}`}>Laboral</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-red-400 border-2 border-red-600 rounded shadow-sm"></div>
-            <span className="text-xs font-medium text-blue-900">Domingo (no laboral)</span>
+            <div className="w-4 h-4 bg-red-500 rounded shadow-sm"></div>
+            <span className={`text-sm font-medium ${colores.texto}`}>Domingo</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-purple-300 border-2 border-purple-500 rounded shadow-sm"></div>
-            <span className="text-xs font-medium text-blue-900">Festivo</span>
+            <div className="w-4 h-4 bg-purple-500 rounded shadow-sm"></div>
+            <span className={`text-sm font-medium ${colores.texto}`}>Festivo</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-green-300 border-2 border-green-500 rounded shadow-sm"></div>
-            <span className="text-xs font-medium text-blue-900">Vacaciones</span>
+            <div className="w-4 h-4 bg-green-500 rounded shadow-sm"></div>
+            <span className={`text-sm font-medium ${colores.texto}`}>Vacaciones</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-orange-300 border-2 border-orange-500 rounded shadow-sm"></div>
-            <span className="text-xs font-medium text-blue-900">Baja médica</span>
+            <div className="w-4 h-4 bg-orange-500 rounded shadow-sm"></div>
+            <span className={`text-sm font-medium ${colores.texto}`}>Baja médica</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-red-100 border-2 border-red-400 rounded shadow-sm"></div>
-            <span className="text-xs font-medium text-blue-900">Domingo laboral (Diciembre)</span>
+            <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
+            <span className={`text-sm font-medium ${colores.texto}`}>Dom laboral (Dic)</span>
           </div>
         </div>
       </div>
 
       {/* Vista Anual o Expandida */}
       {mesExpandido === null ? (
-        <div className="grid grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           {MESES.map((_, index) => renderMiniMes(index))}
         </div>
       ) : (
         renderMesExpandido(mesExpandido)
       )}
 
-      {/* Panel lateral de edición */}
+      {/* Panel lateral */}
       {showPanel && diaSeleccionado && (
-        <div className="fixed right-0 top-0 h-full w-80 bg-blue-600 shadow-2xl border-l-4 border-blue-800 p-6 overflow-y-auto z-50">
+        <div className={`fixed right-0 top-0 h-full w-96 ${colores.card} shadow-2xl border-l p-6 overflow-y-auto z-50`}>
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Editar Día</h3>
+            <div className={`flex items-center justify-between pb-4 border-b ${temaActivo === 'oscuro' ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-bold ${colores.texto}`}>Editar Día</h3>
               <button
                 onClick={() => {
                   setShowPanel(false)
                   setDiaSeleccionado(null)
                 }}
-                className="text-white hover:text-blue-200 text-2xl font-bold"
+                className={`${colores.textoSecundario} hover:${colores.texto} transition-colors`}
               >
-                ✕
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
               </button>
             </div>
 
-            <div className="space-y-2 bg-blue-700 p-3 rounded-lg">
-              <p className="text-sm text-white">
-                <strong>Fecha:</strong> {diaSeleccionado.dia} de {MESES[diaSeleccionado.mes]} 2026
+            <div className={`${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-gray-50'} p-4 rounded-lg border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'}`}>
+              <p className={`text-sm font-semibold ${colores.texto} mb-1`}>
+                {diaSeleccionado.dia} de {MESES[diaSeleccionado.mes]} 2026
               </p>
-              <p className="text-xs text-blue-200">{diaSeleccionado.fecha}</p>
+              <p className={`text-xs ${colores.textoSecundario}`}>{diaSeleccionado.fecha}</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">
+                <label className={`block text-sm font-semibold ${colores.texto} mb-2`}>
                   Tipo de día
                 </label>
-                <select className="w-full px-3 py-2 border-2 border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300">
+                <select className={`w-full px-3 py-2 border ${colores.input} rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500`}>
                   <option value="trabajo">Trabajo</option>
                   <option value="libre">Libre</option>
                   <option value="domingo">Domingo</option>
@@ -327,36 +437,39 @@ export default function CalendarioPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">
-                  Acción especial
+                <label className={`block text-sm font-semibold ${colores.texto} mb-3`}>
+                  Acciones rápidas
                 </label>
                 <div className="space-y-2">
-                  <button className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium border-2 border-green-600">
-                    🌴 Crear Libranza
+                  <button className="w-full px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    <span>🌴</span>
+                    Crear Libranza
                   </button>
-                  <button className="w-full px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium border-2 border-blue-700">
-                    📅 Agregar Evento
+                  <button className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    <span>📅</span>
+                    Agregar Evento
                   </button>
-                  <button className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium border-2 border-purple-600">
-                    🎉 Marcar Festivo
+                  <button className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    <span>🎉</span>
+                    Marcar Festivo
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">
+                <label className={`block text-sm font-semibold ${colores.texto} mb-2`}>
                   Notas
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border-2 border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  className={`w-full px-3 py-2 border ${colores.input} rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 resize-none`}
                   rows={4}
                   placeholder="Agregar notas para este día..."
                 ></textarea>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button className="flex-1 px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors font-bold border-2 border-white">
+            <div className={`flex gap-3 pt-4 border-t ${temaActivo === 'oscuro' ? 'border-gray-700' : 'border-gray-200'}`}>
+              <button className={`flex-1 px-4 py-2.5 ${colores.boton} text-white rounded-lg transition-colors font-semibold`}>
                 Guardar
               </button>
               <button
@@ -364,7 +477,7 @@ export default function CalendarioPage() {
                   setShowPanel(false)
                   setDiaSeleccionado(null)
                 }}
-                className="flex-1 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium border-2 border-blue-800"
+                className={`flex-1 px-4 py-2.5 ${colores.botonSecundario} ${colores.texto} rounded-lg transition-colors font-medium`}
               >
                 Cancelar
               </button>
