@@ -193,10 +193,9 @@ export default function CalendarioPage() {
           </div>
 
           <div className={`p-6 ${temaActivo === 'oscuro' ? 'bg-gray-800' : 'bg-gray-50'}`}>
-            {/* Headers de días */}
-            <div className={`grid grid-cols-7 gap-2 mb-3 ${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-white'} rounded-lg p-3 border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'} shadow-sm`}>
+            <div className="grid grid-cols-7 gap-2 mb-3">
               {DIAS_SEMANA.map((dia, idx) => (
-                <div key={idx} className={`text-center text-sm font-semibold ${colores.texto} uppercase`}>
+                <div key={idx} className={`flex items-center justify-center text-center text-sm font-bold ${temaActivo === 'oscuro' ? 'text-gray-300' : 'text-gray-700'} uppercase h-8`}>
                   {dia}
                 </div>
               ))}
@@ -205,7 +204,7 @@ export default function CalendarioPage() {
             {/* Grid de días - 50% más pequeños */}
             <div className="grid grid-cols-7 gap-2">
               {Array.from({ length: primerDiaSemana }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-16"></div>
+                <div key={`empty-${i}`} className="h-12"></div>
               ))}
 
               {Array.from({ length: diasEnMes }).map((_, i) => {
@@ -217,12 +216,12 @@ export default function CalendarioPage() {
                 let bgColor = temaActivo === 'oscuro'
                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-100'
                   : 'bg-white hover:bg-blue-50 text-slate-700'
-                let borderColor = temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'
+                let borderColor = temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-400'
                 let tooltip = ''
 
                 if (esDomingo && !esDiciembre) {
-                  bgColor = 'bg-red-500 hover:bg-red-600 text-white'
-                  borderColor = 'border-red-600'
+                  bgColor = 'bg-red-400 hover:bg-red-500 text-white'
+                  borderColor = 'border-red-500'
                 } else if (esDomingo && esDiciembre) {
                   bgColor = 'bg-red-100 hover:bg-red-200 text-red-800'
                   borderColor = 'border-red-300'
