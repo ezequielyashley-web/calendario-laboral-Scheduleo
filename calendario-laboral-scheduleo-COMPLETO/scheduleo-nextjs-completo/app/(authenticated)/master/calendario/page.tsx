@@ -111,7 +111,7 @@ export default function CalendarioPage() {
           <p className="text-[10px] text-cyan-100 text-center font-medium">2026</p>
         </div>
 
-        <div className={`p-2.5 ${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+        <div className="p-2.5">
           <div className="grid grid-cols-7 gap-0.5 mb-1.5">
             {DIAS_SEMANA_MINI.map((dia, idx) => (
               <div key={idx} className={`text-center text-[8px] font-semibold ${colores.textoSecundario} uppercase`}>
@@ -162,7 +162,7 @@ export default function CalendarioPage() {
     )
   }
 
-  // Calendario expandido - Días 50% más pequeños
+  // Calendario expandido - Días 50% más pequeños y fondo gris plata flotante
   const renderMesExpandido = (mesIndex: number) => {
     const { diasEnMes, primerDiaSemana } = getDaysInMonth(mesIndex)
     const esDiciembre = mesIndex === 11
@@ -186,13 +186,15 @@ export default function CalendarioPage() {
           <div className="w-24"></div>
         </div>
 
-        <div className={`${colores.card} rounded-xl shadow-lg border overflow-hidden`}>
+        {/* Calendario flotante con fondo gris plata */}
+        <div className={`${colores.card} rounded-2xl shadow-2xl border overflow-hidden max-w-5xl mx-auto ${temaActivo === 'oscuro' ? 'bg-gray-800' : 'bg-gradient-to-br from-gray-50 to-gray-100'}`}>
           <div className={`${colores.header} p-4`}>
             <h3 className="text-lg font-bold text-white uppercase tracking-wide">{MESES[mesIndex]} 2026</h3>
           </div>
 
-          <div className="p-6">
-            <div className={`grid grid-cols-7 gap-2 mb-3 ${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg p-3 border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'}`}>
+          <div className={`p-6 ${temaActivo === 'oscuro' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+            {/* Headers de días */}
+            <div className={`grid grid-cols-7 gap-2 mb-3 ${temaActivo === 'oscuro' ? 'bg-gray-700' : 'bg-white'} rounded-lg p-3 border ${temaActivo === 'oscuro' ? 'border-gray-600' : 'border-gray-200'} shadow-sm`}>
               {DIAS_SEMANA.map((dia, idx) => (
                 <div key={idx} className={`text-center text-sm font-semibold ${colores.texto} uppercase`}>
                   {dia}
@@ -200,9 +202,10 @@ export default function CalendarioPage() {
               ))}
             </div>
 
+            {/* Grid de días - 50% más pequeños */}
             <div className="grid grid-cols-7 gap-2">
               {Array.from({ length: primerDiaSemana }).map((_, i) => (
-                <div key={`empty-${i}`} className="aspect-square"></div>
+                <div key={`empty-${i}`} className="h-16"></div>
               ))}
 
               {Array.from({ length: diasEnMes }).map((_, i) => {
@@ -234,7 +237,7 @@ export default function CalendarioPage() {
                   <button
                     key={dia}
                     onClick={(e) => handleDiaClick(mesIndex, dia, fecha, e)}
-                    className={`group relative aspect-square rounded-lg ${bgColor} border ${borderColor} flex items-center justify-center text-sm font-semibold transition-all shadow-sm hover:shadow-md`}
+                    className={`group relative h-12 rounded-lg ${bgColor} border ${borderColor} flex items-center justify-center text-sm font-semibold transition-all shadow-sm hover:shadow-md`}
                     title={tooltip}
                   >
                     {dia}
