@@ -89,8 +89,8 @@ model GrupoTrabajo {
   empresaId   String
   empresa     Empresa     @relation(fields: [empresaId], references: [id])
   nombre      String
-  descripcion String?
-  color       String?
+  tipo        String
+  color       String
   empleados   Empleado[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
