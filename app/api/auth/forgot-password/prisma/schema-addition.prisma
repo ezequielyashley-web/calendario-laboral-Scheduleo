@@ -1,0 +1,16 @@
+// Agregar este modelo al schema.prisma existente
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+
+  @@index([userId])
+}
+
+// También agregar esta relación al modelo User existente:
+// passwordResetTokens PasswordResetToken[]

@@ -1,0 +1,491 @@
+{
+  "proyecto": "Scheduleo",
+  "descripcion": "Sistema de Gestión Laboral SaaS para empresas españolas",
+  "version": "1.0.0-beta",
+  "ubicacion": "D:\\PROYECTOS\\Calendario laboral scheduleo completo\\proyecto calendario",
+  
+  "stack_tecnologico": {
+    "framework": "Next.js 15",
+    "lenguaje": "TypeScript",
+    "estilos": "Tailwind CSS",
+    "base_datos": {
+      "tipo": "PostgreSQL",
+      "proveedor": "Supabase",
+      "orm": "Prisma",
+      "proyecto_id": "ndqgmiutwzchanmclqxs",
+      "conexion_pooler": "aws-0-eu-central-1.pooler.supabase.com:6543",
+      "conexion_directa": "aws-0-eu-central-1.pooler.supabase.com:5432"
+    },
+    "autenticacion": "NextAuth v5",
+    "email": "Resend",
+    "notificaciones": "web-push",
+    "deploy": {
+      "frontend": "Vercel Free",
+      "backend": "Vercel Free",
+      "database": "Supabase Free",
+      "costo_mensual": "€0"
+    }
+  },
+  
+  "repositorio": {
+    "url": "github.com/Ezequiel-Arturo/scheduleo",
+    "rama_principal": "master",
+    "visibilidad": "privado",
+    "ultimo_commit": "3899e87 (eliminado node_modules)"
+  },
+  
+  "estado_actual": {
+    "problema_critico": {
+      "descripcion": "Error de autenticación Prisma - Tenant or user not found",
+      "causa": "DATABASE_URL incorrecta en .env.local",
+      "solucion_pendiente": "Obtener URL correcta de Supabase dashboard",
+      "bloqueante": true
+    },
+    
+    "funcionalidades_completadas": [
+      {
+        "nombre": "Sistema de Reset de Contraseña",
+        "estado": "COMPLETADO",
+        "archivos": [
+          "prisma/schema.prisma (modelo PasswordResetToken)",
+          "lib/prisma.ts",
+          "lib/email-templates.ts",
+          "app/api/auth/forgot-password/route.ts",
+          "app/api/auth/reset-password/route.ts",
+          "app/forgot-password/page.tsx",
+          "app/reset-password/page.tsx"
+        ],
+        "caracteristicas": [
+          "Tokens crypto seguros (32 bytes hex)",
+          "Expiración 1 hora",
+          "Un solo uso por token",
+          "Bcrypt rounds=10",
+          "Email HTML responsive con Resend",
+          "Modo desarrollo con URL visible",
+          "Validaciones frontend/backend"
+        ],
+        "sql_ejecutado": [
+          "ALTER TABLE User ADD COLUMN empresaId TEXT",
+          "CREATE INDEX User_empresaId_idx",
+          "CREATE TABLE PasswordResetToken",
+          "CREATE UNIQUE INDEX PasswordResetToken_token_key"
+        ]
+      },
+      
+      {
+        "nombre": "Diseño y Estilos Base",
+        "estado": "COMPLETADO",
+        "archivos": [
+          "app/globals.css (clase .input-base con soporte dark mode)"
+        ],
+        "caracteristicas": [
+          "Clase reutilizable .input-base",
+          "Soporte dark mode automático",
+          "Colores cyan (#0891b2) como primarios",
+          "Inputs con texto visible (fix problema círculos)"
+        ]
+      }
+    ]
+  },
+  
+  "schema_prisma": {
+    "modelos_totales": 25,
+    "modelos_principales": [
+      {
+        "nombre": "User",
+        "campos_clave": ["id", "email", "password", "name", "role", "empresaId"],
+        "relaciones": ["Empresa", "Empleado", "PasswordResetToken"],
+        "enums": ["TipoClave (PIN_4, PASS_10)", "Rol (SUPER_ADMIN, ADMIN_SEDE, EMPLEADO)"]
+      },
+      {
+        "nombre": "Empresa",
+        "campos_clave": ["id", "nombre", "cif"],
+        "relaciones": ["Users", "Sedes", "Empleados"]
+      },
+      {
+        "nombre": "Empleado",
+        "campos_clave": ["id", "userId", "sedeId", "grupoSemanal", "grupoLunes"],
+        "grupos_semanales": ["G1A", "G1B", "G2A", "G2B", "G3A", "G3B"],
+        "grupos_lunes": ["L1", "L2", "L3"]
+      },
+      {
+        "nombre": "PasswordResetToken",
+        "campos_clave": ["id", "token", "userId", "expires", "used"],
+        "estado": "IMPLEMENTADO"
+      },
+      {
+        "nombre": "BajaMedica",
+        "campos_clave": ["id", "empleadoId", "tipo", "fechaInicio", "fechaFin"],
+        "caracteristicas": ["OCR automático desde bajas@empresa.com", "Confirmación PIN Máster"]
+      },
+      {
+        "nombre": "PuestoDeTrabajo",
+        "descripcion": "Define roles laborales con cobertura mínima requerida",
+        "estado": "IMPLEMENTADO (Fase 5)"
+      }
+    ]
+  },
+  
+  "fases_proyecto": {
+    "fase_1": {
+      "nombre": "Auth + Calendar + Time-tracking",
+      "estado": "COMPLETADO",
+      "commits": ["Commit b2f9a25"],
+      "funcionalidades": [
+        "Login con email/password y PIN 4 dígitos",
+        "Calendario anual y mensual",
+        "Fichaje digital (RDL 8/2019)",
+        "Panel empleado móvil (P1-P10)",
+        "Onboarding y selección PIN"
+      ]
+    },
+    
+    "fase_2": {
+      "nombre": "Vacaciones + Chat + Shift-swaps + iCal",
+      "estado": "COMPLETADO",
+      "funcionalidades": [
+        "Solicitud de vacaciones con aprobación",
+        "Chat interno empresa",
+        "Intercambio de turnos (aprobación dual)",
+        "Exportación iCal calendarios"
+      ]
+    },
+    
+    "fase_3": {
+      "nombre": "Reports + Inspection + PWA + Push",
+      "estado": "COMPLETADO",
+      "funcionalidades": [
+        "Informes PDF exportables",
+        "Modo inspección laboral",
+        "PWA instalable (móvil/desktop)",
+        "Push notifications (VAPID)"
+      ]
+    },
+    
+    "fase_4": {
+      "nombre": "Help + Debts + Advances",
+      "estado": "COMPLETADO",
+      "funcionalidades": [
+        "Sistema de ayuda contextual",
+        "Gestión de deudas empleados",
+        "Anticipos salariales con código confirmación",
+        "Registro completo auditoría (timestamp, IP, aprobador)"
+      ]
+    },
+    
+    "fase_5": {
+      "nombre": "Minimum Coverage per Role",
+      "estado": "COMPLETADO",
+      "funcionalidades": [
+        "Modelo PuestoDeTrabajo",
+        "API /api/puestos y /api/cobertura",
+        "Validación HTTP 409 en solicitud vacaciones",
+        "Override admin para emergencias"
+      ]
+    },
+    
+    "fase_6": {
+      "nombre": "Mobile Master Panel",
+      "estado": "COMPLETADO (Sesión 2)",
+      "componentes": [
+        "GestionGrupos.tsx",
+        "NuevoEmpleado.tsx",
+        "EditarGruposAvanzado.tsx (drag-and-drop)",
+        "Aprobaciones.tsx",
+        "Ajustes.tsx"
+      ],
+      "caracteristicas_especiales": [
+        "Bajas médicas automáticas (OCR email bajas@empresa.com cada 5min)",
+        "Confirmación PIN Máster",
+        "Integración telemática Seguridad Social"
+      ]
+    },
+    
+    "fase_7_pendiente": {
+      "nombre": "Desktop PC/Mac Version",
+      "estado": "PENDIENTE",
+      "prioridad": "ALTA",
+      "descripcion": "Versión optimizada para pantallas grandes (>1024px)",
+      "componentes_estimados": [
+        "Dashboard administrativo completo",
+        "Gestión masiva empleados (tablas, filtros)",
+        "Calendario global multi-empleado",
+        "Reportes avanzados con gráficos",
+        "Configuración empresarial detallada"
+      ]
+    }
+  },
+  
+  "funcionalidades_pendientes": [
+    {
+      "nombre": "Integración Email Producción",
+      "descripcion": "Configurar Resend con dominio propio verificado",
+      "archivos_afectados": ["app/api/auth/forgot-password/route.ts"],
+      "pasos": [
+        "Verificar dominio en Resend",
+        "Actualizar EMAIL_FROM a noreply@tudominio.com",
+        "Remover resetUrl del response en producción"
+      ]
+    },
+    
+    {
+      "nombre": "Rate Limiting - Forgot Password",
+      "prioridad": "MEDIA",
+      "descripcion": "Limitar intentos de reset (ej: 5 por hora por IP)",
+      "tecnologia_sugerida": "Upstash Redis + @upstash/ratelimit"
+    },
+    
+    {
+      "nombre": "Prueba E2E Reset Password",
+      "descripcion": "Flujo completo con token real generado",
+      "pasos": [
+        "Generar token desde forgot-password",
+        "Copiar URL completa",
+        "Resetear contraseña",
+        "Login con nueva contraseña"
+      ]
+    },
+    
+    {
+      "nombre": "Desktop Version (Fase 7)",
+      "prioridad": "ALTA",
+      "componentes": [
+        "Layout responsive >1024px",
+        "Sidebar de navegación permanente",
+        "Tablas con paginación y filtros",
+        "Gráficos dashboard (Chart.js / Recharts)",
+        "Multi-panel views"
+      ]
+    },
+    
+    {
+      "nombre": "Migración HTML → Next.js",
+      "descripcion": "Archivo calendario-laboral_33.html pendiente de migrar",
+      "contenido": [
+        "Flujos empleado/master completos",
+        "Selector PIN",
+        "Estructura de grupos",
+        "~80 empleados ficticios"
+      ],
+      "ubicacion": "Archivo fuente HTML disponible"
+    },
+    
+    {
+      "nombre": "Seed Database",
+      "estado": "PENDIENTE",
+      "descripcion": "npx prisma db seed con datos demo",
+      "datos_necesarios": [
+        "68 empleados (2 sedes: Madrid Centro 45, Vallecas 23)",
+        "6 grupos semanales (G1A/B, G2A/B, G3A/B)",
+        "3 grupos lunes (L1, L2, L3)",
+        "1 empresa: Mi Empresa S.L.",
+        "Usuarios demo: admin@empresa.com, empleado1@empresa.com"
+      ]
+    }
+  ],
+  
+  "variables_entorno_requeridas": {
+    "DATABASE_URL": "postgresql://postgres.XXX:PASSWORD@HOST:PORT/postgres",
+    "NEXTAUTH_SECRET": "Generado con: openssl rand -base64 32",
+    "NEXTAUTH_URL": "http://localhost:3000 (dev) / https://tudominio.com (prod)",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://PROJECT_ID.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJ... (desde Supabase dashboard)",
+    "RESEND_API_KEY": "re_... (desde resend.com/api-keys)",
+    "EMAIL_FROM": "onboarding@resend.dev (dev) / noreply@tudominio.com (prod)",
+    "NEXT_PUBLIC_VAPID_PUBLIC_KEY": "Para push notifications",
+    "VAPID_PRIVATE_KEY": "Para push notifications",
+    "VAPID_SUBJECT": "mailto:contacto@tudominio.com"
+  },
+  
+  "credenciales_demo": {
+    "super_admin": {
+      "email": "admin@empresa.com",
+      "password": "1234",
+      "pin": "1234",
+      "role": "SUPER_ADMIN"
+    },
+    "empleado": {
+      "email": "empleado1@empresa.com",
+      "password": "1234",
+      "pin": "1234",
+      "role": "EMPLEADO"
+    }
+  },
+  
+  "reglas_negocio": {
+    "horarios": {
+      "grupos_semanales": 6,
+      "grupos_lunes": 3,
+      "descripcion": "Rotación semanal + grupos especiales para lunes"
+    },
+    
+    "vacaciones": {
+      "requiere_aprobacion_manager": true,
+      "validacion_cobertura_minima": true,
+      "override_admin": true
+    },
+    
+    "cambios_turno": {
+      "aprobacion_dual": "Compañero receptor + Manager",
+      "restriccion": "Solo dentro del mismo grupo semanal"
+    },
+    
+    "fichajes": {
+      "normativa": "RDL 8/2019",
+      "registro_completo": "Timestamp + IP + acción + usuario",
+      "almacenamiento": "Mínimo 4 años"
+    },
+    
+    "bajas_medicas": {
+      "automatizacion": "Email bajas@empresa.com monitoreado cada 5min",
+      "ocr": "Extracción automática datos de PDF",
+      "confirmacion_final": "PIN Máster requerido"
+    }
+  },
+  
+  "comandos_utiles": {
+    "desarrollo": {
+      "iniciar_servidor": "npm run dev",
+      "build_produccion": "npm run build",
+      "iniciar_produccion": "npm start"
+    },
+    
+    "prisma": {
+      "generar_client": "npx prisma generate",
+      "ver_schema": "npx prisma format",
+      "validar_schema": "npx prisma validate",
+      "abrir_studio": "npx prisma studio",
+      "seed_db": "npx prisma db seed (PENDIENTE configurar)"
+    },
+    
+    "supabase": {
+      "sql_editor": "https://supabase.com/dashboard/project/ndqgmiutwzchanmclqxs/sql",
+      "database_settings": "https://supabase.com/dashboard/project/ndqgmiutwzchanmclqxs/settings/database"
+    }
+  },
+  
+  "problemas_conocidos": {
+    "prisma_db_push_supabase": {
+      "sintoma": "npx prisma db push se cuelga con pooler puerto 6543",
+      "solucion": "Usar migración SQL directa en Supabase SQL Editor",
+      "workaround": "Cambiar a puerto 5432 (conexión directa sin pgbouncer)"
+    },
+    
+    "input_texto_invisible": {
+      "sintoma": "Caracteres circulares (◌◌◌) al escribir en inputs",
+      "solucion": "Clase .input-base en globals.css con text-gray-900 bg-white",
+      "estado": "RESUELTO"
+    },
+    
+    "error_p2022_empresaId": {
+      "sintoma": "The column User.empresaId does not exist",
+      "solucion": "ALTER TABLE User ADD COLUMN empresaId + INDEX + FOREIGN KEY",
+      "estado": "RESUELTO"
+    },
+    
+    "tenant_not_found_actual": {
+      "sintoma": "FATAL: Tenant or user not found",
+      "causa": "DATABASE_URL incorrecta (password placeholder de Supabase)",
+      "solucion_pendiente": "Obtener URL correcta con password real desde dashboard",
+      "estado": "EN_PROCESO"
+    }
+  },
+  
+  "proximos_pasos": [
+    {
+      "orden": 1,
+      "tarea": "CRÍTICO - Arreglar DATABASE_URL",
+      "accion": "Ir a Supabase → Settings → Database → Connection string → Copiar URI completa",
+      "bloqueante": true
+    },
+    
+    {
+      "orden": 2,
+      "tarea": "Verificar login funcional",
+      "accion": "Probar admin@empresa.com / 1234 en http://localhost:3000/login"
+    },
+    
+    {
+      "orden": 3,
+      "tarea": "Probar reset password E2E",
+      "accion": "Flujo completo forgot → email → reset → login"
+    },
+    
+    {
+      "orden": 4,
+      "tarea": "Implementar Rate Limiting",
+      "estimacion": "1-2 horas",
+      "archivos": ["app/api/auth/forgot-password/route.ts"]
+    },
+    
+    {
+      "orden": 5,
+      "tarea": "Configurar Resend producción",
+      "pasos": [
+        "Verificar dominio propio",
+        "Actualizar EMAIL_FROM",
+        "Remover resetUrl en producción"
+      ]
+    },
+    
+    {
+      "orden": 6,
+      "tarea": "Crear Fase 7 - Desktop Version",
+      "prioridad": "ALTA",
+      "estimacion": "1 semana",
+      "componentes": ["Layout desktop", "Dashboard", "Tablas", "Gráficos"]
+    },
+    
+    {
+      "orden": 7,
+      "tarea": "Seed database con datos demo",
+      "estimacion": "2-3 horas"
+    },
+    
+    {
+      "orden": 8,
+      "tarea": "Deploy a producción",
+      "plataforma": "Vercel",
+      "prerequisitos": ["DATABASE_URL correcta", "Variables entorno configuradas", "Build exitoso"]
+    }
+  ],
+  
+  "documentacion_generada": [
+    {
+      "nombre": "CalendarioApp_Manual_Completo.pdf",
+      "paginas": 20,
+      "contenido": "Manual completo de uso"
+    },
+    {
+      "nombre": "Tutorial_Git_GitHub_v3.pdf",
+      "paginas": 11,
+      "contenido": "Tutorial Git/GitHub para el proyecto"
+    },
+    {
+      "nombre": "PROMPT_MAESTRO_CalendarioApp_NextJS.pdf",
+      "paginas": 15,
+      "contenido": "Prompt maestro desarrollo"
+    },
+    {
+      "nombre": "SCHEDULEO_RESET_PASSWORD_CODIGO.md",
+      "ubicacion": "~/SCHEDULEO_RESET_PASSWORD_CODIGO.md",
+      "contenido": "Código fuente completo sistema reset contraseña"
+    }
+  ],
+  
+  "notas_importantes": [
+    "El proyecto usa Next.js 15 App Router (NO Pages Router)",
+    "Todas las rutas API están en app/api/",
+    "Los componentes de página están en app/[ruta]/page.tsx",
+    "Prisma Client se regenera con: npx prisma generate",
+    "El servidor hot-reload puede tener retardos - esperar antes de concluir error",
+    "node_modules fue removido del repo (commit 3899e87)",
+    "La memoria de usuario en Claude Desktop menciona preferencia por flujos confirmation-based"
+  ],
+  
+  "contacto_desarrollo": {
+    "desarrollador": "Ezequiel",
+    "ubicacion": "España",
+    "contexto": "Desarrollador full-stack, self-managed, construyendo Scheduleo como SaaS propio"
+  }
+}
