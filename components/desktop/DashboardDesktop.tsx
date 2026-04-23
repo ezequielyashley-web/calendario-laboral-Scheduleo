@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useNotifications } from "@/components/providers/NotificationProvider"
+import { useState } from "react"
 
 export default function DashboardDesktop() {
   const [stats, setStats] = useState({
@@ -11,64 +10,8 @@ export default function DashboardDesktop() {
     horasTrabajadas: 5440,
   })
 
-  const { agregarNotificacion } = useNotifications()
-
-  const generarNotificacion = () => {
-    const notificaciones = [
-      {
-        titulo: "Solicitud de vacaciones",
-        mensaje: "Juan Pérez ha solicitado vacaciones del 15 al 25 de Mayo",
-        remitente: "Juan Pérez",
-        tipo: "info" as const,
-      },
-      {
-        titulo: "Cambio de turno aprobado",
-        mensaje: "Se aprobó el cambio de turno para María García",
-        remitente: "Sistema",
-        tipo: "success" as const,
-      },
-      {
-        titulo: "Fichaje pendiente",
-        mensaje: "Carlos López no ha registrado su fichaje de salida",
-        remitente: "Sistema",
-        tipo: "warning" as const,
-      },
-      {
-        titulo: "Baja médica registrada",
-        mensaje: "Ana Martínez ha sido registrada en baja médica por 7 días",
-        remitente: "RRHH",
-        tipo: "info" as const,
-      },
-    ]
-    
-    const random = notificaciones[Math.floor(Math.random() * notificaciones.length)]
-    agregarNotificacion(random)
-  }
-
-  const generarMultiples = () => {
-    generarNotificacion()
-    setTimeout(() => generarNotificacion(), 500)
-    setTimeout(() => generarNotificacion(), 1000)
-  }
-
   return (
     <div className="min-h-screen">
-      {/* Botones de prueba */}
-      <div className="mb-6 flex gap-3">
-        <button
-          onClick={generarNotificacion}
-          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
-        >
-          🧪 Probar Notificación (1)
-        </button>
-        <button
-          onClick={generarMultiples}
-          className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
-        >
-          🧪 Probar Múltiples (3)
-        </button>
-      </div>
-
       {/* Métricas principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <MetricCard
@@ -103,6 +46,7 @@ export default function DashboardDesktop() {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Asistencia Semanal - GRÁFICO CORREGIDO */}
         <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300">
           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
             <span className="text-3xl">📊</span>
@@ -110,35 +54,44 @@ export default function DashboardDesktop() {
               Asistencia Semanal
             </span>
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2">
+          <div className="h-72 flex items-end justify-around gap-3 bg-gradient-to-br from-gray-50/50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-800/30 rounded-xl p-4 border border-gray-200/30 dark:border-gray-700/30">
             {[
-              { dia: 'L', valor: 85, color: '#7BA8A8' },
-              { dia: 'M', valor: 92, color: '#00A896' },
-              { dia: 'X', valor: 88, color: '#7BA8A8' },
-              { dia: 'J', valor: 95, color: '#00A896' },
-              { dia: 'V', valor: 90, color: '#7BA8A8' },
-              { dia: 'S', valor: 87, color: '#6B9999' },
-              { dia: 'D', valor: 0, color: '#D1D5DB' },
+              { dia: 'L', valor: 85, empleados: 58, color: '#7BA8A8' },
+              { dia: 'M', valor: 92, empleados: 63, color: '#00A896' },
+              { dia: 'X', valor: 88, empleados: 60, color: '#7BA8A8' },
+              { dia: 'J', valor: 95, empleados: 65, color: '#00A896' },
+              { dia: 'V', valor: 90, empleados: 61, color: '#7BA8A8' },
+              { dia: 'S', valor: 87, empleados: 59, color: '#6B9999' },
+              { dia: 'D', valor: 20, empleados: 14, color: '#EF4444' },
             ].map((item, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center group">
-                <div className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800/80 dark:bg-gray-200/80 px-2 py-1 rounded text-white dark:text-gray-800">
-                  {item.valor}%
+              <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
+                <div className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800/90 dark:bg-gray-200/90 px-3 py-1.5 rounded-lg text-white dark:text-gray-800 shadow-lg">
+                  {item.valor}% • {item.empleados} emp
                 </div>
                 <div
-                  className="w-full rounded-t-xl transition-all duration-500 hover:scale-105 shadow-lg relative overflow-hidden"
+                  className="w-full rounded-t-xl transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden"
                   style={{
                     height: `${item.valor}%`,
+                    maxHeight: '100%',
                     background: `linear-gradient(180deg, ${item.color}, ${item.color}dd)`,
                   }}
                 >
-                  <div className="absolute inset-0 bg-white/20 dark:bg-white/10" />
+                  <div className="absolute inset-0 bg-white/30 dark:bg-white/10" />
+                  <div className="absolute bottom-2 left-0 right-0 text-center">
+                    <span className="text-xs font-bold text-white drop-shadow-lg">
+                      {item.valor}%
+                    </span>
+                  </div>
                 </div>
-                <span className="text-sm font-bold mt-2 text-gray-700 dark:text-gray-300">{item.dia}</span>
+                <span className="text-sm font-bold mt-2 text-gray-800 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-lg shadow-md">
+                  {item.dia}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
+        {/* Distribución por Turno */}
         <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300">
           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
             <span className="text-3xl">🎯</span>
