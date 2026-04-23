@@ -1,5 +1,5 @@
-import DesktopLayout from "@/components/desktop/DesktopLayout"
 import CalendarioGlobalDesktop from "@/components/desktop/CalendarioGlobalDesktop"
+import DesktopLayout from "@/components/desktop/DesktopLayout"
 
 export default function CalendarioGlobalPage() {
   return (

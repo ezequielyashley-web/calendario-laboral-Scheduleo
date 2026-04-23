@@ -1,8 +1,9 @@
 // SCHEDULEO - LAYOUT PRINCIPAL
-
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { NotificationProvider } from '@/components/providers/NotificationProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,8 +18,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
-      <body className={inter.className}>{children}</body>
+    <html lang="es" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <NotificationProvider>
+            {children}
+          </NotificationProvider>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }
