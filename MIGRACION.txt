@@ -1,0 +1,23 @@
+# SCHEDULEO - GUÍA RÁPIDA MIGRACIÓN
+
+## PROBLEMA
+Supabase ndqgmiutwzchanmclqxs = CORRUPTO
+
+## SOLUCIÓN
+1. Crear Scheduleo 2.0 en Supabase
+2. Copiar 3 credenciales
+3. Actualizar .env.local
+4. npx prisma db push
+5. npx prisma db seed
+
+## CREDENCIALES NUEVAS (completar):
+DATABASE_URL=postgresql://postgres.NUEVO_REF_ID:NUEVA_PASSWORD@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+NEXT_PUBLIC_SUPABASE_URL=https://NUEVO_REF_ID.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=NUEVA_KEY
+NEXTAUTH_SECRET=abc123xyz789secretkey456def
+
+## SEED CORREGIDO
+- seed.ts usa prisma.user (no usuario) ✅
+
+## LOGIN FINAL
+admin@empresa.com / 1234

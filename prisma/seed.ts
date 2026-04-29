@@ -1,5 +1,6 @@
 require('dotenv').config({ path: '.env.local' })
 const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcryptjs')
 
 const prisma = new PrismaClient()
 
@@ -13,34 +14,36 @@ async function main() {
     create: {
       id: 'empresa-001',
       nombre: 'Mi Empresa S.L.',
-      nif: 'B12345678',
+      cif: 'B12345678',
     },
   })
   console.log('✅ Empresa:', empresa.nombre)
 
-  // 2. Usuario Admin
-  const admin = await prisma.usuario.upsert({
+  // 2. Usuario Admin (CORREGIDO: user no usuario)
+  const hashedPassword = await bcrypt.hash('1234', 10)
+  
+  const admin = await prisma.user.upsert({
     where: { email: 'admin@empresa.com' },
     update: {},
     create: {
       id: 'admin-001',
       email: 'admin@empresa.com',
-      credencial: '1234',
+      password: hashedPassword,
+      name: 'Administrador',
       empresaId: empresa.id,
-      rol: 'SUPER_ADMIN',
-      requiereCambioCredencial: false,
+      role: 'SUPER_ADMIN',
     },
   })
   console.log('✅ Usuario Admin:', admin.email)
 
   // 3. Grupos de Turno
   const gruposData = [
-    { id: 'g1a', nombre: 'G1A', tipo: 'ENTRE_SEMANA', diasTrabajo: 'MXJVS' },
-    { id: 'g1b', nombre: 'G1B', tipo: 'ENTRE_SEMANA', diasTrabajo: 'MXJVS' },
-    { id: 'g2a', nombre: 'G2A', tipo: 'ENTRE_SEMANA', diasTrabajo: 'MXJVS' },
-    { id: 'g2b', nombre: 'G2B', tipo: 'ENTRE_SEMANA', diasTrabajo: 'MXJVS' },
-    { id: 'g3a', nombre: 'G3A', tipo: 'ENTRE_SEMANA', diasTrabajo: 'MXJVS' },
-    { id: 'g3b', nombre: 'G3B', tipo: 'ENTRE_SEMANA', diasTrabajo: 'MXJVS' },
+    { id: 'g1a', nombre: 'G1A', tipo: 'ENTRE_SEMANA', color: '#7BA8A8' },
+    { id: 'g1b', nombre: 'G1B', tipo: 'ENTRE_SEMANA', color: '#6B9999' },
+    { id: 'g2a', nombre: 'G2A', tipo: 'ENTRE_SEMANA', color: '#00A896' },
+    { id: 'g2b', nombre: 'G2B', tipo: 'ENTRE_SEMANA', color: '#008B8B' },
+    { id: 'g3a', nombre: 'G3A', tipo: 'ENTRE_SEMANA', color: '#7BA8A8' },
+    { id: 'g3b', nombre: 'G3B', tipo: 'ENTRE_SEMANA', color: '#6B9999' },
   ]
 
   for (const g of gruposData) {
@@ -52,13 +55,13 @@ async function main() {
         nombre: g.nombre,
         empresaId: empresa.id,
         tipo: g.tipo,
-        diasTrabajo: g.diasTrabajo,
+        color: g.color,
       },
     })
   }
   console.log('✅ Grupos creados:', gruposData.length)
 
-  console.log('🎉 Seed completado - Admin creado: admin@empresa.com / 1234')
+  console.log('🎉 Seed completado - Login: admin@empresa.com / 1234')
 }
 
 main()
