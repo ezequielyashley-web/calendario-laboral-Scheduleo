@@ -2,201 +2,223 @@
 
 import { useState } from "react"
 
-export default function DashboardDesktop() {
-  const [stats, setStats] = useState({
-    empleadosActivos: 68,
-    enVacaciones: 12,
-    pendientesAprobacion: 5,
-    horasTrabajadas: 5440,
-  })
+const TrendUpIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+  </svg>
+)
+const TrendDownIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+  </svg>
+)
+const PeopleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+)
+const SunIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+  </svg>
+)
+const ClockIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+  </svg>
+)
+const AlertIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+)
 
+const asistencia = [
+  { dia:'L', pct:85, emp:58 }, { dia:'M', pct:92, emp:63 }, { dia:'X', pct:88, emp:60 },
+  { dia:'J', pct:95, emp:65 }, { dia:'V', pct:90, emp:61 }, { dia:'S', pct:87, emp:59 },
+  { dia:'D', pct:20, emp:14, danger:true },
+]
+
+const grupos = [
+  { nombre:'G1A', empleados:12, total:12, color:'#0284c7' },
+  { nombre:'G1B', empleados:11, total:12, color:'#0369a1' },
+  { nombre:'G2A', empleados:11, total:12, color:'#0891b2' },
+  { nombre:'G2B', empleados:12, total:12, color:'#0e7490' },
+  { nombre:'G3A', empleados:11, total:12, color:'#6366f1' },
+  { nombre:'G3B', empleados:11, total:12, color:'#4f46e5' },
+]
+
+const actividades = [
+  { accion:'Solicitud vacaciones enviada',  usuario:'Juan Pérez',   tiempo:'5 min',  tipo:'info'    },
+  { accion:'Cambio de turno aprobado',      usuario:'María García', tiempo:'15 min', tipo:'success' },
+  { accion:'Fichaje de entrada registrado', usuario:'Carlos López', tiempo:'30 min', tipo:'neutral' },
+  { accion:'Baja médica registrada',        usuario:'Ana Martínez', tiempo:'1 h',    tipo:'warning' },
+]
+
+const tipoColor: Record<string,string> = { info:'#0284c7', success:'#16a34a', neutral:'#64748b', warning:'#d97706' }
+
+// ── Hover card helper ─────────────────────────────────────────
+function HoverCard({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) {
+  const [hov, setHov] = useState(false)
   return (
-    <div className="min-h-screen">
-      {/* Métricas principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <MetricCard
-          title="Empleados Activos"
-          value={stats.empleadosActivos}
-          icon="👥"
-          gradient="from-[#7BA8A8] to-[#6B9999]"
-          trend="+3%"
-        />
-        <MetricCard
-          title="En Vacaciones"
-          value={stats.enVacaciones}
-          icon="🏖️"
-          gradient="from-[#00A896] to-[#008B8B]"
-          trend="-2%"
-        />
-        <MetricCard
-          title="Pendientes"
-          value={stats.pendientesAprobacion}
-          icon="⏳"
-          gradient="from-[#6B9999] to-[#7BA8A8]"
-          trend="+1"
-        />
-        <MetricCard
-          title="Horas Mes"
-          value={stats.horasTrabajadas.toLocaleString()}
-          icon="⏰"
-          gradient="from-[#7BA8A8] to-[#00A896]"
-          trend="+5%"
-        />
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        boxShadow: hov ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
+        transform: hov ? 'scale(1.02) translateY(-2px)' : 'scale(1) translateY(0)',
+        transition: 'transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+// ── MetricCard ────────────────────────────────────────────────
+function MetricCard({ title, value, trend, trendUp, icon, accent }:
+  { title:string, value:string|number, trend:string, trendUp:boolean, icon:React.ReactNode, accent:string }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 6,
+        padding: '20px', display: 'flex', flexDirection: 'column', gap: 16,
+        boxShadow: hov ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
+        transform: hov ? 'scale(1.04) translateY(-3px)' : 'scale(1) translateY(0)',
+        transition: 'transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease',
+        cursor: 'default',
+      }}
+    >
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', width:36, height:36, background:`${accent}18`, color:accent, borderRadius:4 }}>
+          {icon}
+        </div>
+        <span style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:3, background: trendUp?'#dcfce7':'#fee2e2', color: trendUp?'#15803d':'#b91c1c' }}>
+          {trendUp ? <TrendUpIcon/> : <TrendDownIcon/>} {trend}
+        </span>
       </div>
-
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Asistencia Semanal - GRÁFICO CORREGIDO */}
-        <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span className="text-3xl">📊</span>
-            <span className="bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-              Asistencia Semanal
-            </span>
-          </h3>
-          <div className="h-72 flex items-end justify-around gap-3 bg-gradient-to-br from-gray-50/50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-800/30 rounded-xl p-4 border border-gray-200/30 dark:border-gray-700/30">
-            {[
-              { dia: 'L', valor: 85, empleados: 58, color: '#7BA8A8' },
-              { dia: 'M', valor: 92, empleados: 63, color: '#00A896' },
-              { dia: 'X', valor: 88, empleados: 60, color: '#7BA8A8' },
-              { dia: 'J', valor: 95, empleados: 65, color: '#00A896' },
-              { dia: 'V', valor: 90, empleados: 61, color: '#7BA8A8' },
-              { dia: 'S', valor: 87, empleados: 59, color: '#6B9999' },
-              { dia: 'D', valor: 20, empleados: 14, color: '#EF4444' },
-            ].map((item, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
-                <div className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800/90 dark:bg-gray-200/90 px-3 py-1.5 rounded-lg text-white dark:text-gray-800 shadow-lg">
-                  {item.valor}% • {item.empleados} emp
-                </div>
-                <div
-                  className="w-full rounded-t-xl transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden"
-                  style={{
-                    height: `${item.valor}%`,
-                    maxHeight: '100%',
-                    background: `linear-gradient(180deg, ${item.color}, ${item.color}dd)`,
-                  }}
-                >
-                  <div className="absolute inset-0 bg-white/30 dark:bg-white/10" />
-                  <div className="absolute bottom-2 left-0 right-0 text-center">
-                    <span className="text-xs font-bold text-white drop-shadow-lg">
-                      {item.valor}%
-                    </span>
-                  </div>
-                </div>
-                <span className="text-sm font-bold mt-2 text-gray-800 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-lg shadow-md">
-                  {item.dia}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Distribución por Turno */}
-        <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span className="text-3xl">🎯</span>
-            <span className="bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-              Distribución por Turno
-            </span>
-          </h3>
-          <div className="space-y-4">
-            {[
-              { grupo: 'G1A (Azul)', empleados: 12, color: '#7BA8A8', total: 12, emoji: '🔵' },
-              { grupo: 'G1B (Azul)', empleados: 11, color: '#6B9999', total: 12, emoji: '🔵' },
-              { grupo: 'G2A (Teal)', empleados: 11, color: '#00A896', total: 12, emoji: '💠' },
-              { grupo: 'G2B (Teal)', empleados: 12, color: '#008B8B', total: 12, emoji: '💠' },
-              { grupo: 'G3A (Patina)', empleados: 11, color: '#7BA8A8', total: 12, emoji: '🟦' },
-              { grupo: 'G3B (Patina)', empleados: 11, color: '#6B9999', total: 12, emoji: '🟦' },
-            ].map((g, i) => (
-              <div key={i} className="group">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                    <span className="text-lg">{g.emoji}</span>
-                    {g.grupo}
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300 font-semibold">{g.empleados} empleados</span>
-                </div>
-                <div className="relative w-full bg-gray-300/50 dark:bg-gray-600/50 rounded-full h-4 overflow-hidden backdrop-blur-sm">
-                  <div
-                    className="h-4 rounded-full transition-all duration-700 shadow-md group-hover:shadow-lg relative overflow-hidden"
-                    style={{
-                      width: `${(g.empleados / g.total) * 100}%`,
-                      background: `linear-gradient(90deg, ${g.color}, ${g.color}dd)`,
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-white/20 dark:bg-white/10" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div>
+        <p style={{ fontSize:26, fontWeight:700, color:'var(--text-primary)', lineHeight:1 }}>{value}</p>
+        <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>{title}</p>
       </div>
-
-      {/* Actividad Reciente */}
-      <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <span className="text-3xl">📋</span>
-          <span className="bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-            Actividad Reciente
-          </span>
-        </h3>
-        <div className="space-y-3">
-          {[
-            { accion: 'Solicitud vacaciones', usuario: 'Juan Pérez', tiempo: 'Hace 5 min', emoji: '🏖️' },
-            { accion: 'Cambio turno aprobado', usuario: 'María García', tiempo: 'Hace 15 min', emoji: '✅' },
-            { accion: 'Fichaje entrada', usuario: 'Carlos López', tiempo: 'Hace 30 min', emoji: '⏰' },
-            { accion: 'Baja médica registrada', usuario: 'Ana Martínez', tiempo: 'Hace 1 hora', emoji: '🏥' },
-          ].map((act, i) => (
-            <div
-              key={i}
-              className="flex justify-between items-center py-3 px-4 rounded-xl bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border border-gray-200/30 dark:border-gray-600/30 hover:bg-white/80 dark:hover:bg-gray-600/80 transition-all duration-300 hover:shadow-lg group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="text-2xl group-hover:scale-125 transition-transform duration-300">
-                  {act.emoji}
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900 dark:text-gray-100">{act.accion}</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{act.usuario}</p>
-                </div>
-              </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400 font-semibold">{act.tiempo}</span>
-            </div>
-          ))}
-        </div>
+      <div style={{ height:2, background:'var(--border)', borderRadius:2, overflow:'hidden' }}>
+        <div style={{ height:'100%', width:'65%', background:accent, borderRadius:2 }} />
       </div>
     </div>
   )
 }
 
-function MetricCard({ title, value, icon, gradient, trend }: any) {
+export default function DashboardDesktop() {
+  const [hovered, setHovered] = useState<number|null>(null)
+
   return (
-    <div className="group relative overflow-hidden rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-15 dark:opacity-25 group-hover:opacity-25 dark:group-hover:opacity-35 transition-opacity duration-300`} />
-      
-      <div className="relative p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">{title}</p>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-          </div>
-          <div className="text-5xl drop-shadow-2xl group-hover:scale-125 transition-transform duration-300">
-            {icon}
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-1">
-          <span className={`text-sm font-bold ${
-            trend.startsWith('+') ? 'text-[#00A896]' : 'text-gray-600 dark:text-gray-400'
-          }`}>
-            {trend}
-          </span>
-          <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">vs mes anterior</span>
-        </div>
+    <div className="space-y-5">
+
+      {/* Métricas */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard title="Empleados activos" value={68}      trend="+3%" trendUp icon={<PeopleIcon/>} accent="#0284c7"/>
+        <MetricCard title="En vacaciones"      value={12}      trend="-2%" trendUp={false} icon={<SunIcon/>}   accent="#0891b2"/>
+        <MetricCard title="Pendientes"         value={5}       trend="+1"  trendUp={false} icon={<AlertIcon/>} accent="#d97706"/>
+        <MetricCard title="Horas este mes"     value="5.440"   trend="+5%" trendUp icon={<ClockIcon/>} accent="#16a34a"/>
       </div>
 
-      <div className={`absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br ${gradient} opacity-10 dark:opacity-20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500`} />
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        {/* Asistencia */}
+        <HoverCard style={{ padding:20 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
+            <div>
+              <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Asistencia semanal</p>
+              <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Porcentaje diario</p>
+            </div>
+            <span style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:3, background:'#dbeafe', color:'#1d4ed8' }}>Esta semana</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'flex-end', gap:6, height:160 }}>
+            {asistencia.map((d, i) => (
+              <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4, height:'100%', justifyContent:'flex-end', cursor:'pointer' }}
+                onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)}>
+                {hovered === i && (
+                  <div style={{ fontSize:10, fontWeight:600, padding:'2px 6px', borderRadius:3, background:'var(--surface-2)', border:'1px solid var(--border)', color:'var(--text-secondary)', whiteSpace:'nowrap' }}>
+                    {d.emp} emp
+                  </div>
+                )}
+                <div style={{ width:'100%', borderRadius:'3px 3px 0 0', transition:'all .15s', background: d.danger?'#ef4444': hovered===i?'#0369a1':'#0284c7', height:`${d.pct}%`, opacity: hovered!==null&&hovered!==i?0.5:1 }} />
+                <span style={{ fontSize:10, fontWeight:500, color:'var(--text-muted)' }}>{d.dia}</span>
+              </div>
+            ))}
+          </div>
+        </HoverCard>
+
+        {/* Distribución */}
+        <HoverCard style={{ padding:20 }}>
+          <div style={{ marginBottom:20 }}>
+            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Distribución por turno</p>
+            <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Empleados por grupo</p>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            {grupos.map((g, i) => (
+              <div key={i}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                    <div style={{ width:8, height:8, background:g.color, borderRadius:2, flexShrink:0 }} />
+                    <span style={{ fontSize:12, fontWeight:600, color:'var(--text-primary)' }}>{g.nombre}</span>
+                  </div>
+                  <span style={{ fontSize:11, color:'var(--text-muted)' }}>{g.empleados}/{g.total}</span>
+                </div>
+                <div style={{ height:5, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
+                  <div style={{ height:'100%', width:`${(g.empleados/g.total)*100}%`, background:g.color, borderRadius:3, transition:'width .5s ease' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop:'1px solid var(--border)', marginTop:16, paddingTop:12, display:'flex', justifyContent:'space-between' }}>
+            <span style={{ fontSize:11, color:'var(--text-muted)' }}>Total</span>
+            <span style={{ fontSize:13, fontWeight:700, color:'var(--text-primary)' }}>{grupos.reduce((s,g)=>s+g.empleados,0)}</span>
+          </div>
+        </HoverCard>
+      </div>
+
+      {/* Actividad reciente */}
+      <HoverCard style={{ padding:20 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
+          <div>
+            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Actividad reciente</p>
+            <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Últimas acciones registradas</p>
+          </div>
+          <button className="btn-secondary" style={{ fontSize:11, padding:'4px 12px' }}>Ver todo</button>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+          {actividades.map((a, i) => {
+            const [rowHov, setRowHov] = useState(false)
+            return (
+              <div key={i} onMouseEnter={() => setRowHov(true)} onMouseLeave={() => setRowHov(false)}
+                style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderRadius:4, background: rowHov?'var(--surface-2)':'transparent', transition:'background .15s', cursor:'default' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
+                  <div style={{ width:6, height:6, borderRadius:'50%', background:tipoColor[a.tipo], flexShrink:0 }} />
+                  <div style={{ minWidth:0 }}>
+                    <p style={{ fontSize:12, fontWeight:600, color:'var(--text-primary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.accion}</p>
+                    <p style={{ fontSize:11, color:'var(--text-muted)' }}>{a.usuario}</p>
+                  </div>
+                </div>
+                <span style={{ fontSize:11, color:'var(--text-muted)', flexShrink:0, marginLeft:12 }}>{a.tiempo}</span>
+              </div>
+            )
+          })}
+        </div>
+      </HoverCard>
     </div>
   )
 }

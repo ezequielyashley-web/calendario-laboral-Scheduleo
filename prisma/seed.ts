@@ -38,12 +38,12 @@ async function main() {
 
   // 3. Grupos de Turno
   const gruposData = [
-    { id: 'g1a', nombre: 'G1A', tipo: 'ENTRE_SEMANA', color: '#7BA8A8' },
-    { id: 'g1b', nombre: 'G1B', tipo: 'ENTRE_SEMANA', color: '#6B9999' },
-    { id: 'g2a', nombre: 'G2A', tipo: 'ENTRE_SEMANA', color: '#00A896' },
-    { id: 'g2b', nombre: 'G2B', tipo: 'ENTRE_SEMANA', color: '#008B8B' },
-    { id: 'g3a', nombre: 'G3A', tipo: 'ENTRE_SEMANA', color: '#7BA8A8' },
-    { id: 'g3b', nombre: 'G3B', tipo: 'ENTRE_SEMANA', color: '#6B9999' },
+    { id: 'g1a', nombre: 'G1A', color: '#7BA8A8' },
+    { id: 'g1b', nombre: 'G1B', color: '#6B9999' },
+    { id: 'g2a', nombre: 'G2A', color: '#00A896' },
+    { id: 'g2b', nombre: 'G2B', color: '#008B8B' },
+    { id: 'g3a', nombre: 'G3A', color: '#7BA8A8' },
+    { id: 'g3b', nombre: 'G3B', color: '#6B9999' },
   ]
 
   for (const g of gruposData) {
@@ -54,7 +54,6 @@ async function main() {
         id: g.id,
         nombre: g.nombre,
         empresaId: empresa.id,
-        tipo: g.tipo,
         color: g.color,
       },
     })

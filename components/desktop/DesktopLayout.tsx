@@ -6,102 +6,195 @@ import { usePathname } from "next/navigation"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import NotificationBell from "@/components/NotificationBell"
 
+const Icons = {
+  dashboard:      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+  empleados:      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  calendario:     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+  notificaciones: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+  reportes:       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  vacaciones:     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 3a3 3 0 0 0-3 3l-7 3a3 3 0 0 0 0 6l7 3a3 3 0 1 0 3-3l-7-3 7-3A3 3 0 0 0 18 3z"/></svg>,
+  fichajes:       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  cambiosTurno:   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>,
+  bajas:          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+  chat:           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  deudas:         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  cobertura:      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  configuracion:  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  sun:  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+  moon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+  auto: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor" stroke="none"/></svg>,
+}
+
+// ── Secciones del menú ────────────────────────────────────────
+const menuSections = [
+  {
+    label: 'Principal',
+    items: [
+      { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
+      { href: '/empleados',         icon: Icons.empleados,      label: 'Empleados'      },
+      { href: '/calendario-global', icon: Icons.calendario,     label: 'Calendario'     },
+      { href: '/fichajes',          icon: Icons.fichajes,       label: 'Fichajes'       },
+    ]
+  },
+  {
+    label: 'Gestión',
+    items: [
+      { href: '/vacaciones',        icon: Icons.vacaciones,     label: 'Vacaciones'     },
+      { href: '/cambios-turno',     icon: Icons.cambiosTurno,   label: 'Cambios turno'  },
+      { href: '/bajas',             icon: Icons.bajas,          label: 'Bajas médicas'  },
+      { href: '/chat',              icon: Icons.chat,           label: 'Chat'           },
+      { href: '/deudas',            icon: Icons.deudas,         label: 'Deudas'         },
+      { href: '/cobertura',         icon: Icons.cobertura,      label: 'Cobertura'      },
+    ]
+  },
+  {
+    label: 'Sistema',
+    items: [
+      { href: '/reportes',          icon: Icons.reportes,       label: 'Reportes'       },
+      { href: '/notificaciones',    icon: Icons.notificaciones, label: 'Notificaciones' },
+      { href: '/configuracion',     icon: Icons.configuracion,  label: 'Configuración'  },
+    ]
+  },
+]
+
+const pageTitles: Record<string, string> = {
+  '/dashboard':         'Dashboard',
+  '/empleados':         'Empleados',
+  '/calendario-global': 'Calendario Global',
+  '/notificaciones':    'Notificaciones',
+  '/reportes':          'Reportes',
+  '/vacaciones':        'Vacaciones',
+  '/fichajes':          'Fichajes',
+  '/cambios-turno':     'Cambios de Turno',
+  '/bajas':             'Bajas Médicas',
+  '/chat':              'Chat',
+  '/deudas':            'Deudas y Anticipos',
+  '/cobertura':         'Cobertura Mínima',
+  '/configuracion':     'Configuración',
+}
+
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [open, setOpen] = useState(true)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
 
-  const menuItems = [
-    { href: "/dashboard", icon: "📊", label: "Dashboard", color: "from-[#7BA8A8] to-[#00A896]" },
-    { href: "/empleados", icon: "👥", label: "Empleados", color: "from-[#00A896] to-[#008B8B]" },
-    { href: "/calendario-global", icon: "📅", label: "Calendario", color: "from-[#6B9999] to-[#7BA8A8]" },
-    { href: "/notificaciones", icon: "🔔", label: "Notificaciones", color: "from-[#7BA8A8] to-[#00A896]" },
-    { href: "/reportes", icon: "📈", label: "Reportes", color: "from-[#7BA8A8] to-[#6B9999]" },
-    { href: "/vacaciones", icon: "🏖️", label: "Vacaciones", color: "from-[#00A896] to-[#7BA8A8]" },
-    { href: "/fichajes", icon: "⏰", label: "Fichajes", color: "from-[#008B8B] to-[#00A896]" },
-    { href: "/configuracion", icon: "⚙️", label: "Configuración", color: "from-[#6B9999] to-[#7BA8A8]" },
-  ]
-
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>
+
       {/* Sidebar */}
-      <aside className={`backdrop-blur-xl bg-gradient-to-b from-[#7BA8A8]/90 to-[#6B9999]/90 dark:from-[#1a3a3a]/95 dark:to-[#0f2626]/95 text-white transition-all duration-300 ${sidebarOpen ? "w-64" : "w-20"} border-r border-white/20 dark:border-white/10 shadow-2xl`}>
-        <div className="p-4 border-b border-white/20 dark:border-white/10 backdrop-blur-sm">
-          <h1 className={`font-bold text-2xl bg-gradient-to-r from-white to-[#F0EEE9] bg-clip-text text-transparent ${!sidebarOpen && "text-center"}`}>
-            {sidebarOpen ? "Scheduleo" : "S"}
-          </h1>
+      <aside className="flex flex-col flex-shrink-0 transition-all duration-200 overflow-hidden"
+        style={{ width: open ? 220 : 56, background: 'var(--sidebar-bg)', borderRight: '1px solid rgba(255,255,255,.06)' }}>
+
+        {/* Logo */}
+        <div className="flex items-center h-14 px-4 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+          <div className="flex items-center justify-center w-7 h-7 flex-shrink-0" style={{ background: 'var(--accent)', borderRadius: 4 }}>
+            <span className="text-white font-bold text-sm">S</span>
+          </div>
+          {open && (
+            <span className="ml-2.5 font-semibold text-sm tracking-wide whitespace-nowrap overflow-hidden" style={{ color: 'var(--sidebar-active)' }}>
+              Scheduleo
+            </span>
+          )}
         </div>
 
-        <nav className="p-4 space-y-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
-                pathname === item.href
-                  ? "bg-white/25 dark:bg-white/15 shadow-lg backdrop-blur-md"
-                  : "hover:bg-white/15 dark:hover:bg-white/10"
-              }`}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
-              <span className="text-3xl relative z-10 group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
-              {sidebarOpen && <span className="relative z-10 font-medium">{item.label}</span>}
-            </Link>
+        {/* Nav */}
+        <nav className="flex-1 py-3 px-2 overflow-y-auto overflow-x-hidden" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {menuSections.map((section, si) => (
+            <div key={si} style={{ marginBottom: 8 }}>
+              {/* Etiqueta de sección — solo visible cuando el sidebar está abierto */}
+              {open && (
+                <p style={{ fontSize:10, fontWeight:700, color:'rgba(148,163,184,.5)', textTransform:'uppercase', letterSpacing:'0.08em', padding:'6px 8px 4px' }}>
+                  {section.label}
+                </p>
+              )}
+              {!open && si > 0 && (
+                <div style={{ height:1, background:'rgba(255,255,255,.06)', margin:'6px 4px' }} />
+              )}
+              <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+                {section.items.map((item) => {
+                  const active  = pathname === item.href
+                  const hovered = hoveredItem === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      title={!open ? item.label : undefined}
+                      onMouseEnter={() => setHoveredItem(item.href)}
+                      onMouseLeave={() => setHoveredItem(null)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '7px 8px', borderRadius: 4,
+                        color:      active ? 'var(--sidebar-active)' : hovered ? '#e2e8f0' : 'var(--sidebar-text)',
+                        background: active ? 'var(--sidebar-active-bg)' : hovered ? 'rgba(255,255,255,.08)' : 'transparent',
+                        transform:  hovered && !active ? 'scale(1.04) translateX(2px)' : 'scale(1) translateX(0)',
+                        transition: 'transform .15s cubic-bezier(.34,1.56,.64,1), background .15s ease, color .15s ease',
+                        fontSize: 13, fontWeight: active ? 600 : 400,
+                        textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden',
+                      }}
+                    >
+                      <span style={{ flexShrink:0, opacity: active?1:hovered?1:0.65, transform: hovered&&!active?'scale(1.15)':'scale(1)', transition:'transform .15s cubic-bezier(.34,1.56,.64,1), opacity .15s ease', display:'flex' }}>
+                        {item.icon}
+                      </span>
+                      {open && <span style={{ overflow:'hidden', textOverflow:'ellipsis' }}>{item.label}</span>}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
           ))}
         </nav>
 
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute bottom-4 left-4 bg-white/20 dark:bg-white/10 backdrop-blur-md p-3 rounded-xl hover:bg-white/30 dark:hover:bg-white/20 transition-all duration-300 shadow-lg"
-        >
-          {sidebarOpen ? "◀" : "▶"}
-        </button>
+        {/* Collapse */}
+        <div className="px-2 pb-4 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,.06)', paddingTop: 12 }}>
+          <button
+            onClick={() => setOpen(!open)}
+            className="flex items-center justify-center w-full py-1.5 transition-colors duration-150"
+            style={{ borderRadius: 4, color: 'var(--sidebar-text)', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.06)' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {open ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
+            </svg>
+          </button>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <header className="backdrop-blur-xl bg-white/40 dark:bg-gray-800/40 border-b border-gray-200/50 dark:border-gray-700/50 px-8 py-4 sticky top-0 z-10 shadow-lg">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#7BA8A8] to-[#00A896] dark:from-[#7BA8A8] dark:to-[#00A896] bg-clip-text text-transparent">
-              {menuItems.find(i => i.href === pathname)?.label || "Scheduleo"}
-            </h2>
-            
-            <div className="flex items-center gap-4">
-              {/* Theme Toggle - 20% más pequeño */}
-              <div className="flex items-center gap-1.5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-xl p-1 shadow-lg">
-                {[
-                  { value: "light" as const, icon: "☀️" },
-                  { value: "auto" as const, icon: "🌓" },
-                  { value: "dark" as const, icon: "🌙" },
-                ].map((mode) => (
-                  <button
-                    key={mode.value}
-                    onClick={() => setTheme(mode.value)}
-                    className={`px-2 py-1.5 rounded-lg transition-all duration-300 ${
-                      theme === mode.value
-                        ? "bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white shadow-lg scale-105"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-600/50"
-                    }`}
-                  >
-                    <span className="text-base">{mode.icon}</span>
-                  </button>
-                ))}
-              </div>
+      {/* Main */}
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
-              {/* Notification Bell */}
-              <NotificationBell />
-              
-              <div className="w-10 h-10 bg-gradient-to-br from-[#7BA8A8] to-[#00A896] rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:scale-110 transition-transform duration-300 cursor-pointer">
-                A
-              </div>
+        {/* Header */}
+        <header className="flex items-center justify-between h-14 px-6 flex-shrink-0"
+          style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+          <h1 className="text-base font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            {pageTitles[pathname] ?? 'Scheduleo'}
+          </h1>
+
+          <div className="flex items-center gap-2">
+            {/* Theme toggle */}
+            <div className="flex items-center gap-0.5 p-0.5" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 4 }}>
+              {([{ value: 'light' as const, icon: Icons.sun, title: 'Claro' },{ value: 'auto' as const, icon: Icons.auto, title: 'Auto' },{ value: 'dark' as const, icon: Icons.moon, title: 'Oscuro' }]).map(m => (
+                <button key={m.value} onClick={() => setTheme(m.value)} title={m.title}
+                  className="flex items-center justify-center w-7 h-6 transition-colors duration-150"
+                  style={{ borderRadius: 3, background: theme === m.value ? 'var(--accent)' : 'transparent', color: theme === m.value ? '#fff' : 'var(--text-muted)' }}>
+                  {m.icon}
+                </button>
+              ))}
+            </div>
+
+            <NotificationBell />
+
+            <div className="flex items-center justify-center w-8 h-8 text-white font-bold text-xs cursor-pointer flex-shrink-0"
+              style={{ background: 'var(--accent)', borderRadius: 4 }}>
+              A
             </div>
           </div>
         </header>
 
-        <div className="p-8">
+        {/* Content */}
+        <main className="flex-1 overflow-auto p-6" style={{ background: 'var(--bg)' }}>
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

@@ -2,71 +2,161 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Variables de color tema */
+/* ─── DESIGN TOKENS ─────────────────────────────────────────── */
 :root {
-  --patina-blue: #7BA8A8;
-  --cloud-dancer: #F0EEE9;
-  --transformative-teal: #00A896;
-  --deep-patina: #6B9999;
-  --dark-teal: #008B8B;
+  /* Brand */
+  --accent:        #0284c7;
+  --accent-hover:  #0369a1;
+  --accent-dim:    #0ea5e910;
+
+  /* Light mode — fondo más oscuro para que las cards destaquen */
+  --bg:            #dce3ee;   /* gris azulado más pronunciado */
+  --surface:       #ffffff;   /* cards blancas puras */
+  --surface-2:     #edf1f7;   /* interior de cards / inputs */
+  --border:        #b8c4d8;   /* borde visible — no tan sutil */
+  --border-strong: #8fa0bc;   /* borde fuerte */
+
+  /* Light mode text */
+  --text-primary:  #0f172a;
+  --text-secondary:#374151;
+  --text-muted:    #6b7280;
+
+  /* Sidebar */
+  --sidebar-bg:        #1e293b;
+  --sidebar-text:      #94a3b8;
+  --sidebar-active:    #ffffff;
+  --sidebar-active-bg: #0284c7;
+
+  /* Shadows — más pronunciadas en claro para separar cards */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 14px rgba(0,0,0,.12), 0 2px 4px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.08);
 }
 
-/* Soporte dark mode */
+html.dark {
+  --bg:            #0d1117;
+  --surface:       #161b22;
+  --surface-2:     #1c2333;
+  --border:        #21262d;
+  --border-strong: #30363d;
+
+  --text-primary:  #e6edf3;
+  --text-secondary:#8b949e;
+  --text-muted:    #484f58;
+
+  --sidebar-bg:        #0d1117;
+  --sidebar-text:      #8b949e;
+  --sidebar-active:    #e6edf3;
+  --sidebar-active-bg: #1f6feb;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+}
+
+/* ─── BASE ───────────────────────────────────────────────────── */
 @layer base {
-  html {
-    @apply antialiased;
-  }
-  
+  html { @apply antialiased; }
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
   }
+  * { box-sizing: border-box; }
 }
 
-/* Clases personalizadas */
-.input-base {
-  @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-         focus:ring-2 focus:ring-[#00A896] dark:focus:ring-[#7BA8A8] 
-         focus:border-transparent transition-all;
+/* ─── COMPONENTS ─────────────────────────────────────────────── */
+@layer components {
+
+  /* Card — fondo blanco con borde y sombra visible */
+  .card {
+    background:   var(--surface);
+    border:       1px solid var(--border);
+    border-radius: 6px;
+    box-shadow:   var(--shadow-sm);
+  }
+
+  .card-hover {
+    @apply card transition-all duration-200;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  /* Inputs */
+  .input-base {
+    @apply w-full px-3 py-2 text-sm transition-colors duration-150;
+    background:    var(--surface);
+    border:        1px solid var(--border-strong);
+    border-radius: 4px;
+    color:         var(--text-primary);
+    outline:       none;
+  }
+  .input-base:focus {
+    border-color: var(--accent);
+    box-shadow:   0 0 0 3px var(--accent-dim);
+  }
+  .input-base::placeholder { color: var(--text-muted); }
+
+  /* Buttons */
+  .btn-primary {
+    @apply px-4 py-2 text-sm font-semibold text-white transition-colors duration-150;
+    background:    var(--accent);
+    border-radius: 4px;
+    border:        none;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-secondary {
+    @apply px-4 py-2 text-sm font-medium transition-colors duration-150;
+    background:    var(--surface);
+    border:        1px solid var(--border-strong);
+    border-radius: 4px;
+    color:         var(--text-secondary);
+  }
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color:        var(--accent);
+  }
+
+  /* Badges */
+  .badge { @apply inline-flex items-center px-2 py-0.5 text-xs font-semibold; border-radius: 3px; }
+  .badge-blue  { background:#dbeafe; color:#1d4ed8; }
+  .badge-green { background:#dcfce7; color:#15803d; }
+  .badge-red   { background:#fee2e2; color:#b91c1c; }
+  .badge-gray  { background:#e5e7eb; color:#374151; }
+
+  html.dark .badge-blue  { background:#1e3a5f; color:#93c5fd; }
+  html.dark .badge-green { background:#14532d; color:#86efac; }
+  html.dark .badge-red   { background:#7f1d1d; color:#fca5a5; }
+  html.dark .badge-gray  { background:#21262d; color:#8b949e; }
 }
 
-.btn-primary {
-  @apply px-6 py-3 bg-gradient-to-r from-[#7BA8A8] to-[#00A896] 
-         text-white font-semibold rounded-xl shadow-lg 
-         hover:shadow-xl hover:scale-105 transition-all duration-300;
-}
+/* ─── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar       { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text-muted); }
 
-.glass-card {
-  @apply backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 
-         rounded-2xl border border-gray-200/50 dark:border-gray-700/50 
-         shadow-xl;
-}
-
-/* Animaciones de notificaciones */
+/* ─── ANIMACIONES ────────────────────────────────────────────── */
 @keyframes slideInRight {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform:translateX(400px); opacity:0; }
+  to   { transform:translateX(0);     opacity:1; }
 }
-
 @keyframes bellRing {
-  0%, 100% { transform: rotate(0deg); }
-  10%, 30%, 50%, 70%, 90% { transform: rotate(15deg); }
-  20%, 40%, 60%, 80% { transform: rotate(-15deg); }
+  0%,100%              { transform:rotate(0deg);   }
+  10%,30%,50%,70%,90%  { transform:rotate(12deg);  }
+  20%,40%,60%,80%      { transform:rotate(-12deg); }
+}
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0);   }
 }
 
-.animate-slideInRight {
-  animation: slideInRight 0.5s ease-out;
-}
-
-.animate-bellRing {
-  animation: bellRing 1s ease-in-out infinite;
-}
+.animate-slideInRight { animation: slideInRight .35s ease-out; }
+.animate-bellRing     { animation: bellRing 1s ease-in-out infinite; }
+.animate-fadeIn       { animation: fadeIn .25s ease-out; }
 
 .line-clamp-2 {
   display: -webkit-box;

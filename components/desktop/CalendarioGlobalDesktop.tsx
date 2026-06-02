@@ -3,544 +3,455 @@
 import { useState } from "react"
 
 type DayConfig = {
-  day: number
-  tipo: string
-  grupos: string[]
-  date: Date
-  libranzas: { grupo: string, empleados: string[], tipo: 'completa' | 'media' }[]
-  esFestivo: boolean
-  esEspecial: boolean
-  notaEspecial?: string
+  day: number; tipo: string; grupos: string[]; date: Date
+  libranzas: { grupo: string; empleados: string[]; tipo: 'completa' | 'media' }[]
+  esFestivo: boolean; esEspecial: boolean; notaEspecial?: string
+}
+
+const grupoColors: Record<string,{ solid:string }> = {
+  G1A:{solid:'#0284c7'}, G1B:{solid:'#0369a1'}, G2A:{solid:'#0891b2'}, G2B:{solid:'#0e7490'},
+  G3A:{solid:'#6366f1'}, G3B:{solid:'#4f46e5'}, L1:{solid:'#d97706'}, L2:{solid:'#ca8a04'}, L3:{solid:'#16a34a'},
+}
+
+const todosLosGrupos = ['G1A','G1B','G2A','G2B','G3A','G3B','L1','L2','L3']
+const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+const diasCortos = ['dom','lun','mar','mié','jue','vie','sáb']
+
+function getDaysInMonth(currentMonth: Date) {
+  const year = currentMonth.getFullYear()
+  const month = currentMonth.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  let startDow = firstDay.getDay() - 1
+  if (startDow === -1) startDow = 6
+  const days: (DayConfig | null)[] = []
+  for (let i = 0; i < startDow; i++) days.push(null)
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day)
+    const dow = date.getDay()
+    let tipo = 'trabajo', grupos: string[] = [], esFestivo = false
+    if (dow === 0) { tipo = 'domingo' }
+    else if ([1, 15].includes(day)) { tipo = 'festivo'; esFestivo = true }
+    else {
+      if (dow === 1) grupos = ['L1','L2','L3']
+      else if ([2,3,4,5,6].includes(dow)) {
+        if (day%6===0||day%6===1)      grupos = ['G1A','G2A','G3A']
+        else if (day%6===2||day%6===3) grupos = ['G1B','G2B','G3B']
+        else grupos = ['G1A','G2B','G3A']
+      }
+    }
+    days.push({ day, tipo, grupos, date, libranzas:[], esFestivo, esEspecial:false })
+  }
+  return days
+}
+
+function chunkWeeks(days: (DayConfig|null)[]): (DayConfig|null)[][] {
+  const weeks: (DayConfig|null)[][] = []
+  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i+7))
+  while (weeks[weeks.length-1].length < 7) weeks[weeks.length-1].push(null)
+  return weeks
 }
 
 export default function CalendarioGlobalDesktop() {
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 4))
-  const [filterGrupo, setFilterGrupo] = useState("todos")
-  const [filterSede, setFilterSede] = useState("todas")
+  const [filterGrupo, setFilterGrupo]   = useState('todos')
+  const [filterSede, setFilterSede]     = useState('todas')
   const [vistaDetallada, setVistaDetallada] = useState(false)
-  const [selectedDay, setSelectedDay] = useState<DayConfig | null>(null)
+  const [selectedDay, setSelectedDay]   = useState<DayConfig|null>(null)
+  const [hoveredDay, setHoveredDay]     = useState<string|null>(null)
+  const [hoveredWeek, setHoveredWeek]   = useState<number|null>(null)
 
-  const meses = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ]
-
-  const todosLosGrupos = ['G1A', 'G1B', 'G2A', 'G2B', 'G3A', 'G3B', 'L1', 'L2', 'L3']
-
-  const grupoColors: any = {
-    'G1A': { bg: 'from-[#7BA8A8] to-[#6B9999]', emoji: '🔵' },
-    'G1B': { bg: 'from-[#6B9999] to-[#7BA8A8]', emoji: '🔵' },
-    'G2A': { bg: 'from-[#00A896] to-[#008B8B]', emoji: '💠' },
-    'G2B': { bg: 'from-[#008B8B] to-[#00A896]', emoji: '💠' },
-    'G3A': { bg: 'from-[#7BA8A8] to-[#6B9999]', emoji: '🟦' },
-    'G3B': { bg: 'from-[#6B9999] to-[#7BA8A8]', emoji: '🟦' },
-    'L1': { bg: 'from-orange-400 to-amber-500', emoji: '🟠' },
-    'L2': { bg: 'from-amber-400 to-yellow-500', emoji: '🟡' },
-    'L3': { bg: 'from-yellow-400 to-lime-500', emoji: '🟢' },
-  }
-
-  const getDaysInMonth = () => {
-    const year = currentMonth.getFullYear()
-    const month = currentMonth.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    
-    let startingDayOfWeek = firstDay.getDay() - 1
-    if (startingDayOfWeek === -1) startingDayOfWeek = 6
-
-    const days = []
-    
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null)
-    }
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day)
-      const dayOfWeek = date.getDay()
-      
-      let tipo = 'trabajo'
-      let grupos: string[] = []
-      let esFestivo = false
-      
-      if (dayOfWeek === 0) {
-        tipo = 'domingo'
-      } else if ([1, 15].includes(day)) {
-        tipo = 'festivo'
-        esFestivo = true
-      } else {
-        if (dayOfWeek === 1) grupos = ['L1', 'L2', 'L3']
-        else if ([2, 3, 4, 5, 6].includes(dayOfWeek)) {
-          if (day % 6 === 0 || day % 6 === 1) grupos = ['G1A', 'G2A', 'G3A']
-          else if (day % 6 === 2 || day % 6 === 3) grupos = ['G1B', 'G2B', 'G3B']
-          else grupos = ['G1A', 'G2B', 'G3A']
-        }
-      }
-      
-      days.push({ 
-        day, 
-        tipo, 
-        grupos, 
-        date,
-        libranzas: [],
-        esFestivo,
-        esEspecial: false
-      })
-    }
-    
-    return days
-  }
-
-  const days = getDaysInMonth()
-
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
-  }
-
-  const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
-  }
-
-  const getTipoStyle = (tipo: string) => {
-    switch (tipo) {
-      case 'domingo':
-        return 'bg-gradient-to-br from-red-100/80 to-red-200/80 dark:from-red-900/40 dark:to-red-800/40 border-red-400/60 dark:border-red-600/60 shadow-lg hover:shadow-xl dark:shadow-red-900/30'
-      case 'festivo':
-        return 'bg-gradient-to-br from-purple-100/80 to-purple-200/80 dark:from-purple-900/40 dark:to-purple-800/40 border-purple-400/60 dark:border-purple-600/60 shadow-lg hover:shadow-xl dark:shadow-purple-900/30'
-      default:
-        return 'bg-gradient-to-br from-[#7BA8A8]/20 to-[#00A896]/20 dark:from-[#7BA8A8]/30 dark:to-[#00A896]/30 border-[#00A896]/40 dark:border-[#7BA8A8]/40 shadow-lg hover:shadow-xl dark:shadow-gray-900/40'
-    }
-  }
-
-  const getTipoEmoji = (tipo: string) => {
-    switch (tipo) {
-      case 'domingo': return '😴'
-      case 'festivo': return '🎉'
-      default: return '💼'
-    }
-  }
-
-  const handleDayClick = (dayData: DayConfig) => {
-    setSelectedDay({ ...dayData })
-  }
+  const days  = getDaysInMonth(currentMonth)
+  const weeks = chunkWeeks(days)
 
   const toggleGrupo = (grupo: string) => {
     if (!selectedDay) return
-    
     const grupos = [...selectedDay.grupos]
-    const index = grupos.indexOf(grupo)
-    
-    if (index > -1) {
-      grupos.splice(index, 1)
-    } else {
-      grupos.push(grupo)
-    }
-    
+    const idx = grupos.indexOf(grupo)
+    idx > -1 ? grupos.splice(idx, 1) : grupos.push(grupo)
     setSelectedDay({ ...selectedDay, grupos })
   }
 
-  const toggleLibranza = (grupo: string, tipo: 'completa' | 'media') => {
+  const toggleLibranza = (grupo: string, tipo: 'completa'|'media') => {
     if (!selectedDay) return
-    
     const libranzas = [...selectedDay.libranzas]
-    const index = libranzas.findIndex(l => l.grupo === grupo)
-    
-    if (index > -1) {
-      libranzas.splice(index, 1)
-    } else {
-      libranzas.push({ grupo, empleados: [], tipo })
-    }
-    
+    const idx = libranzas.findIndex(l => l.grupo === grupo)
+    idx > -1 ? libranzas.splice(idx, 1) : libranzas.push({ grupo, empleados:[], tipo })
     setSelectedDay({ ...selectedDay, libranzas })
   }
 
-  const guardarConfiguracion = () => {
-    // Aquí iría la lógica para guardar en la base de datos
-    console.log('Configuración guardada:', selectedDay)
-    setSelectedDay(null)
-  }
+  // Colores por tipo — light y dark
+  const getCellBg    = (tipo:string) => tipo==='festivo' ? '#f5f3ff' : tipo==='domingo' ? '#fff1f2' : 'var(--surface)'
+  const getCellBorder= (tipo:string) => tipo==='festivo' ? '#c4b5fd' : tipo==='domingo' ? '#fca5a5' : 'var(--border-strong)'
+  const getNumColor  = (tipo:string) => tipo==='festivo' ? '#a78bfa' : tipo==='domingo' ? '#f87171' : 'var(--text-muted)'
+  const getDiaColor  = (tipo:string) => tipo==='festivo' ? '#c4b5fd' : tipo==='domingo' ? '#fca5a5' : 'var(--text-muted)'
 
   return (
-    <div className="min-h-screen space-y-4">
-      {/* Controles superiores */}
-      <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-        <div className="flex flex-col lg:flex-row gap-3 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={prevMonth}
-              className="w-10 h-10 bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white rounded-xl hover:shadow-xl hover:scale-110 transition-all duration-300 shadow-lg font-bold text-lg"
-            >
-              ←
-            </button>
-            
-            <div className="text-center min-w-[160px]">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-                {meses[currentMonth.getMonth()]}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold">
-                {currentMonth.getFullYear()}
-              </p>
-            </div>
-            
-            <button
-              onClick={nextMonth}
-              className="w-10 h-10 bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white rounded-xl hover:shadow-xl hover:scale-110 transition-all duration-300 shadow-lg font-bold text-lg"
-            >
-              →
-            </button>
+    <div className="space-y-4">
+
+      {/* Banner */}
+      <div style={{ display:'flex', gap:10, alignItems:'flex-start', background:'var(--surface)', borderLeft:'3px solid #0284c7', borderRadius:'0 4px 4px 0', padding:'10px 14px', border:'1px solid var(--border)' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}>
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div>
+          <p style={{ fontSize:13, fontWeight:600, color:'#1e40af' }}>Calendario de asignación de grupos</p>
+          <p style={{ fontSize:12, color:'#3b82f6', marginTop:2 }}>Haz clic en cualquier día para asignar grupos de trabajo, añadir libranzas o marcar festivos especiales.</p>
+        </div>
+      </div>
+
+      {/* Controles */}
+      <div className="card p-4 flex flex-col lg:flex-row gap-3 items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1))}
+            className="btn-secondary w-9 h-9 flex items-center justify-center">←</button>
+          <div className="text-center min-w-[160px]">
+            <p style={{ fontSize:22, fontWeight:700, color:'var(--text-primary)', lineHeight:1.1 }}>{meses[currentMonth.getMonth()]}</p>
+            <p style={{ fontSize:14, fontWeight:500, color:'var(--text-secondary)', marginTop:2 }}>{currentMonth.getFullYear()}</p>
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">🏢</span>
-              <select
-                className="pl-10 pr-6 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#00A896] dark:focus:ring-[#7BA8A8] transition-all shadow-lg appearance-none cursor-pointer font-semibold"
-                value={filterSede}
-                onChange={(e) => setFilterSede(e.target.value)}
-              >
-                <option value="todas">Todas las sedes</option>
-                <option value="madrid">Madrid Centro</option>
-                <option value="vallecas">Vallecas</option>
-              </select>
-            </div>
-
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">👥</span>
-              <select
-                className="pl-10 pr-6 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#00A896] dark:focus:ring-[#7BA8A8] transition-all shadow-lg appearance-none cursor-pointer font-semibold"
-                value={filterGrupo}
-                onChange={(e) => setFilterGrupo(e.target.value)}
-              >
-                <option value="todos">Todos los grupos</option>
-                <option value="G1A">G1A</option>
-                <option value="G1B">G1B</option>
-                <option value="G2A">G2A</option>
-                <option value="G2B">G2B</option>
-                <option value="G3A">G3A</option>
-                <option value="G3B">G3B</option>
-              </select>
-            </div>
-
-            <button
-              onClick={() => setVistaDetallada(!vistaDetallada)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 shadow-lg flex items-center gap-1.5 ${
-                vistaDetallada
-                  ? "bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white"
-                  : "bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-600/50"
-              }`}
-            >
-              <span className="text-base">{vistaDetallada ? "📋" : "📅"}</span>
-              {vistaDetallada ? "Detallada" : "Compacta"}
-            </button>
-          </div>
+          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1))}
+            className="btn-secondary w-9 h-9 flex items-center justify-center">→</button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <select value={filterSede} onChange={e=>setFilterSede(e.target.value)}>
+            <option value="todas">Todas las sedes</option>
+            <option value="madrid">Madrid Centro</option>
+            <option value="vallecas">Vallecas</option>
+          </select>
+          <select value={filterGrupo} onChange={e=>setFilterGrupo(e.target.value)}>
+            <option value="todos">Todos los grupos</option>
+            {todosLosGrupos.map(g=><option key={g} value={g}>{g}</option>)}
+          </select>
+          <button onClick={()=>setVistaDetallada(!vistaDetallada)} className="btn-secondary text-xs px-3 py-1.5">
+            {vistaDetallada ? 'Vista compacta' : 'Vista detallada'}
+          </button>
         </div>
       </div>
 
       {/* Leyenda */}
-      <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-3 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-        <div className="flex flex-wrap gap-3 justify-center">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 bg-gradient-to-br from-[#7BA8A8]/20 to-[#00A896]/20 dark:from-[#7BA8A8]/30 dark:to-[#00A896]/30 border-2 border-[#00A896]/40 dark:border-[#7BA8A8]/40 rounded shadow-md"></div>
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">💼 Laboral</span>
+      <div className="card px-4 py-2.5 flex flex-wrap gap-4 items-center">
+        {[
+          { label:'Laboral', bg:'var(--surface)', border:'var(--border-strong)' },
+          { label:'Festivo', bg:'#f5f3ff', border:'#c4b5fd' },
+          { label:'Domingo', bg:'#fff1f2', border:'#fca5a5' },
+        ].map(l=>(
+          <div key={l.label} className="flex items-center gap-1.5">
+            <div style={{ width:14, height:14, background:l.bg, border:`1px solid ${l.border}`, borderRadius:2 }} />
+            <span style={{ fontSize:12, color:'var(--text-secondary)' }}>{l.label}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 bg-gradient-to-br from-purple-100/80 to-purple-200/80 dark:from-purple-900/40 dark:to-purple-800/40 border-2 border-purple-400/60 dark:border-purple-600/60 rounded shadow-md"></div>
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">🎉 Festivo</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 bg-gradient-to-br from-red-100/80 to-red-200/80 dark:from-red-900/40 dark:to-red-800/40 border-2 border-red-400/60 dark:border-red-600/60 rounded shadow-md"></div>
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">😴 Domingo</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Calendario */}
-      <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
-        <div className="grid grid-cols-7 gap-1.5 mb-3">
-          {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((dia, i) => (
-            <div
-              key={i}
-              className={`text-center font-bold py-2 text-xs rounded-lg shadow-md ${
-                i === 6
-                  ? 'bg-gradient-to-r from-red-400/30 to-red-500/30 dark:from-red-600/40 dark:to-red-700/40 text-red-800 dark:text-red-200'
-                  : 'bg-gradient-to-r from-[#7BA8A8]/30 to-[#00A896]/30 dark:from-[#7BA8A8]/40 dark:to-[#00A896]/40 text-gray-800 dark:text-gray-200'
-              }`}
-            >
-              {dia}
+        ))}
+        <div className="ml-auto flex flex-wrap gap-2">
+          {Object.entries(grupoColors).map(([key,val])=>(
+            <div key={key} className="flex items-center gap-1">
+              <div style={{ width:8, height:8, background:val.solid, borderRadius:2 }} />
+              <span style={{ fontSize:10, color:'var(--text-muted)', fontWeight:600 }}>{key}</span>
             </div>
           ))}
         </div>
+      </div>
 
-        <div className="grid grid-cols-7 gap-1.5">
-          {days.map((dayData, i) => {
-            if (!dayData) {
-              return <div key={i} className="aspect-square"></div>
-            }
+      {/* Semanas flotantes — sin cabecera, días dentro de cada celda */}
+      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+        {weeks.map((week, wi) => {
+          const isWeekHov = hoveredWeek === wi
+          const hasHoveredDay = hoveredDay?.startsWith(`${wi}-`) ?? false
+          return (
+            <div key={wi}
+              onMouseEnter={()=>setHoveredWeek(wi)}
+              onMouseLeave={()=>setHoveredWeek(null)}
+              style={{
+                display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:5, padding:'6px',
+                borderRadius:6, position:'relative',
+                background: isWeekHov ? 'rgba(2,132,199,0.08)' : 'rgba(2,132,199,0.04)',
+                border:`1px solid ${isWeekHov ? 'rgba(2,132,199,0.4)' : 'rgba(2,132,199,0.15)'}`,
+                boxShadow: isWeekHov ? '0 4px 16px rgba(2,132,199,.15)' : '0 1px 3px rgba(0,0,0,.06)',
+                transform: isWeekHov ? 'translateY(-2px)' : 'translateY(0)',
+                transition:'all .2s ease',
+              }}
+            >
+              {week.map((dayData, di) => {
+                if (!dayData) return (
+                  <div key={di} style={{
+                    aspectRatio: vistaDetallada ? 'auto' : '1 / 1',
+                    minHeight: vistaDetallada ? 88 : undefined,
+                    borderRadius:4, border:'1px dashed rgba(2,132,199,0.12)', background:'transparent',
+                    opacity: hasHoveredDay ? 0.35 : 1,
+                    transition:'opacity .18s ease',
+                  }} />
+                )
 
-            const { day, tipo, grupos } = dayData
+                const { day, tipo, grupos, libranzas, date } = dayData
+                const key  = `${wi}-${di}`
+                const isHov = hoveredDay === key
+                const diaNombre = diasCortos[date.getDay()]
 
-            return (
-              <div
-                key={i}
-                onClick={() => handleDayClick(dayData)}
-                className={`backdrop-blur-sm border-2 rounded-lg p-1.5 transition-all duration-300 hover:scale-110 hover:shadow-2xl cursor-pointer group ${getTipoStyle(tipo)} ${
-                  vistaDetallada ? 'aspect-auto min-h-[80px]' : 'aspect-square'
-                }`}
-              >
-                <div className="flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-0.5">
-                    <span className="text-lg font-bold text-gray-900 dark:text-gray-100 drop-shadow-md">
-                      {day}
-                    </span>
-                    <span className="text-sm group-hover:scale-125 transition-transform drop-shadow-md">{getTipoEmoji(tipo)}</span>
-                  </div>
+                return (
+                  <div key={di}
+                    onMouseEnter={()=>setHoveredDay(key)}
+                    onMouseLeave={()=>setHoveredDay(null)}
+                    style={{
+                      position:'relative',
+                      zIndex: isHov ? 20 : 1,
+                      opacity: hasHoveredDay && !isHov ? 0.3 : 1,
+                      transition:'opacity .18s ease',
+                    }}
+                  >
+                    {/* Panel izquierdo — letras de grupos */}
+                    {isHov && grupos.length > 0 && (
+                      <div style={{
+                        position:'absolute', right:'calc(100% + 6px)', top:'50%', transform:'translateY(-50%)',
+                        display:'flex', flexDirection:'column', gap:3, alignItems:'flex-end',
+                        zIndex:30, pointerEvents:'none',
+                      }}>
+                        {grupos.map(g=>(
+                          <span key={g} style={{
+                            fontSize:10, fontWeight:700, color:'#fff',
+                            background:grupoColors[g]?.solid,
+                            borderRadius:3, padding:'2px 6px',
+                            whiteSpace:'nowrap',
+                            boxShadow:'0 1px 4px rgba(0,0,0,.2)',
+                          }}>{g}</span>
+                        ))}
+                      </div>
+                    )}
 
-                  {vistaDetallada && grupos.length > 0 && (
-                    <div className="flex-1 space-y-0.5 overflow-y-auto">
-                      {grupos.map((grupo, idx) => (
-                        <div
-                          key={idx}
-                          className={`text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r ${
-                            grupoColors[grupo]?.bg || 'from-gray-400 to-gray-500'
-                          } text-white font-bold flex items-center gap-0.5 shadow-md`}
-                        >
-                          <span>{grupoColors[grupo]?.emoji || '⚪'}</span>
-                          <span>{grupo}</span>
+                    {/* Panel derecho — dots de color */}
+                    {isHov && grupos.length > 0 && (
+                      <div style={{
+                        position:'absolute', left:'calc(100% + 6px)', top:'50%', transform:'translateY(-50%)',
+                        display:'flex', flexDirection:'column', gap:4, alignItems:'flex-start',
+                        zIndex:30, pointerEvents:'none',
+                      }}>
+                        {grupos.map(g=>(
+                          <div key={g} style={{
+                            width:10, height:10, borderRadius:'50%',
+                            background:grupoColors[g]?.solid,
+                            boxShadow:`0 0 0 2px var(--surface), 0 0 0 3px ${grupoColors[g]?.solid}40`,
+                          }} />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Celda */}
+                    <div
+                      onClick={()=>setSelectedDay({...dayData})}
+                      className={`day-cell day-cell--${tipo}`}
+                      style={{
+                        aspectRatio: vistaDetallada ? 'auto' : '1 / 1',
+                        minHeight: vistaDetallada ? 88 : undefined,
+                        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                        borderRadius:4, cursor:'pointer', position:'relative',
+                        border:`${isHov?'2px':'1px'} solid ${isHov?'#22d3ee':getCellBorder(tipo)}`,
+                        transform: isHov ? 'scale(1.16)' : 'scale(1)',
+                        boxShadow: isHov ? '0 6px 20px rgba(34,211,238,.18), 0 2px 6px rgba(0,0,0,.1)' : '0 1px 2px rgba(0,0,0,.06)',
+                        transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
+                        userSelect:'none', padding:'4px 4px 6px', overflow:'hidden', gap:2,
+                      }}
+                    >
+                      {isHov && <div style={{ position:'absolute', inset:-4, borderRadius:6, border:'2px solid rgba(34,211,238,.18)', pointerEvents:'none' }} />}
+
+                      {/* Día de la semana — mismo tamaño que el número */}
+                      <span
+                        className={`day-dia--${tipo}`}
+                        style={{
+                          fontSize: isHov ? 20 : 15,
+                          fontWeight: 400,
+                          lineHeight: 1,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          transition:'font-size .18s cubic-bezier(.34,1.56,.64,1)',
+                          display:'block',
+                          opacity: 0.7,
+                        }}
+                      >
+                        {diaNombre}
+                      </span>
+
+                      {/* Número del día — 30% más grande que antes (17px → 22px) */}
+                      <span
+                        className={`day-num--${tipo}`}
+                        style={{
+                          fontSize: isHov ? 30 : 22,
+                          fontWeight: 600,
+                          lineHeight: 1,
+                          textShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                          transition:'font-size .18s cubic-bezier(.34,1.56,.64,1)',
+                          display:'block',
+                        }}
+                      >
+                        {day}
+                      </span>
+
+                      {/* Dots grupos */}
+                      {grupos.length>0 && !vistaDetallada && (
+                        <div style={{ display:'flex', gap:2.5, flexWrap:'wrap', justifyContent:'center', marginTop:3, maxWidth:40, opacity:isHov?0.7:1, transition:'opacity .18s' }}>
+                          {grupos.slice(0,4).map((g,idx)=>(
+                            <div key={idx} style={{ width:5, height:5, borderRadius:'50%', background:grupoColors[g]?.solid, flexShrink:0 }} />
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      )}
 
-                  {!vistaDetallada && grupos.length > 0 && (
-                    <div className="text-[10px] font-bold text-gray-700 dark:text-gray-200 text-center mt-0.5 drop-shadow-md">
-                      {grupos.length} grupos
+                      {/* Badges vista detallada */}
+                      {vistaDetallada && grupos.length>0 && (
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:2, marginTop:4, justifyContent:'center' }}>
+                          {grupos.map((g,idx)=>(
+                            <span key={idx} style={{ fontSize:9, fontWeight:600, color:'#fff', background:grupoColors[g]?.solid, borderRadius:2, padding:'1px 3px' }}>{g}</span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Barra libranzas */}
+                      {libranzas.length>0 && (
+                        <div style={{
+                          position:'absolute', bottom:0, left:0, right:0, height:isHov?4:3,
+                          borderRadius:'0 0 4px 4px', transition:'height .18s',
+                          background: libranzas.length===1 ? grupoColors[libranzas[0].grupo]?.solid
+                            : `linear-gradient(90deg, ${libranzas.map((l,i)=>`${grupoColors[l.grupo]?.solid} ${i*(100/libranzas.length)}% ${(i+1)*(100/libranzas.length)}%`).join(', ')})`,
+                        }} />
+                      )}
                     </div>
-                  )}
+
+                    {/* CSS por tipo */}
+                    <style>{`
+                      .day-cell--trabajo { background: var(--surface); }
+                      .day-cell--festivo { background: #f5f3ff; }
+                      .day-cell--domingo { background: #fff1f2; }
+                      .day-num--trabajo  { color: var(--text-muted); }
+                      .day-num--festivo  { color: #a78bfa; }
+                      .day-num--domingo  { color: #f87171; }
+                      .day-dia--trabajo  { color: var(--text-muted); }
+                      .day-dia--festivo  { color: #c4b5fd; }
+                      .day-dia--domingo  { color: #fca5a5; }
+                      html.dark .day-cell--trabajo { background: #1e2a3a; border-color: #2d3f52 !important; }
+                      html.dark .day-cell--festivo { background: #2e1f4a; border-color: #5b3d8a !important; }
+                      html.dark .day-cell--domingo { background: #3b1a20; border-color: #7f3040 !important; }
+                      html.dark .day-num--trabajo  { color: #6b8aaa; }
+                      html.dark .day-num--festivo  { color: #a78bfa; }
+                      html.dark .day-num--domingo  { color: #f87171; }
+                      html.dark .day-dia--trabajo  { color: #3d5570; }
+                      html.dark .day-dia--festivo  { color: #7c5cbf; }
+                      html.dark .day-dia--domingo  { color: #8b3a45; }
+                    `}</style>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label:'Días laborales', value:days.filter(d=>d?.tipo==='trabajo').length, color:'#0284c7', bg:'#eff6ff' },
+          { label:'Festivos',       value:days.filter(d=>d?.tipo==='festivo').length, color:'#7c3aed', bg:'#f5f3ff' },
+          { label:'Domingos',       value:days.filter(d=>d?.tipo==='domingo').length, color:'#b91c1c', bg:'#fff1f2' },
+        ].map(s=>(
+          <div key={s.label} className="flex items-center justify-between px-4 py-3"
+            style={{ background:s.bg, border:'1px solid var(--border)', borderRadius:4 }}>
+            <span style={{ fontSize:12, color:s.color, fontWeight:500 }}>{s.label}</span>
+            <span style={{ fontSize:22, fontWeight:700, color:s.color }}>{s.value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal */}
+      {selectedDay && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background:'rgba(0,0,0,0.6)' }}
+          onClick={e=>{ if(e.target===e.currentTarget) setSelectedDay(null) }}>
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+            style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:6, boxShadow:'var(--shadow-lg)' }}>
+
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid var(--border)' }}>
+              <div>
+                <h2 style={{ fontSize:15, fontWeight:700, color:'var(--text-primary)' }}>Configurar día</h2>
+                <p style={{ fontSize:12, color:'var(--text-muted)', marginTop:2, textTransform:'capitalize' }}>
+                  {selectedDay.date.toLocaleDateString('es-ES',{ weekday:'long', day:'numeric', month:'long', year:'numeric' })}
+                </p>
+              </div>
+              <button onClick={()=>setSelectedDay(null)} className="btn-secondary w-8 h-8 flex items-center justify-center text-sm">✕</button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label:'Tipo',    value:selectedDay.tipo.charAt(0).toUpperCase()+selectedDay.tipo.slice(1) },
+                  { label:'Grupos',  value:String(selectedDay.grupos.length) },
+                  { label:'Libranzas', value:String(selectedDay.libranzas.length) },
+                ].map(info=>(
+                  <div key={info.label} className="px-4 py-3" style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:4 }}>
+                    <p style={{ fontSize:11, color:'var(--text-muted)' }}>{info.label}</p>
+                    <p style={{ fontSize:18, fontWeight:700, color:'var(--text-primary)', marginTop:2 }}>{info.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)', marginBottom:8 }}>Grupos asignados</p>
+                <div className="flex flex-wrap gap-2">
+                  {todosLosGrupos.map(grupo=>{
+                    const sel = selectedDay.grupos.includes(grupo)
+                    return (
+                      <button key={grupo} onClick={()=>toggleGrupo(grupo)}
+                        style={{ padding:'6px 12px', fontSize:12, fontWeight:700, borderRadius:4, transition:'all .15s',
+                          background:sel?grupoColors[grupo]?.solid:'var(--surface-2)',
+                          color:sel?'#fff':'var(--text-secondary)',
+                          border:`1px solid ${sel?grupoColors[grupo]?.solid:'var(--border-strong)'}` }}>{grupo}</button>
+                    )
+                  })}
                 </div>
               </div>
-            )
-          })}
-        </div>
-      </div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#7BA8A8] to-[#00A896] rounded-xl flex items-center justify-center text-2xl shadow-lg">
-              💼
-            </div>
-            <div>
-              <p className="text-xs font-bold text-gray-600 dark:text-gray-400">Días Laborales</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">22</p>
-            </div>
-          </div>
-        </div>
+              {selectedDay.grupos.length>0 && (
+                <div>
+                  <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)', marginBottom:8 }}>Libranzas</p>
+                  <div className="space-y-2">
+                    {selectedDay.grupos.map(grupo=>{
+                      const lib = selectedDay.libranzas.find(l=>l.grupo===grupo)
+                      return (
+                        <div key={grupo} className="flex items-center justify-between px-4 py-3"
+                          style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:4 }}>
+                          <div className="flex items-center gap-2">
+                            <div style={{ width:8, height:8, background:grupoColors[grupo]?.solid, borderRadius:2 }} />
+                            <span style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>{grupo}</span>
+                          </div>
+                          <div className="flex gap-2">
+                            {(['completa','media'] as const).map(t=>(
+                              <button key={t} onClick={()=>toggleLibranza(grupo,t)}
+                                style={{ padding:'4px 12px', fontSize:12, fontWeight:500, borderRadius:3, transition:'all .15s',
+                                  background:lib?.tipo===t?'#0284c7':'var(--surface)',
+                                  color:lib?.tipo===t?'#fff':'var(--text-secondary)',
+                                  border:`1px solid ${lib?.tipo===t?'#0284c7':'var(--border-strong)'}` }}>
+                                {t==='completa'?'Completa':'Media jornada'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
-        <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
-              🎉
-            </div>
-            <div>
-              <p className="text-xs font-bold text-gray-600 dark:text-gray-400">Festivos</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">2</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-orange-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
-              😴
-            </div>
-            <div>
-              <p className="text-xs font-bold text-gray-600 dark:text-gray-400">Domingos</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">4</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* MODAL DE CONFIGURACIÓN */}
-      {selectedDay && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="backdrop-blur-xl bg-white/90 dark:bg-gray-800/90 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-                  Configurar Día
-                </h2>
-                <p className="text-lg text-gray-700 dark:text-gray-300 font-semibold mt-1">
-                  {selectedDay.date.toLocaleDateString('es-ES', { 
-                    weekday: 'long', 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
+                <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)', marginBottom:8 }}>Marcas especiales</p>
+                <div className="flex gap-2">
+                  {[{ key:'esFestivo', label:'Festivo', color:'#7c3aed' },{ key:'esEspecial', label:'Día especial', color:'#d97706' }].map(m=>{
+                    const active = selectedDay[m.key as keyof DayConfig] as boolean
+                    return (
+                      <button key={m.key} onClick={()=>setSelectedDay({...selectedDay,[m.key]:!active})}
+                        style={{ padding:'6px 16px', fontSize:12, fontWeight:600, borderRadius:4, transition:'all .15s',
+                          background:active?m.color:'var(--surface-2)', color:active?'#fff':'var(--text-secondary)',
+                          border:`1px solid ${active?m.color:'var(--border-strong)'}` }}>{m.label}</button>
+                    )
                   })}
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedDay(null)}
-                className="w-12 h-12 rounded-xl bg-red-200/50 dark:bg-red-700/50 text-red-800 dark:text-red-200 hover:bg-red-300/50 dark:hover:bg-red-600/50 transition-all font-bold text-2xl shadow-lg"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Info del día */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="backdrop-blur-sm bg-gradient-to-br from-[#7BA8A8]/20 to-[#00A896]/20 dark:from-[#7BA8A8]/30 dark:to-[#00A896]/30 rounded-xl p-4 border border-[#00A896]/40 dark:border-[#7BA8A8]/40 shadow-lg">
-                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Tipo de día</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  {getTipoEmoji(selectedDay.tipo)}
-                  {selectedDay.tipo.charAt(0).toUpperCase() + selectedDay.tipo.slice(1)}
-                </p>
+                </div>
               </div>
 
-              <div className="backdrop-blur-sm bg-gradient-to-br from-blue-100/80 to-cyan-200/80 dark:from-blue-900/40 dark:to-cyan-800/40 rounded-xl p-4 border border-blue-400/60 dark:border-cyan-600/60 shadow-lg">
-                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Grupos trabajando</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {selectedDay.grupos.length}
-                </p>
+              <div className="flex gap-3 pt-4" style={{ borderTop:'1px solid var(--border)' }}>
+                <button onClick={()=>setSelectedDay(null)} className="btn-secondary flex-1 py-2">Cancelar</button>
+                <button onClick={()=>{ console.log('Guardado:',selectedDay); setSelectedDay(null) }} className="btn-primary flex-1 py-2">Guardar cambios</button>
               </div>
-
-              <div className="backdrop-blur-sm bg-gradient-to-br from-green-100/80 to-emerald-200/80 dark:from-green-900/40 dark:to-emerald-800/40 rounded-xl p-4 border border-green-400/60 dark:border-emerald-600/60 shadow-lg">
-                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Libranzas</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {selectedDay.libranzas.length}
-                </p>
-              </div>
-            </div>
-
-            {/* Sección 1: Grupos que trabajan */}
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                <span className="text-2xl">👥</span>
-                Grupos Asignados
-              </h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                {todosLosGrupos.map((grupo) => {
-                  const isSelected = selectedDay.grupos.includes(grupo)
-                  return (
-                    <button
-                      key={grupo}
-                      onClick={() => toggleGrupo(grupo)}
-                      className={`p-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg border-2 ${
-                        isSelected
-                          ? `bg-gradient-to-r ${grupoColors[grupo]?.bg} text-white border-transparent scale-105`
-                          : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-300/50 dark:border-gray-600/50 hover:scale-105'
-                      }`}
-                    >
-                      <div className="text-xl mb-1">{grupoColors[grupo]?.emoji}</div>
-                      {grupo}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Sección 2: Libranzas */}
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                <span className="text-2xl">🏖️</span>
-                Libranzas (Días Libres)
-              </h3>
-              <div className="space-y-3">
-                {selectedDay.grupos.map((grupo) => {
-                  const tieneLibranza = selectedDay.libranzas.find(l => l.grupo === grupo)
-                  return (
-                    <div
-                      key={grupo}
-                      className="backdrop-blur-sm bg-white/70 dark:bg-gray-700/70 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50 shadow-lg"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className={`px-4 py-2 rounded-lg bg-gradient-to-r ${grupoColors[grupo]?.bg} text-white font-bold text-sm shadow-md`}>
-                            {grupoColors[grupo]?.emoji} {grupo}
-                          </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400 font-semibold">
-                            12 empleados
-                          </span>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => toggleLibranza(grupo, 'completa')}
-                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-lg ${
-                              tieneLibranza?.tipo === 'completa'
-                                ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white scale-105'
-                                : 'bg-white/50 dark:bg-gray-600/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-500/50'
-                            }`}
-                          >
-                            🏖️ Completa
-                          </button>
-                          <button
-                            onClick={() => toggleLibranza(grupo, 'media')}
-                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-lg ${
-                              tieneLibranza?.tipo === 'media'
-                                ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white scale-105'
-                                : 'bg-white/50 dark:bg-gray-600/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-500/50'
-                            }`}
-                          >
-                            ⏰ Media
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Sección 3: Marcas especiales */}
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                <span className="text-2xl">🎯</span>
-                Marcas Especiales
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setSelectedDay({ ...selectedDay, esFestivo: !selectedDay.esFestivo })}
-                  className={`p-4 rounded-xl font-bold transition-all shadow-lg border-2 ${
-                    selectedDay.esFestivo
-                      ? 'bg-gradient-to-r from-purple-400 to-pink-500 text-white border-transparent scale-105'
-                      : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-300/50 dark:border-gray-600/50'
-                  }`}
-                >
-                  <div className="text-3xl mb-2">🎉</div>
-                  Festivo
-                </button>
-
-                <button
-                  onClick={() => setSelectedDay({ ...selectedDay, esEspecial: !selectedDay.esEspecial })}
-                  className={`p-4 rounded-xl font-bold transition-all shadow-lg border-2 ${
-                    selectedDay.esEspecial
-                      ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white border-transparent scale-105'
-                      : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-300/50 dark:border-gray-600/50'
-                  }`}
-                >
-                  <div className="text-3xl mb-2">⭐</div>
-                  Día Especial
-                </button>
-              </div>
-            </div>
-
-            {/* Botones de acción */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
-              <button
-                onClick={() => setSelectedDay(null)}
-                className="flex-1 px-6 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-300/50 dark:border-gray-600/50 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-white/70 dark:hover:bg-gray-600/70 transition-all shadow-lg"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={guardarConfiguracion}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
-              >
-                💾 Guardar Cambios
-              </button>
             </div>
           </div>
         </div>

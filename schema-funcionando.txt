@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String                 @id @default(cuid())
+  email               String                 @unique
+  password            String
+  name                String?
+  role                String                 @default("EMPLEADO")
+  empresaId           String?
+  empresa             Empresa?               @relation(fields: [empresaId], references: [id])
+  empleado            Empleado?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  passwordResetTokens PasswordResetToken[]   // ✅ NUEVO: Relación con tokens de reset
+
+  @@index([empresaId])
+}
+
+// ✅ NUEVO: Modelo para tokens de restablecimiento de contraseña
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+
+  @@index([userId])
+}
+
+model Empresa {
+  id                        String                     @id @default(cuid())
+  nombre                    String
+  cif                       String                     @unique
+  direccion                 String?
+  telefono                  String?
+  email                     String?
+  users                     User[]
+  empleados                 Empleado[]
+  gruposTrabajo             GrupoTrabajo[]
+  puestosDeTrabajo          PuestoDeTrabajo[]
+  configuracionesCobertura  ConfiguracionCobertura[]
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+}
+
+model Empleado {
+  id                  String         @id @default(cuid())
+  userId              String         @unique
+  user                User           @relation(fields: [userId], references: [id])
+  empresaId           String
+  empresa             Empresa        @relation(fields: [empresaId], references: [id])
+  numeroEmpleado      String
+  nombre              String
+  apellidos           String
+  dni                 String?
+  telefono            String?
+  fechaNacimiento     DateTime?
+  fechaContratacion   DateTime?
+  grupoTrabajoId      String?
+  grupoTrabajo        GrupoTrabajo?  @relation(fields: [grupoTrabajoId], references: [id])
+  puestoDeTrabajoId   String?
+  puestoDeTrabajo     PuestoDeTrabajo? @relation(fields: [puestoDeTrabajoId], references: [id])
+  fichajes            Fichaje[]
+  vacaciones          Vacacion[]
+  cambiosTurnoOrigen  CambioTurno[]  @relation("EmpleadoOrigen")
+  cambiosTurnoDestino CambioTurno[]  @relation("EmpleadoDestino")
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@unique([empresaId, numeroEmpleado])
+  @@index([grupoTrabajoId])
+  @@index([puestoDeTrabajoId])
+}
+
+model GrupoTrabajo {
+  id          String      @id @default(cuid())
+  empresaId   String
+  empresa     Empresa     @relation(fields: [empresaId], references: [id])
+  nombre      String
+  descripcion String?
+  color       String?
+  empleados   Empleado[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([empresaId, nombre])
+}
+
+model PuestoDeTrabajo {
+  id                        String                     @id @default(cuid())
+  empresaId                 String
+  empresa                   Empresa                    @relation(fields: [empresaId], references: [id])
+  nombre                    String
+  descripcion               String?
+  empleados                 Empleado[]
+  configuracionesCobertura  ConfiguracionCobertura[]
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+
+  @@unique([empresaId, nombre])
+  @@index([empresaId])
+}
+
+model ConfiguracionCobertura {
+  id                String          @id @default(cuid())
+  empresaId         String
+  empresa           Empresa         @relation(fields: [empresaId], references: [id])
+  puestoDeTrabajoId String
+  puestoDeTrabajo   PuestoDeTrabajo @relation(fields: [puestoDeTrabajoId], references: [id])
+  coberturaMinimaL  Int             @default(0)
+  coberturaMinimaM  Int             @default(0)
+  coberturaMinimaX  Int             @default(0)
+  coberturaMinimaJ  Int             @default(0)
+  coberturaMinimaV  Int             @default(0)
+  coberturaMinimaS  Int             @default(0)
+  coberturaMinimaD  Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([empresaId, puestoDeTrabajoId])
+  @@index([empresaId])
+  @@index([puestoDeTrabajoId])
+}
+
+model Fichaje {
+  id          String    @id @default(cuid())
+  empleadoId  String
+  empleado    Empleado  @relation(fields: [empleadoId], references: [id])
+  fecha       DateTime
+  horaEntrada DateTime?
+  horaSalida  DateTime?
+  tipo        String    @default("NORMAL")
+  observaciones String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([empleadoId])
+  @@index([fecha])
+}
+
+model Vacacion {
+  id            String    @id @default(cuid())
+  empleadoId    String
+  empleado      Empleado  @relation(fields: [empleadoId], references: [id])
+  fechaInicio   DateTime
+  fechaFin      DateTime
+  diasTotales   Int
+  estado        String    @default("PENDIENTE")
+  observaciones String?
+  aprobadoPor   String?
+  fechaAprobacion DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([empleadoId])
+  @@index([estado])
+}
+
+model CambioTurno {
+  id                String    @id @default(cuid())
+  empleadoOrigenId  String
+  empleadoOrigen    Empleado  @relation("EmpleadoOrigen", fields: [empleadoOrigenId], references: [id])
+  empleadoDestinoId String
+  empleadoDestino   Empleado  @relation("EmpleadoDestino", fields: [empleadoDestinoId], references: [id])
+  fecha             DateTime
+  turnoOrigen       String
+  turnoDestino      String
+  motivo            String?
+  estado            String    @default("PENDIENTE")
+  aprobadoPor       String?
+  fechaAprobacion   DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([empleadoOrigenId])
+  @@index([empleadoDestinoId])
+  @@index([estado])
+}
+
+model LogAuditoria {
+  id          String   @id @default(cuid())
+  userId      String
+  accion      String
+  entidad     String?
+  entidadId   String?
+  detalles    String?
+  ip          String?
+  timestamp   DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([entidad])
+}
