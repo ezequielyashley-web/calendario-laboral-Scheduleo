@@ -1,14 +1,9 @@
 'use client'
-/**
- * SCHEDULEO - FASE 6: LOGIN MEJORADO
- * Contraseñas robustas, rate limiting, CSRF protection
- */
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { validateEmail, validatePassword } from '@/lib/validation'
-import type { PasswordValidation } from '@/lib/validation'
+import { validateEmail } from '@/lib/validation'
+
 export default function SecureLoginForm() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -17,71 +12,67 @@ export default function SecureLoginForm() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [attemptsLeft, setAttemptsLeft] = useState(5)
-  const [blockedUntil, setBlockedUntil] = useState<number | null>(null)
-  const [csrfToken, setCsrfToken] = useState('')
-  // Obtener token CSRF al cargar
-  useEffect(() => {
-    fetch('/api/csrf-token')
-      .then(res => res.json())
-      .then(data => setCsrfToken(data.token))
-  }, [])
-  // Countdown si está bloqueado
+  const [blockedUntil, setBlockedUntil] = useState(null)
+
   useEffect(() => {
     if (!blockedUntil) return
     const timer = setInterval(() => {
-      const now = Date.now()
-      if (now >= blockedUntil) {
+      if (Date.now() >= blockedUntil) {
         setBlockedUntil(null)
         setError('')
       }
     }, 1000)
     return () => clearInterval(timer)
   }, [blockedUntil])
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    // Verificar si está bloqueado
+
     if (blockedUntil && Date.now() < blockedUntil) {
       const minutesLeft = Math.ceil((blockedUntil - Date.now()) / 60000)
       setError(`Demasiados intentos. Intenta en ${minutesLeft} minutos`)
       return
     }
-    // Validar email
+
     if (!validateEmail(email)) {
       setError('Email inválido')
       return
     }
-    // Validar contraseña
+
     if (!password) {
       setError('Ingresa tu contraseña')
       return
     }
+
     setLoading(true)
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        csrfToken,
-        redirect: false
+      const csrfRes = await fetch('/api/auth/csrf')
+      const { csrfToken } = await csrfRes.json()
+
+      const result = await fetch('/api/auth/callback/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        redirect: 'manual',
+        body: new URLSearchParams({
+          email,
+          password,
+          csrfToken,
+          redirect: 'false',
+          callbackUrl: '/dashboard',
+          json: 'true'
+        })
       })
-      if (result?.error) {
-        // Manejar rate limiting
-        if (result.status === 429) {
-          const data = JSON.parse(result.error)
-          setBlockedUntil(data.resetTime)
-          setError(data.message)
-        } else {
-          setAttemptsLeft(prev => Math.max(0, prev - 1))
-          setError(result.error)
-          
-          if (attemptsLeft <= 1) {
-            setBlockedUntil(Date.now() + 15 * 60 * 1000)
-          }
-        }
-      } else {
-        // Login exitoso
+
+      if (result.status === 302 || result.status === 200 || result.type === 'opaqueredirect') {
         router.push('/dashboard')
         router.refresh()
+      } else {
+        setAttemptsLeft(prev => Math.max(0, prev - 1))
+        setError('Email o contraseña incorrectos')
+        if (attemptsLeft <= 1) {
+          setBlockedUntil(Date.now() + 15 * 60 * 1000)
+        }
       }
     } catch (err) {
       setError('Error de conexión')
@@ -89,22 +80,24 @@ export default function SecureLoginForm() {
       setLoading(false)
     }
   }
+
   const getBlockedMessage = () => {
     if (!blockedUntil) return null
     const minutesLeft = Math.ceil((blockedUntil - Date.now()) / 60000)
     return `Bloqueado. Intenta en ${minutesLeft} minuto${minutesLeft > 1 ? 's' : ''}`
   }
+
   const isBlocked = blockedUntil && Date.now() < blockedUntil
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 to-blue-100">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-cyan-600">Scheduleo</h1>
           <p className="text-gray-600 mt-2">Sistema de Gestión Laboral</p>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
               Email
@@ -121,7 +114,7 @@ export default function SecureLoginForm() {
               required
             />
           </div>
-          {/* Contraseña */}
+
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
               Contraseña
@@ -148,7 +141,7 @@ export default function SecureLoginForm() {
               </button>
             </div>
           </div>
-          {/* Error o mensaje de bloqueo */}
+
           {(error || isBlocked) && (
             <div className={`p-4 rounded-lg ${isBlocked ? 'bg-red-50 border border-red-200' : 'bg-orange-50 border border-orange-200'}`}>
               <p className={`text-sm font-medium ${isBlocked ? 'text-red-800' : 'text-orange-800'}`}>
@@ -161,42 +154,30 @@ export default function SecureLoginForm() {
               )}
             </div>
           )}
-          {/* Botón de login */}
+
           <button
             type="submit"
             disabled={isBlocked || loading}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+            className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 Verificando...
               </span>
-            ) : isBlocked ? (
-              'Bloqueado'
-            ) : (
-              'Iniciar Sesión'
-            )}
+            ) : isBlocked ? 'Bloqueado' : 'Iniciar Sesión'}
           </button>
 
-          {/* Link de ¿Olvidaste tu contraseña? */}
           <div className="text-center">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-cyan-600 hover:text-cyan-700 hover:underline transition-colors"
-            >
+            <Link href="/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700 hover:underline">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
         </form>
-        {/* Footer */}
+
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            🔒 Conexión segura con cifrado de extremo a extremo
-          </p>
-          <p className="text-xs text-gray-400 mt-2">
-            Scheduleo v2.0 - Fase 6 (Seguridad Reforzada)
-          </p>
+          <p className="text-xs text-gray-500">Conexión segura</p>
+          <p className="text-xs text-gray-400 mt-2">Scheduleo v2.0</p>
         </div>
       </div>
     </div>
