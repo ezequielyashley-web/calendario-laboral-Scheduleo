@@ -4,30 +4,21 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
-// ✅ Prisma singleton (evita múltiples conexiones en dev)
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
-
 const prisma =
   globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ["error", "warn"],
-  })
+  new PrismaClient({ log: ["error", "warn"] })
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma
 }
 
-// ✅ Configuración NextAuth
-const authConfig = NextAuth({
+const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/login",
-  },
+  session: { strategy: "jwt" },
+  pages: { signIn: "/login" },
   providers: [
     Credentials({
       name: "Credentials",
@@ -37,43 +28,17 @@ const authConfig = NextAuth({
       },
       async authorize(credentials) {
         try {
-          // 🔍 Validación básica
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Email y contraseña requeridos")
           }
-
           const email = credentials.email.toLowerCase()
-          const password = credentials.password
-
-          console.log("🔐 LOGIN ATTEMPT:", email)
-
-          // 🔎 Buscar usuario
-          const user = await prisma.user.findUnique({
-            where: { email },
-          })
-
-          console.log("👤 USER FOUND:", user?.email)
-
-          if (!user || !user.password) {
-            throw new Error("Usuario no encontrado")
-          }
-
-          // 🔑 Comparar contraseña
-          const isValid = await bcrypt.compare(password, user.password)
-
-          if (!isValid) {
-            throw new Error("Contraseña incorrecta")
-          }
-
-          // ✅ Login OK
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-          }
+          const user = await prisma.user.findUnique({ where: { email } })
+          if (!user || !user.password) throw new Error("Usuario no encontrado")
+          const isValid = await bcrypt.compare(credentials.password, user.password)
+          if (!isValid) throw new Error("Contraseña incorrecta")
+          return { id: user.id, email: user.email, name: user.name, role: user.role }
         } catch (error) {
-          console.error("🔥 ERROR EN AUTHORIZE:", error)
+          console.error("ERROR EN AUTHORIZE:", error)
           throw new Error("Error de autenticación")
         }
       },
@@ -81,16 +46,13 @@ const authConfig = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.role = user.role
-      }
+      if (user) { token.id = user.id; token.role = (user as any).role }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
-        session.user.role = token.role as string
+        ;(session.user as any).role = token.role
       }
       return session
     },
@@ -98,6 +60,4 @@ const authConfig = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 })
 
-// ✅ EXPORTS CORRECTOS (CLAVE PARA QUE FUNCIONE)
-export const { handlers, auth, signIn, signOut } = authConfig
-export const { GET, POST } = handlers
+export { handler as GET, handler as POST }
