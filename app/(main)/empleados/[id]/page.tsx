@@ -30,12 +30,12 @@ export default function PerfilEmpleadoPage() {
   if (!empleado || empleado.error) return <div style={{ padding: 40, textAlign: "center", color: "#dc2626" }}>Empleado no encontrado</div>
 
   const horasTotales = empleado.fichajes?.reduce((s, f) => {
-    if (!f.salida) return s
-    return s + (new Date(f.salida).getTime() - new Date(f.entrada).getTime()) / 3600000
+    if (!f.horaSalida) return s
+    return s + (new Date(f.horaSalida).getTime() - new Date(f.horaEntrada).getTime()) / 3600000
   }, 0) || 0
 
   const tardanzas = empleado.fichajes?.filter(f => {
-    const hora = new Date(f.entrada).getHours()
+    const hora = new Date(f.horaEntrada).getHours()
     return hora >= 9
   }).length || 0
 
@@ -115,16 +115,16 @@ export default function PerfilEmpleadoPage() {
               {empleado.fichajes?.length === 0 ? (
                 <tr><td colSpan={5} style={{ padding: 32, textAlign: "center", color: "#9ca3af" }}>Sin fichajes registrados</td></tr>
               ) : empleado.fichajes?.map((f, i) => {
-                const horas = f.salida ? ((new Date(f.salida).getTime() - new Date(f.entrada).getTime()) / 3600000).toFixed(1) : "—"
+                const horas = f.horaSalida ? ((new Date(f.horaSalida).getTime() - new Date(f.horaEntrada).getTime()) / 3600000).toFixed(1) : "—"
                 return (
                   <tr key={f.id} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f9fafb" }}>
-                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(f.entrada).toLocaleDateString("es-ES")}</td>
-                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(f.entrada).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</td>
-                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{f.salida ? new Date(f.salida).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(f.horaEntrada).toLocaleDateString("es-ES")}</td>
+                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(f.horaEntrada).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</td>
+                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{f.horaSalida ? new Date(f.horaSalida).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                     <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 600 }}>{horas}h</td>
                     <td style={{ padding: "10px 16px" }}>
-                      <span style={{ background: f.salida ? "#d1fae5" : "#fef3c7", color: f.salida ? "#065f46" : "#92400e", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
-                        {f.salida ? "Completo" : "En curso"}
+                      <span style={{ background: f.horaSalida ? "#d1fae5" : "#fef3c7", color: f.horaSalida ? "#065f46" : "#92400e", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                        {f.horaSalida ? "Completo" : "En curso"}
                       </span>
                     </td>
                   </tr>
