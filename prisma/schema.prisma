@@ -203,3 +203,4 @@ model LogAuditoria {
   @@index([timestamp])
   @@index([entidad])
 }
+
