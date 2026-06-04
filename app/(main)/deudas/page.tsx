@@ -64,8 +64,8 @@ export default function DeudasPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }}>
         {[
           { label: "Total pendiente", valor: deudas.filter(d => d.estado === "ACTIVA").reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0).toFixed(2) + "€", color: "#dc2626" },
-          { label: "Empleados con deuda", valor: empleadosConDeudas.length, color: "#d97706" },
-          { label: "Deudas activas", valor: deudas.filter(d => d.estado === "ACTIVA").length, color: "#0284c7" },
+          { label: "Con deudas/anticipos", valor: empleadosConDeudas.length, color: "#d97706" },
+          { label: "Deudas/anticipos activos", valor: deudas.filter(d => d.estado === "ACTIVA").length, color: "#0284c7" },
         ].map(s => (
           <div key={s.label} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "16px 20px" }}>
             <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>{s.label}</div>
@@ -85,7 +85,7 @@ export default function DeudasPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f8fafc" }}>
-                {["Empleado", "Puesto", "Deudas activas", "Total pendiente", "Próximo cobro", ""].map(h => (
+                {["Empleado", "Puesto", "Deudas/anticipos activos", "Total pendiente", "Próximo cobro", ""].map(h => (
                   <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#6b7280", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
                 ))}
               </tr>
