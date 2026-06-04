@@ -1,4 +1,5 @@
 "use client"
+import { useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 
@@ -16,7 +17,8 @@ const TABS = [
 export default function PerfilEmpleadoPage() {
   const { id } = useParams()
   const [empleado, setEmpleado] = useState(null)
-  const [tab, setTab] = useState("general")
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState(searchParams.get("tab") || "general")
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -318,3 +320,4 @@ export default function PerfilEmpleadoPage() {
     </div>
   )
 }
+
