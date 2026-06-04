@@ -1,9 +1,10 @@
 "use client"
+
 import { useState, useEffect } from "react"
 
 const ROLES = ["SUPER_ADMIN", "ADMIN_SEDE", "EMPLEADO"]
 
-export default function UsuariosPage() {
+export default function ConfiguracionPage() {
   const [usuarios, setUsuarios] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(null)

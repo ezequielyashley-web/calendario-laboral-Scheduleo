@@ -8,14 +8,9 @@ export async function GET(req: NextRequest) {
 
     const empleados = await prisma.empleado.findMany({
       where: { empresaId },
-      select: {
-        id: true,
-        nombre: true,
-        email: true,
-        dni: true,
-        sede: true,
-        grupoTurno: true,
-        activo: true,
+      include: {
+        puestoDeTrabajo: { select: { id: true, nombre: true } },
+        grupoTrabajo: { select: { id: true, nombre: true } },
       },
       orderBy: { nombre: "asc" }
     })

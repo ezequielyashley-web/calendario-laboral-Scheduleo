@@ -1,7 +1,6 @@
 "use client"
 
 import { useNotifications } from "@/components/providers/NotificationProvider"
-import DesktopLayout from "@/components/desktop/DesktopLayout"
 
 export default function NotificacionesPage() {
   const { notificaciones, marcarComoLeida, marcarTodasComoLeidas } = useNotifications()
@@ -21,7 +20,7 @@ export default function NotificacionesPage() {
   }
 
   return (
-    <DesktopLayout>
+    
       <div className="min-h-screen space-y-6">
         {/* Header */}
         <div className="glass-card p-6">
@@ -106,6 +105,6 @@ export default function NotificacionesPage() {
           )}
         </div>
       </div>
-    </DesktopLayout>
+    
   )
 }

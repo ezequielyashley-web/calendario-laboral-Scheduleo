@@ -1,9 +1,11 @@
 "use client"
+
+
 import { useState, useEffect } from "react"
 
 const TIPOS = ["ANTICIPO", "PRODUCTO", "DESCUENTO"]
 
-export default function DeudasPage() {
+function DeudasInner() {
   const [empleados, setEmpleados] = useState([])
   const [deudas, setDeudas] = useState([])
   const [limites, setLimites] = useState([])
@@ -314,3 +316,5 @@ export default function DeudasPage() {
     </div>
   )
 }
+
+export default function DeudasPage() { return <DeudasInner /> }
