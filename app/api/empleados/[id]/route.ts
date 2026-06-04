@@ -23,11 +23,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     let permisos = []
     let justificantes = []
 
-    try { deudas = await prisma.$queryRaw`SELECT * FROM "Deuda" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Deudas:", e) }
-    try { bajas = await prisma.$queryRaw`SELECT * FROM "BajaMedica" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Bajas:", e) }
-    try { historialCargos = await prisma.$queryRaw`SELECT * FROM "HistorialCargo" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("HistorialCargo:", e) }
-    try { permisos = await prisma.$queryRaw`SELECT * FROM "PermisoSalida" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Permisos:", e) }
-    try { justificantes = await prisma.$queryRaw`SELECT * FROM "Justificante" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Justificantes:", e) }
+    try { deudas = await prisma.$queryRaw`SELECT * FROM "Deuda" WHERE empleadoid = ${id}` as any[] } catch(e) { console.error("Deudas:", e) }
+    try { bajas = await prisma.$queryRaw`SELECT * FROM "BajaMedica" WHERE empleadoid = ${id}` as any[] } catch(e) { console.error("Bajas:", e) }
+    try { historialCargos = await prisma.$queryRaw`SELECT * FROM "HistorialCargo" WHERE empleadoid = ${id}` as any[] } catch(e) { console.error("HistorialCargo:", e) }
+    try { permisos = await prisma.$queryRaw`SELECT * FROM "PermisoSalida" WHERE empleadoid = ${id}` as any[] } catch(e) { console.error("Permisos:", e) }
+    try { justificantes = await prisma.$queryRaw`SELECT * FROM "Justificante" WHERE empleadoid = ${id}` as any[] } catch(e) { console.error("Justificantes:", e) }
 
     return NextResponse.json({ ...empleado, deudas, bajas, historialCargos, permisos, justificantes })
   } catch (error) {
