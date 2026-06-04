@@ -313,7 +313,7 @@ export default function InformacionSistema() {
           <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg text-xs font-bold shadow-md">
             ✅ Cumple RDL 8/2019
           </span>
-          <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg text-xs font-bold shadow-md">
+          <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg text-xs font-bold shadow-md">
             🔐 RGPD Compliant
           </span>
         </div>
@@ -321,3 +321,4 @@ export default function InformacionSistema() {
     </div>
   )
 }
+

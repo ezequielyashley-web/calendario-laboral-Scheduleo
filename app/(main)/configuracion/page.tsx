@@ -100,10 +100,10 @@ export default function ConfiguracionPage() {
     <div style={{ padding: 32, maxWidth: 1000, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0284c7", margin: 0 }}>Gestión de Usuarios</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#6366f1", margin: 0 }}>Gestión de Usuarios</h1>
           <p style={{ fontSize: 14, color: "#6b7280", margin: "4px 0 0" }}>Solo accesible para SUPER_ADMIN</p>
         </div>
-        <button onClick={() => abrirModal("crear")} style={{ background: "#0369a1", color: "#fff", border: "none", borderRadius: 4, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={() => abrirModal("crear")} style={{ background: "#4f46e5", color: "#fff", border: "none", borderRadius: 4, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
           + Nuevo usuario
         </button>
       </div>
@@ -139,7 +139,7 @@ export default function ConfiguracionPage() {
                     <td style={{ padding: "12px 16px", fontSize: 13, color: "#9ca3af" }}>{new Date(u.createdAt).toLocaleDateString("es-ES")}</td>
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ display: "flex", gap: 6 }}>
-                        <button onClick={() => abrirModal("editar", u)} style={{ background: "#0369a1", color: "#fff", border: "none", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>Editar</button>
+                        <button onClick={() => abrirModal("editar", u)} style={{ background: "#4f46e5", color: "#fff", border: "none", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>Editar</button>
                         <button onClick={() => abrirModal("reset", u)} style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>Reset</button>
                         <button onClick={() => abrirModal(u.role === "PAUSADO" ? "reactivar" : "pausar", u)} style={{ background: u.role === "PAUSADO" ? "#059669" : "#d97706", color: "#fff", border: "none", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>
                           {u.role === "PAUSADO" ? "Activar" : "Pausar"}
@@ -213,7 +213,7 @@ export default function ConfiguracionPage() {
                     else if (modal.tipo === "borrar") borrarUsuario()
                     else accionUsuario(modal.tipo, modal.usuario)
                   }}
-                  style={{ background: modal.tipo === "borrar" ? "#dc2626" : "#0369a1", color: "#fff", border: "none", borderRadius: 4, padding: "8px 16px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                  style={{ background: modal.tipo === "borrar" ? "#dc2626" : "#4f46e5", color: "#fff", border: "none", borderRadius: 4, padding: "8px 16px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
                   Confirmar
                 </button>
               )}
@@ -224,3 +224,4 @@ export default function ConfiguracionPage() {
     </div>
   )
 }
+

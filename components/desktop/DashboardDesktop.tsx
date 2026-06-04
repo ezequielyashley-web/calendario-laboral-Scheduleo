@@ -1,224 +1,114 @@
 "use client"
-
 import { useState } from "react"
 
-const TrendUpIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-  </svg>
-)
-const TrendDownIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
-  </svg>
-)
-const PeopleIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-)
-const SunIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="5"/>
-    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-  </svg>
-)
-const ClockIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-  </svg>
-)
-const AlertIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-  </svg>
-)
+const kpis = [
+  { label: "Empleados activos", valor: 68, trend: "+3%", up: true, color: "#6366f1", bg: "#ede9fe", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+  { label: "En vacaciones",     valor: 12, trend: "-2%", up: false, color: "#ec4899", bg: "#fce7f3", icon: "M18 3a3 3 0 0 0-3 3l-7 3a3 3 0 0 0 0 6l7 3a3 3 0 1 0 3-3l-7-3 7-3A3 3 0 0 0 18 3z" },
+  { label: "Solicitudes",       valor: 5,  trend: "+1",  up: false, color: "#d97706", bg: "#fef9c3", icon: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" },
+  { label: "Horas este mes",    valor: "5.440", trend: "+5%", up: true, color: "#fff", bg: "linear-gradient(135deg,#6366f1,#8b5cf6)", gradient: true, icon: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2" },
+]
 
 const asistencia = [
-  { dia:'L', pct:85, emp:58 }, { dia:'M', pct:92, emp:63 }, { dia:'X', pct:88, emp:60 },
-  { dia:'J', pct:95, emp:65 }, { dia:'V', pct:90, emp:61 }, { dia:'S', pct:87, emp:59 },
-  { dia:'D', pct:20, emp:14, danger:true },
+  { dia:'L', pct:85 }, { dia:'M', pct:92 }, { dia:'X', pct:88 },
+  { dia:'J', pct:95 }, { dia:'V', pct:90 }, { dia:'S', pct:87 },
+  { dia:'D', pct:20, danger:true },
 ]
 
 const grupos = [
-  { nombre:'G1A', empleados:12, total:12, color:'#0284c7' },
-  { nombre:'G1B', empleados:11, total:12, color:'#0369a1' },
-  { nombre:'G2A', empleados:11, total:12, color:'#0891b2' },
-  { nombre:'G2B', empleados:12, total:12, color:'#0e7490' },
-  { nombre:'G3A', empleados:11, total:12, color:'#6366f1' },
-  { nombre:'G3B', empleados:11, total:12, color:'#4f46e5' },
+  { nombre:'G1A', empleados:12, total:12, color:'#6366f1' },
+  { nombre:'G1B', empleados:11, total:12, color:'#4f46e5' },
+  { nombre:'G2A', empleados:11, total:12, color:'#8b5cf6' },
+  { nombre:'G2B', empleados:12, total:12, color:'#a78bfa' },
+  { nombre:'G3A', empleados:11, total:12, color:'#c4b5fd' },
+  { nombre:'G3B', empleados:11, total:12, color:'#ddd6fe' },
 ]
 
-const actividades = [
-  { accion:'Solicitud vacaciones enviada',  usuario:'Juan Pérez',   tiempo:'5 min',  tipo:'info'    },
-  { accion:'Cambio de turno aprobado',      usuario:'María García', tiempo:'15 min', tipo:'success' },
-  { accion:'Fichaje de entrada registrado', usuario:'Carlos López', tiempo:'30 min', tipo:'neutral' },
-  { accion:'Baja médica registrada',        usuario:'Ana Martínez', tiempo:'1 h',    tipo:'warning' },
+const actividad = [
+  { icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0", txt: "Solicitud vacaciones enviada", emp: "Juan García", tiempo: "5 min", color: "#6366f1", bg: "#ede9fe" },
+  { icon: "M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3", txt: "Cambio de turno aprobado", emp: "María López", tiempo: "18 min", color: "#16a34a", bg: "#dcfce7" },
+  { icon: "M22 12h-4l-3 9L9 3l-3 9H2", txt: "Baja médica registrada", emp: "Carlos Martín", tiempo: "1h", color: "#d97706", bg: "#fef9c3" },
+  { icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", txt: "Anticipo solicitado", emp: "Ana Sánchez", tiempo: "2h", color: "#ec4899", bg: "#fce7f3" },
 ]
-
-const tipoColor: Record<string,string> = { info:'#0284c7', success:'#16a34a', neutral:'#64748b', warning:'#d97706' }
-
-// ── Hover card helper ─────────────────────────────────────────
-function HoverCard({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        borderRadius: 6,
-        boxShadow: hov ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
-        transform: hov ? 'scale(1.02) translateY(-2px)' : 'scale(1) translateY(0)',
-        transition: 'transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease',
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
-// ── MetricCard ────────────────────────────────────────────────
-function MetricCard({ title, value, trend, trendUp, icon, accent }:
-  { title:string, value:string|number, trend:string, trendUp:boolean, icon:React.ReactNode, accent:string }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 6,
-        padding: '20px', display: 'flex', flexDirection: 'column', gap: 16,
-        boxShadow: hov ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
-        transform: hov ? 'scale(1.04) translateY(-3px)' : 'scale(1) translateY(0)',
-        transition: 'transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease',
-        cursor: 'default',
-      }}
-    >
-      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', width:36, height:36, background:`${accent}18`, color:accent, borderRadius:4 }}>
-          {icon}
-        </div>
-        <span style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:3, background: trendUp?'#dcfce7':'#fee2e2', color: trendUp?'#15803d':'#b91c1c' }}>
-          {trendUp ? <TrendUpIcon/> : <TrendDownIcon/>} {trend}
-        </span>
-      </div>
-      <div>
-        <p style={{ fontSize:26, fontWeight:700, color:'var(--text-primary)', lineHeight:1 }}>{value}</p>
-        <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>{title}</p>
-      </div>
-      <div style={{ height:2, background:'var(--border)', borderRadius:2, overflow:'hidden' }}>
-        <div style={{ height:'100%', width:'65%', background:accent, borderRadius:2 }} />
-      </div>
-    </div>
-  )
-}
 
 export default function DashboardDesktop() {
-  const [hovered, setHovered] = useState<number|null>(null)
-
   return (
-    <div className="space-y-5">
+    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
 
-      {/* Métricas */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Empleados activos" value={68}      trend="+3%" trendUp icon={<PeopleIcon/>} accent="#0284c7"/>
-        <MetricCard title="En vacaciones"      value={12}      trend="-2%" trendUp={false} icon={<SunIcon/>}   accent="#0891b2"/>
-        <MetricCard title="Pendientes"         value={5}       trend="+1"  trendUp={false} icon={<AlertIcon/>} accent="#d97706"/>
-        <MetricCard title="Horas este mes"     value="5.440"   trend="+5%" trendUp icon={<ClockIcon/>} accent="#16a34a"/>
+      {/* KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
+        {kpis.map((k, i) => (
+          <div key={i} style={{ background: k.gradient ? k.bg : "#fff", borderRadius: 16, padding: 20, border: k.gradient ? "none" : "0.5px solid #e8eaf0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ width: 45, height: 45, background: k.gradient ? "rgba(255,255,255,0.2)" : k.bg, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={k.gradient ? "#fff" : k.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={k.icon}/>
+                </svg>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 500, color: k.gradient ? "#fff" : k.up ? "#16a34a" : "#ef4444", background: k.gradient ? "rgba(255,255,255,0.2)" : k.up ? "#dcfce7" : "#fee2e2", padding: "3px 8px", borderRadius: 20 }}>
+                {k.trend}
+              </span>
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 500, color: k.gradient ? "#fff" : "#1e1b4b", marginBottom: 4 }}>{k.valor}</div>
+            <div style={{ fontSize: 12, color: k.gradient ? "rgba(255,255,255,0.7)" : "#a0aec0" }}>{k.label}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Charts */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginBottom: 16 }}>
 
         {/* Asistencia */}
-        <HoverCard style={{ padding:20 }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
-            <div>
-              <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Asistencia semanal</p>
-              <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Porcentaje diario</p>
-            </div>
-            <span style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:3, background:'#dbeafe', color:'#1d4ed8' }}>Esta semana</span>
+        <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "0.5px solid #e8eaf0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b" }}>Asistencia semanal</div>
+            <span style={{ fontSize: 11, color: "#6366f1", background: "#ede9fe", padding: "4px 10px", borderRadius: 20 }}>Esta semana</span>
           </div>
-          <div style={{ display:'flex', alignItems:'flex-end', gap:6, height:160 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 120 }}>
             {asistencia.map((d, i) => (
-              <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4, height:'100%', justifyContent:'flex-end', cursor:'pointer' }}
-                onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)}>
-                {hovered === i && (
-                  <div style={{ fontSize:10, fontWeight:600, padding:'2px 6px', borderRadius:3, background:'var(--surface-2)', border:'1px solid var(--border)', color:'var(--text-secondary)', whiteSpace:'nowrap' }}>
-                    {d.emp} emp
-                  </div>
-                )}
-                <div style={{ width:'100%', borderRadius:'3px 3px 0 0', transition:'all .15s', background: d.danger?'#ef4444': hovered===i?'#0369a1':'#0284c7', height:`${d.pct}%`, opacity: hovered!==null&&hovered!==i?0.5:1 }} />
-                <span style={{ fontSize:10, fontWeight:500, color:'var(--text-muted)' }}>{d.dia}</span>
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{ width: "100%", background: d.danger ? "#fee2e2" : "#ede9fe", height: d.pct + "px", borderRadius: "8px 8px 0 0", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: d.danger ? "#ef4444" : "#6366f1", height: (d.pct * 0.7) + "px", borderRadius: "6px 6px 0 0", opacity: 0.9 }}></div>
+                </div>
+                <span style={{ fontSize: 11, color: "#a0aec0" }}>{d.dia}</span>
               </div>
             ))}
           </div>
-        </HoverCard>
+        </div>
 
-        {/* Distribución */}
-        <HoverCard style={{ padding:20 }}>
-          <div style={{ marginBottom:20 }}>
-            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Distribución por turno</p>
-            <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Empleados por grupo</p>
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            {grupos.map((g, i) => (
-              <div key={i}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <div style={{ width:8, height:8, background:g.color, borderRadius:2, flexShrink:0 }} />
-                    <span style={{ fontSize:12, fontWeight:600, color:'var(--text-primary)' }}>{g.nombre}</span>
-                  </div>
-                  <span style={{ fontSize:11, color:'var(--text-muted)' }}>{g.empleados}/{g.total}</span>
-                </div>
-                <div style={{ height:5, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
-                  <div style={{ height:'100%', width:`${(g.empleados/g.total)*100}%`, background:g.color, borderRadius:3, transition:'width .5s ease' }} />
-                </div>
+        {/* Grupos */}
+        <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "0.5px solid #e8eaf0" }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b", marginBottom: 16 }}>Distribución por turno</div>
+          {grupos.map((g, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <span style={{ fontSize: 12, color: "#718096", width: 32 }}>{g.nombre}</span>
+              <div style={{ flex: 1, background: "#f0f4ff", borderRadius: 4, height: 6 }}>
+                <div style={{ width: (g.empleados / g.total * 100) + "%", background: g.color, height: 6, borderRadius: 4 }}></div>
               </div>
-            ))}
-          </div>
-          <div style={{ borderTop:'1px solid var(--border)', marginTop:16, paddingTop:12, display:'flex', justifyContent:'space-between' }}>
-            <span style={{ fontSize:11, color:'var(--text-muted)' }}>Total</span>
-            <span style={{ fontSize:13, fontWeight:700, color:'var(--text-primary)' }}>{grupos.reduce((s,g)=>s+g.empleados,0)}</span>
-          </div>
-        </HoverCard>
+              <span style={{ fontSize: 12, color: "#718096", width: 36, textAlign: "right" }}>{g.empleados}/{g.total}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Actividad reciente */}
-      <HoverCard style={{ padding:20 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
-          <div>
-            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Actividad reciente</p>
-            <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Últimas acciones registradas</p>
-          </div>
-          <button className="btn-secondary" style={{ fontSize:11, padding:'4px 12px' }}>Ver todo</button>
-        </div>
-        <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-          {actividades.map((a, i) => {
-            const [rowHov, setRowHov] = useState(false)
-            return (
-              <div key={i} onMouseEnter={() => setRowHov(true)} onMouseLeave={() => setRowHov(false)}
-                style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderRadius:4, background: rowHov?'var(--surface-2)':'transparent', transition:'background .15s', cursor:'default' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
-                  <div style={{ width:6, height:6, borderRadius:'50%', background:tipoColor[a.tipo], flexShrink:0 }} />
-                  <div style={{ minWidth:0 }}>
-                    <p style={{ fontSize:12, fontWeight:600, color:'var(--text-primary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.accion}</p>
-                    <p style={{ fontSize:11, color:'var(--text-muted)' }}>{a.usuario}</p>
-                  </div>
-                </div>
-                <span style={{ fontSize:11, color:'var(--text-muted)', flexShrink:0, marginLeft:12 }}>{a.tiempo}</span>
+      {/* Actividad */}
+      <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "0.5px solid #e8eaf0" }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b", marginBottom: 16 }}>Actividad reciente</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
+          {actividad.map((a, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#f8f9ff", borderRadius: 10 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: a.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={a.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={a.icon}/>
+                </svg>
               </div>
-            )
-          })}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{a.txt}</div>
+                <div style={{ fontSize: 11, color: "#a0aec0" }}>{a.emp} · Hace {a.tiempo}</div>
+              </div>
+            </div>
+          ))}
         </div>
-      </HoverCard>
+      </div>
     </div>
   )
 }

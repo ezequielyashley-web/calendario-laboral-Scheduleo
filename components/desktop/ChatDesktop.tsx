@@ -94,7 +94,7 @@ const conversacionesData: Conversacion[] = [
 // ── Avatar ─────────────────────────────────────────────────────
 function Avatar({ nombre, size=38, online=false }: { nombre:string, size?:number, online?:boolean }) {
   const initials = nombre.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()
-  const colors   = ['#0284c7','#0369a1','#6366f1','#0891b2','#d97706','#16a34a','#7c3aed','#dc2626']
+  const colors   = ['#6366f1','#4f46e5','#6366f1','#0891b2','#d97706','#16a34a','#7c3aed','#dc2626']
   const color    = colors[nombre.charCodeAt(0)%colors.length]
   return (
     <div style={{ position:'relative', flexShrink:0 }}>
@@ -363,7 +363,7 @@ export default function ChatDesktop() {
           <div style={{ flex:1, minWidth:0 }}>
             <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>
               {convActiva.nombre}
-              {convActiva.grupo && <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:'#0284c7', borderRadius:3, padding:'1px 6px', marginLeft:6 }}>{convActiva.grupo}</span>}
+              {convActiva.grupo && <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:'#6366f1', borderRadius:3, padding:'1px 6px', marginLeft:6 }}>{convActiva.grupo}</span>}
             </p>
             <p style={{ fontSize:11, color: convActiva.online?'#22c55e':'var(--text-muted)', marginTop:1 }}>
               {convActiva.online ? 'En línea' : `${convActiva.sede}`}
@@ -390,7 +390,7 @@ export default function ChatDesktop() {
             return (
               <div key={msg.id} style={{ display:'flex', flexDirection:'column', alignItems: msg.mio?'flex-end':'flex-start', marginTop: prevMio===msg.mio?2:8 }}>
                 {showAuthor && (
-                  <p style={{ fontSize:10, fontWeight:600, color:'#0284c7', marginBottom:2, paddingLeft:12 }}>{msg.autor}</p>
+                  <p style={{ fontSize:10, fontWeight:600, color:'#6366f1', marginBottom:2, paddingLeft:12 }}>{msg.autor}</p>
                 )}
                 <div style={{
                   maxWidth:'65%', padding:'7px 11px', fontSize:13, lineHeight:1.5, wordBreak:'break-word',
@@ -433,3 +433,4 @@ export default function ChatDesktop() {
     </div>
   )
 }
+

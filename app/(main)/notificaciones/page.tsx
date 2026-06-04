@@ -13,7 +13,7 @@ export default function NotificacionesPage() {
   }
 
   const tipoColors: any = {
-    info: "from-blue-400 to-cyan-400",
+    info: "from-blue-400 to-indigo-400",
     success: "from-green-400 to-emerald-400",
     warning: "from-yellow-400 to-amber-400",
     error: "from-red-400 to-pink-400",
@@ -108,3 +108,4 @@ export default function NotificacionesPage() {
     
   )
 }
+

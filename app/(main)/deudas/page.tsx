@@ -56,7 +56,7 @@ export default function DeudasPage() {
     <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0284c7", margin: 0 }}>Deudas y Anticipos</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#6366f1", margin: 0 }}>Deudas y Anticipos</h1>
           <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>Gestión de anticipos, productos y descuentos</p>
         </div>
         <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..."
@@ -69,8 +69,8 @@ export default function DeudasPage() {
           { label: "Total pendiente", valor: totalPendiente + "€", color: "#dc2626", bg: "#fee2e2" },
           { label: "Emp. con anticipos", valor: empConAnticipos.length, color: "#7c3aed", bg: "#ede9fe" },
           { label: "Anticipos activos", valor: anticiposActivos.length, color: "#7c3aed", bg: "#ede9fe" },
-          { label: "Emp. con productos", valor: empConProductos.length, color: "#0284c7", bg: "#dbeafe" },
-          { label: "Productos activos", valor: productosActivos.length, color: "#0284c7", bg: "#dbeafe" },
+          { label: "Emp. con productos", valor: empConProductos.length, color: "#6366f1", bg: "#dbeafe" },
+          { label: "Productos activos", valor: productosActivos.length, color: "#6366f1", bg: "#dbeafe" },
           { label: "Emp. con descuentos", valor: empConDescuentos.length, color: "#d97706", bg: "#fef3c7" },
           { label: "Descuentos activos", valor: descuentosActivos.length, color: "#d97706", bg: "#fef3c7" },
         ].map(s => (
@@ -113,7 +113,7 @@ export default function DeudasPage() {
                   >
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#0284c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
                           {e.nombre[0]}{e.apellidos[0]}
                         </div>
                         <div>
@@ -133,8 +133,8 @@ export default function DeudasPage() {
                     <td style={{ padding: "12px 16px" }}>
                       {productos.length > 0 ? (
                         <div>
-                          <span style={{ background: "#dbeafe", color: "#0284c7", padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{productos.length}</span>
-                          <div style={{ fontSize: 11, color: "#0284c7", marginTop: 2 }}>{parseFloat(getTotalPendiente(e.id, "PRODUCTO")).toFixed(2)}€</div>
+                          <span style={{ background: "#dbeafe", color: "#6366f1", padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{productos.length}</span>
+                          <div style={{ fontSize: 11, color: "#6366f1", marginTop: 2 }}>{parseFloat(getTotalPendiente(e.id, "PRODUCTO")).toFixed(2)}€</div>
                         </div>
                       ) : <span style={{ color: "#d1d5db" }}>—</span>}
                     </td>

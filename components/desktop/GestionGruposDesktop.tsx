@@ -237,7 +237,7 @@ function GrupoCard({ grupo, onEditar, onEliminar }: { grupo: Grupo, onEditar: ()
       <div className="flex gap-2">
         <button
           onClick={onEditar}
-          className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm flex items-center justify-center gap-2"
+          className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm flex items-center justify-center gap-2"
         >
           <span>✏️</span>
           Editar
@@ -464,3 +464,4 @@ function VistaMoverEmpleados({ grupos }: { grupos: Grupo[] }) {
     </div>
   )
 }
+

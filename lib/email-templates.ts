@@ -17,7 +17,7 @@ export const getPasswordResetEmailHTML = (resetUrl: string, userName?: string) =
           <tr>
             <td style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
               <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Scheduleo</h1>
-              <p style="color: #e0f2fe; margin: 8px 0 0 0; font-size: 14px;">Sistema de Gestión Laboral</p>
+              <p style="color: #ede9fe; margin: 8px 0 0 0; font-size: 14px;">Sistema de Gestión Laboral</p>
             </td>
           </tr>
 
@@ -115,3 +115,4 @@ Si tienes problemas, contacta al soporte técnico.
 © ${new Date().getFullYear()} Scheduleo. Todos los derechos reservados.
   `.trim();
 };
+

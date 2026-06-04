@@ -101,7 +101,7 @@ export default function TablaEmpleados() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     )
   }
@@ -121,7 +121,7 @@ export default function TablaEmpleados() {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Nombre, email..."
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function TablaEmpleados() {
             <select
               value={filtroSede}
               onChange={(e) => setFiltroSede(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
             >
               <option value="todas">Todas las sedes</option>
               <option value="Madrid Centro">Madrid Centro</option>
@@ -149,7 +149,7 @@ export default function TablaEmpleados() {
             <select
               value={filtroGrupo}
               onChange={(e) => setFiltroGrupo(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
             >
               <option value="todos">Todos los grupos</option>
               <option value="G1A">G1A</option>
@@ -169,7 +169,7 @@ export default function TablaEmpleados() {
             <select
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
             >
               <option value="todos">Todos</option>
               <option value="activos">Activos</option>
@@ -190,7 +190,7 @@ export default function TablaEmpleados() {
               setFiltroGrupo('todos')
               setFiltroEstado('todos')
             }}
-            className="text-cyan-600 hover:text-cyan-700 font-medium"
+            className="text-indigo-600 hover:text-indigo-700 font-medium"
           >
             Limpiar filtros
           </button>
@@ -201,7 +201,7 @@ export default function TablaEmpleados() {
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white">
+            <thead className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-bold">Nombre</th>
                 <th className="px-6 py-4 text-left text-sm font-bold">Email</th>
@@ -247,7 +247,7 @@ export default function TablaEmpleados() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button className="text-cyan-600 hover:text-cyan-700 font-medium text-sm">
+                    <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
                       Ver perfil
                     </button>
                   </td>
@@ -274,7 +274,7 @@ export default function TablaEmpleados() {
                 onClick={() => setPaginaActual(num)}
                 className={`w-10 h-10 rounded-lg font-medium transition-all ${
                   num === paginaActual
-                    ? 'bg-cyan-600 text-white'
+                    ? 'bg-indigo-600 text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border-2 border-gray-300'
                 }`}
               >
@@ -295,3 +295,4 @@ export default function TablaEmpleados() {
     </div>
   )
 }
+

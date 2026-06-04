@@ -15,7 +15,7 @@ type Fichaje = {
 }
 
 const grupoColor: Record<string,string> = {
-  G1A:'#0284c7', G1B:'#0369a1', G2A:'#0891b2',
+  G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2',
   G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5',
 }
 
@@ -47,7 +47,7 @@ const dias = ['01/05/2026','30/04/2026','29/04/2026','28/04/2026']
 
 function Avatar({ nombre, size=30 }: { nombre:string, size?:number }) {
   const initials = nombre.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()
-  const colors   = ['#0284c7','#0369a1','#6366f1','#0891b2','#d97706','#16a34a']
+  const colors   = ['#6366f1','#4f46e5','#6366f1','#0891b2','#d97706','#16a34a']
   const color    = colors[nombre.charCodeAt(0) % colors.length]
   return (
     <div style={{ width:size, height:size, borderRadius:4, background:color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#fff', fontSize:size*0.36, fontWeight:700 }}>
@@ -86,7 +86,7 @@ export default function FichajesDesktop() {
           { label:'Correctos',  value:stats.correctos, color:'#16a34a' },
           { label:'Tardíos',    value:stats.tardios,   color:'#d97706' },
           { label:'Sin salida', value:stats.sinSalida, color:'#b91c1c' },
-          { label:'Horas total',value:stats.horasTotal,color:'#0284c7' },
+          { label:'Horas total',value:stats.horasTotal,color:'#6366f1' },
         ].map((k,i) => {
           const [hov, setHov] = useState(false)
           return (
@@ -283,3 +283,4 @@ export default function FichajesDesktop() {
     </div>
   )
 }
+

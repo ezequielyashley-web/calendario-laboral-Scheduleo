@@ -22,7 +22,7 @@ export default function ConfiguracionDesktop() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-4 font-medium ${
                 activeTab === tab.id
-                  ? "border-b-2 border-cyan-600 text-cyan-600"
+                  ? "border-b-2 border-indigo-600 text-indigo-600"
                   : "text-gray-600 hover:text-gray-800"
               }`}
             >
@@ -67,7 +67,7 @@ function ConfigEmpresa() {
         </div>
       </div>
 
-      <button className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
+      <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
         Guardar Cambios
       </button>
     </div>
@@ -119,7 +119,7 @@ function ConfigGrupos() {
               <h4 className="font-bold">{g.grupo}</h4>
             </div>
             <p className="text-sm text-gray-600">{g.empleados} empleados</p>
-            <button className="mt-2 text-sm text-cyan-600 hover:underline">Configurar</button>
+            <button className="mt-2 text-sm text-indigo-600 hover:underline">Configurar</button>
           </div>
         ))}
       </div>
@@ -187,3 +187,4 @@ function ConfigSistema() {
     </div>
   )
 }
+

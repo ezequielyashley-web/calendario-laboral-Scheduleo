@@ -29,7 +29,7 @@ type Baja = {
 
 // ── Estilos ────────────────────────────────────────────────────
 const grupoColor: Record<string,string> = {
-  G1A:'#0284c7', G1B:'#0369a1', G2A:'#0891b2',
+  G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2',
   G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5',
 }
 
@@ -70,7 +70,7 @@ const bajas: Baja[] = [
 
 function Avatar({ nombre, size=28 }: { nombre:string, size?:number }) {
   const initials = nombre.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()
-  const colors   = ['#0284c7','#0369a1','#6366f1','#0891b2','#d97706','#16a34a']
+  const colors   = ['#6366f1','#4f46e5','#6366f1','#0891b2','#d97706','#16a34a']
   return (
     <div style={{ width:size, height:size, borderRadius:4, background:colors[nombre.charCodeAt(0)%colors.length], display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#fff', fontSize:size*0.34, fontWeight:600 }}>
       {initials}
@@ -134,8 +134,8 @@ export default function BajasMedicasDesktop() {
     <div className="space-y-4">
 
       {/* Banner normativa vigente RD 1060/2022 */}
-      <div style={{ display:'flex', gap:10, alignItems:'flex-start', background:'var(--surface)', borderLeft:'3px solid #0284c7', borderRadius:'0 4px 4px 0', padding:'10px 14px', border:'0.5px solid var(--border)' }}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}>
+      <div style={{ display:'flex', gap:10, alignItems:'flex-start', background:'var(--surface)', borderLeft:'3px solid #6366f1', borderRadius:'0 4px 4px 0', padding:'10px 14px', border:'0.5px solid var(--border)' }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}>
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <div style={{ flex:1 }}>
@@ -218,10 +218,10 @@ export default function BajasMedicasDesktop() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:0 }}>
           {[
             {
-              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.92 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.92 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
               titulo: 'Recepción automática',
               texto: 'El sistema monitorea bajas@empresa.com cada 5 minutos. Cuando el INSS envía un parte vía sistema RED, se crea la baja automáticamente sin que tengas que hacer nada.',
-              color: '#0284c7',
+              color: '#6366f1',
             },
             {
               icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
@@ -315,7 +315,7 @@ export default function BajasMedicasDesktop() {
           { label:'Bajas activas',         value:stats.activas,       color:'#b91c1c' },
           { label:'Altas médicas',          value:stats.altas,         color:'#16a34a' },
           { label:'Pend. confirm. INSS',    value:stats.pendientesINSS,color:'#d97706' },
-          { label:'Días totales de baja',   value:stats.diasTotal,     color:'#0284c7' },
+          { label:'Días totales de baja',   value:stats.diasTotal,     color:'#6366f1' },
         ].map((k,i) => {
           const [hov, setHov] = useState(false)
           return (
@@ -488,7 +488,7 @@ export default function BajasMedicasDesktop() {
                 {selected.documentos.length > 0
                   ? selected.documentos.map((doc,i)=>(
                     <div key={i} style={{ display:'flex', alignItems:'center', gap:8, padding:'7px 10px', background:'var(--surface-2)', borderRadius:4, border:'0.5px solid var(--border)', marginBottom:4 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                       <span style={{ fontSize:12, color:'var(--text-primary)', flex:1 }}>{doc}</span>
                       <button style={{ fontSize:11, color:'var(--accent)', fontWeight:500, background:'none', border:'none', cursor:'pointer' }}>Ver</button>
                     </div>
@@ -604,3 +604,4 @@ export default function BajasMedicasDesktop() {
     </div>
   )
 }
+

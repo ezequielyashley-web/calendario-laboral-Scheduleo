@@ -15,19 +15,19 @@ export default async function MasterDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-cyan-600">Scheduleo</h1>
+              <h1 className="text-4xl font-bold text-indigo-600">Scheduleo</h1>
               <p className="text-gray-600 mt-2">Panel de Control Master</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">Bienvenido,</p>
               <p className="text-xl font-semibold text-gray-800">{session.user.nombre}</p>
-              <p className="text-sm text-cyan-600">{session.user.rol}</p>
+              <p className="text-sm text-indigo-600">{session.user.rol}</p>
             </div>
           </div>
         </div>
@@ -74,9 +74,9 @@ export default async function MasterDashboard() {
                 </li>
               </ul>
               
-              <div className="mt-6 p-4 bg-cyan-50 rounded-lg border border-cyan-200">
-                <h4 className="font-bold text-cyan-800 mb-2">📋 Próxima Sesión 2:</h4>
-                <p className="text-cyan-700 text-sm">
+              <div className="mt-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                <h4 className="font-bold text-indigo-800 mb-2">📋 Próxima Sesión 2:</h4>
+                <p className="text-indigo-700 text-sm">
                   Dashboard con gráficos, tabla de empleados, tu calendario integrado, perfil de empleado
                 </p>
               </div>
@@ -96,3 +96,4 @@ export default async function MasterDashboard() {
     </div>
   )
 }
+

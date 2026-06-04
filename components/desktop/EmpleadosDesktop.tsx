@@ -31,7 +31,7 @@ const empleadosData: Empleado[] = [
 
 // ── Paleta de grupos ──────────────────────────────────────────
 const grupoColor: Record<string,string> = {
-  G1A:'#0284c7', G1B:'#0369a1', G2A:'#0891b2',
+  G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2',
   G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5',
 }
 
@@ -52,7 +52,7 @@ const rolStyle: Record<string,{ bg:string, color:string, label:string }> = {
 // ── Avatar iniciales ──────────────────────────────────────────
 function Avatar({ nombre, size = 36 }: { nombre: string, size?: number }) {
   const initials = nombre.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()
-  const colors   = ['#0284c7','#0369a1','#6366f1','#0891b2','#d97706','#16a34a']
+  const colors   = ['#6366f1','#4f46e5','#6366f1','#0891b2','#d97706','#16a34a']
   const color    = colors[nombre.charCodeAt(0) % colors.length]
   return (
     <div style={{ width:size, height:size, borderRadius:4, background:color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#fff', fontSize:size*0.36, fontWeight:700, letterSpacing:0.5 }}>
@@ -199,7 +199,7 @@ function FichaEmpleado({ emp, onClose }: { emp: Empleado, onClose: () => void })
                 { accion:'Contratación — inicio actividad',   fecha:'15/03/2021', tipo:'success' },
               ].map((h,i) => (
                 <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', padding:'10px 12px', background:'var(--surface-2)', borderRadius:4, border:'1px solid var(--border)' }}>
-                  <div style={{ width:6, height:6, borderRadius:'50%', background: h.tipo==='success'?'#16a34a':h.tipo==='info'?'#0284c7':h.tipo==='warning'?'#d97706':'#94a3b8', flexShrink:0, marginTop:4 }} />
+                  <div style={{ width:6, height:6, borderRadius:'50%', background: h.tipo==='success'?'#16a34a':h.tipo==='info'?'#6366f1':h.tipo==='warning'?'#d97706':'#94a3b8', flexShrink:0, marginTop:4 }} />
                   <div style={{ flex:1 }}>
                     <p style={{ fontSize:12, fontWeight:500, color:'var(--text-primary)' }}>{h.accion}</p>
                     <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>{h.fecha}</p>
@@ -243,7 +243,7 @@ export default function EmpleadosDesktop() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label:'Total empleados', value:empleadosData.length,                                    color:'#0284c7' },
+          { label:'Total empleados', value:empleadosData.length,                                    color:'#6366f1' },
           { label:'Activos',         value:empleadosData.filter(e=>e.estado==='activo').length,     color:'#16a34a' },
           { label:'Vacaciones',      value:empleadosData.filter(e=>e.estado==='vacaciones').length, color:'#d97706' },
           { label:'De baja',         value:empleadosData.filter(e=>e.estado==='baja').length,       color:'#b91c1c' },
@@ -447,3 +447,4 @@ export default function EmpleadosDesktop() {
     </div>
   )
 }
+

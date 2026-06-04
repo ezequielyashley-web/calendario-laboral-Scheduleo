@@ -32,7 +32,7 @@ const reportes = {
     metricas: [
       { label:'Horas trabajadas',      valor:'5.440h', tendencia:'+120h', up:true, color:'#16a34a' },
       { label:'Horas extra',           valor:'248h',   tendencia:'+32h',  up:true, color:'#d97706' },
-      { label:'Promedio/empleado',     valor:'80h',    tendencia:'+2h',   up:true, color:'#0284c7' },
+      { label:'Promedio/empleado',     valor:'80h',    tendencia:'+2h',   up:true, color:'#6366f1' },
     ]
   },
 }
@@ -44,7 +44,7 @@ const barras = [
 ]
 
 const grupos = [
-  { nombre:'G1A', empleados:12, color:'#0284c7' }, { nombre:'G1B', empleados:11, color:'#0369a1' },
+  { nombre:'G1A', empleados:12, color:'#6366f1' }, { nombre:'G1B', empleados:11, color:'#4f46e5' },
   { nombre:'G2A', empleados:11, color:'#0891b2' }, { nombre:'G2B', empleados:12, color:'#0e7490' },
   { nombre:'G3A', empleados:11, color:'#6366f1' }, { nombre:'G3B', empleados:11, color:'#4f46e5' },
 ]
@@ -59,8 +59,8 @@ const empleados = [
 const rangos = ['semana','mes','trimestre','año']
 const sedes  = ['Todas las sedes','Madrid Centro','Vallecas']
 
-const estadoColor: Record<string,string> = { Excelente:'#16a34a', 'Muy bien':'#0284c7', Bien:'#d97706', Regular:'#b91c1c' }
-const grupoColorMap: Record<string,string> = { G1A:'#0284c7', G1B:'#0369a1', G2A:'#0891b2', G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5' }
+const estadoColor: Record<string,string> = { Excelente:'#16a34a', 'Muy bien':'#6366f1', Bien:'#d97706', Regular:'#b91c1c' }
+const grupoColorMap: Record<string,string> = { G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2', G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5' }
 
 function Card({ children, style={}, hoverable=true }: { children:React.ReactNode, style?:React.CSSProperties, hoverable?:boolean }) {
   const [hov, setHov] = useState(false)
@@ -169,7 +169,7 @@ export default function ReportesDesktop() {
                     {d.emp}
                   </div>
                 )}
-                <div style={{ width:'100%', borderRadius:'3px 3px 0 0', background: d.danger?'#ef4444':barHov===i?'#0369a1':'#0284c7', height:`${d.pct}%`, opacity: barHov!==null&&barHov!==i?0.5:1, transition:'all .15s' }} />
+                <div style={{ width:'100%', borderRadius:'3px 3px 0 0', background: d.danger?'#ef4444':barHov===i?'#4f46e5':'#6366f1', height:`${d.pct}%`, opacity: barHov!==null&&barHov!==i?0.5:1, transition:'all .15s' }} />
                 <span style={{ fontSize:10, color:'var(--text-muted)' }}>{d.dia}</span>
               </div>
             ))}
@@ -241,3 +241,4 @@ export default function ReportesDesktop() {
     </div>
   )
 }
+

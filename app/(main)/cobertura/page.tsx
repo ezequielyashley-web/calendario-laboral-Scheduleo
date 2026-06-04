@@ -57,7 +57,7 @@ export default function CoberturaPage() {
 
   return (
     <div style={{ padding: 32, maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8, color: "#0284c7" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8, color: "#6366f1" }}>
         Cobertura mínima por puesto
       </h1>
       <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 24 }}>
@@ -107,7 +107,7 @@ export default function CoberturaPage() {
                 onClick={() => guardar(puesto)}
                 disabled={guardando === puesto.id}
                 style={{
-                  background: "#0369a1", color: "#fff", border: "none",
+                  background: "#4f46e5", color: "#fff", border: "none",
                   borderRadius: 4, padding: "8px 20px", fontSize: 13,
                   fontWeight: 600, cursor: "pointer"
                 }}
@@ -121,3 +121,4 @@ export default function CoberturaPage() {
     </div>
   )
 }
+

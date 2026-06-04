@@ -90,10 +90,10 @@ export default function SecureLoginForm() {
   const isBlocked = blockedUntil && Date.now() < blockedUntil
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 to-blue-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-cyan-600">Scheduleo</h1>
+          <h1 className="text-3xl font-bold text-indigo-600">Scheduleo</h1>
           <p className="text-gray-600 mt-2">Sistema de Gestión Laboral</p>
         </div>
 
@@ -108,7 +108,7 @@ export default function SecureLoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isBlocked || loading}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder:text-gray-400"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder:text-gray-400"
               placeholder="correo@empresa.com"
               autoComplete="email"
               required
@@ -126,7 +126,7 @@ export default function SecureLoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isBlocked || loading}
-                className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder:text-gray-400"
+                className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder:text-gray-400"
                 placeholder="Tu contraseña"
                 autoComplete="current-password"
                 required
@@ -158,7 +158,7 @@ export default function SecureLoginForm() {
           <button
             type="submit"
             disabled={isBlocked || loading}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -169,7 +169,7 @@ export default function SecureLoginForm() {
           </button>
 
           <div className="text-center">
-            <Link href="/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700 hover:underline">
+            <Link href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>

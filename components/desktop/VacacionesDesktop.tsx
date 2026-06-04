@@ -14,7 +14,7 @@ type Vacacion = {
 }
 
 const grupoColor: Record<string,string> = {
-  G1A:'#0284c7', G1B:'#0369a1', G2A:'#0891b2', G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5',
+  G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2', G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5',
 }
 
 const estadoStyle: Record<string,{ bg:string, color:string, label:string }> = {
@@ -73,7 +73,7 @@ export default function VacacionesDesktop() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label:'Total solicitudes', value:stats.total,      color:'#0284c7', bg:'#eff6ff' },
+          { label:'Total solicitudes', value:stats.total,      color:'#6366f1', bg:'#eff6ff' },
           { label:'Aprobadas',         value:stats.aprobadas,  color:'#16a34a', bg:'#dcfce7' },
           { label:'Pendientes',        value:stats.pendientes, color:'#d97706', bg:'#fef9c3' },
           { label:'Días aprobados',    value:stats.diasTotal,  color:'#6d28d9', bg:'#f5f3ff' },
@@ -289,3 +289,4 @@ export default function VacacionesDesktop() {
     </div>
   )
 }
+

@@ -46,10 +46,10 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-cyan-600">Scheduleo</h1>
+          <h1 className="text-3xl font-bold text-indigo-600">Scheduleo</h1>
           <p className="text-gray-600 mt-2">Restablecer Contraseña</p>
         </div>
 
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
               </button>
               <Link
                 href="/login"
-                className="flex-1 bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 transition text-center"
+                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition text-center"
               >
                 Ir al login
               </Link>
@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-cyan-600 text-white py-3 px-4 rounded-lg hover:bg-cyan-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
               {loading ? "Enviando..." : "Enviar instrucciones"}
             </button>
@@ -128,7 +128,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center">
               <Link
                 href="/login"
-                className="text-sm text-cyan-600 hover:text-cyan-700"
+                className="text-sm text-indigo-600 hover:text-indigo-700"
               >
                 ← Volver al login
               </Link>

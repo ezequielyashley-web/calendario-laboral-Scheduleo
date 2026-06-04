@@ -9,7 +9,7 @@ type DayConfig = {
 }
 
 const grupoColors: Record<string,{ solid:string }> = {
-  G1A:{solid:'#0284c7'}, G1B:{solid:'#0369a1'}, G2A:{solid:'#0891b2'}, G2B:{solid:'#0e7490'},
+  G1A:{solid:'#6366f1'}, G1B:{solid:'#4f46e5'}, G2A:{solid:'#0891b2'}, G2B:{solid:'#0e7490'},
   G3A:{solid:'#6366f1'}, G3B:{solid:'#4f46e5'}, L1:{solid:'#d97706'}, L2:{solid:'#ca8a04'}, L3:{solid:'#16a34a'},
 }
 
@@ -90,8 +90,8 @@ export default function CalendarioGlobalDesktop() {
     <div className="space-y-4">
 
       {/* Banner */}
-      <div style={{ display:'flex', gap:10, alignItems:'flex-start', background:'var(--surface)', borderLeft:'3px solid #0284c7', borderRadius:'0 4px 4px 0', padding:'10px 14px', border:'1px solid var(--border)' }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}>
+      <div style={{ display:'flex', gap:10, alignItems:'flex-start', background:'var(--surface)', borderLeft:'3px solid #6366f1', borderRadius:'0 4px 4px 0', padding:'10px 14px', border:'1px solid var(--border)' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}>
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <div>
@@ -343,7 +343,7 @@ export default function CalendarioGlobalDesktop() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label:'Días laborales', value:days.filter(d=>d?.tipo==='trabajo').length, color:'#0284c7', bg:'#eff6ff' },
+          { label:'Días laborales', value:days.filter(d=>d?.tipo==='trabajo').length, color:'#6366f1', bg:'#eff6ff' },
           { label:'Festivos',       value:days.filter(d=>d?.tipo==='festivo').length, color:'#7c3aed', bg:'#f5f3ff' },
           { label:'Domingos',       value:days.filter(d=>d?.tipo==='domingo').length, color:'#b91c1c', bg:'#fff1f2' },
         ].map(s=>(
@@ -419,9 +419,9 @@ export default function CalendarioGlobalDesktop() {
                             {(['completa','media'] as const).map(t=>(
                               <button key={t} onClick={()=>toggleLibranza(grupo,t)}
                                 style={{ padding:'4px 12px', fontSize:12, fontWeight:500, borderRadius:3, transition:'all .15s',
-                                  background:lib?.tipo===t?'#0284c7':'var(--surface)',
+                                  background:lib?.tipo===t?'#6366f1':'var(--surface)',
                                   color:lib?.tipo===t?'#fff':'var(--text-secondary)',
-                                  border:`1px solid ${lib?.tipo===t?'#0284c7':'var(--border-strong)'}` }}>
+                                  border:`1px solid ${lib?.tipo===t?'#6366f1':'var(--border-strong)'}` }}>
                                 {t==='completa'?'Completa':'Media jornada'}
                               </button>
                             ))}
@@ -459,3 +459,4 @@ export default function CalendarioGlobalDesktop() {
     </div>
   )
 }
+

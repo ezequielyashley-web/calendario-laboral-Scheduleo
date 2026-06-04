@@ -18,7 +18,7 @@ type CambioTurno = {
 }
 
 const grupoColor: Record<string,string> = {
-  G1A:'#0284c7', G1B:'#0369a1', G2A:'#0891b2',
+  G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2',
   G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5',
 }
 
@@ -39,7 +39,7 @@ const cambios: CambioTurno[] = [
 
 function Avatar({ nombre, size=28 }: { nombre:string, size?:number }) {
   const initials = nombre.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()
-  const colors   = ['#0284c7','#0369a1','#6366f1','#0891b2','#d97706','#16a34a']
+  const colors   = ['#6366f1','#4f46e5','#6366f1','#0891b2','#d97706','#16a34a']
   const color    = colors[nombre.charCodeAt(0) % colors.length]
   return (
     <div style={{ width:size, height:size, borderRadius:4, background:color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#fff', fontSize:size*0.36, fontWeight:700 }}>
@@ -74,7 +74,7 @@ export default function CambiosTurnoDesktop() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label:'Total solicitudes', value:stats.total,      color:'#0284c7' },
+          { label:'Total solicitudes', value:stats.total,      color:'#6366f1' },
           { label:'Pendientes',        value:stats.pendientes, color:'#d97706' },
           { label:'Aprobados',         value:stats.aprobados,  color:'#16a34a' },
           { label:'Rechazados',        value:stats.rechazados, color:'#b91c1c' },
@@ -322,3 +322,4 @@ export default function CambiosTurnoDesktop() {
     </div>
   )
 }
+
