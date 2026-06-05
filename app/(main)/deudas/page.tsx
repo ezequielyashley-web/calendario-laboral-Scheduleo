@@ -102,7 +102,13 @@ export default function DeudasPage() {
                 return (
                   <React.Fragment key={e.id}>
                     <tr
-                      onClick={() => setExpandido(isOpen ? null : e.id)}
+                      onClick={() => {
+                        if (expandido === e.id) {
+                          router.push(`/empleados/${e.id}?tab=deudas`)
+                        } else {
+                          setExpandido(e.id)
+                        }
+                      }}
                       style={{ borderBottom: isOpen ? "none" : "0.5px solid #f3f4f6", background: isOpen ? "#f8f9ff" : i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
                       onMouseEnter={el => { if (!isOpen) el.currentTarget.style.background = "#f0f4ff" }}
                       onMouseLeave={el => { if (!isOpen) el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa" }}
@@ -134,23 +140,28 @@ export default function DeudasPage() {
                     {isOpen && (
                       <tr>
                         <td colSpan={6} style={{ padding: "0 16px 16px", background: "#f8f9ff", borderBottom: "0.5px solid #e8eaf0" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10, paddingTop: 12 }}>
-                            {[...anticipos, ...productos, ...descuentos].map(d => (
-                              <div key={d.id} style={{ background: tipoBg[d.tipo], borderRadius: 10, padding: "12px 14px" }}>
-                                <div style={{ fontSize: 11, color: tipoColor[d.tipo], fontWeight: 500, marginBottom: 4 }}>{d.tipo}</div>
-                                <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 4 }}>{d.descripcion}</div>
-                                <div style={{ fontSize: 11, color: "#718096", marginBottom: 8 }}>
-                                  {d.numerocuotas > 1 ? `${d.cuotaspagadas}/${d.numerocuotas} cuotas · ${(parseFloat(d.importetotal)/d.numerocuotas).toFixed(2)}€/mes` : "Pago único"} · Día {d.diacobro}
+                          <div style={{ paddingTop: 12 }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+                              <button
+                                onClick={ev => { ev.stopPropagation(); router.push(`/empleados/${e.id}?tab=deudas`) }}
+                                style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+                                Ver perfil completo →
+                              </button>
+                            </div>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+                              {[...anticipos, ...productos, ...descuentos].map(d => (
+                                <div key={d.id} style={{ background: tipoBg[d.tipo], borderRadius: 10, padding: "12px 14px" }}>
+                                  <div style={{ fontSize: 11, color: tipoColor[d.tipo], fontWeight: 500, marginBottom: 4 }}>{d.tipo}</div>
+                                  <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 4 }}>{d.descripcion}</div>
+                                  <div style={{ fontSize: 11, color: "#718096", marginBottom: 8 }}>
+                                    {d.numerocuotas > 1 ? `${d.cuotaspagadas}/${d.numerocuotas} cuotas · ${(parseFloat(d.importetotal)/d.numerocuotas).toFixed(2)}€/mes` : "Pago único"} · Día {d.diacobro}
+                                  </div>
+                                  <div style={{ fontSize: 15, fontWeight: 500, color: "#dc2626" }}>
+                                    {(parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2)}€ pendiente
+                                  </div>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <span style={{ fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{(parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2)}€</span>
-                                  <button onClick={ev => { ev.stopPropagation(); router.push(`/empleados/${e.id}?tab=deudas`) }}
-                                    style={{ fontSize: 11, color: tipoColor[d.tipo], background: "rgba(255,255,255,0.6)", border: "none", borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}>
-                                    Ver perfil →
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </td>
                       </tr>
