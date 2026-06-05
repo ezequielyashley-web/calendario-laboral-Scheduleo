@@ -8,6 +8,7 @@ export default function DeudasPage() {
   const [empleados, setEmpleados] = useState([])
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState("")
+  const [expandido, setExpandido] = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -27,13 +28,10 @@ export default function DeudasPage() {
   }, {})
 
   const activas = deudas.filter(d => d.estado === "ACTIVA")
-  const anticiposActivos = activas.filter(d => d.tipo === "ANTICIPO")
-  const productosActivos = activas.filter(d => d.tipo === "PRODUCTO")
-  const descuentosActivos = activas.filter(d => d.tipo === "DESCUENTO")
-
-  const empConAnticipos = empleados.filter(e => (deudasPorEmpleado[e.id] || []).some(d => d.estado === "ACTIVA" && d.tipo === "ANTICIPO"))
-  const empConProductos = empleados.filter(e => (deudasPorEmpleado[e.id] || []).some(d => d.estado === "ACTIVA" && d.tipo === "PRODUCTO"))
-  const empConDescuentos = empleados.filter(e => (deudasPorEmpleado[e.id] || []).some(d => d.estado === "ACTIVA" && d.tipo === "DESCUENTO"))
+  const totalPendiente = activas.reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
+  const totalAnticipos = activas.filter(d => d.tipo === "ANTICIPO").reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
+  const totalProductos = activas.filter(d => d.tipo === "PRODUCTO").reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
+  const totalDescuentos = activas.filter(d => d.tipo === "DESCUENTO").reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
 
   const empleadosConDeudas = empleados.filter(e =>
     (deudasPorEmpleado[e.id] || []).some(d => d.estado === "ACTIVA")
@@ -41,117 +39,127 @@ export default function DeudasPage() {
     `${e.nombre} ${e.apellidos}`.toLowerCase().includes(busqueda.toLowerCase())
   )
 
-  const getTotalPendiente = (empId, tipo = null) => {
+  const getPendiente = (empId, tipo = null) => {
     const ds = (deudasPorEmpleado[empId] || []).filter(d => d.estado === "ACTIVA" && (tipo ? d.tipo === tipo : true))
-    return ds.reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0).toFixed(2)
+    return ds.reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
   }
 
-  const getDeudas = (empId, tipo = null) => {
-    return (deudasPorEmpleado[empId] || []).filter(d => d.estado === "ACTIVA" && (tipo ? d.tipo === tipo : true))
-  }
+  const getDeudas = (empId, tipo) => (deudasPorEmpleado[empId] || []).filter(d => d.estado === "ACTIVA" && d.tipo === tipo)
 
-  const totalPendiente = activas.reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0).toFixed(2)
+  const tipoBg = { ANTICIPO: "#ede9fe", PRODUCTO: "#dbeafe", DESCUENTO: "#fef9c3" }
+  const tipoColor = { ANTICIPO: "#6366f1", PRODUCTO: "#0284c7", DESCUENTO: "#d97706" }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#6366f1", margin: 0 }}>Deudas y Anticipos</h1>
-          <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>Gestión de anticipos, productos y descuentos</p>
+          <h1 style={{ fontSize: 22, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Deudas y Anticipos</h1>
+          <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>{empleadosConDeudas.length} empleados con deudas activas</p>
         </div>
         <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..."
-          style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: 4, fontSize: 14, width: 220, outline: "none" }} />
+          style={{ padding: "8px 14px", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 13, width: 200, outline: "none", background: "#fff", color: "#1e1b4b" }} />
       </div>
 
       {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 10, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
         {[
-          { label: "Total pendiente", valor: totalPendiente + "€", color: "#dc2626", bg: "#fee2e2" },
-          { label: "Emp. con anticipos", valor: empConAnticipos.length, color: "#7c3aed", bg: "#ede9fe" },
-          { label: "Anticipos activos", valor: anticiposActivos.length, color: "#7c3aed", bg: "#ede9fe" },
-          { label: "Emp. con productos", valor: empConProductos.length, color: "#6366f1", bg: "#dbeafe" },
-          { label: "Productos activos", valor: productosActivos.length, color: "#6366f1", bg: "#dbeafe" },
-          { label: "Emp. con descuentos", valor: empConDescuentos.length, color: "#d97706", bg: "#fef3c7" },
-          { label: "Descuentos activos", valor: descuentosActivos.length, color: "#d97706", bg: "#fef3c7" },
-        ].map(s => (
-          <div key={s.label} style={{ background: s.bg, border: `1px solid ${s.color}22`, borderRadius: 8, padding: "12px 14px" }}>
-            <div style={{ fontSize: 11, color: s.color, fontWeight: 600, marginBottom: 4, lineHeight: 1.3 }}>{s.label}</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.valor}</div>
+          { label: "Total pendiente", valor: totalPendiente.toFixed(2) + "€", color: "#dc2626", bg: "#fee2e2" },
+          { label: "Anticipos", valor: totalAnticipos.toFixed(2) + "€", color: "#6366f1", bg: "#ede9fe" },
+          { label: "Productos", valor: totalProductos.toFixed(2) + "€", color: "#0284c7", bg: "#dbeafe" },
+          { label: "Descuentos", valor: totalDescuentos.toFixed(2) + "€", color: "#d97706", bg: "#fef9c3" },
+        ].map(k => (
+          <div key={k.label} style={{ background: k.bg, borderRadius: 12, padding: "14px 16px" }}>
+            <div style={{ fontSize: 11, color: k.color, fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
+            <div style={{ fontSize: 20, fontWeight: 500, color: k.color }}>{k.valor}</div>
           </div>
         ))}
       </div>
 
+      {/* Tabla */}
       {loading ? (
-        <div style={{ textAlign: "center", padding: 60, color: "#6b7280" }}>Cargando...</div>
-      ) : empleadosConDeudas.length === 0 ? (
-        <div style={{ textAlign: "center", padding: 60, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, color: "#9ca3af" }}>
-          No hay empleados con deudas o anticipos activos
-        </div>
+        <div style={{ textAlign: "center", padding: 60, color: "#a0aec0" }}>Cargando...</div>
       ) : (
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
-                {["Empleado", "Anticipos", "Productos", "Descuentos", "Total pendiente", "Próximo cobro", ""].map(h => (
-                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#6b7280", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
+              <tr style={{ background: "#f8f9ff" }}>
+                {["Empleado", "Anticipo", "Producto", "Descuento", "Total pendiente", ""].map(h => (
+                  <th key={h} style={{ padding: "10px 16px", textAlign: h === "Total pendiente" ? "right" : h === "" ? "center" : "left", fontSize: 12, fontWeight: 500, color: "#718096", borderBottom: "0.5px solid #e8eaf0" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {empleadosConDeudas.map((e, i) => {
+              {empleadosConDeudas.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>No hay empleados con deudas activas</td></tr>
+              ) : empleadosConDeudas.map((e, i) => {
+                const isOpen = expandido === e.id
                 const anticipos = getDeudas(e.id, "ANTICIPO")
                 const productos = getDeudas(e.id, "PRODUCTO")
                 const descuentos = getDeudas(e.id, "DESCUENTO")
-                const todasDeudas = getDeudas(e.id)
-                const proximoCobro = todasDeudas.length > 0 ? `Día ${todasDeudas[0].diacobro}` : "—"
+                const pAnticipo = getPendiente(e.id, "ANTICIPO")
+                const pProducto = getPendiente(e.id, "PRODUCTO")
+                const pDescuento = getPendiente(e.id, "DESCUENTO")
+                const total = getPendiente(e.id)
+
                 return (
-                  <tr key={e.id}
-                    onClick={() => router.push(`/empleados/${e.id}?tab=deudas`)}
-                    style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f9fafb", cursor: "pointer" }}
-                    onMouseEnter={el => el.currentTarget.style.background = "#eff6ff"}
-                    onMouseLeave={el => el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#f9fafb"}
-                  >
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
-                          {e.nombre[0]}{e.apellidos[0]}
+                  <>
+                    <tr key={e.id}
+                      onClick={() => setExpandido(isOpen ? null : e.id)}
+                      style={{ borderBottom: isOpen ? "none" : "0.5px solid #f3f4f6", background: isOpen ? "#f8f9ff" : i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
+                      onMouseEnter={el => { if (!isOpen) el.currentTarget.style.background = "#f0f4ff" }}
+                      onMouseLeave={el => { if (!isOpen) el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa" }}
+                    >
+                      <td style={{ padding: "12px 16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
+                            {e.nombre[0]}{e.apellidos[0]}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b" }}>{e.nombre} {e.apellidos}</div>
+                            <div style={{ fontSize: 11, color: "#a0aec0" }}>Nº {e.numeroEmpleado}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 600 }}>{e.nombre} {e.apellidos}</div>
-                          <div style={{ fontSize: 12, color: "#9ca3af" }}>{e.puestoDeTrabajo?.nombre || "Sin puesto"}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {anticipos.length > 0 ? (
-                        <div>
-                          <span style={{ background: "#ede9fe", color: "#7c3aed", padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{anticipos.length}</span>
-                          <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 2 }}>{parseFloat(getTotalPendiente(e.id, "ANTICIPO")).toFixed(2)}€</div>
-                        </div>
-                      ) : <span style={{ color: "#d1d5db" }}>—</span>}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {productos.length > 0 ? (
-                        <div>
-                          <span style={{ background: "#dbeafe", color: "#6366f1", padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{productos.length}</span>
-                          <div style={{ fontSize: 11, color: "#6366f1", marginTop: 2 }}>{parseFloat(getTotalPendiente(e.id, "PRODUCTO")).toFixed(2)}€</div>
-                        </div>
-                      ) : <span style={{ color: "#d1d5db" }}>—</span>}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {descuentos.length > 0 ? (
-                        <div>
-                          <span style={{ background: "#fef3c7", color: "#d97706", padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{descuentos.length}</span>
-                          <div style={{ fontSize: 11, color: "#d97706", marginTop: 2 }}>{parseFloat(getTotalPendiente(e.id, "DESCUENTO")).toFixed(2)}€</div>
-                        </div>
-                      ) : <span style={{ color: "#d1d5db" }}>—</span>}
-                    </td>
-                    <td style={{ padding: "12px 16px", fontSize: 15, fontWeight: 700, color: "#dc2626" }}>{getTotalPendiente(e.id)}€</td>
-                    <td style={{ padding: "12px 16px", fontSize: 13, color: "#6b7280" }}>{proximoCobro}</td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-                    </td>
-                  </tr>
+                      </td>
+                      <td style={{ padding: "12px 16px", textAlign: "left" }}>
+                        {pAnticipo > 0 ? <span style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                      </td>
+                      <td style={{ padding: "12px 16px", textAlign: "left" }}>
+                        {pProducto > 0 ? <span style={{ background: "#dbeafe", color: "#0284c7", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                      </td>
+                      <td style={{ padding: "12px 16px", textAlign: "left" }}>
+                        {pDescuento > 0 ? <span style={{ background: "#fef9c3", color: "#d97706", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pDescuento.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                      </td>
+                      <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{total.toFixed(2)}€</td>
+                      <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                        <span style={{ fontSize: 16, color: "#a0aec0" }}>{isOpen ? "▲" : "▼"}</span>
+                      </td>
+                    </tr>
+
+                    {isOpen && (
+                      <tr key={e.id + "-detail"}>
+                        <td colSpan={6} style={{ padding: "0 16px 16px", background: "#f8f9ff", borderBottom: "0.5px solid #e8eaf0" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10, paddingTop: 12 }}>
+                            {[...anticipos, ...productos, ...descuentos].map(d => (
+                              <div key={d.id} style={{ background: tipoBg[d.tipo], borderRadius: 10, padding: "12px 14px" }}>
+                                <div style={{ fontSize: 11, color: tipoColor[d.tipo], fontWeight: 500, marginBottom: 4 }}>{d.tipo}</div>
+                                <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 4 }}>{d.descripcion}</div>
+                                <div style={{ fontSize: 11, color: "#718096", marginBottom: 8 }}>
+                                  {d.numerocuotas > 1 ? `${d.cuotaspagadas}/${d.numerocuotas} cuotas · ${(parseFloat(d.importetotal)/d.numerocuotas).toFixed(2)}€/mes` : "Pago único"} · Día {d.diacobro}
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span style={{ fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{(parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2)}€</span>
+                                  <button onClick={ev => { ev.stopPropagation(); router.push(`/empleados/${e.id}?tab=deudas`) }}
+                                    style={{ fontSize: 11, color: tipoColor[d.tipo], background: "rgba(255,255,255,0.6)", border: "none", borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}>
+                                    Ver perfil →
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 )
               })}
             </tbody>
