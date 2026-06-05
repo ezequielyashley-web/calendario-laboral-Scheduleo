@@ -7,19 +7,21 @@ export async function GET(req: NextRequest) {
     const empresaId = searchParams.get("empresaId") || "empresa-001"
     const empleadoId = searchParams.get("empleadoId")
 
-    const where: any = { empresaId }
-    if (empleadoId) where.empleadoId = empleadoId
+    let deudas: any[]
 
-    const deudas = await prisma.$queryRaw`
-      SELECT d.*, 
-        e.nombre as empleado_nombre,
-        e.email as empleado_email
-      FROM "Deuda" d
-      LEFT JOIN "Empleado" e ON e.id = d."empleadoId"
-      WHERE d."empresaId" = ${empresaId}
-      ${empleadoId ? prisma.$queryRaw`AND d."empleadoId" = ${empleadoId}` : prisma.$queryRaw``}
-      ORDER BY d."createdAt" DESC
-    ` as any[]
+    if (empleadoId) {
+      deudas = await prisma.$queryRaw`
+        SELECT d.* FROM "Deuda" d
+        WHERE d.empresaid = ${empresaId} AND d.empleadoid = ${empleadoId}
+        ORDER BY d.createdat DESC
+      ` as any[]
+    } else {
+      deudas = await prisma.$queryRaw`
+        SELECT d.* FROM "Deuda" d
+        WHERE d.empresaid = ${empresaId}
+        ORDER BY d.createdat DESC
+      ` as any[]
+    }
 
     return NextResponse.json(deudas)
   } catch (error) {
@@ -32,10 +34,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { empleadoId, empresaId, tipo, descripcion, importeTotal, numeroCuotas, diaCobro, notas } = body
-
     const id = crypto.randomUUID()
+
     await prisma.$executeRaw`
-      INSERT INTO "Deuda" (id, "empleadoId", "empresaId", tipo, descripcion, "importeTotal", "numeroCuotas", "diaCobro", notas)
+      INSERT INTO "Deuda" (id, empleadoid, empresaid, tipo, descripcion, importetotal, numerocuotas, diacobro, notas)
       VALUES (${id}, ${empleadoId}, ${empresaId || "empresa-001"}, ${tipo}, ${descripcion}, ${importeTotal}, ${numeroCuotas || 1}, ${diaCobro || 1}, ${notas || ""})
     `
 

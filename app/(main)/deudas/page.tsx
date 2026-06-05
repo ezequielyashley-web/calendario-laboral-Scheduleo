@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 export default function DeudasPage() {
@@ -60,7 +60,6 @@ export default function DeudasPage() {
           style={{ padding: "8px 14px", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 13, width: 200, outline: "none", background: "#fff", color: "#1e1b4b" }} />
       </div>
 
-      {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
         {[
           { label: "Total pendiente", valor: totalPendiente.toFixed(2) + "€", color: "#dc2626", bg: "#fee2e2" },
@@ -75,7 +74,6 @@ export default function DeudasPage() {
         ))}
       </div>
 
-      {/* Tabla */}
       {loading ? (
         <div style={{ textAlign: "center", padding: 60, color: "#a0aec0" }}>Cargando...</div>
       ) : (
@@ -102,8 +100,8 @@ export default function DeudasPage() {
                 const total = getPendiente(e.id)
 
                 return (
-                  <>
-                    <tr key={e.id}
+                  <React.Fragment key={e.id}>
+                    <tr
                       onClick={() => setExpandido(isOpen ? null : e.id)}
                       style={{ borderBottom: isOpen ? "none" : "0.5px solid #f3f4f6", background: isOpen ? "#f8f9ff" : i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
                       onMouseEnter={el => { if (!isOpen) el.currentTarget.style.background = "#f0f4ff" }}
@@ -120,23 +118,21 @@ export default function DeudasPage() {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "left" }}>
+                      <td style={{ padding: "12px 16px" }}>
                         {pAnticipo > 0 ? <span style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "left" }}>
+                      <td style={{ padding: "12px 16px" }}>
                         {pProducto > 0 ? <span style={{ background: "#dbeafe", color: "#0284c7", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "left" }}>
+                      <td style={{ padding: "12px 16px" }}>
                         {pDescuento > 0 ? <span style={{ background: "#fef9c3", color: "#d97706", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pDescuento.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
                       </td>
                       <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{total.toFixed(2)}€</td>
-                      <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                        <span style={{ fontSize: 16, color: "#a0aec0" }}>{isOpen ? "▲" : "▼"}</span>
-                      </td>
+                      <td style={{ padding: "12px 16px", textAlign: "center", fontSize: 13, color: "#a0aec0" }}>{isOpen ? "▲" : "▼"}</td>
                     </tr>
 
                     {isOpen && (
-                      <tr key={e.id + "-detail"}>
+                      <tr>
                         <td colSpan={6} style={{ padding: "0 16px 16px", background: "#f8f9ff", borderBottom: "0.5px solid #e8eaf0" }}>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10, paddingTop: 12 }}>
                             {[...anticipos, ...productos, ...descuentos].map(d => (
@@ -159,7 +155,7 @@ export default function DeudasPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 )
               })}
             </tbody>
