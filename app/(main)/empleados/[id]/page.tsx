@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
@@ -27,6 +28,9 @@ export default function PerfilEmpleadoPage() {
   const [modalHistorial, setModalHistorial] = useState(null)
   const [formHistorial, setFormHistorial] = useState({ nuevoSueldo: "", porcentaje: "", puesto: "", fechaInicio: "", notas: "" })
   const [deudaDetalle, setDeudaDetalle] = useState(null)
+  const [modalDeuda, setModalDeuda] = useState(null)
+  const [formDeuda, setFormDeuda] = useState({ estado: "", fechaAprobacion: "", fechaPago: "", aprobadoPor: "", metodoPago: "EFECTIVO", porcentajeCobro: "", notas: "", importePagado: "" })
+  const [pagoTipo, setPagoTipo] = useState("importe")
 
   const cargar = () => {
     if (!id) return
@@ -65,6 +69,50 @@ export default function PerfilEmpleadoPage() {
       cargar()
     }
     setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+  }
+
+  const guardarDeuda = async () => {
+    const body: any = { id: modalDeuda.id }
+    if (formDeuda.estado) body.estado = formDeuda.estado
+    if (formDeuda.fechaAprobacion) body.fechaAprobacion = new Date(formDeuda.fechaAprobacion).toISOString()
+    if (formDeuda.fechaPago) body.fechaPago = new Date(formDeuda.fechaPago).toISOString()
+    if (formDeuda.aprobadoPor) body.aprobadoPor = formDeuda.aprobadoPor
+    if (formDeuda.metodoPago) body.metodoPago = formDeuda.metodoPago
+    if (formDeuda.notas) body.notas = formDeuda.notas
+
+    const pagadoActual = parseFloat(modalDeuda.importepagado || 0)
+    const total = parseFloat(modalDeuda.importetotal)
+
+    if (pagoTipo === "importe" && formDeuda.importePagado) {
+      const nuevoPagado = pagadoActual + parseFloat(formDeuda.importePagado)
+      body.importePagado = nuevoPagado
+      body.cuotasPagadas = (modalDeuda.cuotaspagadas || 0) + 1
+      if (nuevoPagado >= total) body.estado = "PAGADA"
+    }
+    if (pagoTipo === "porcentaje" && formDeuda.porcentajeCobro) {
+      const pct = parseFloat(formDeuda.porcentajeCobro) / 100
+      const nuevoPagado = pagadoActual + (total * pct)
+      body.importePagado = nuevoPagado
+      body.porcentajeCobro = parseFloat(formDeuda.porcentajeCobro)
+      if (nuevoPagado >= total) body.estado = "PAGADA"
+    }
+    if (pagoTipo === "cuota" && modalDeuda.numerocuotas > 1) {
+      const cuota = total / modalDeuda.numerocuotas
+      const nuevoPagado = pagadoActual + cuota
+      body.importePagado = nuevoPagado
+      body.cuotasPagadas = (modalDeuda.cuotaspagadas || 0) + 1
+      if (nuevoPagado >= total) body.estado = "PAGADA"
+    }
+
+    await fetch("/api/deudas", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    })
+    setModalDeuda(null)
+    setMensaje({ texto: "Deuda actualizada correctamente", tipo: "ok" })
+    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+    cargar()
   }
 
   const guardarHistorial = async () => {
@@ -119,7 +167,6 @@ export default function PerfilEmpleadoPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
 
-      {/* Cabecera */}
       <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 24, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: totalDeuda > 0 ? 16 : 0 }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 500, color: "#fff", flexShrink: 0 }}>
@@ -146,13 +193,12 @@ export default function PerfilEmpleadoPage() {
           </div>
         </div>
 
-        {/* Resumen deudas siempre visible */}
         {totalDeuda > 0 && (
           <div style={{ borderTop: "0.5px solid #e8eaf0", paddingTop: 14 }}>
             <div style={{ fontSize: 12, color: "#a0aec0", marginBottom: 8, fontWeight: 500 }}>DEUDAS PENDIENTES</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {deudasActivas.map(d => (
-                <div key={d.id} onClick={() => setDeudaDetalle(d)}
+                <div key={d.id} onClick={() => setTab("deudas")}
                   style={{ background: d.tipo === "ANTICIPO" ? "#ede9fe" : d.tipo === "PRODUCTO" ? "#dbeafe" : "#fef9c3", border: `1px solid ${d.tipo === "ANTICIPO" ? "#c4b5fd" : d.tipo === "PRODUCTO" ? "#93c5fd" : "#fde047"}`, borderRadius: 8, padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: d.tipo === "ANTICIPO" ? "#6366f1" : d.tipo === "PRODUCTO" ? "#0284c7" : "#d97706" }}>{d.tipo}</div>
@@ -175,7 +221,6 @@ export default function PerfilEmpleadoPage() {
         )}
       </div>
 
-      {/* Tabs */}
       <div style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: "2px solid #e8eaf0", overflowX: "auto" }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
@@ -331,33 +376,64 @@ export default function PerfilEmpleadoPage() {
       )}
 
       {tab === "deudas" && (
-        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead><tr style={{ background: "#f8f9ff" }}>
-              {["Tipo", "Descripción", "Total", "Pagado", "Pendiente", "Cuota", "Estado"].map(h => (
-                <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#718096", borderBottom: "1px solid #e8eaf0" }}>{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {empleado.deudas?.length === 0 ? (
-                <tr><td colSpan={7} style={{ padding: 32, textAlign: "center", color: "#a0aec0" }}>Sin deudas registradas</td></tr>
-              ) : empleado.deudas?.map((d, i) => (
-                <tr key={d.id} onClick={() => setDeudaDetalle(d)} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f8f9ff", cursor: "pointer" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#f0f4ff"}
-                  onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#f8f9ff"}>
-                  <td style={{ padding: "10px 16px", fontSize: 12, fontWeight: 600 }}>{d.tipo}</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13 }}>{d.descripcion}</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 600 }}>{parseFloat(d.importetotal).toFixed(2)}€</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13, color: "#059669" }}>{parseFloat(d.importepagado || 0).toFixed(2)}€</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13, color: "#dc2626", fontWeight: 600 }}>{(parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2)}€</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13 }}>{d.numerocuotas > 1 ? `${(parseFloat(d.importetotal)/d.numerocuotas).toFixed(2)}€/mes` : "Un pago"}</td>
-                  <td style={{ padding: "10px 16px" }}>
-                    <span style={{ background: d.estado === "PAGADA" ? "#d1fae5" : "#fef3c7", color: d.estado === "PAGADA" ? "#065f46" : "#92400e", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{d.estado}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div>
+          {empleado.deudas?.length === 0 ? (
+            <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 40, textAlign: "center", color: "#a0aec0" }}>Sin deudas registradas</div>
+          ) : empleado.deudas?.map(d => (
+            <div key={d.id} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, marginBottom: 12, overflow: "hidden" }}>
+              <div style={{ padding: "14px 20px", background: d.tipo === "ANTICIPO" ? "#ede9fe" : d.tipo === "PRODUCTO" ? "#dbeafe" : "#fef9c3", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: d.tipo === "ANTICIPO" ? "#6366f1" : d.tipo === "PRODUCTO" ? "#0284c7" : "#d97706", background: "rgba(255,255,255,0.5)", padding: "2px 8px", borderRadius: 20 }}>{d.tipo}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b" }}>{d.descripcion}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 11, background: d.estado === "PAGADA" ? "#d1fae5" : "#fef3c7", color: d.estado === "PAGADA" ? "#065f46" : "#92400e", padding: "2px 8px", borderRadius: 20, fontWeight: 600 }}>{d.estado}</span>
+                  <button onClick={() => {
+                    setModalDeuda(d)
+                    setFormDeuda({ estado: d.estado, fechaAprobacion: d.fechaAprobacion ? d.fechaAprobacion.split("T")[0] : "", fechaPago: d.fechaPago ? d.fechaPago.split("T")[0] : "", aprobadoPor: d.aprobadoPor || "", metodoPago: d.metodoPago || "EFECTIVO", porcentajeCobro: "", notas: d.notas || "", importePagado: "" })
+                    setPagoTipo("importe")
+                  }}
+                    style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+                    Editar / Pagar
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ padding: "16px 20px", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+                {[
+                  { label: "Importe total", valor: parseFloat(d.importetotal).toFixed(2) + "€", color: "#1e1b4b" },
+                  { label: "Pagado", valor: parseFloat(d.importepagado || 0).toFixed(2) + "€", color: "#059669" },
+                  { label: "Pendiente", valor: (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2) + "€", color: "#dc2626" },
+                  { label: "Cuotas", valor: d.numerocuotas > 1 ? `${d.cuotaspagadas || 0}/${d.numerocuotas} · ${(parseFloat(d.importetotal)/d.numerocuotas).toFixed(2)}€/mes` : "Pago único", color: "#1e1b4b" },
+                  { label: "Día cobro", valor: `Día ${d.diacobro}`, color: "#1e1b4b" },
+                  { label: "Método pago", valor: d.metodoPago || "Efectivo", color: "#1e1b4b" },
+                  { label: "Fecha solicitud", valor: d.fechaSolicitud ? new Date(d.fechaSolicitud).toLocaleDateString("es-ES") : "—", color: "#1e1b4b" },
+                  { label: "Fecha aprobación", valor: d.fechaAprobacion ? new Date(d.fechaAprobacion).toLocaleDateString("es-ES") : "—", color: "#1e1b4b" },
+                  { label: "Fecha pago", valor: d.fechaPago ? new Date(d.fechaPago).toLocaleDateString("es-ES") : "—", color: "#1e1b4b" },
+                ].map(f => (
+                  <div key={f.label} style={{ borderBottom: "1px solid #f3f4f6", paddingBottom: 10 }}>
+                    <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>{f.label}</div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: f.color }}>{f.valor}</div>
+                  </div>
+                ))}
+                {d.notas && (
+                  <div style={{ gridColumn: "1/-1", borderBottom: "1px solid #f3f4f6", paddingBottom: 10 }}>
+                    <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>Notas</div>
+                    <div style={{ fontSize: 13, color: "#718096" }}>{d.notas}</div>
+                  </div>
+                )}
+              </div>
+
+              {d.numerocuotas > 1 && (
+                <div style={{ padding: "0 20px 16px" }}>
+                  <div style={{ background: "#f3f4f6", borderRadius: 8, height: 6, overflow: "hidden" }}>
+                    <div style={{ background: "#6366f1", height: 6, width: `${((d.cuotaspagadas || 0) / d.numerocuotas) * 100}%`, borderRadius: 8 }}></div>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 4 }}>{d.cuotaspagadas || 0} de {d.numerocuotas} cuotas pagadas</div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
@@ -474,54 +550,124 @@ export default function PerfilEmpleadoPage() {
         </div>
       )}
 
-      {/* Modal deuda detalle */}
-      {deudaDetalle && (
+      {/* Modal deuda */}
+      {modalDeuda && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 460, maxWidth: "90vw" }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 500, maxWidth: "90vw", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 17, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>Detalle de deuda</h2>
-              <button onClick={() => setDeudaDetalle(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#a0aec0" }}>✕</button>
+              <h2 style={{ fontSize: 17, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>Editar deuda — {modalDeuda.descripcion}</h2>
+              <button onClick={() => setModalDeuda(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#a0aec0" }}>✕</button>
             </div>
 
-            <div style={{ background: "#f0f4ff", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", background: "#ede9fe", padding: "2px 8px", borderRadius: 20 }}>{deudaDetalle.tipo}</span>
-                <span style={{ fontSize: 11, color: deudaDetalle.estado === "PAGADA" ? "#065f46" : "#92400e", background: deudaDetalle.estado === "PAGADA" ? "#d1fae5" : "#fef3c7", padding: "2px 8px", borderRadius: 20, fontWeight: 600 }}>{deudaDetalle.estado}</span>
+            <div style={{ background: "#f0f4ff", borderRadius: 10, padding: "12px 16px", marginBottom: 20, display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#a0aec0" }}>Total</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1e1b4b" }}>{parseFloat(modalDeuda.importetotal).toFixed(2)}€</div>
               </div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: "#1e1b4b" }}>{deudaDetalle.descripcion}</div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#a0aec0" }}>Pagado</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#059669" }}>{parseFloat(modalDeuda.importepagado || 0).toFixed(2)}€</div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#a0aec0" }}>Pendiente</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#dc2626" }}>{(parseFloat(modalDeuda.importetotal) - parseFloat(modalDeuda.importepagado || 0)).toFixed(2)}€</div>
+              </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-              {[
-                { label: "Importe total", valor: parseFloat(deudaDetalle.importetotal).toFixed(2) + "€", color: "#1e1b4b" },
-                { label: "Pagado", valor: parseFloat(deudaDetalle.importepagado || 0).toFixed(2) + "€", color: "#059669" },
-                { label: "Pendiente", valor: (parseFloat(deudaDetalle.importetotal) - parseFloat(deudaDetalle.importepagado || 0)).toFixed(2) + "€", color: "#dc2626" },
-                { label: "Cuota mensual", valor: deudaDetalle.numerocuotas > 1 ? (parseFloat(deudaDetalle.importetotal) / deudaDetalle.numerocuotas).toFixed(2) + "€" : "Pago único", color: "#6366f1" },
-                { label: "Nº cuotas", valor: deudaDetalle.numerocuotas > 1 ? `${deudaDetalle.cuotaspagadas}/${deudaDetalle.numerocuotas}` : "—", color: "#1e1b4b" },
-                { label: "Día de cobro", valor: `Día ${deudaDetalle.diacobro} de cada mes`, color: "#1e1b4b" },
-              ].map(f => (
-                <div key={f.label} style={{ borderBottom: "1px solid #f3f4f6", paddingBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>{f.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: f.color }}>{f.valor}</div>
-                </div>
-              ))}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 8, fontWeight: 500 }}>Tipo de pago</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { key: "importe", label: "Importe directo" },
+                  { key: "porcentaje", label: "Por porcentaje" },
+                  { key: "cuota", label: "Una cuota" },
+                ].map(t => (
+                  <button key={t.key} onClick={() => setPagoTipo(t.key)}
+                    style={{ flex: 1, padding: "8px 4px", border: `1px solid ${pagoTipo === t.key ? "#6366f1" : "#e8eaf0"}`, borderRadius: 8, background: pagoTipo === t.key ? "#ede9fe" : "#fff", color: pagoTipo === t.key ? "#6366f1" : "#718096", fontSize: 12, fontWeight: pagoTipo === t.key ? 600 : 400, cursor: "pointer" }}>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {deudaDetalle.numerocuotas > 1 && (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: "#a0aec0", marginBottom: 8 }}>Progreso de pago</div>
-                <div style={{ background: "#f3f4f6", borderRadius: 8, height: 8, overflow: "hidden" }}>
-                  <div style={{ background: "#6366f1", height: 8, width: `${(deudaDetalle.cuotaspagadas / deudaDetalle.numerocuotas) * 100}%`, borderRadius: 8 }}></div>
-                </div>
-                <div style={{ fontSize: 11, color: "#718096", marginTop: 4 }}>{deudaDetalle.cuotaspagadas} de {deudaDetalle.numerocuotas} cuotas pagadas</div>
+            {pagoTipo === "importe" && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Importe a pagar (€)</label>
+                <input type="number" value={formDeuda.importePagado} onChange={e => setFormDeuda(p => ({ ...p, importePagado: e.target.value }))}
+                  placeholder={`Máx: ${(parseFloat(modalDeuda.importetotal) - parseFloat(modalDeuda.importepagado || 0)).toFixed(2)}€`}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
               </div>
             )}
 
-            {deudaDetalle.notas && (
-              <div style={{ background: "#f8f9ff", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#718096" }}>
-                <strong>Notas:</strong> {deudaDetalle.notas}
+            {pagoTipo === "porcentaje" && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Porcentaje a cobrar (%)</label>
+                <input type="number" min={1} max={100} value={formDeuda.porcentajeCobro} onChange={e => setFormDeuda(p => ({ ...p, porcentajeCobro: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
+                {formDeuda.porcentajeCobro && (
+                  <div style={{ fontSize: 12, color: "#6366f1", marginTop: 4 }}>
+                    = {(parseFloat(modalDeuda.importetotal) * parseFloat(formDeuda.porcentajeCobro) / 100).toFixed(2)}€
+                  </div>
+                )}
               </div>
             )}
+
+            {pagoTipo === "cuota" && modalDeuda.numerocuotas > 1 && (
+              <div style={{ background: "#f0f4ff", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
+                Se registrará el pago de <strong>{(parseFloat(modalDeuda.importetotal) / modalDeuda.numerocuotas).toFixed(2)}€</strong> (cuota {(modalDeuda.cuotaspagadas || 0) + 1} de {modalDeuda.numerocuotas})
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Método de pago</label>
+                <select value={formDeuda.metodoPago} onChange={e => setFormDeuda(p => ({ ...p, metodoPago: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14 }}>
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TRANSFERENCIA">Transferencia</option>
+                  <option value="DESCUENTO_NOMINA">Descuento nómina</option>
+                  <option value="TARJETA">Tarjeta</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Estado</label>
+                <select value={formDeuda.estado} onChange={e => setFormDeuda(p => ({ ...p, estado: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14 }}>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="PAGADA">Pagada</option>
+                  <option value="CANCELADA">Cancelada</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha aprobación</label>
+                <input type="date" value={formDeuda.fechaAprobacion} onChange={e => setFormDeuda(p => ({ ...p, fechaAprobacion: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha pago</label>
+                <input type="date" value={formDeuda.fechaPago} onChange={e => setFormDeuda(p => ({ ...p, fechaPago: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Aprobado por</label>
+                <input value={formDeuda.aprobadoPor} onChange={e => setFormDeuda(p => ({ ...p, aprobadoPor: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Notas</label>
+              <textarea value={formDeuda.notas} onChange={e => setFormDeuda(p => ({ ...p, notas: e.target.value }))} rows={2}
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box", resize: "none" }} />
+            </div>
+
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setModalDeuda(null)} style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+              <button onClick={guardarDeuda} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>Guardar</button>
+            </div>
           </div>
         </div>
       )}
