@@ -27,7 +27,6 @@ export default function PerfilEmpleadoPage() {
   const [form, setForm] = useState({ nombre: "", apellidos: "", dni: "", telefono: "", fechaNacimiento: "", fechaContratacion: "" })
   const [modalHistorial, setModalHistorial] = useState(null)
   const [formHistorial, setFormHistorial] = useState({ nuevoSueldo: "", porcentaje: "", puesto: "", fechaInicio: "", notas: "" })
-  const [deudaDetalle, setDeudaDetalle] = useState(null)
   const [modalDeuda, setModalDeuda] = useState(null)
   const [formDeuda, setFormDeuda] = useState({ estado: "", fechaAprobacion: "", fechaPago: "", aprobadoPor: "", metodoPago: "EFECTIVO", porcentajeCobro: "", notas: "", importePagado: "" })
   const [pagoTipo, setPagoTipo] = useState("importe")
@@ -162,13 +161,12 @@ export default function PerfilEmpleadoPage() {
 
   const tardanzas = empleado.fichajes?.filter(f => new Date(f.horaEntrada).getHours() >= 9).length || 0
   const deudasActivas = empleado.deudas?.filter(d => d.estado === "ACTIVA") || []
-  const totalDeuda = deudasActivas.reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
 
       <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 24, marginBottom: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: totalDeuda > 0 ? 16 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 500, color: "#fff", flexShrink: 0 }}>
             {empleado.nombre[0]}{empleado.apellidos[0]}
           </div>
@@ -192,33 +190,6 @@ export default function PerfilEmpleadoPage() {
             ))}
           </div>
         </div>
-
-        {totalDeuda > 0 && (
-          <div style={{ borderTop: "0.5px solid #e8eaf0", paddingTop: 14 }}>
-            <div style={{ fontSize: 12, color: "#a0aec0", marginBottom: 8, fontWeight: 500 }}>DEUDAS PENDIENTES</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {deudasActivas.map(d => (
-                <div key={d.id} onClick={() => setTab("deudas")}
-                  style={{ background: d.tipo === "ANTICIPO" ? "#ede9fe" : d.tipo === "PRODUCTO" ? "#dbeafe" : "#fef9c3", border: `1px solid ${d.tipo === "ANTICIPO" ? "#c4b5fd" : d.tipo === "PRODUCTO" ? "#93c5fd" : "#fde047"}`, borderRadius: 8, padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: d.tipo === "ANTICIPO" ? "#6366f1" : d.tipo === "PRODUCTO" ? "#0284c7" : "#d97706" }}>{d.tipo}</div>
-                    <div style={{ fontSize: 11, color: "#718096" }}>{d.descripcion}</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#dc2626" }}>{(parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2)}€</div>
-                    <div style={{ fontSize: 10, color: "#a0aec0" }}>pendiente</div>
-                  </div>
-                </div>
-              ))}
-              <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 14px", display: "flex", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "#991b1b" }}>Total pendiente</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#dc2626" }}>{totalDeuda.toFixed(2)}€</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <div style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: "2px solid #e8eaf0", overflowX: "auto" }}>
@@ -398,7 +369,6 @@ export default function PerfilEmpleadoPage() {
                   </button>
                 </div>
               </div>
-
               <div style={{ padding: "16px 20px", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
                 {[
                   { label: "Importe total", valor: parseFloat(d.importetotal).toFixed(2) + "€", color: "#1e1b4b" },
@@ -423,7 +393,6 @@ export default function PerfilEmpleadoPage() {
                   </div>
                 )}
               </div>
-
               {d.numerocuotas > 1 && (
                 <div style={{ padding: "0 20px 16px" }}>
                   <div style={{ background: "#f3f4f6", borderRadius: 8, height: 6, overflow: "hidden" }}>
@@ -550,7 +519,6 @@ export default function PerfilEmpleadoPage() {
         </div>
       )}
 
-      {/* Modal deuda */}
       {modalDeuda && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 500, maxWidth: "90vw", maxHeight: "90vh", overflowY: "auto" }}>
@@ -558,7 +526,6 @@ export default function PerfilEmpleadoPage() {
               <h2 style={{ fontSize: 17, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>Editar deuda — {modalDeuda.descripcion}</h2>
               <button onClick={() => setModalDeuda(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#a0aec0" }}>✕</button>
             </div>
-
             <div style={{ background: "#f0f4ff", borderRadius: 10, padding: "12px 16px", marginBottom: 20, display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 11, color: "#a0aec0" }}>Total</div>
@@ -573,7 +540,6 @@ export default function PerfilEmpleadoPage() {
                 <div style={{ fontSize: 16, fontWeight: 600, color: "#dc2626" }}>{(parseFloat(modalDeuda.importetotal) - parseFloat(modalDeuda.importepagado || 0)).toFixed(2)}€</div>
               </div>
             </div>
-
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 8, fontWeight: 500 }}>Tipo de pago</label>
               <div style={{ display: "flex", gap: 8 }}>
@@ -589,7 +555,6 @@ export default function PerfilEmpleadoPage() {
                 ))}
               </div>
             </div>
-
             {pagoTipo === "importe" && (
               <div style={{ marginBottom: 12 }}>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Importe a pagar (€)</label>
@@ -598,7 +563,6 @@ export default function PerfilEmpleadoPage() {
                   style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
               </div>
             )}
-
             {pagoTipo === "porcentaje" && (
               <div style={{ marginBottom: 12 }}>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Porcentaje a cobrar (%)</label>
@@ -611,13 +575,11 @@ export default function PerfilEmpleadoPage() {
                 )}
               </div>
             )}
-
             {pagoTipo === "cuota" && modalDeuda.numerocuotas > 1 && (
               <div style={{ background: "#f0f4ff", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
                 Se registrará el pago de <strong>{(parseFloat(modalDeuda.importetotal) / modalDeuda.numerocuotas).toFixed(2)}€</strong> (cuota {(modalDeuda.cuotaspagadas || 0) + 1} de {modalDeuda.numerocuotas})
               </div>
             )}
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Método de pago</label>
@@ -639,7 +601,6 @@ export default function PerfilEmpleadoPage() {
                 </select>
               </div>
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha aprobación</label>
@@ -657,13 +618,11 @@ export default function PerfilEmpleadoPage() {
                   style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }} />
               </div>
             </div>
-
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Notas</label>
               <textarea value={formDeuda.notas} onChange={e => setFormDeuda(p => ({ ...p, notas: e.target.value }))} rows={2}
                 style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box", resize: "none" }} />
             </div>
-
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button onClick={() => setModalDeuda(null)} style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, cursor: "pointer" }}>Cancelar</button>
               <button onClick={guardarDeuda} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>Guardar</button>
@@ -672,7 +631,6 @@ export default function PerfilEmpleadoPage() {
         </div>
       )}
 
-      {/* Modal historial */}
       {modalHistorial && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 440, maxWidth: "90vw" }}>
