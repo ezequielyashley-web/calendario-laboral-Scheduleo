@@ -180,6 +180,10 @@ function InspeccionContent() {
                   style={{ background: "#f0f4ff", color: "#6366f1", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
                   Exportar CSV
                 </button>
+                <button onClick={exportarPDF}
+                  style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+                  Exportar PDF
+                </button>
                 <button onClick={() => window.print()}
                   style={{ background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
                   Imprimir
