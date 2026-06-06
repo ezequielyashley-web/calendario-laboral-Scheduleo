@@ -149,7 +149,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               </svg>
               <div>
                 <div style={{ color:'#fff', fontWeight:700, fontSize:17, letterSpacing:'-0.3px', lineHeight:1.1 }}>Scheduleo</div>
-                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, marginTop:3 }}>v2.0 · {empresaNombre}</div>
+                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, marginTop:3 }}>v2.0</div>
               </div>
             </div>
           </div>
