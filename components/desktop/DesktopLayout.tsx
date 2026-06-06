@@ -140,7 +140,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             <div style={{ display:'flex', alignItems:'center', gap:12 }}>
               <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ flexShrink:0 }}>
                 <rect width="48" height="48" rx="12" fill={accentColor}/>
-                <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/>
+                <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
                 <circle cx="24" cy="16" r="5" fill="white"/>
                 <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
                 <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
@@ -159,7 +159,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           <div style={{ padding:'12px 0', borderTop:'1px solid rgba(255,255,255,0.06)', display:'flex', justifyContent:'center' }}>
             <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
               <rect width="48" height="48" rx="12" fill={accentColor}/>
-                <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/>
+                <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
               <circle cx="24" cy="16" r="5" fill="white"/>
               <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
               <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
