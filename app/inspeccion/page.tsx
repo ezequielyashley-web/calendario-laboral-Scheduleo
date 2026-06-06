@@ -73,7 +73,7 @@ function InspeccionContent() {
     const params = new URLSearchParams({ token, desde: filtros.desde, hasta: filtros.hasta })
     const res = await fetch(`/api/inspeccion/alertas?${params}`)
     const data = await res.json()
-    setAlertas(data)
+    setAlertas(data?.alertas ? data : { alertas: [], totalEmpleados: 0, totalAlertas: 0 })
     setLoadingAlertas(false)
   }
 
