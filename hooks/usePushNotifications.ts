@@ -39,7 +39,7 @@ export function usePushNotifications() {
       const reg = await navigator.serviceWorker.ready
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        applicationServerKey: "BIbYwIv8byy4FbdtqJYhj7qeSxRt2t2OO-cJFJ8eMnM_DsnGS9mi1gfgU0PU3PkYgFeRT85a0xOVXvi9KVb8kfw"
       })
       await fetch("/api/push/subscribe", {
         method: "POST",
