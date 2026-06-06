@@ -72,6 +72,8 @@ const pageTitles: Record<string, string> = {
   '/configuracion':     'Configuración',
 }
 
+const VERSION = 'v2.0'
+
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(true)
@@ -104,19 +106,27 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
       <aside style={{ width: open ? 200 : 52, background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'width 0.2s', overflow:'hidden', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
 
-        {/* Logo empresa */}
-        <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
+        {/* Logo */}
+        <div style={{ padding: open ? '16px 14px 12px' : '16px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0, borderBottom:'1px solid rgba(255,255,255,0.06)', marginBottom:8 }}>
           {empresaLogo ? (
-            <img src={empresaLogo} alt="logo" style={{ width:28, height:28, borderRadius:6, objectFit:'cover', flexShrink:0 }} />
+            <img src={empresaLogo} alt="logo" style={{ width:32, height:32, borderRadius:6, objectFit:'cover', flexShrink:0 }} />
           ) : (
-            <div style={{ width:28, height:28, borderRadius:6, background: accentColor, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:13, fontWeight:700, flexShrink:0 }}>
-              {empresaNombre[0]?.toUpperCase()}
-            </div>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink:0 }}>
+              <rect width="32" height="32" rx="8" fill={accentColor}/>
+              <line x1="9" y1="9" x2="23" y2="23" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+              <line x1="23" y1="9" x2="9" y2="23" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+              <circle cx="16" cy="16" r="3.5" fill="white" fillOpacity="0.25"/>
+            </svg>
           )}
           {open && (
-            <span style={{ color:'#fff', fontWeight:600, fontSize:14, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-              {empresaNombre}
-            </span>
+            <div style={{ overflow:'hidden' }}>
+              <div style={{ color:'#fff', fontWeight:700, fontSize:14, whiteSpace:'nowrap', letterSpacing:'-0.2px' }}>
+                {empresaLogo ? empresaNombre : 'Scheduleo'}
+              </div>
+              <div style={{ color:'rgba(255,255,255,0.35)', fontSize:10, marginTop:1 }}>
+                {empresaLogo ? empresaNombre : VERSION + ' · ' + empresaNombre}
+              </div>
+            </div>
           )}
         </div>
 
