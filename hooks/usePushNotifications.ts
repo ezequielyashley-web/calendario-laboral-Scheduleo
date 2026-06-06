@@ -4,11 +4,14 @@ import { useEffect, useState } from "react"
 export function usePushNotifications() {
   const [suscrito, setSuscrito] = useState(false)
   const [soportado, setSoportado] = useState(false)
+  const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
     if ("serviceWorker" in navigator && "PushManager" in window) {
       setSoportado(true)
       registrarSW()
+    } else {
+      setCargando(false)
     }
   }, [])
 
@@ -19,6 +22,8 @@ export function usePushNotifications() {
       if (sub) setSuscrito(true)
     } catch (e) {
       console.log("SW error:", e)
+    } finally {
+      setCargando(false)
     }
   }
 
@@ -40,5 +45,5 @@ export function usePushNotifications() {
     }
   }
 
-  return { suscrito, soportado, suscribirse }
+  return { suscrito, soportado, suscribirse, cargando }
 }
