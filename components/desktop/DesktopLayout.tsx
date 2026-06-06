@@ -26,34 +26,25 @@ const Icons = {
 }
 
 const menuSections = [
-  {
-    label: 'Principal',
-    items: [
-      { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
-      { href: '/empleados',         icon: Icons.empleados,      label: 'Empleados'      },
-      { href: '/calendario-global', icon: Icons.calendario,     label: 'Calendario'     },
-      { href: '/fichajes',          icon: Icons.fichajes,       label: 'Fichajes'       },
-    ]
-  },
-  {
-    label: 'Gestión',
-    items: [
-      { href: '/vacaciones',        icon: Icons.vacaciones,     label: 'Vacaciones'     },
-      { href: '/cambios-turno',     icon: Icons.cambiosTurno,   label: 'Cambios turno'  },
-      { href: '/bajas',             icon: Icons.bajas,          label: 'Bajas médicas'  },
-      { href: '/chat',              icon: Icons.chat,           label: 'Chat'           },
-      { href: '/deudas',            icon: Icons.deudas,         label: 'Deudas'         },
-      { href: '/cobertura',         icon: Icons.cobertura,      label: 'Cobertura'      },
-    ]
-  },
-  {
-    label: 'Sistema',
-    items: [
-      { href: '/reportes',          icon: Icons.reportes,       label: 'Reportes'       },
-      { href: '/notificaciones',    icon: Icons.notificaciones, label: 'Notificaciones' },
-      { href: '/configuracion',     icon: Icons.configuracion,  label: 'Configuración'  },
-    ]
-  },
+  { label: 'Principal', items: [
+    { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
+    { href: '/empleados',         icon: Icons.empleados,      label: 'Empleados'      },
+    { href: '/calendario-global', icon: Icons.calendario,     label: 'Calendario'     },
+    { href: '/fichajes',          icon: Icons.fichajes,       label: 'Fichajes'       },
+  ]},
+  { label: 'Gestión', items: [
+    { href: '/vacaciones',        icon: Icons.vacaciones,     label: 'Vacaciones'     },
+    { href: '/cambios-turno',     icon: Icons.cambiosTurno,   label: 'Cambios turno'  },
+    { href: '/bajas',             icon: Icons.bajas,          label: 'Bajas médicas'  },
+    { href: '/chat',              icon: Icons.chat,           label: 'Chat'           },
+    { href: '/deudas',            icon: Icons.deudas,         label: 'Deudas'         },
+    { href: '/cobertura',         icon: Icons.cobertura,      label: 'Cobertura'      },
+  ]},
+  { label: 'Sistema', items: [
+    { href: '/reportes',          icon: Icons.reportes,       label: 'Reportes'       },
+    { href: '/notificaciones',    icon: Icons.notificaciones, label: 'Notificaciones' },
+    { href: '/configuracion',     icon: Icons.configuracion,  label: 'Configuración'  },
+  ]},
 ]
 
 const pageTitles: Record<string, string> = {
@@ -72,8 +63,6 @@ const pageTitles: Record<string, string> = {
   '/configuracion':     'Configuración',
 }
 
-const VERSION = 'v2.0'
-
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(true)
@@ -82,15 +71,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
 
   useEffect(() => {
-    fetch("/api/empresa")
-      .then(r => r.json())
-      .then(data => setEmpresa(data))
-      .catch(() => {})
+    fetch("/api/empresa").then(r => r.json()).then(data => setEmpresa(data)).catch(() => {})
   }, [])
 
   const sidebarBg = empresa?.colorSidebar || '#2d2b55'
   const accentColor = empresa?.colorAccent || '#6366f1'
-  const empresaNombre = empresa?.nombre || 'Scheduleo'
+  const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
 
   return (
@@ -101,32 +87,23 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         .nav-item:hover { background:var(--sidebar-hover); }
         .nav-item.active { background:var(--sidebar-active); font-weight:500; }
         .nav-label { white-space:nowrap; overflow:hidden; transition:opacity 0.2s, width 0.2s; }
-        [data-surface] { background:var(--surface); }
       `}</style>
 
       <aside style={{ width: open ? 200 : 52, background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'width 0.2s', overflow:'hidden', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
 
-        {/* Logo */}
-        <div style={{ padding: open ? '16px 14px 12px' : '16px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0, borderBottom:'1px solid rgba(255,255,255,0.06)', marginBottom:8 }}>
+        {/* Nombre empresa — parte superior */}
+        <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
           {empresaLogo ? (
-            <img src={empresaLogo} alt="logo" style={{ width:32, height:32, borderRadius:6, objectFit:'cover', flexShrink:0 }} />
+            <img src={empresaLogo} alt="logo" style={{ width:28, height:28, borderRadius:6, objectFit:'cover', flexShrink:0 }} />
           ) : (
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink:0 }}>
-              <rect width="32" height="32" rx="8" fill={accentColor}/>
-              <line x1="9" y1="9" x2="23" y2="23" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-              <line x1="23" y1="9" x2="9" y2="23" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-              <circle cx="16" cy="16" r="3.5" fill="white" fillOpacity="0.25"/>
-            </svg>
+            <div style={{ width:28, height:28, borderRadius:6, background: accentColor, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:13, fontWeight:700, flexShrink:0 }}>
+              {empresaNombre[0]?.toUpperCase()}
+            </div>
           )}
           {open && (
-            <div style={{ overflow:'hidden' }}>
-              <div style={{ color:'#fff', fontWeight:700, fontSize:14, whiteSpace:'nowrap', letterSpacing:'-0.2px' }}>
-                {empresaLogo ? empresaNombre : 'Scheduleo'}
-              </div>
-              <div style={{ color:'rgba(255,255,255,0.35)', fontSize:10, marginTop:1 }}>
-                {empresaLogo ? empresaNombre : VERSION + ' · ' + empresaNombre}
-              </div>
-            </div>
+            <span style={{ color:'#fff', fontWeight:600, fontSize:14, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+              {empresaNombre}
+            </span>
           )}
         </div>
 
@@ -157,11 +134,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           ))}
         </nav>
 
-        {/* Logo Scheduleo */}
+        {/* LOGO FULL — logo Scheduleo + nombre + version */}
         {open && (
           <div style={{ padding:'16px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <svg width="36" height="36" viewBox="0 0 48 48" fill="none" style={{ flexShrink:0 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+              <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ flexShrink:0 }}>
                 <rect width="48" height="48" rx="12" fill={accentColor}/>
                 <circle cx="24" cy="16" r="5" fill="white"/>
                 <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
@@ -169,26 +146,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
                 <path d="M7 32C7 28.5 10 27 14 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
                 <path d="M41 32C41 28.5 38 27 34 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              </svg>
-              <div>
-                <div style={{ color:'#fff', fontWeight:700, fontSize:14, letterSpacing:'-0.2px' }}>Scheduleo</div>
-                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:10, marginTop:1 }}>v2.0 · {empresaNombre}</div>
-              </div>
-            </div>
-          </div>
-        )}
-        {/* LOGO FULL — logo Scheduleo + nombre + version */}
-        {open && (
-          <div style={{ padding:'20px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-              <svg width='54' height='54' viewBox='0 0 48 48' fill='none' style={{ flexShrink:0 }}>
-                <rect width='48' height='48' rx='12' fill={accentColor}/>
-                <circle cx='24' cy='16' r='5' fill='white'/>
-                <path d='M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34' stroke='white' strokeWidth='2.5' strokeLinecap='round' fill='none'/>
-                <circle cx='14' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
-                <circle cx='34' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
-                <path d='M7 32C7 28.5 10 27 14 27' stroke='rgba(255,255,255,0.6)' strokeWidth='2' strokeLinecap='round' fill='none'/>
-                <path d='M41 32C41 28.5 38 27 34 27' stroke='rgba(255,255,255,0.6)' strokeWidth='2' strokeLinecap='round' fill='none'/>
               </svg>
               <div>
                 <div style={{ color:'#fff', fontWeight:700, fontSize:17, letterSpacing:'-0.3px', lineHeight:1.1 }}>Scheduleo</div>
@@ -199,22 +156,21 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         )}
         {!open && (
           <div style={{ padding:'12px 0', borderTop:'1px solid rgba(255,255,255,0.06)', display:'flex', justifyContent:'center' }}>
-            <svg width='36' height='36' viewBox='0 0 48 48' fill='none'>
-              <rect width='48' height='48' rx='12' fill={accentColor}/>
-              <circle cx='24' cy='16' r='5' fill='white'/>
-              <path d='M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34' stroke='white' strokeWidth='2.5' strokeLinecap='round' fill='none'/>
-              <circle cx='14' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
-              <circle cx='34' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
+            <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+              <rect width="48" height="48" rx="12" fill={accentColor}/>
+              <circle cx="24" cy="16" r="5" fill="white"/>
+              <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+              <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
             </svg>
           </div>
         )}
+
         {/* Collapse btn */}
         <div style={{ padding:'8px', flexShrink:0 }}>
-          <button
-            onClick={() => setOpen(!open)}
+          <button onClick={() => setOpen(!open)}
             className="flex items-center justify-center w-full py-1.5 transition-colors duration-150"
-            style={{ borderRadius:4, color:'var(--sidebar-text)', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)' }}
-          >
+            style={{ borderRadius:4, color:'var(--sidebar-text)', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {open ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
             </svg>
