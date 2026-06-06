@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
       SELECT * FROM "TokenInspeccion"
       WHERE token = ${token}
       AND "expiraEn" > NOW()
-      AND usado = false
       LIMIT 1
     ` as any[]
 
@@ -20,6 +19,23 @@ export async function POST(req: NextRequest) {
       INSERT INTO "LogAccesoInspector" (id, "empresaId", token, ip, "seccionConsultada")
       VALUES (gen_random_uuid()::text, 'empresa-001', ${token}, ${ip}, ${seccion || "acceso"})
     `
+
+    if (seccion === "acceso_inicial") {
+      try {
+        await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/push/notify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            titulo: "⚠️ Inspector accediendo al sistema",
+            mensaje: `Un inspector está consultando los datos de la empresa ahora mismo. IP: ${ip}`,
+            url: "/configuracion",
+            empresaId: "empresa-001"
+          })
+        })
+      } catch (e) {
+        console.log("Push no disponible:", e)
+      }
+    }
 
     return NextResponse.json({ ok: true, empresa: "empresa-001" })
   } catch (error) {

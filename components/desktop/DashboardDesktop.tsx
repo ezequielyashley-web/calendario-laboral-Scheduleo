@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import InspectorBanner from "@/components/desktop/InspectorBanner"
 
 const kpis = [
   { label: "Empleados activos", valor: 68, trend: "+3%", up: true, color: "#6366f1", bg: "#ede9fe", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
@@ -33,8 +33,8 @@ const actividad = [
 export default function DashboardDesktop() {
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
+      <InspectorBanner />
 
-      {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
         {kpis.map((k, i) => (
           <div key={i} style={{ background: k.gradient ? k.bg : "#fff", borderRadius: 16, padding: 20, border: k.gradient ? "none" : "0.5px solid #e8eaf0" }}>
@@ -54,10 +54,7 @@ export default function DashboardDesktop() {
         ))}
       </div>
 
-      {/* Charts */}
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginBottom: 16 }}>
-
-        {/* Asistencia */}
         <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "0.5px solid #e8eaf0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b" }}>Asistencia semanal</div>
@@ -75,7 +72,6 @@ export default function DashboardDesktop() {
           </div>
         </div>
 
-        {/* Grupos */}
         <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "0.5px solid #e8eaf0" }}>
           <div style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b", marginBottom: 16 }}>Distribución por turno</div>
           {grupos.map((g, i) => (
@@ -90,7 +86,6 @@ export default function DashboardDesktop() {
         </div>
       </div>
 
-      {/* Actividad */}
       <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "0.5px solid #e8eaf0" }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: "#1e1b4b", marginBottom: 16 }}>Actividad reciente</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
