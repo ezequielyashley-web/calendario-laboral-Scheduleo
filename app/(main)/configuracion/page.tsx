@@ -10,6 +10,7 @@ const SECCIONES = [
   { key: "laboral", label: "Datos laborales" },
   { key: "apariencia", label: "Apariencia" },
   { key: "licencia", label: "Licencia" },
+  { key: "inspeccion", label: "Inspección laboral" },
   { key: "usuarios", label: "Usuarios" },
 ]
 
