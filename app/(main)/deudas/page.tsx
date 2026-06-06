@@ -8,7 +8,6 @@ export default function DeudasPage() {
   const [empleados, setEmpleados] = useState([])
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState("")
-  const [expandido, setExpandido] = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -44,11 +43,6 @@ export default function DeudasPage() {
     return ds.reduce((s, d) => s + (parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)), 0)
   }
 
-  const getDeudas = (empId, tipo) => (deudasPorEmpleado[empId] || []).filter(d => d.estado === "ACTIVA" && d.tipo === tipo)
-
-  const tipoBg = { ANTICIPO: "#ede9fe", PRODUCTO: "#dbeafe", DESCUENTO: "#fef9c3" }
-  const tipoColor = { ANTICIPO: "#6366f1", PRODUCTO: "#0284c7", DESCUENTO: "#d97706" }
-
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -81,92 +75,49 @@ export default function DeudasPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f8f9ff" }}>
-                {["Empleado", "Anticipo", "Producto", "Descuento", "Total pendiente", ""].map(h => (
-                  <th key={h} style={{ padding: "10px 16px", textAlign: h === "Total pendiente" ? "right" : h === "" ? "center" : "left", fontSize: 12, fontWeight: 500, color: "#718096", borderBottom: "0.5px solid #e8eaf0" }}>{h}</th>
+                {["Empleado", "Anticipo", "Producto", "Descuento", "Total pendiente"].map(h => (
+                  <th key={h} style={{ padding: "10px 16px", textAlign: h === "Total pendiente" ? "right" : "left", fontSize: 12, fontWeight: 500, color: "#718096", borderBottom: "0.5px solid #e8eaf0" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {empleadosConDeudas.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>No hay empleados con deudas activas</td></tr>
+                <tr><td colSpan={5} style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>No hay empleados con deudas activas</td></tr>
               ) : empleadosConDeudas.map((e, i) => {
-                const isOpen = expandido === e.id
-                const anticipos = getDeudas(e.id, "ANTICIPO")
-                const productos = getDeudas(e.id, "PRODUCTO")
-                const descuentos = getDeudas(e.id, "DESCUENTO")
                 const pAnticipo = getPendiente(e.id, "ANTICIPO")
                 const pProducto = getPendiente(e.id, "PRODUCTO")
                 const pDescuento = getPendiente(e.id, "DESCUENTO")
                 const total = getPendiente(e.id)
 
                 return (
-                  <React.Fragment key={e.id}>
-                    <tr
-                      onClick={() => {
-                        if (expandido === e.id) {
-                          router.push(`/empleados/${e.id}?tab=deudas`)
-                        } else {
-                          setExpandido(e.id)
-                        }
-                      }}
-                      style={{ borderBottom: isOpen ? "none" : "0.5px solid #f3f4f6", background: isOpen ? "#f8f9ff" : i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
-                      onMouseEnter={el => { if (!isOpen) el.currentTarget.style.background = "#f0f4ff" }}
-                      onMouseLeave={el => { if (!isOpen) el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa" }}
-                    >
-                      <td style={{ padding: "12px 16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
-                            {e.nombre[0]}{e.apellidos[0]}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b" }}>{e.nombre} {e.apellidos}</div>
-                            <div style={{ fontSize: 11, color: "#a0aec0" }}>Nº {e.numeroEmpleado}</div>
-                          </div>
+                  <tr key={e.id}
+                    onClick={() => router.push(`/empleados/${e.id}?tab=deudas`)}
+                    style={{ borderBottom: "0.5px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
+                    onMouseEnter={el => el.currentTarget.style.background = "#f0f4ff"}
+                    onMouseLeave={el => el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"}
+                  >
+                    <td style={{ padding: "12px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
+                          {e.nombre[0]}{e.apellidos[0]}
                         </div>
-                      </td>
-                      <td style={{ padding: "12px 16px" }}>
-                        {pAnticipo > 0 ? <span style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
-                      </td>
-                      <td style={{ padding: "12px 16px" }}>
-                        {pProducto > 0 ? <span style={{ background: "#dbeafe", color: "#0284c7", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
-                      </td>
-                      <td style={{ padding: "12px 16px" }}>
-                        {pDescuento > 0 ? <span style={{ background: "#fef9c3", color: "#d97706", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pDescuento.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
-                      </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{total.toFixed(2)}€</td>
-                      <td style={{ padding: "12px 16px", textAlign: "center", fontSize: 13, color: "#a0aec0" }}>{isOpen ? "▲" : "▼"}</td>
-                    </tr>
-
-                    {isOpen && (
-                      <tr>
-                        <td colSpan={6} style={{ padding: "0 16px 16px", background: "#f8f9ff", borderBottom: "0.5px solid #e8eaf0" }}>
-                          <div style={{ paddingTop: 12 }}>
-                            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-                              <button
-                                onClick={ev => { ev.stopPropagation(); router.push(`/empleados/${e.id}?tab=deudas`) }}
-                                style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
-                                Ver perfil completo →
-                              </button>
-                            </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
-                              {[...anticipos, ...productos, ...descuentos].map(d => (
-                                <div key={d.id} style={{ background: tipoBg[d.tipo], borderRadius: 10, padding: "12px 14px" }}>
-                                  <div style={{ fontSize: 11, color: tipoColor[d.tipo], fontWeight: 500, marginBottom: 4 }}>{d.tipo}</div>
-                                  <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 4 }}>{d.descripcion}</div>
-                                  <div style={{ fontSize: 11, color: "#718096", marginBottom: 8 }}>
-                                    {d.numerocuotas > 1 ? `${d.cuotaspagadas}/${d.numerocuotas} cuotas · ${(parseFloat(d.importetotal)/d.numerocuotas).toFixed(2)}€/mes` : "Pago único"} · Día {d.diacobro}
-                                  </div>
-                                  <div style={{ fontSize: 15, fontWeight: 500, color: "#dc2626" }}>
-                                    {(parseFloat(d.importetotal) - parseFloat(d.importepagado || 0)).toFixed(2)}€ pendiente
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b" }}>{e.nombre} {e.apellidos}</div>
+                          <div style={{ fontSize: 11, color: "#a0aec0" }}>Nº {e.numeroEmpleado}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      {pAnticipo > 0 ? <span style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      {pProducto > 0 ? <span style={{ background: "#dbeafe", color: "#0284c7", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      {pDescuento > 0 ? <span style={{ background: "#fef9c3", color: "#d97706", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pDescuento.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                    </td>
+                    <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{total.toFixed(2)}€</td>
+                  </tr>
                 )
               })}
             </tbody>
