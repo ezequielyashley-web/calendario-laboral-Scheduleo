@@ -24,7 +24,10 @@ export async function POST(req: NextRequest) {
     const admin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!admin) return NextResponse.json({ error: "No se encontró admin" }, { status: 401 })
 
-    const ok = await bcrypt.compare(masterPassword, admin.hashedPin)
+    const hash = (admin as any).password
+    if (!hash) return NextResponse.json({ error: "El admin no tiene contraseña configurada" }, { status: 401 })
+
+    const ok = await bcrypt.compare(masterPassword, hash)
     if (!ok) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
 
     const token = crypto.randomBytes(32).toString("hex")

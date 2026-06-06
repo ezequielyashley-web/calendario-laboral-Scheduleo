@@ -27,27 +27,46 @@ export async function GET(req: NextRequest) {
     `
 
     if (tipo === "fichajes") {
-      let query = `SELECT f.*, e.nombre, e.apellidos, e."numeroEmpleado" FROM "Fichaje" f LEFT JOIN "Empleado" e ON e.id = f."empleadoId" WHERE f."empresaId" = 'empresa-001'`
+      let query = `
+        SELECT f.*, e.nombre, e.apellidos, e."numeroEmpleado",
+          CASE WHEN f."modificado" = true THEN 'SI' ELSE 'NO' END as fue_modificado,
+          f."motivoModificacion" as motivo_modificacion
+        FROM "Fichaje" f
+        LEFT JOIN "Empleado" e ON e.id = f."empleadoId"
+        WHERE f."empresaId" = 'empresa-001'
+      `
       if (desde) query += ` AND f."horaEntrada" >= '${desde}'`
-      if (hasta) query += ` AND f."horaEntrada" <= '${hasta}'`
+      if (hasta) query += ` AND f."horaEntrada" <= '${hasta} 23:59:59'`
       if (empleadoId) query += ` AND f."empleadoId" = '${empleadoId}'`
       query += ` ORDER BY f."horaEntrada" DESC LIMIT 500`
       const data = await prisma.$queryRawUnsafe(query)
       return NextResponse.json(data)
     }
 
+    if (tipo === "modificaciones") {
+      const data = await prisma.$queryRaw`
+        SELECT l.*, e.nombre, e.apellidos, e."numeroEmpleado"
+        FROM "LogModificacion" l
+        LEFT JOIN "Empleado" e ON e.id = l."empleadoId"
+        WHERE l."empresaId" = 'empresa-001'
+        ORDER BY l."creadoEn" DESC
+        LIMIT 200
+      ` as any[]
+      return NextResponse.json(data)
+    }
+
     if (tipo === "empleados") {
       const data = await prisma.$queryRaw`
-        SELECT id, "numeroEmpleado", nombre, apellidos, dni, "fechaContratacion" FROM "Empleado"
-        WHERE "empresaId" = 'empresa-001' ORDER BY apellidos ASC
+        SELECT id, "numeroEmpleado", nombre, apellidos, dni, "fechaContratacion"
+        FROM "Empleado" WHERE "empresaId" = 'empresa-001' ORDER BY apellidos ASC
       ` as any[]
       return NextResponse.json(data)
     }
 
     if (tipo === "vacaciones") {
       const data = await prisma.$queryRaw`
-        SELECT v.*, e.nombre, e.apellidos, e."numeroEmpleado" FROM "Vacacion" v
-        LEFT JOIN "Empleado" e ON e.id = v."empleadoId"
+        SELECT v.*, e.nombre, e.apellidos, e."numeroEmpleado"
+        FROM "Vacacion" v LEFT JOIN "Empleado" e ON e.id = v."empleadoId"
         WHERE v."empresaId" = 'empresa-001' ORDER BY v."fechaInicio" DESC LIMIT 200
       ` as any[]
       return NextResponse.json(data)
@@ -55,8 +74,8 @@ export async function GET(req: NextRequest) {
 
     if (tipo === "bajas") {
       const data = await prisma.$queryRaw`
-        SELECT b.*, e.nombre, e.apellidos, e."numeroEmpleado" FROM "BajaMedica" b
-        LEFT JOIN "Empleado" e ON e.id = b."empleadoId"
+        SELECT b.*, e.nombre, e.apellidos, e."numeroEmpleado"
+        FROM "BajaMedica" b LEFT JOIN "Empleado" e ON e.id = b."empleadoId"
         WHERE b."empresaId" = 'empresa-001' ORDER BY b."fechaInicio" DESC LIMIT 200
       ` as any[]
       return NextResponse.json(data)
