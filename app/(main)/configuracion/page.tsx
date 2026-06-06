@@ -20,6 +20,8 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
   const [generando, setGenerando] = useState(false)
   const [nuevoToken, setNuevoToken] = useState("")
   const [copiado, setCopiado] = useState(false)
+  const [log, setLog] = useState<any[]>([])
+  const [vistaLog, setVistaLog] = useState(false)
 
   const cargarTokens = async () => {
     const res = await fetch("/api/inspeccion/token")
@@ -27,7 +29,13 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
     setTokens(Array.isArray(data) ? data : [])
   }
 
-  useEffect(() => { cargarTokens() }, [])
+  const cargarLog = async () => {
+    const res = await fetch("/api/inspeccion/log")
+    const data = await res.json()
+    setLog(Array.isArray(data) ? data : [])
+  }
+
+  useEffect(() => { cargarTokens(); cargarLog() }, [])
 
   const generarToken = async () => {
     setGenerando(true)
@@ -56,83 +64,152 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
     setTimeout(() => setCopiado(false), 2000)
   }
 
+  const seccionLabel = (s) => {
+    const map = { acceso_inicial: "Acceso inicial", fichajes: "Registro jornada", modificaciones: "Log modificaciones", empleados: "Plantilla", vacaciones: "Vacaciones", bajas: "Bajas médicas", alertas: "Alertas legales" }
+    return map[s] || s
+  }
+
   return (
     <div>
-      <div style={{ background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 14, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 14 }}>Generar nuevo acceso de inspección</div>
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-end" }}>
-          <div>
-            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Duración del acceso</label>
-            <select value={horas} onChange={e => setHoras(parseInt(e.target.value))}
-              style={{ padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, background: "#fff" }}>
-              <option value={4}>4 horas</option>
-              <option value={8}>8 horas</option>
-              <option value={24}>24 horas</option>
-              <option value={48}>48 horas</option>
-              <option value={72}>72 horas</option>
-            </select>
-          </div>
-          <button onClick={generarToken} disabled={generando}
-            style={{ background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
-            {generando ? "Generando..." : "Generar enlace de acceso"}
-          </button>
-        </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <button onClick={() => setVistaLog(false)}
+          style={{ padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: !vistaLog ? 600 : 400, color: !vistaLog ? "#6366f1" : "#718096", background: !vistaLog ? "#ede9fe" : "#f3f4f6", cursor: "pointer" }}>
+          Tokens activos
+        </button>
+        <button onClick={() => setVistaLog(true)}
+          style={{ padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: vistaLog ? 600 : 400, color: vistaLog ? "#6366f1" : "#718096", background: vistaLog ? "#ede9fe" : "#f3f4f6", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+          Log de accesos
+          {log.length > 0 && <span style={{ background: "#6366f1", color: "#fff", borderRadius: 20, fontSize: 10, padding: "1px 6px", fontWeight: 700 }}>{log.length}</span>}
+        </button>
+      </div>
 
-        {nuevoToken && (
-          <div style={{ marginTop: 16, background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 10, padding: 16 }}>
-            <div style={{ fontSize: 12, color: "#065f46", fontWeight: 600, marginBottom: 8 }}>Enlace generado — cópialo y envíaselo al inspector</div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input readOnly value={urlInspeccion(nuevoToken)}
-                style={{ flex: 1, padding: "8px 12px", border: "1px solid #6ee7b7", borderRadius: 8, fontSize: 12, background: "#fff", color: "#1e1b4b" }} />
-              <button onClick={() => copiar(urlInspeccion(nuevoToken))}
-                style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
-                {copiado ? "Copiado" : "Copiar"}
+      {!vistaLog ? (
+        <div>
+          <div style={{ background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 14, padding: 20, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 14 }}>Generar nuevo acceso de inspección</div>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-end" }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Duración del acceso</label>
+                <select value={horas} onChange={e => setHoras(parseInt(e.target.value))}
+                  style={{ padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, background: "#fff" }}>
+                  <option value={4}>4 horas</option>
+                  <option value={8}>8 horas</option>
+                  <option value={24}>24 horas</option>
+                  <option value={48}>48 horas</option>
+                  <option value={72}>72 horas</option>
+                </select>
+              </div>
+              <button onClick={generarToken} disabled={generando}
+                style={{ background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
+                {generando ? "Generando..." : "Generar enlace de acceso"}
               </button>
             </div>
-            <div style={{ fontSize: 11, color: "#065f46", marginTop: 8 }}>Este enlace expira en {horas} horas. El inspector solo puede ver datos, no modificarlos.</div>
-          </div>
-        )}
-      </div>
 
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 12 }}>Tokens activos</div>
-        {tokens.length === 0 ? (
-          <div style={{ padding: 20, textAlign: "center", color: "#a0aec0", fontSize: 13, background: "#f8f9ff", borderRadius: 10 }}>No hay tokens generados</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {tokens.map(t => {
-              const expirado = new Date(t.expiraEn) < new Date()
-              return (
-                <div key={t.id} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 10, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      <span style={{ background: expirado ? "#fee2e2" : "#d1fae5", color: expirado ? "#991b1b" : "#065f46", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
-                        {expirado ? "Expirado" : "Activo"}
-                      </span>
-                      <span style={{ fontSize: 12, color: "#718096" }}>Creado por {t.creadoPor}</span>
+            {nuevoToken && (
+              <div style={{ marginTop: 16, background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 12, color: "#065f46", fontWeight: 600, marginBottom: 8 }}>Enlace generado — cópialo y envíaselo al inspector</div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <input readOnly value={urlInspeccion(nuevoToken)}
+                    style={{ flex: 1, padding: "8px 12px", border: "1px solid #6ee7b7", borderRadius: 8, fontSize: 12, background: "#fff", color: "#1e1b4b" }} />
+                  <button onClick={() => copiar(urlInspeccion(nuevoToken))}
+                    style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+                    {copiado ? "Copiado" : "Copiar"}
+                  </button>
+                </div>
+                <div style={{ fontSize: 11, color: "#065f46", marginTop: 8 }}>Este enlace expira en {horas} horas. El inspector solo puede ver datos, no modificarlos.</div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 12 }}>Tokens generados</div>
+            {tokens.length === 0 ? (
+              <div style={{ padding: 20, textAlign: "center", color: "#a0aec0", fontSize: 13, background: "#f8f9ff", borderRadius: 10 }}>No hay tokens generados</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {tokens.map(t => {
+                  const expirado = new Date(t.expiraEn) < new Date()
+                  return (
+                    <div key={t.id} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 10, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <span style={{ background: expirado ? "#fee2e2" : "#d1fae5", color: expirado ? "#991b1b" : "#065f46", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                            {expirado ? "Expirado" : "Activo"}
+                          </span>
+                          <span style={{ fontSize: 12, color: "#718096" }}>Creado por {t.creadoPor}</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#a0aec0" }}>
+                          Creado: {new Date(t.creadoEn).toLocaleString("es-ES")} · Expira: {new Date(t.expiraEn).toLocaleString("es-ES")}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {!expirado && (
+                          <button onClick={() => copiar(urlInspeccion(t.token))}
+                            style={{ background: "#f0f4ff", color: "#6366f1", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
+                            Copiar URL
+                          </button>
+                        )}
+                        <button onClick={() => eliminarToken(t.id)}
+                          style={{ background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
+                          Revocar
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ fontSize: 11, color: "#a0aec0" }}>
-                      Creado: {new Date(t.creadoEn).toLocaleString("es-ES")} · Expira: {new Date(t.expiraEn).toLocaleString("es-ES")}
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 12 }}>
+            Historial de accesos de inspectores
+          </div>
+          {log.length === 0 ? (
+            <div style={{ padding: 20, textAlign: "center", color: "#a0aec0", fontSize: 13, background: "#f8f9ff", borderRadius: 10 }}>Sin accesos registrados</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {log.map((l, i) => (
+                <div key={i} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#6366f1" }}></div>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b" }}>Token: {l.token}</span>
+                      <span style={{ fontSize: 11, color: "#a0aec0" }}>IP: {l.ip}</span>
+                    </div>
+                    <span style={{ fontSize: 11, color: "#a0aec0" }}>{l.totalAccesos} consultas</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>Primer acceso</div>
+                      <div style={{ fontSize: 12, color: "#1e1b4b" }}>{new Date(l.primerAcceso).toLocaleString("es-ES")}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>Último acceso</div>
+                      <div style={{ fontSize: 12, color: "#1e1b4b" }}>{new Date(l.ultimoAcceso).toLocaleString("es-ES")}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>Creado por</div>
+                      <div style={{ fontSize: 12, color: "#1e1b4b" }}>{l.creadoPor || "—"}</div>
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {!expirado && (
-                      <button onClick={() => copiar(urlInspeccion(t.token))}
-                        style={{ background: "#f0f4ff", color: "#6366f1", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
-                        Copiar URL
-                      </button>
-                    )}
-                    <button onClick={() => eliminarToken(t.id)}
-                      style={{ background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
-                      Revocar
-                    </button>
+                  <div>
+                    <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 6 }}>Secciones consultadas</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {[...new Set(l.secciones)].map((s: any) => (
+                        <span key={s} style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>
+                          {seccionLabel(s)}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
