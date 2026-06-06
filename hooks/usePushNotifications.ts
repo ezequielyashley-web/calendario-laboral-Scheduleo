@@ -7,6 +7,10 @@ export function usePushNotifications() {
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
+    if (typeof window === "undefined") return
+    const yaActivado = localStorage.getItem("push_suscrito") === "true"
+    if (yaActivado) { setSuscrito(true); setCargando(false); return }
+
     if ("serviceWorker" in navigator && "PushManager" in window) {
       setSoportado(true)
       registrarSW()
@@ -19,7 +23,10 @@ export function usePushNotifications() {
     try {
       const reg = await navigator.serviceWorker.register("/sw.js")
       const sub = await reg.pushManager.getSubscription()
-      if (sub) setSuscrito(true)
+      if (sub) {
+        setSuscrito(true)
+        localStorage.setItem("push_suscrito", "true")
+      }
     } catch (e) {
       console.log("SW error:", e)
     } finally {
@@ -40,6 +47,8 @@ export function usePushNotifications() {
         body: JSON.stringify({ subscription: sub, userId: "admin-001" })
       })
       setSuscrito(true)
+      setSoportado(true)
+      localStorage.setItem("push_suscrito", "true")
     } catch (e) {
       console.log("Suscripcion error:", e)
     }

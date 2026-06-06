@@ -1,3 +1,4 @@
+// v202606061954
 self.addEventListener("push", function(event) {
   const data = event.data ? event.data.json() : {}
   event.waitUntil(
