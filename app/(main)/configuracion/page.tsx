@@ -14,6 +14,129 @@ const SECCIONES = [
   { key: "usuarios", label: "Usuarios" },
 ]
 
+function GenerarToken({ masterPassword }: { masterPassword: string }) {
+  const [tokens, setTokens] = useState<any[]>([])
+  const [horas, setHoras] = useState(24)
+  const [generando, setGenerando] = useState(false)
+  const [nuevoToken, setNuevoToken] = useState("")
+  const [copiado, setCopiado] = useState(false)
+
+  const cargarTokens = async () => {
+    const res = await fetch("/api/inspeccion/token")
+    const data = await res.json()
+    setTokens(Array.isArray(data) ? data : [])
+  }
+
+  useEffect(() => { cargarTokens() }, [])
+
+  const generarToken = async () => {
+    setGenerando(true)
+    const res = await fetch("/api/inspeccion/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ masterPassword, horas, creadoPor: "SUPER_ADMIN" })
+    })
+    const data = await res.json()
+    setGenerando(false)
+    if (data.error) { alert(data.error); return }
+    setNuevoToken(data.token)
+    cargarTokens()
+  }
+
+  const eliminarToken = async (id) => {
+    await fetch(`/api/inspeccion/token?id=${id}`, { method: "DELETE" })
+    cargarTokens()
+  }
+
+  const urlInspeccion = (token) => `${window.location.origin}/inspeccion?token=${token}`
+
+  const copiar = (texto) => {
+    navigator.clipboard.writeText(texto)
+    setCopiado(true)
+    setTimeout(() => setCopiado(false), 2000)
+  }
+
+  return (
+    <div>
+      <div style={{ background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 14, padding: 20, marginBottom: 20 }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 14 }}>Generar nuevo acceso de inspección</div>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-end" }}>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Duración del acceso</label>
+            <select value={horas} onChange={e => setHoras(parseInt(e.target.value))}
+              style={{ padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, background: "#fff" }}>
+              <option value={4}>4 horas</option>
+              <option value={8}>8 horas</option>
+              <option value={24}>24 horas</option>
+              <option value={48}>48 horas</option>
+              <option value={72}>72 horas</option>
+            </select>
+          </div>
+          <button onClick={generarToken} disabled={generando}
+            style={{ background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
+            {generando ? "Generando..." : "Generar enlace de acceso"}
+          </button>
+        </div>
+
+        {nuevoToken && (
+          <div style={{ marginTop: 16, background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 10, padding: 16 }}>
+            <div style={{ fontSize: 12, color: "#065f46", fontWeight: 600, marginBottom: 8 }}>Enlace generado — cópialo y envíaselo al inspector</div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input readOnly value={urlInspeccion(nuevoToken)}
+                style={{ flex: 1, padding: "8px 12px", border: "1px solid #6ee7b7", borderRadius: 8, fontSize: 12, background: "#fff", color: "#1e1b4b" }} />
+              <button onClick={() => copiar(urlInspeccion(nuevoToken))}
+                style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+                {copiado ? "Copiado" : "Copiar"}
+              </button>
+            </div>
+            <div style={{ fontSize: 11, color: "#065f46", marginTop: 8 }}>Este enlace expira en {horas} horas. El inspector solo puede ver datos, no modificarlos.</div>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", marginBottom: 12 }}>Tokens activos</div>
+        {tokens.length === 0 ? (
+          <div style={{ padding: 20, textAlign: "center", color: "#a0aec0", fontSize: 13, background: "#f8f9ff", borderRadius: 10 }}>No hay tokens generados</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {tokens.map(t => {
+              const expirado = new Date(t.expiraEn) < new Date()
+              return (
+                <div key={t.id} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 10, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{ background: expirado ? "#fee2e2" : "#d1fae5", color: expirado ? "#991b1b" : "#065f46", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                        {expirado ? "Expirado" : "Activo"}
+                      </span>
+                      <span style={{ fontSize: 12, color: "#718096" }}>Creado por {t.creadoPor}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#a0aec0" }}>
+                      Creado: {new Date(t.creadoEn).toLocaleString("es-ES")} · Expira: {new Date(t.expiraEn).toLocaleString("es-ES")}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {!expirado && (
+                      <button onClick={() => copiar(urlInspeccion(t.token))}
+                        style={{ background: "#f0f4ff", color: "#6366f1", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
+                        Copiar URL
+                      </button>
+                    )}
+                    <button onClick={() => eliminarToken(t.id)}
+                      style={{ background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
+                      Revocar
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function ConfiguracionPage() {
   const [acceso, setAcceso] = useState(false)
   const [pinAcceso, setPinAcceso] = useState("")
@@ -159,14 +282,10 @@ export default function ConfiguracionPage() {
           </div>
           <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1e1b4b", margin: "0 0 6px" }}>Acceso restringido</h2>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "0 0 24px" }}>Esta sección requiere contraseña SUPER_ADMIN</p>
-          <input
-            type="password"
-            value={pinAcceso}
-            onChange={e => setPinAcceso(e.target.value)}
+          <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
             onKeyDown={e => e.key === "Enter" && verificarAcceso()}
             placeholder="Contraseña master"
-            style={{ ...inputStyle, marginBottom: 12, textAlign: "center", fontSize: 16, letterSpacing: 4 }}
-          />
+            style={{ ...inputStyle, marginBottom: 12, textAlign: "center", fontSize: 16, letterSpacing: 4 }} />
           {errorAcceso && (
             <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
           )}
@@ -183,13 +302,12 @@ export default function ConfiguracionPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Configuración del sistema</h1>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>Gestión completa de la empresa y accesos</p>
         </div>
-        {seccion !== "usuarios" && (
+        {seccion !== "usuarios" && seccion !== "inspeccion" && (
           <button onClick={guardar} disabled={guardando}
             style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
             {guardando ? "Guardando..." : "Guardar cambios"}
@@ -204,8 +322,6 @@ export default function ConfiguracionPage() {
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 20 }}>
-
-        {/* Sidebar navegacion */}
         <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 12, height: "fit-content" }}>
           {SECCIONES.map(s => (
             <button key={s.key} onClick={() => setSeccion(s.key)}
@@ -215,7 +331,6 @@ export default function ConfiguracionPage() {
           ))}
         </div>
 
-        {/* Contenido */}
         <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 28 }}>
 
           {seccion === "identidad" && (
@@ -288,11 +403,8 @@ export default function ConfiguracionPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
                 <div>
                   <label style={labelStyle}>URL del logo</label>
-                  <input value={empresa.logo || ""} onChange={e => set("logo", e.target.value)}
-                    placeholder="https://..." style={inputStyle} />
-                  {empresa.logo && (
-                    <img src={empresa.logo} alt="logo" style={{ marginTop: 8, height: 48, borderRadius: 8, border: "1px solid #e8eaf0" }} />
-                  )}
+                  <input value={empresa.logo || ""} onChange={e => set("logo", e.target.value)} placeholder="https://..." style={inputStyle} />
+                  {empresa.logo && <img src={empresa.logo} alt="logo" style={{ marginTop: 8, height: 48, borderRadius: 8, border: "1px solid #e8eaf0" }} />}
                 </div>
                 <div>
                   <label style={labelStyle}>Color barra lateral</label>
@@ -311,7 +423,6 @@ export default function ConfiguracionPage() {
                   </div>
                 </div>
               </div>
-
               <div style={{ fontSize: 12, color: "#a0aec0", marginBottom: 10, fontWeight: 500 }}>Vista previa</div>
               <div style={{ width: 200, background: empresa.colorSidebar || "#2d2b55", borderRadius: 14, padding: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
@@ -353,6 +464,17 @@ export default function ConfiguracionPage() {
                   <div><strong>Última actualización:</strong> {empresa.updatedAt ? new Date(empresa.updatedAt).toLocaleDateString("es-ES") : "—"}</div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {seccion === "inspeccion" && (
+            <div>
+              <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: "0 0 6px" }}>Acceso de Inspección Laboral</h2>
+              <p style={{ fontSize: 13, color: "#a0aec0", margin: "0 0 24px", lineHeight: 1.6 }}>
+                Genera enlaces temporales para que inspectores de trabajo o Hacienda accedan al sistema en modo solo lectura.
+                Cada acceso queda registrado con timestamp e IP conforme al RDL 8/2019 y normativa 2026.
+              </p>
+              <GenerarToken masterPassword={masterPassword} />
             </div>
           )}
 
@@ -417,7 +539,6 @@ export default function ConfiguracionPage() {
               {modal.tipo === "reactivar" && `Activar: ${modal.usuario.email}`}
               {modal.tipo === "reset" && `Reset contraseña: ${modal.usuario.email}`}
             </h2>
-
             {(modal.tipo === "crear" || modal.tipo === "editar") && (
               <div style={{ marginBottom: 16 }}>
                 {[{ label: "Nombre", key: "name", type: "text" }, { label: "Email", key: "email", type: "email" }].map(f => (
@@ -428,29 +549,24 @@ export default function ConfiguracionPage() {
                 ))}
                 <div style={{ marginBottom: 12 }}>
                   <label style={labelStyle}>Rol</label>
-                  <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
-                    style={{ ...inputStyle, cursor: "pointer" }}>
+                  <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} style={{ ...inputStyle, cursor: "pointer" }}>
                     {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
               </div>
             )}
-
             {tempPassword ? (
               <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#92400e", marginBottom: 8 }}>⚠️ Contraseña temporal — cópiala ahora:</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#92400e", marginBottom: 8 }}>Contraseña temporal — cópiala ahora:</p>
                 <p style={{ fontSize: 20, fontWeight: 700, color: "#111827", fontFamily: "monospace", letterSpacing: 3, textAlign: "center", margin: "8px 0" }}>{tempPassword}</p>
                 <p style={{ fontSize: 12, color: "#92400e", margin: 0 }}>No se volverá a mostrar.</p>
               </div>
             ) : (
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Contraseña SUPER_ADMIN para confirmar</label>
-                <input type="password" value={modalPin} onChange={e => setModalPin(e.target.value)}
-                  placeholder="Contraseña master"
-                  style={{ ...inputStyle }} />
+                <input type="password" value={modalPin} onChange={e => setModalPin(e.target.value)} placeholder="Contraseña master" style={inputStyle} />
               </div>
             )}
-
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button onClick={cerrarModal} style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, cursor: "pointer" }}>
                 {tempPassword ? "Cerrar" : "Cancelar"}
