@@ -82,6 +82,161 @@ function InspeccionContent() {
     a.click()
   }
 
+  const exportarPDF = async () => {
+    const { jsPDF } = await import("jspdf")
+    const { default: autoTable } = await import("jspdf-autotable")
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" })
+    const seccionLabel = SECCIONES.find(s => s.key === seccion)?.label || seccion
+
+    doc.setFillColor(30, 27, 75)
+    doc.rect(0, 0, 297, 30, "F")
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(16)
+    doc.setFont("helvetica", "bold")
+    doc.text(empresa.razonSocial || empresa.nombre || "Empresa", 14, 12)
+    doc.setFontSize(9)
+    doc.setFont("helvetica", "normal")
+    doc.text(`CIF: ${empresa.cif || "—"} · ${empresa.direccion || ""} · ${empresa.ciudad || ""}`, 14, 19)
+    doc.text(`Informe: ${seccionLabel} · Período: ${filtros.desde} / ${filtros.hasta}`, 14, 25)
+    doc.setTextColor(180, 180, 200)
+    doc.text("RDL 8/2019 · Normativa Control Horario 2026 · Documento oficial de auditoría", 14, 29)
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(11)
+    doc.setFont("helvetica", "bold")
+    doc.text(seccionLabel, 14, 40)
+    doc.setFontSize(9)
+    doc.setFont("helvetica", "normal")
+    doc.setTextColor(100, 100, 100)
+    doc.text(`${datos.length} registros · Generado el ${new Date().toLocaleString("es-ES")}`, 14, 46)
+
+    let columns: any[] = []
+    let rows: any[] = []
+
+    if (seccion === "fichajes") {
+      columns = [
+        { header: "Nº Emp.", dataKey: "num" },
+        { header: "Nombre", dataKey: "nombre" },
+        { header: "Apellidos", dataKey: "apellidos" },
+        { header: "Fecha", dataKey: "fecha" },
+        { header: "Entrada", dataKey: "entrada" },
+        { header: "Salida", dataKey: "salida" },
+        { header: "Horas", dataKey: "horas" },
+        { header: "Modificado", dataKey: "modificado" },
+        { header: "Estado", dataKey: "estado" },
+      ]
+      rows = datos.map((r: any) => {
+        const entrada = new Date(r.horaentrada || r.horaEntrada)
+        const salida = (r.horasalida || r.horaSalida) ? new Date(r.horasalida || r.horaSalida) : null
+        const horas = salida ? ((salida.getTime() - entrada.getTime()) / 3600000).toFixed(1) + "h" : "—"
+        return {
+          num: r.numeroempleado || r.numeroEmpleado,
+          nombre: r.nombre,
+          apellidos: r.apellidos,
+          fecha: entrada.toLocaleDateString("es-ES"),
+          entrada: entrada.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
+          salida: salida ? salida.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : "—",
+          horas,
+          modificado: (r.fue_modificado === "SI" || r.modificado) ? "SÍ" : "NO",
+          estado: salida ? "Completo" : "En curso",
+        }
+      })
+    } else if (seccion === "modificaciones") {
+      columns = [
+        { header: "Fecha", dataKey: "fecha" },
+        { header: "Empleado", dataKey: "empleado" },
+        { header: "Campo", dataKey: "campo" },
+        { header: "Valor anterior", dataKey: "anterior" },
+        { header: "Valor nuevo", dataKey: "nuevo" },
+        { header: "Modificado por", dataKey: "por" },
+        { header: "Motivo", dataKey: "motivo" },
+      ]
+      rows = datos.map((r: any) => ({
+        fecha: new Date(r.creadoEn || r.creadoen).toLocaleString("es-ES"),
+        empleado: `${r.nombre || ""} ${r.apellidos || ""}`,
+        campo: r.campoModificado || r.campomodificado,
+        anterior: r.valorAnterior || r.valoranterior || "—",
+        nuevo: r.valorNuevo || r.valornuevo || "—",
+        por: r.modificadoPor || r.modificadopor,
+        motivo: r.motivoCambio || r.motivocambio || "—",
+      }))
+    } else if (seccion === "empleados") {
+      columns = [
+        { header: "Nº Emp.", dataKey: "num" },
+        { header: "Nombre", dataKey: "nombre" },
+        { header: "Apellidos", dataKey: "apellidos" },
+        { header: "DNI", dataKey: "dni" },
+        { header: "Fecha contratación", dataKey: "contratacion" },
+      ]
+      rows = datos.map((r: any) => ({
+        num: r.numeroempleado || r.numeroEmpleado,
+        nombre: r.nombre,
+        apellidos: r.apellidos,
+        dni: r.dni || "—",
+        contratacion: (r.fechacontratacion || r.fechaContratacion) ? new Date(r.fechacontratacion || r.fechaContratacion).toLocaleDateString("es-ES") : "—",
+      }))
+    } else if (seccion === "vacaciones") {
+      columns = [
+        { header: "Nº Emp.", dataKey: "num" },
+        { header: "Nombre", dataKey: "nombre" },
+        { header: "Apellidos", dataKey: "apellidos" },
+        { header: "Desde", dataKey: "desde" },
+        { header: "Hasta", dataKey: "hasta" },
+        { header: "Días", dataKey: "dias" },
+        { header: "Estado", dataKey: "estado" },
+      ]
+      rows = datos.map((r: any) => ({
+        num: r.numeroempleado || r.numeroEmpleado,
+        nombre: r.nombre,
+        apellidos: r.apellidos,
+        desde: new Date(r.fechainicio || r.fechaInicio).toLocaleDateString("es-ES"),
+        hasta: new Date(r.fechafin || r.fechaFin).toLocaleDateString("es-ES"),
+        dias: Math.ceil((new Date(r.fechafin || r.fechaFin).getTime() - new Date(r.fechainicio || r.fechaInicio).getTime()) / 86400000),
+        estado: r.estado,
+      }))
+    } else if (seccion === "bajas") {
+      columns = [
+        { header: "Nº Emp.", dataKey: "num" },
+        { header: "Nombre", dataKey: "nombre" },
+        { header: "Apellidos", dataKey: "apellidos" },
+        { header: "Tipo", dataKey: "tipo" },
+        { header: "Inicio", dataKey: "inicio" },
+        { header: "Fin", dataKey: "fin" },
+        { header: "Estado", dataKey: "estado" },
+      ]
+      rows = datos.map((r: any) => ({
+        num: r.numeroempleado || r.numeroEmpleado,
+        nombre: r.nombre,
+        apellidos: r.apellidos,
+        tipo: r.tipo,
+        inicio: new Date(r.fechainicio || r.fechaInicio).toLocaleDateString("es-ES"),
+        fin: (r.fechafin || r.fechaFin) ? new Date(r.fechafin || r.fechaFin).toLocaleDateString("es-ES") : "En curso",
+        estado: r.estado,
+      }))
+    }
+
+    autoTable(doc, {
+      startY: 50,
+      columns,
+      body: rows,
+      theme: "striped",
+      headStyles: { fillColor: [30, 27, 75], textColor: 255, fontSize: 9, fontStyle: "bold" },
+      bodyStyles: { fontSize: 8.5 },
+      alternateRowStyles: { fillColor: [240, 244, 255] },
+      margin: { left: 14, right: 14 },
+      didDrawPage: (data) => {
+        const pageCount = doc.getNumberOfPages()
+        doc.setFontSize(8)
+        doc.setTextColor(150)
+        doc.text(
+          `Página ${data.pageNumber} de ${pageCount} · ${empresa.razonSocial || empresa.nombre} · CIF: ${empresa.cif} · Generado: ${new Date().toLocaleString("es-ES")} · RDL 8/2019`,
+          14, doc.internal.pageSize.height - 8
+        )
+      }
+    })
+
+    doc.save(`inspeccion_${seccion}_${filtros.desde}_${filtros.hasta}.pdf`)
+  }
+
   if (cargando) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f0f4ff" }}>
       <div style={{ textAlign: "center", color: "#6366f1" }}>
