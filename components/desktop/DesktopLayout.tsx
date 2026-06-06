@@ -157,6 +157,26 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           ))}
         </nav>
 
+        {/* Logo Scheduleo */}
+        {open && (
+          <div style={{ padding:'16px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <svg width="36" height="36" viewBox="0 0 48 48" fill="none" style={{ flexShrink:0 }}>
+                <rect width="48" height="48" rx="12" fill={accentColor}/>
+                <circle cx="24" cy="16" r="5" fill="white"/>
+                <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+                <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
+                <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
+                <path d="M7 32C7 28.5 10 27 14 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                <path d="M41 32C41 28.5 38 27 34 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              </svg>
+              <div>
+                <div style={{ color:'#fff', fontWeight:700, fontSize:14, letterSpacing:'-0.2px' }}>Scheduleo</div>
+                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:10, marginTop:1 }}>v2.0 · {empresaNombre}</div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Collapse btn */}
         <div style={{ padding:'8px', flexShrink:0 }}>
           <button
