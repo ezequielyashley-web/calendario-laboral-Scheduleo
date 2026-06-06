@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import bcrypt from "bcrypt"
 
 export async function GET() {
   try {
-    const empresa = await prisma.empresa.findFirst({
-      where: { id: "empresa-001" }
-    })
-    return NextResponse.json(empresa || {})
+    const empresa = await prisma.$queryRaw`
+      SELECT * FROM "Empresa" WHERE id = 'empresa-001' LIMIT 1
+    ` as any[]
+    return NextResponse.json(empresa[0] || {})
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al obtener empresa" }, { status: 500 })
@@ -16,19 +17,46 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json()
-    const { nombre, logo, colorSidebar, colorAccent } = body
+    const { masterPassword, ...datos } = body
 
-    const empresa = await prisma.empresa.update({
-      where: { id: "empresa-001" },
-      data: {
-        ...(nombre && { nombre }),
-        ...(logo !== undefined && { logo }),
-        ...(colorSidebar && { colorSidebar }),
-        ...(colorAccent && { colorAccent }),
-      }
-    })
+    if (!masterPassword) return NextResponse.json({ error: "Contraseña master requerida" }, { status: 401 })
 
-    return NextResponse.json(empresa)
+    const admin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
+    if (!admin) return NextResponse.json({ error: "No se encontró admin" }, { status: 401 })
+
+    const ok = await bcrypt.compare(masterPassword, admin.hashedPin)
+    if (!ok) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
+
+    await prisma.$executeRaw`
+      UPDATE "Empresa" SET
+        nombre = COALESCE(${datos.nombre}, nombre),
+        "razonSocial" = COALESCE(${datos.razonSocial}, "razonSocial"),
+        "nombreComercial" = COALESCE(${datos.nombreComercial}, "nombreComercial"),
+        cif = COALESCE(${datos.cif}, cif),
+        direccion = COALESCE(${datos.direccion}, direccion),
+        "codigoPostal" = COALESCE(${datos.codigoPostal}, "codigoPostal"),
+        ciudad = COALESCE(${datos.ciudad}, ciudad),
+        provincia = COALESCE(${datos.provincia}, provincia),
+        pais = COALESCE(${datos.pais}, pais),
+        telefono = COALESCE(${datos.telefono}, telefono),
+        email = COALESCE(${datos.email}, email),
+        "emailFacturacion" = COALESCE(${datos.emailFacturacion}, "emailFacturacion"),
+        web = COALESCE(${datos.web}, web),
+        "cuentaBancaria" = COALESCE(${datos.cuentaBancaria}, "cuentaBancaria"),
+        "convenioColectivo" = COALESCE(${datos.convenioColectivo}, "convenioColectivo"),
+        "actividadEconomica" = COALESCE(${datos.actividadEconomica}, "actividadEconomica"),
+        cnae = COALESCE(${datos.cnae}, cnae),
+        "seguridadSocial" = COALESCE(${datos.seguridadSocial}, "seguridadSocial"),
+        mutua = COALESCE(${datos.mutua}, mutua),
+        logo = COALESCE(${datos.logo}, logo),
+        "colorSidebar" = COALESCE(${datos.colorSidebar}, "colorSidebar"),
+        "colorAccent" = COALESCE(${datos.colorAccent}, "colorAccent"),
+        "updatedAt" = NOW()
+      WHERE id = 'empresa-001'
+    `
+
+    const updated = await prisma.$queryRaw`SELECT * FROM "Empresa" WHERE id = 'empresa-001' LIMIT 1` as any[]
+    return NextResponse.json(updated[0])
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al actualizar empresa" }, { status: 500 })
