@@ -36,7 +36,7 @@ function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
       '7': [15],
       '9': [12],
       '10': [2, 9],
-      '11': [8, 25]
+      '5': [24], '6': [25], '8': [12], '10': [1, 9], '11': [6, 8, 25], '0': [1, 6], '3': [2, 3], '4': [1], '7': [15]
     }
     const mesKey = String(month)
     const esFestNacional = festivosNacionales[mesKey]?.includes(day) ?? false
@@ -189,7 +189,9 @@ export default function CalendarioGlobalDesktop() {
                     {getDaysInMonth(anio, m).map((d, i) => (
                       <div key={i} style={{
                         textAlign: 'center', fontSize: 10, padding: '2px 0', borderRadius: 3,
-                        color: !d ? 'transparent' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : 'var(--color-text-secondary, #718096)',
+                        color: !d ? 'transparent' : d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : 'var(--color-text-secondary, #718096)',
+background: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#6366f1' : 'transparent',
+borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '50%' : 0,
                         background: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#6366f1' : 'transparent',
                         fontWeight: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? 700 : 400,
                       }} style={{ color: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#fff' : undefined }}>
