@@ -12,6 +12,7 @@ const SECCIONES = [
   { key: "licencia", label: "Licencia" },
   { key: "inspeccion", label: "Inspección laboral" },
   { key: "usuarios", label: "Usuarios" },
+  { key: "demo", label: "Base de datos demo" },
 ]
 
 function GenerarToken({ masterPassword }: { masterPassword: string }) {
