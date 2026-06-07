@@ -556,6 +556,7 @@ export default function ConfiguracionPage() {
             </div>
           )}
 
+          {seccion === "demo" && <SeccionDemo />}
           {seccion === "usuarios" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
