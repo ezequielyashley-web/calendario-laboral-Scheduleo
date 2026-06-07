@@ -139,8 +139,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           ))}
         </nav>
-
-        {/* LOGO FULL — logo Scheduleo + nombre + version */}
+        {/* CLIMA WIDGET */}
+        {open && (
+          <ClimaWidget />
+        )}
+                {/* LOGO FULL — logo Scheduleo + nombre + version */}
         {open && (
           <div style={{ padding:'16px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:12 }}>
