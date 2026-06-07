@@ -25,6 +25,56 @@ const Icons = {
   auto: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor" stroke="none"/></svg>,
 }
 
+function ClimaWidget() {
+  const [hora, setHora] = useState('')
+  const [fecha, setFecha] = useState('')
+  const [temp, setTemp] = useState<number|null>(null)
+  const [ciudad, setCiudad] = useState('')
+  const [icono, setIcono] = useState('')
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      setHora(now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
+      setFecha(now.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }))
+    }
+    tick()
+    const iv = setInterval(tick, 1000)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude } = pos.coords
+        try {
+          const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + latitude + '&longitude=' + longitude + '&current=temperature_2m,weathercode&timezone=auto')
+          const d = await r.json()
+          setTemp(Math.round(d.current.temperature_2m))
+          const code = d.current.weathercode
+          setIcono(code===0?'☀️':code<=3?'⛅':code<=48?'🌫️':code<=67?'🌧️':code<=77?'❄️':'⛈️')
+          const g = await fetch('https://nominatim.openstreetmap.org/reverse?lat=' + latitude + '&lon=' + longitude + '&format=json')
+          const gd = await g.json()
+          setCiudad(gd.address?.city||gd.address?.town||gd.address?.village||'')
+        } catch(e){}
+      }, ()=>{})
+    }
+    return () => clearInterval(iv)
+  }, [])
+  return (
+    <div style={{ margin:'8px', padding:'10px 12px', background:'rgba(255,255,255,0.07)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <div>
+          <div style={{ color:'#fff', fontSize:20, fontWeight:700, lineHeight:1 }}>{hora}</div>
+          <div style={{ color:'rgba(255,255,255,0.45)', fontSize:10, marginTop:2, textTransform:'capitalize' }}>{fecha}</div>
+          {ciudad && <div style={{ color:'rgba(255,255,255,0.3)', fontSize:9, marginTop:1 }}>📍 {ciudad}</div>}
+        </div>
+        {temp !== null && (
+          <div style={{ textAlign:'right' }}>
+            <div style={{ fontSize:22 }}>{icono}</div>
+            <div style={{ color:'#fff', fontSize:16, fontWeight:700 }}>{temp}°C</div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const menuSections = [
   { label: 'Principal', items: [
     { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
