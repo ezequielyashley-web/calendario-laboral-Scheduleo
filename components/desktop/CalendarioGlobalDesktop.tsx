@@ -224,18 +224,39 @@ export default function CalendarioGlobalDesktop() {
               })}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, padding: '10px 16px', background: '#fff', borderRadius: 10, border: '0.5px solid #e8eaf0' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12, padding: '14px 20px', background: '#fff', borderRadius: 10, border: '0.5px solid #e8eaf0', alignItems: 'center' }}>
             {Object.entries(grupoColors).map(([g, v]) => (
               <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: v.solid }} />
-                <span style={{ fontSize: 11, color: '#718096', fontWeight: 600 }}>{g}</span>
+                <span style={{ fontSize: 12, color: '#718096', fontWeight: 600 }}>{g}</span>
               </div>
             ))}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
               {[{ label: 'Laboral', color: '#6366f1' }, { label: 'Festivo', color: '#7c3aed' }, { label: 'Domingo', color: '#dc2626' }].map(l => (
                 <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <div style={{ width: 10, height: 4, borderRadius: 2, background: l.color, opacity: 0.4 }} />
-                  <span style={{ fontSize: 11, color: '#718096' }}>{l.label}</span>
+                  <span style={{ fontSize: 12, color: '#718096' }}>{l.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginTop: 16, background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 12, padding: '20px 24px' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 16 }}>¿Qué puedes hacer en esta vista?</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {[
+                { icon: '📅', titulo: 'Navegar por días', desc: 'Haz click en cualquier día para ver el detalle completo de grupos, turnos y empleados asignados.' },
+                { icon: '👥', titulo: 'Ver grupos activos', desc: 'Cada chip de color representa un grupo de trabajo activo ese día. Los colores identifican cada grupo.' },
+                { icon: '🎉', titulo: 'Festivos y domingos', desc: 'Los días en morado son festivos nacionales. Los domingos aparecen en rojo. Los laborales en blanco.' },
+                { icon: '🔍', titulo: 'Filtrar por grupo', desc: 'Usa el selector de grupos arriba para ver solo los días en que trabaja un grupo específico.' },
+                { icon: '🏢', titulo: 'Filtrar por sede', desc: 'Filtra por Madrid Centro o Vallecas para ver la distribución de cada sede por separado.' },
+                { icon: '📊', titulo: 'Vista agenda', desc: 'Al hacer click en un día accedes a la vista agenda con KPIs, detalle de turnos y navegación día a día.' },
+              ].map((item, i) => (
+                <div key={i} style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <div style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>{item.titulo}</div>
+                    <div style={{ fontSize: 12, color: '#718096', lineHeight: 1.5 }}>{item.desc}</div>
+                  </div>
                 </div>
               ))}
             </div>
