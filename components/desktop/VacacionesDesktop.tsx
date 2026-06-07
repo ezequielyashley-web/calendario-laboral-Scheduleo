@@ -248,15 +248,15 @@ export default function VacacionesDesktop() {
                         ) : '—'}
                       </td>
                       <td style={{ padding:'10px 16px' }} onClick={e=>e.stopPropagation()}>
-                        <span style={{ fontSize:11, fontWeight:600, color:ts.color, background:ts.bg, borderRadius:3, padding:'2px 8px' }}>
-                          {ts.emoji} {ts.label}
-                        </span>
+                        <div>
+                          <span style={{ fontSize:11, fontWeight:600, color:ts.color, background:ts.bg, borderRadius:3, padding:'2px 8px' }}>
+                            {ts.emoji} {ts.label}
+                          </span>
+                          {v.tipo === 'ASUNTOS_PROPIOS' && (
+                            <p style={{ fontSize:9, color:'#9d174d', marginTop:3 }}>Art. 37.3 ET · 6 días/año · no acumulables</p>
+                          )}
+                        </div>
                       </td>
-                      <td style={{ padding:'10px 16px', fontSize:12, color:'var(--text-secondary)', whiteSpace:'nowrap' }}>
-                        {new Date(v.fechaInicio).toLocaleDateString('es-ES')}
-                      </td>
-                      <td style={{ padding:'10px 16px', fontSize:12, color:'var(--text-secondary)', whiteSpace:'nowrap' }}>
-                        {new Date(v.fechaFin).toLocaleDateString('es-ES')}
                       </td>
                       <td style={{ padding:'10px 16px', fontSize:13, fontWeight:600, color:'var(--text-primary)', textAlign:'center' }}>
                         {v.diasTotales}
@@ -359,4 +359,5 @@ export default function VacacionesDesktop() {
     </div>
   )
 }
+
 

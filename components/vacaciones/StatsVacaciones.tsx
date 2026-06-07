@@ -79,7 +79,7 @@ export default function StatsVacaciones({ empleadoId }: Props) {
       </div>
 
       {/* Asuntos propios */}
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-2">Asuntos propios {stats.año}</p>
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-2">Asuntos propios {stats.año} <span className="text-xs font-normal normal-case text-pink-500 ml-2">Art. 37.3 ET · 6 días/año · no acumulables</span></p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label:'Total (Art.37 ET)', valor:stats.asuntosPropios.diasTotales,    color:'text-pink-700',   bg:'bg-pink-50 border-pink-100' },
