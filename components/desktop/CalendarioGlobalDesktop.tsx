@@ -96,7 +96,7 @@ export default function CalendarioGlobalDesktop() {
   const inputStyle = { padding: '7px 12px', border: '1px solid var(--color-border-tertiary, #e8eaf0)', borderRadius: 8, fontSize: 13, background: '#fff', color: '#1e1b4b', outline: 'none' }
 
   return (
-    <div style={{ padding: 0, maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ padding: 0, maxWidth: "100%", margin: '0 auto' }}>
 
       {/* Header con breadcrumb y controles */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -154,7 +154,7 @@ export default function CalendarioGlobalDesktop() {
       {/* VISTA ANUAL */}
       {vista === 'anual' && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', maxWidth: '100%', gap: 16 }}>
             {Array.from({ length: 12 }, (_, m) => {
               const stats = getDaysInMonthCount(anio, m)
               const days = getDaysInMonth(anio, m)
