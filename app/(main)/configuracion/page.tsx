@@ -215,6 +215,87 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
   )
 }
 
+function SeccionDemo() {
+  const [modoDemo, setModoDemo] = useState(false)
+  const [cargando, setCargando] = useState(true)
+  const [guardando, setGuardando] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/config/modo-demo').then(r => r.json()).then(d => {
+      setModoDemo(d.modoDemo)
+      setCargando(false)
+    })
+  }, [])
+
+  const toggleDemo = async () => {
+    setGuardando(true)
+    const nuevo = !modoDemo
+    await fetch('/api/config/modo-demo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ modoDemo: nuevo })
+    })
+    setModoDemo(nuevo)
+    setGuardando(false)
+  }
+
+  if (cargando) return <div style={{ padding: 40, textAlign: 'center', color: '#a0aec0' }}>Cargando...</div>
+
+  return (
+    <div>
+      <div style={{ background: modoDemo ? '#fef3c7' : '#f0f4ff', border: `1px solid ${modoDemo ? '#f59e0b' : '#c7d2fe'}`, borderRadius: 14, padding: 24, marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: modoDemo ? '#92400e' : '#1e1b4b', marginBottom: 4 }}>
+              {modoDemo ? '⚠️ Modo demostración ACTIVO' : '🔒 Modo demostración INACTIVO'}
+            </div>
+            <div style={{ fontSize: 13, color: modoDemo ? '#d97706' : '#718096' }}>
+              {modoDemo ? 'El sistema muestra 50 empleados ficticios. Los datos reales están ocultos.' : 'El sistema muestra los datos reales de la empresa.'}
+            </div>
+          </div>
+          <button onClick={toggleDemo} disabled={guardando}
+            style={{ background: modoDemo ? '#f59e0b' : '#6366f1', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer', minWidth: 140 }}>
+            {guardando ? 'Guardando...' : modoDemo ? 'Desactivar demo' : 'Activar demo'}
+          </button>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+          {[
+            { label: '50 empleados ficticios', icon: '👥', desc: 'Nombres, DNIs, fechas y sueldos realistas' },
+            { label: 'Datos separados', icon: '🔒', desc: 'Los datos demo nunca se mezclan con los reales' },
+            { label: 'Un click para limpiar', icon: '🧹', desc: 'Desactiva el modo demo para volver a datos reales' },
+          ].map(item => (
+            <div key={item.label} style={{ background: '#fff', borderRadius: 10, padding: '12px 16px', border: '0.5px solid #e8eaf0' }}>
+              <div style={{ fontSize: 20, marginBottom: 6 }}>{item.icon}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 2 }}>{item.label}</div>
+              <div style={{ fontSize: 11, color: '#a0aec0' }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {modoDemo && (
+        <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>Datos de demostración incluidos</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
+            {[
+              '50 empleados con datos completos',
+              '6 grupos de trabajo con empleados asignados',
+              'DNIs, teléfonos y fechas ficticias',
+              'Sueldos base entre 1.700 y 2.200',
+              'Fechas de contratación entre 2017 y 2022',
+              'Distribución equitativa entre grupos',
+            ].map(item => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#718096' }}>
+                <span style={{ color: '#6366f1', fontWeight: 700 }}>✓</span> {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 export default function ConfiguracionPage() {
   const [acceso, setAcceso] = useState(false)
   const [pinAcceso, setPinAcceso] = useState("")
