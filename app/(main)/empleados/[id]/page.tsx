@@ -154,6 +154,7 @@ export default function PerfilEmpleadoPage() {
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>Cargando perfil...</div>
   if (!empleado || empleado.error) return <div style={{ padding: 40, textAlign: "center", color: "#dc2626" }}>Empleado no encontrado</div>
 
+  const esDemo = empleado.esDemostracion === true || empleado.esdemostración === true
   const horasTotales = empleado.fichajes?.reduce((s, f) => {
     if (!f.horaSalida) return s
     return s + (new Date(f.horaSalida).getTime() - new Date(f.horaEntrada).getTime()) / 3600000
@@ -165,7 +166,17 @@ export default function PerfilEmpleadoPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
 
-      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 24, marginBottom: 20 }}>
+      {esDemo && (
+        <div style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)", borderRadius: 14, padding: "14px 24px", marginBottom: 16, display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ fontSize: 24 }}>🧪</div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Empleado de demostración</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)" }}>Este empleado es ficticio. Sus datos, fichajes, vacaciones, bajas y deudas son de prueba y no corresponden a personas reales.</div>
+          </div>
+          <span style={{ marginLeft: "auto", background: "rgba(255,255,255,0.25)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20, border: "1px solid rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>MODO DEMO</span>
+        </div>
+      )}
+      <div style={{ background: esDemo ? "#fffbeb" : "#fff", border: esDemo ? "1px solid #fcd34d" : "0.5px solid #e8eaf0", borderRadius: 16, padding: 24, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 500, color: "#fff", flexShrink: 0 }}>
             {empleado.nombre[0]}{empleado.apellidos[0]}
