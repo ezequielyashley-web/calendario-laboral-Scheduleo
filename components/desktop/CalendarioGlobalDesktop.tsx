@@ -162,9 +162,9 @@ export default function CalendarioGlobalDesktop() {
                   {getDaysInMonth(anio, m).map((d, i) => {
                     const esHoyDia = esHoyCheck(d, m)
                     const bg = esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent'
-                    const col = !d ? 'transparent' : esHoyDia ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#718096'
+                    const col = !d ? 'transparent' : esHoyDia ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#374151'
                     return (
-                      <div key={i} style={{ textAlign: 'center', fontSize: 12, padding: '3px 1px', borderRadius: esHoyDia ? '50%' : 2, background: esHoyDia ? 'rgba(99,102,241,0.12)' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent', color: col, fontWeight: esHoyDia ? 700 : 400, border: esHoyDia ? '1.5px solid #6366f1' : 'none', outline: esHoyDia ? '1px solid rgba(99,102,241,0.3)' : 'none' }}>
+                      <div key={i} style={{ textAlign: 'center', fontSize: 12, padding: '3px 1px', borderRadius: esHoyDia ? '50%' : 2, background: bg, color: col, fontWeight: esHoyDia ? 700 : 400 }}>
                         {d ? d.day : ''}
                       </div>
                     )
