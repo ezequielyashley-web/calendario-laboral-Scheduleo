@@ -173,7 +173,7 @@ export default function CalendarioGlobalDesktop() {
                   {/* Mini calendario */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 10 }}>
                     {['L','M','X','J','V','S','D'].map(d => (
-                      <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#a0aec0', fontWeight: 600, padding: '2px 0' }}>{d}</div>
+                      <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0', background: '#e8eaf4', borderRadius: 2 }}>{d}</div>
                     ))}
                     {getDaysInMonth(anio, m).map((d, i) => (
                       <div key={i} style={{
@@ -317,7 +317,7 @@ export default function CalendarioGlobalDesktop() {
             <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>{meses[mes]} {anio}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 8 }}>
               {['L','M','X','J','V','S','D'].map(d => (
-                <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#a0aec0', fontWeight: 600, padding: '2px 0' }}>{d}</div>
+                <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0', background: '#e8eaf4', borderRadius: 2 }}>{d}</div>
               ))}
               {daysMes.map((d, i) => (
                 <div key={i} onClick={() => d && irADia(d)}
