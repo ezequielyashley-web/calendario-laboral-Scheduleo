@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { auth } from '@/auth'
+import { auth } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -114,3 +114,4 @@ export async function POST(req: NextRequest) {
     await prisma.$disconnect()
   }
 }
+

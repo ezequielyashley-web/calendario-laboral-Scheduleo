@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest) {
     const admin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!admin) return NextResponse.json({ error: "No se encontró admin" }, { status: 401 })
 
-    const ok = await bcrypt.compare(masterPassword, admin.hashedPin)
+    const ok = await bcrypt.compare(masterPassword, (admin as any).hashedPin)
     if (!ok) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
 
     await prisma.$executeRaw`
@@ -62,3 +62,4 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Error al actualizar empresa" }, { status: 500 })
   }
 }
+

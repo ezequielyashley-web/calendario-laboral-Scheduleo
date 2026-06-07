@@ -1,6 +1,6 @@
 // SCHEDULEO - DASHBOARD MASTER (Placeholder para Sesión 2)
 
-import { auth } from '@/auth'
+import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export default async function MasterDashboard() {
@@ -26,7 +26,7 @@ export default async function MasterDashboard() {
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">Bienvenido,</p>
-              <p className="text-xl font-semibold text-gray-800">{session.user.nombre}</p>
+              <p className="text-xl font-semibold text-gray-800">{(session.user as any)?.nombre}</p>
               <p className="text-sm text-indigo-600">{session.user.rol}</p>
             </div>
           </div>
@@ -96,4 +96,6 @@ export default async function MasterDashboard() {
     </div>
   )
 }
+
+
 

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         puestoDeTrabajo: true,
         grupoTrabajo: true,
         fichajes: { orderBy: { fecha: "desc" }, take: 50 },
-        vacaciones: { orderBy: { createdAt: "desc" } },
+        vacaciones: { where: { esDemostracion: false }, orderBy: { createdAt: "desc" } },
       }
     })
 

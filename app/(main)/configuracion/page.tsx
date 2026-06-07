@@ -52,7 +52,7 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
     cargarTokens()
   }
 
-  const eliminarToken = async (id) => {
+  const eliminarToken = async (id: string) => {
     await fetch(`/api/inspeccion/token?id=${id}`, { method: "DELETE" })
     cargarTokens()
   }
@@ -750,3 +750,5 @@ export default function ConfiguracionPage() {
     </div>
   )
 }
+
+

@@ -63,28 +63,28 @@ export default function NotificacionesPage() {
                 key={notif.id}
                 onClick={() => marcarComoLeida(notif.id)}
                 className={`glass-card p-5 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${
-                  !notif.leida ? "border-l-4 border-[#00A896]" : ""
+                  !(notif as any).leida ? "border-l-4 border-[#00A896]" : ""
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${tipoColors[notif.tipo]} flex items-center justify-center text-3xl shadow-lg flex-shrink-0`}>
-                    {tipoIcons[notif.tipo]}
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${tipoColors[(notif as any).tipo]} flex items-center justify-center text-3xl shadow-lg flex-shrink-0`}>
+                    {tipoIcons[(notif as any).tipo]}
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="font-bold text-gray-900 dark:text-gray-100">
-                        {notif.remitente}
+                        {(notif as any).remitente}
                       </span>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(notif.timestamp).toLocaleString('es-ES', {
+                        {new Date((notif as any).timestamp).toLocaleString('es-ES', {
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
                       </span>
-                      {!notif.leida && (
+                      {!(notif as any).leida && (
                         <span className="px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full">
                           NUEVO
                         </span>
@@ -96,7 +96,7 @@ export default function NotificacionesPage() {
                     </h4>
                     
                     <p className="text-gray-700 dark:text-gray-300">
-                      {notif.mensaje}
+                      {(notif as any).mensaje}
                     </p>
                   </div>
                 </div>
@@ -108,4 +108,6 @@ export default function NotificacionesPage() {
     
   )
 }
+
+
 

@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { auth } from '@/auth'
+import { auth } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -118,3 +118,4 @@ export async function POST(req: NextRequest) {
     await prisma.$disconnect()
   }
 }
+

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
+import { auth } from '@/lib/auth'
 import crypto from 'crypto'
 
 // Store CSRF tokens in memory (use Redis in production)
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const session = await auth()
 
     // Generar ID de sesión (usar sessionId real en producción)
-    const sessionId = session?.user?.email || request.ip || 'anonymous'
+    const sessionId = session?.user?.email || (request as any).ip || 'anonymous'
 
     // Limpiar tokens expirados
     cleanExpiredTokens()
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
-    const sessionId = session?.user?.email || request.ip || 'anonymous'
+    const sessionId = session?.user?.email || (request as any).ip || 'anonymous'
 
     const body = await request.json()
     const { token } = body
@@ -79,3 +79,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

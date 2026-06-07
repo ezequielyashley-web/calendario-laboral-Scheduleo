@@ -72,6 +72,9 @@ model Empleado {
   grupoTrabajo        GrupoTrabajo?  @relation(fields: [grupoTrabajoId], references: [id])
   puestoDeTrabajoId   String?
   puestoDeTrabajo     PuestoDeTrabajo? @relation(fields: [puestoDeTrabajoId], references: [id])
+  diasVacaciones      Int             @default(22)
+  diasAsuntosPropios  Int             @default(6)
+  esDemostracion      Boolean         @default(false)
   fichajes            Fichaje[]
   vacaciones          Vacacion[]
   cambiosTurnoOrigen  CambioTurno[]  @relation("EmpleadoOrigen")
@@ -161,6 +164,8 @@ model Vacacion {
   observaciones String?
   aprobadoPor   String?
   fechaAprobacion DateTime?
+  esDemostracion  Boolean   @default(false)
+  tipo            String    @default("LIBRE_ELECCION")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -203,4 +208,11 @@ model LogAuditoria {
   @@index([timestamp])
   @@index([entidad])
 }
+
+
+
+
+
+
+
 

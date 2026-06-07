@@ -30,6 +30,49 @@ export default function PerfilEmpleadoPage() {
   const [modalDeuda, setModalDeuda] = useState(null)
   const [formDeuda, setFormDeuda] = useState({ estado: "", fechaAprobacion: "", fechaPago: "", aprobadoPor: "", metodoPago: "EFECTIVO", porcentajeCobro: "", notas: "", importePagado: "" })
   const [pagoTipo, setPagoTipo] = useState("importe")
+  const [modalVacacion, setModalVacacion] = useState<string | null>(null)
+  const [formVacacion, setFormVacacion] = useState({ fechaInicio: "", fechaFin: "", observaciones: "" })
+  const [loadingVacacion, setLoadingVacacion] = useState(false)
+
+  const gestionarVacacion = async (vid: string, estado: string) => {
+    if (!confirm(`¿${estado === "APROBADA" ? "Aprobar" : "Rechazar"} esta solicitud?`)) return
+    const res = await fetch(`/api/vacaciones/${vid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado }),
+    })
+    if (res.ok) { setMensaje({ texto: `Vacación ${estado === "APROBADA" ? "aprobada" : "rechazada"} correctamente`, tipo: "ok" }); cargar() }
+    else { setMensaje({ texto: "Error al actualizar", tipo: "error" }) }
+    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+  }
+
+  const eliminarVacacion = async (vid: string) => {
+    if (!confirm("¿Eliminar esta solicitud?")) return
+    const res = await fetch(`/api/vacaciones/${vid}`, { method: "DELETE" })
+    if (res.ok) { setMensaje({ texto: "Solicitud eliminada", tipo: "ok" }); cargar() }
+    else { const d = await res.json(); setMensaje({ texto: d.error || "Error al eliminar", tipo: "error" }) }
+    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+  }
+
+  const crearVacacion = async () => {
+    setLoadingVacacion(true)
+    const res = await fetch("/api/vacaciones", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ empleadoId: id, ...formVacacion }),
+    })
+    const data = await res.json()
+    setLoadingVacacion(false)
+    if (res.ok) {
+      setModalVacacion(null)
+      setFormVacacion({ fechaInicio: "", fechaFin: "", observaciones: "" })
+      setMensaje({ texto: "Solicitud creada correctamente", tipo: "ok" })
+      cargar()
+    } else {
+      setMensaje({ texto: data.error || "Error al crear", tipo: "error" })
+    }
+    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+  }
 
   const cargar = () => {
     if (!id) return
@@ -305,28 +348,79 @@ export default function PerfilEmpleadoPage() {
       )}
 
       {tab === "vacaciones" && (
-        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead><tr style={{ background: "#f8f9ff" }}>
-              {["Desde", "Hasta", "Días", "Estado"].map(h => (
-                <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#718096", borderBottom: "1px solid #e8eaf0" }}>{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {empleado.vacaciones?.length === 0 ? (
-                <tr><td colSpan={4} style={{ padding: 32, textAlign: "center", color: "#a0aec0" }}>Sin vacaciones registradas</td></tr>
-              ) : empleado.vacaciones?.map((v, i) => (
-                <tr key={v.id} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f8f9ff" }}>
-                  <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(v.fechaInicio).toLocaleDateString("es-ES")}</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(v.fechaFin).toLocaleDateString("es-ES")}</td>
-                  <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 600 }}>{Math.ceil((new Date(v.fechaFin).getTime() - new Date(v.fechaInicio).getTime()) / 86400000)}</td>
-                  <td style={{ padding: "10px 16px" }}>
-                    <span style={{ background: v.estado === "APROBADA" ? "#d1fae5" : v.estado === "PENDIENTE" ? "#fef3c7" : "#fee2e2", color: v.estado === "APROBADA" ? "#065f46" : v.estado === "PENDIENTE" ? "#92400e" : "#991b1b", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{v.estado}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+          {/* Stats */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+            {[
+              { label: "Días asignados", valor: empleado.diasVacaciones ?? 22, color: "#6366f1", bg: "#ede9fe" },
+              { label: "Aprobados", valor: empleado.vacaciones?.filter(v => v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0, color: "#059669", bg: "#d1fae5" },
+              { label: "Pendientes", valor: empleado.vacaciones?.filter(v => v.estado === "PENDIENTE").reduce((s,v) => s + v.diasTotales, 0) || 0, color: "#d97706", bg: "#fef3c7" },
+              { label: "Disponibles", valor: (empleado.diasVacaciones ?? 22) - (empleado.vacaciones?.filter(v => v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0), color: "#0284c7", bg: "#dbeafe" },
+            ].map(s => (
+              <div key={s.label} style={{ background: s.bg, borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.valor}</div>
+                <div style={{ fontSize: 11, color: s.color, opacity: 0.8, marginTop: 2 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Botón nueva solicitud */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>Solicitudes de vacaciones</h3>
+            <button onClick={() => setModalVacacion("nueva")}
+              style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+              + Nueva solicitud
+            </button>
+          </div>
+
+          {/* Tabla vacaciones */}
+          <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead><tr style={{ background: "#f8f9ff" }}>
+                {["Desde", "Hasta", "Días", "Estado", "Observaciones", "Acciones"].map(h => (
+                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#718096", borderBottom: "1px solid #e8eaf0" }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {!empleado.vacaciones?.length ? (
+                  <tr><td colSpan={6} style={{ padding: 32, textAlign: "center", color: "#a0aec0" }}>Sin vacaciones registradas</td></tr>
+                ) : empleado.vacaciones?.map((v, i) => (
+                  <tr key={v.id} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f8f9ff" }}>
+                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(v.fechaInicio).toLocaleDateString("es-ES")}</td>
+                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(v.fechaFin).toLocaleDateString("es-ES")}</td>
+                    <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 600 }}>{v.diasTotales}</td>
+                    <td style={{ padding: "10px 16px" }}>
+                      <span style={{ background: v.estado === "APROBADA" ? "#d1fae5" : v.estado === "PENDIENTE" ? "#fef3c7" : "#fee2e2", color: v.estado === "APROBADA" ? "#065f46" : v.estado === "PENDIENTE" ? "#92400e" : "#991b1b", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{v.estado}</span>
+                    </td>
+                    <td style={{ padding: "10px 16px", fontSize: 12, color: "#718096" }}>{v.observaciones || "—"}</td>
+                    <td style={{ padding: "10px 16px" }}>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {v.estado === "PENDIENTE" && (
+                          <>
+                            <button onClick={() => gestionarVacacion(v.id, "APROBADA")}
+                              style={{ background: "#d1fae5", color: "#065f46", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                              Aprobar
+                            </button>
+                            <button onClick={() => gestionarVacacion(v.id, "RECHAZADA")}
+                              style={{ background: "#fee2e2", color: "#991b1b", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                              Rechazar
+                            </button>
+                          </>
+                        )}
+                        {v.estado !== "APROBADA" && (
+                          <button onClick={() => eliminarVacacion(v.id)}
+                            style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                            Eliminar
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -642,6 +736,45 @@ export default function PerfilEmpleadoPage() {
         </div>
       )}
 
+      {modalVacacion === "nueva" && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 480, maxWidth: "90vw" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>Nueva solicitud de vacaciones</h2>
+              <button onClick={() => setModalVacacion(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#a0aec0" }}>✕</button>
+            </div>
+            <div style={{ background: "#dbeafe", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#1e40af" }}>
+              <strong>{empleado.nombre} {empleado.apellidos}</strong> · Días disponibles: <strong>{(empleado.diasVacaciones ?? 22) - (empleado.vacaciones?.filter(v => v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0)}</strong>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha inicio *</label>
+                <input type="date" value={formVacacion.fechaInicio} onChange={e => setFormVacacion(p => ({ ...p, fechaInicio: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha fin *</label>
+                <input type="date" value={formVacacion.fechaFin} onChange={e => setFormVacacion(p => ({ ...p, fechaFin: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Observaciones</label>
+              <textarea value={formVacacion.observaciones} onChange={e => setFormVacacion(p => ({ ...p, observaciones: e.target.value }))} rows={3}
+                placeholder="Opcional..."
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box", resize: "none" }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setModalVacacion(null)} style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+              <button onClick={crearVacacion} disabled={loadingVacacion || !formVacacion.fechaInicio || !formVacacion.fechaFin}
+                style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer", opacity: loadingVacacion ? 0.6 : 1 }}>
+                {loadingVacacion ? "Creando..." : "Crear solicitud"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {modalHistorial && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 560, maxWidth: "90vw", maxHeight: "90vh", overflowY: "auto" }}>
@@ -753,4 +886,7 @@ export default function PerfilEmpleadoPage() {
     </div>
   )
 }
+
+
+
 

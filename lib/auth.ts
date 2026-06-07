@@ -19,19 +19,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         console.log("🔐 AUTHORIZE llamado con:", credentials?.email)
-        console.log("🔗 DB URL:", process.env.DATABASE_URL?.substring(0, 50))
         if (!credentials?.email || !credentials?.password) return null
         const email = String(credentials.email).toLowerCase()
         try {
           const user = await prisma.user.findUnique({ where: { email } })
-          console.log("👤 Usuario encontrado:", user?.email)
           if (!user || !user.password) return null
           const isValid = await bcrypt.compare(String(credentials.password), user.password)
-          console.log("🔑 Password válida:", isValid)
           if (!isValid) return null
-          return { id: user.id, email: user.email, name: user.name, role: (user as any).role }
+          return { id: user.id, email: user.email, name: user.name, role: (user as any).role } as any
         } catch (error) {
           console.error("❌ ERROR:", error)
           return null
@@ -41,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) { token.id = user.id; token.role = (user as any).role }
+      if (user) { token.id = (user as any).id; token.role = (user as any).role }
       return token
     },
     async session({ session, token }) {

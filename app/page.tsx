@@ -1,7 +1,7 @@
 // SCHEDULEO - PÁGINA PRINCIPAL
 
 import { redirect } from 'next/navigation'
-import { auth } from '@/auth'
+import { auth } from '@/lib/auth'
 
 export default async function HomePage() {
   const session = await auth()
@@ -17,3 +17,4 @@ export default async function HomePage() {
   
   redirect('/master/dashboard')
 }
+

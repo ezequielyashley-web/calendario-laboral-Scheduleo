@@ -180,7 +180,7 @@ export default function BajasMedicasDesktop() {
                   { clave:'bajas_flujo_inss',    titulo:'Recepción telemática INSS'      },
                 ].map(n => (
                   <div key={n.clave} style={{ padding:'8px 10px', background:'var(--surface-2)', borderRadius:4, border:'0.5px solid var(--border)' }}>
-                    <p style={{ fontSize:11, fontWeight:600, color:'var(--text-primary)', marginBottom:3 }}>{normativa[n.clave]?.titulo || n.titulo}</p>
+                    <p style={{ fontSize:11, fontWeight:600, color:'var(--text-primary)', marginBottom:3 }}>{(normativa[n.clave] as any)?.titulo || n.titulo}</p>
                     <p style={{ fontSize:11, color:'var(--text-secondary)', lineHeight:1.5 }}>
                       {normativa[n.clave]?.descripcion || 'Cargando...'}
                     </p>
@@ -604,4 +604,5 @@ export default function BajasMedicasDesktop() {
     </div>
   )
 }
+
 

@@ -93,7 +93,7 @@ export async function monitorearEmailINSS(): Promise<{
     const unseen = await client.search({
       seen: false,
       from: INSS_SENDERS.join(' '),
-    }).catch(() => client.search({ seen: false }))
+    }).catch(() => client.search({ seen: false }) as any)
 
     resultado.detalles.push(`📩 Emails no leídos encontrados: ${unseen.length}`)
 
@@ -252,3 +252,5 @@ function detectarTipoBaja(asunto: string): string {
   if (lower.includes('interrupción') || lower.includes('interrupcion') && lower.includes('embarazo')) return 'interrupcion_embarazo'
   return 'it_comun'
 }
+
+
