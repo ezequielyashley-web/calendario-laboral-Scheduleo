@@ -5,6 +5,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params
 
+    const empleadoRaw = await prisma.$queryRaw`SELECT * FROM "Empleado" WHERE id = ${id}` as any[]
+    if (!empleadoRaw.length) return NextResponse.json({ error: "Empleado no encontrado" }, { status: 404 })
+    const empleadoBase = empleadoRaw[0]
     const empleado = await prisma.empleado.findUnique({
       where: { id },
       include: {
@@ -29,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     try { permisos = await prisma.$queryRaw`SELECT * FROM "PermisoSalida" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Permisos:", e) }
     try { justificantes = await prisma.$queryRaw`SELECT * FROM "Justificante" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Justificantes:", e) }
 
-    return NextResponse.json({ ...empleado, deudas, bajas, historialCargos, permisos, justificantes })
+    return NextResponse.json({ ...empleado, esDemostracion: empleadoBase.esDemostracion ?? false, sueldoBase: empleadoBase.sueldoBase, deudas, bajas, historialCargos, permisos, justificantes })
   } catch (error) {
     console.error("ERROR PRINCIPAL:", error)
     return NextResponse.json({ error: "Error al obtener empleado" }, { status: 500 })
