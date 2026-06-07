@@ -644,15 +644,83 @@ export default function PerfilEmpleadoPage() {
 
       {modalHistorial && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 440, maxWidth: "90vw" }}>
-            <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 20, color: "#1e1b4b" }}>
-              {modalHistorial === "sueldo" ? "Ajustar sueldo" : "Cambiar puesto"}
-            </h2>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 560, maxWidth: "90vw", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>
+                {modalHistorial === "sueldo" ? "Ajustar sueldo" : "Cambiar puesto"}
+              </h2>
+              <button onClick={() => setModalHistorial(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#a0aec0" }}>✕</button>
+            </div>
+
             {modalHistorial === "sueldo" && (
-              <div style={{ marginBottom: 16, padding: "10px 14px", background: "#f0f4ff", borderRadius: 8, fontSize: 13 }}>
-                Sueldo actual: <strong>{empleado.sueldoBase ? parseFloat(empleado.sueldoBase).toFixed(2) + "€" : "No definido"}</strong>
-              </div>
+              <>
+                <div style={{ background: "#f0f4ff", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>Sueldo bruto actual</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#6366f1" }}>{empleado.sueldoBase ? parseFloat(empleado.sueldoBase).toFixed(2) + "€" : "—"}</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 2 }}>Paga mensual actual</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#059669" }}>{empleado.sueldoBase ? (parseFloat(empleado.sueldoBase) / 12).toFixed(2) + "€" : "—"}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Nuevo sueldo bruto anual (€)</label>
+                    <input type="number" value={formHistorial.nuevoSueldo}
+                      onChange={e => {
+                        const nuevo = parseFloat(e.target.value) || 0
+                        const actual = parseFloat(empleado.sueldoBase) || 0
+                        const pct = actual > 0 ? (((nuevo - actual) / actual) * 100).toFixed(2) : ""
+                        setFormHistorial(p => ({ ...p, nuevoSueldo: e.target.value, porcentaje: pct }))
+                      }}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>O subida por porcentaje (%)</label>
+                    <input type="number" value={formHistorial.porcentaje}
+                      onChange={e => {
+                        const pct = parseFloat(e.target.value) || 0
+                        const actual = parseFloat(empleado.sueldoBase) || 0
+                        const nuevo = actual > 0 ? (actual * (1 + pct / 100)).toFixed(2) : ""
+                        setFormHistorial(p => ({ ...p, porcentaje: e.target.value, nuevoSueldo: nuevo }))
+                      }}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
+                  </div>
+                </div>
+
+                {formHistorial.nuevoSueldo && parseFloat(formHistorial.nuevoSueldo) > 0 && (
+                  <div style={{ background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b", marginBottom: 12 }}>Desglose en 12 pagas</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 12 }}>
+                      {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((mes, i) => (
+                        <div key={mes} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                          <div style={{ fontSize: 10, color: "#a0aec0", marginBottom: 2 }}>{mes}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#6366f1" }}>{(parseFloat(formHistorial.nuevoSueldo) / 12).toFixed(2)}€</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, borderTop: "0.5px solid #e8eaf0", paddingTop: 12 }}>
+                      {[
+                        { label: "Bruto anual", valor: parseFloat(formHistorial.nuevoSueldo).toFixed(2) + "€", color: "#1e1b4b" },
+                        { label: "Paga mensual", valor: (parseFloat(formHistorial.nuevoSueldo) / 12).toFixed(2) + "€", color: "#6366f1" },
+                        { label: "Incremento", valor: formHistorial.porcentaje ? (parseFloat(formHistorial.porcentaje) > 0 ? "+" : "") + parseFloat(formHistorial.porcentaje).toFixed(2) + "%" : "—", color: "#059669" },
+                        { label: "Bruto anterior", valor: empleado.sueldoBase ? parseFloat(empleado.sueldoBase).toFixed(2) + "€" : "—", color: "#718096" },
+                        { label: "Diferencia mensual", valor: empleado.sueldoBase ? "+" + ((parseFloat(formHistorial.nuevoSueldo) - parseFloat(empleado.sueldoBase)) / 12).toFixed(2) + "€" : "—", color: "#059669" },
+                        { label: "Diferencia anual", valor: empleado.sueldoBase ? "+" + (parseFloat(formHistorial.nuevoSueldo) - parseFloat(empleado.sueldoBase)).toFixed(2) + "€" : "—", color: "#059669" },
+                      ].map(k => (
+                        <div key={k.label} style={{ textAlign: "center" }}>
+                          <div style={{ fontSize: 10, color: "#a0aec0", marginBottom: 2 }}>{k.label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: k.color }}>{k.valor}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
+
             {modalHistorial === "cargo" && (
               <div style={{ marginBottom: 12 }}>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Nuevo puesto</label>
@@ -661,36 +729,7 @@ export default function PerfilEmpleadoPage() {
                   style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
               </div>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Nuevo sueldo (€)</label>
-                <input type="number" value={formHistorial.nuevoSueldo}
-                  onChange={e => {
-                    const nuevo = parseFloat(e.target.value) || 0
-                    const actual = parseFloat(empleado.sueldoBase) || 0
-                    const pct = actual > 0 ? (((nuevo - actual) / actual) * 100).toFixed(2) : ""
-                    setFormHistorial(p => ({ ...p, nuevoSueldo: e.target.value, porcentaje: pct }))
-                  }}
-                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>% Aumento</label>
-                <input type="number" value={formHistorial.porcentaje}
-                  onChange={e => {
-                    const pct = parseFloat(e.target.value) || 0
-                    const actual = parseFloat(empleado.sueldoBase) || 0
-                    const nuevo = actual > 0 ? (actual * (1 + pct / 100)).toFixed(2) : ""
-                    setFormHistorial(p => ({ ...p, porcentaje: e.target.value, nuevoSueldo: nuevo }))
-                  }}
-                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
-              </div>
-            </div>
-            {formHistorial.nuevoSueldo && (
-              <div style={{ background: "#f0f4ff", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
-                Nuevo sueldo: <strong style={{ color: "#6366f1" }}>{parseFloat(formHistorial.nuevoSueldo).toFixed(2)}€</strong>
-                {formHistorial.porcentaje && <span style={{ color: "#059669", marginLeft: 8 }}>({parseFloat(formHistorial.porcentaje) > 0 ? "+" : ""}{parseFloat(formHistorial.porcentaje).toFixed(2)}%)</span>}
-              </div>
-            )}
+
             {modalHistorial === "cargo" && (
               <div style={{ marginBottom: 12 }}>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha inicio</label>
@@ -698,6 +737,7 @@ export default function PerfilEmpleadoPage() {
                   style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
               </div>
             )}
+
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Notas</label>
               <textarea value={formHistorial.notas} onChange={e => setFormHistorial(p => ({ ...p, notas: e.target.value }))} rows={2}
@@ -713,3 +753,4 @@ export default function PerfilEmpleadoPage() {
     </div>
   )
 }
+
