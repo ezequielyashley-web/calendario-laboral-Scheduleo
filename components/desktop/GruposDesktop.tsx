@@ -30,7 +30,7 @@ export default function GruposDesktop() {
       setEmpleados(empsArr)
       const gruposData = GRUPOS_BASE.map(g => ({
         nombre: g,
-        empleados: empsArr.filter((e: any) => e.grupo === g || e.grupoTrabajo === g),
+        empleados: empsArr.filter((e: any) => e.grupoTrabajoid === g.toLowerCase() || e.grupoTrabajoId === g.toLowerCase() || e.grupotrabajoid === g.toLowerCase()),
         ...grupoColors[g]
       }))
       setGrupos(gruposData)
