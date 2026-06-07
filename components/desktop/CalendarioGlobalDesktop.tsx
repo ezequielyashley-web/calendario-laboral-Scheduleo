@@ -29,8 +29,19 @@ function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
     const date = new Date(year, month, day)
     const dow = date.getDay()
     let tipo = 'trabajo', grupos: string[] = [], esFestivo = false
+    const festivosNacionales: Record<string, number[]> = {
+      '0': [1, 6],
+      '3': [2, 3],
+      '4': [1],
+      '7': [15],
+      '9': [12],
+      '10': [2, 9],
+      '11': [8, 25]
+    }
+    const mesKey = String(month)
+    const esFestNacional = festivosNacionales[mesKey]?.includes(day) ?? false
     if (dow === 0) { tipo = 'domingo' }
-    else if ([1, 15].includes(day)) { tipo = 'festivo'; esFestivo = true }
+    else if (esFestNacional) { tipo = 'festivo'; esFestivo = true }
     else {
       if (dow === 1) grupos = ['L1','L2','L3']
       else if ([2,3,4,5,6].includes(dow)) {
