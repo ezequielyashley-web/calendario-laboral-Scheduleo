@@ -5,7 +5,7 @@ import { useState } from "react"
 type DayConfig = {
   day: number; tipo: string; grupos: string[]; date: Date
   libranzas: { grupo: string; empleados: string[]; tipo: 'completa' | 'media' }[]
-  esFestivo: boolean; esEspecial: boolean; notaEspecial?: string
+  esFestivo: boolean; esEspecial: boolean
 }
 
 const grupoColors: Record<string,{ solid:string }> = {
@@ -15,8 +15,20 @@ const grupoColors: Record<string,{ solid:string }> = {
 
 const todosLosGrupos = ['G1A','G1B','G2A','G2B','G3A','G3B','L1','L2','L3']
 const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-const mesesCortos = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 const diasCortos = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
+
+const FESTIVOS_NACIONALES: Record<number, number[]> = {
+  0: [1, 6],
+  3: [2, 3],
+  4: [1],
+  5: [24],
+  6: [25],
+  7: [15],
+  8: [12],
+  9: [12],
+  10: [1, 2, 9],
+  11: [6, 8, 25],
+}
 
 function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
   const firstDay = new Date(year, month, 1)
@@ -29,20 +41,12 @@ function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
     const date = new Date(year, month, day)
     const dow = date.getDay()
     let tipo = 'trabajo', grupos: string[] = [], esFestivo = false
-    const festivosNacionales: Record<string, number[]> = {
-      '0': [1, 6],
-      '3': [2, 3],
-      '4': [1],
-      '7': [15],
-      '9': [12],
-      '10': [2, 9],
-      '5': [24], '6': [25], '8': [12], '10': [1, 9], '11': [6, 8, 25], '0': [1, 6], '3': [2, 3], '4': [1], '7': [15]
-    }
-    const mesKey = String(month)
-    const esFestNacional = festivosNacionales[mesKey]?.includes(day) ?? false
-    if (dow === 0) { tipo = 'domingo' }
-    else if (esFestNacional) { tipo = 'festivo'; esFestivo = true }
-    else {
+    const esFestNacional = FESTIVOS_NACIONALES[month]?.includes(day) ?? false
+    if (dow === 0) {
+      tipo = 'domingo'
+    } else if (esFestNacional) {
+      tipo = 'festivo'; esFestivo = true
+    } else {
       if (dow === 1) grupos = ['L1','L2','L3']
       else if ([2,3,4,5,6].includes(dow)) {
         if (day%6===0||day%6===1)      grupos = ['G1A','G2A','G3A']
@@ -55,26 +59,16 @@ function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
   return days
 }
 
-function getMiniMonthDays(year: number, month: number) {
-  return getDaysInMonth(year, month)
-}
-
 function getDayBg(tipo: string) {
   if (tipo === 'festivo') return '#f5f3ff'
   if (tipo === 'domingo') return '#fff5f5'
   return '#fff'
 }
 
-function getDayBorder(tipo: string) {
-  if (tipo === 'festivo') return '#c4b5fd'
-  if (tipo === 'domingo') return '#fca5a5'
-  return 'var(--color-border-tertiary, #e8eaf0)'
-}
-
 function getDayColor(tipo: string) {
   if (tipo === 'festivo') return '#7c3aed'
   if (tipo === 'domingo') return '#dc2626'
-  return 'var(--color-text-primary, #1e1b4b)'
+  return '#1e1b4b'
 }
 
 function getDaysInMonthCount(year: number, month: number) {
@@ -101,55 +95,38 @@ export default function CalendarioGlobalDesktop() {
   const irADia = (d: DayConfig) => { setDiaSeleccionado(d); setVista('agenda') }
   const volverAAnual = () => setVista('anual')
   const volverAMensual = () => setVista('mensual')
-
   const daysMes = getDaysInMonth(anio, mes)
 
-  const inputStyle = { padding: '7px 12px', border: '1px solid var(--color-border-tertiary, #e8eaf0)', borderRadius: 8, fontSize: 13, background: '#fff', color: '#1e1b4b', outline: 'none' }
+  const inputStyle = { padding: '7px 12px', border: '1px solid #e8eaf0', borderRadius: 8, fontSize: 13, background: '#fff', color: '#1e1b4b', outline: 'none' }
+
+  const esHoyCheck = (d: DayConfig | null, m: number) =>
+    d !== null && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio
 
   return (
-    <div style={{ padding: 0, maxWidth: "100%", margin: '0 auto' }}>
+    <div style={{ padding: 0, maxWidth: '100%', margin: '0 auto' }}>
 
-      {/* Header con breadcrumb y controles */}
+      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={volverAAnual}
-            style={{ background: vista === 'anual' ? '#6366f1' : '#f0f4ff', color: vista === 'anual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-            {anio}
-          </button>
+          <button onClick={volverAAnual} style={{ background: vista === 'anual' ? '#6366f1' : '#f0f4ff', color: vista === 'anual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{anio}</button>
           {(vista === 'mensual' || vista === 'agenda') && (
-            <>
-              <span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
-              <button onClick={volverAMensual}
-                style={{ background: vista === 'mensual' ? '#6366f1' : '#f0f4ff', color: vista === 'mensual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-                {meses[mes]}
-              </button>
-            </>
+            <><span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
+            <button onClick={volverAMensual} style={{ background: vista === 'mensual' ? '#6366f1' : '#f0f4ff', color: vista === 'mensual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{meses[mes]}</button></>
           )}
           {vista === 'agenda' && diaSeleccionado && (
-            <>
-              <span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
-              <span style={{ background: '#6366f1', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500 }}>
-                {diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
-              </span>
-            </>
+            <><span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
+            <span style={{ background: '#6366f1', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500 }}>{diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</span></>
           )}
         </div>
-
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {vista === 'anual' && (
-            <>
-              <button onClick={() => setAnio(a => a - 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
-              <button onClick={() => setAnio(a => a + 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
-            </>
-          )}
-          {vista === 'mensual' && (
-            <>
-              <button onClick={() => { if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }}
-                style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
-              <button onClick={() => { if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }}
-                style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
-            </>
-          )}
+          {vista === 'anual' && (<>
+            <button onClick={() => setAnio(a => a - 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
+            <button onClick={() => setAnio(a => a + 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
+          </>)}
+          {vista === 'mensual' && (<>
+            <button onClick={() => { if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
+            <button onClick={() => { if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
+          </>)}
           <select value={filterSede} onChange={e => setFilterSede(e.target.value)} style={inputStyle}>
             <option value="todas">Todas las sedes</option>
             <option value="madrid">Madrid Centro</option>
@@ -164,60 +141,43 @@ export default function CalendarioGlobalDesktop() {
 
       {/* VISTA ANUAL */}
       {vista === 'anual' && (
-        <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', maxWidth: '100%', gap: 16 }}>
-            {Array.from({ length: 12 }, (_, m) => {
-              const stats = getDaysInMonthCount(anio, m)
-              const days = getDaysInMonth(anio, m)
-              const esHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
-              return (
-                <div key={m} onClick={() => irAMes(m)}
-                  style={{ background: '#ffffff', border: esHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.12)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: esHoy ? '#6366f1' : 'var(--color-text-primary, #1e1b4b)' }}>{meses[m]}</div>
-                    {esHoy && <span style={{ background: '#6366f1', color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>Hoy</span>}
-                  </div>
-
-                  {/* Mini calendario */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 10 }}>
-                    {['L','M','X','J','V','S','D'].map(d => (
-                      <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0', background: '#e8eaf4', borderRadius: 2 }}>{d}</div>
-                    ))}
-                    {getDaysInMonth(anio, m).map((d, i) => (
-                      <div key={i} style={{
-                        textAlign: 'center', fontSize: 10, padding: '2px 0', borderRadius: 3,
-                        color: !d ? 'transparent' : d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : 'var(--color-text-secondary, #718096)',
-background: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#6366f1' : 'transparent',
-borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '50%' : 0,
-                        background: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#6366f1' : 'transparent',
-                        fontWeight: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? 700 : 400,
-                      }} style={{ color: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#fff' : undefined }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          {Array.from({ length: 12 }, (_, m) => {
+            const stats = getDaysInMonthCount(anio, m)
+            const esMesHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
+            return (
+              <div key={m} onClick={() => irAMes(m)}
+                style={{ background: '#fff', border: esMesHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.15)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: esMesHoy ? '#6366f1' : '#1e1b4b' }}>{meses[m]}</div>
+                  {esMesHoy && <span style={{ background: '#6366f1', color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>Hoy</span>}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 10 }}>
+                  {['L','M','X','J','V','S','D'].map(d => (
+                    <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0' }}>{d}</div>
+                  ))}
+                  {getDaysInMonth(anio, m).map((d, i) => {
+                    const esHoyDia = esHoyCheck(d, m)
+                    const bg = esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent'
+                    const col = !d ? 'transparent' : esHoyDia ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#718096'
+                    return (
+                      <div key={i} style={{ textAlign: 'center', fontSize: 10, padding: '2px 1px', borderRadius: esHoyDia ? '50%' : 2, background: bg, color: col, fontWeight: esHoyDia ? 700 : 400 }}>
                         {d ? d.day : ''}
                       </div>
-                    ))}
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 6, borderTop: '0.5px solid #e8eaf0', paddingTop: 8 }}>
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#6366f1' }}>{stats.laborales}</div>
-                      <div style={{ fontSize: 9, color: '#a0aec0' }}>Labor.</div>
-                    </div>
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#7c3aed' }}>{stats.festivos}</div>
-                      <div style={{ fontSize: 9, color: '#a0aec0' }}>Festiv.</div>
-                    </div>
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#dc2626' }}>{stats.domingos}</div>
-                      <div style={{ fontSize: 9, color: '#a0aec0' }}>Dom.</div>
-                    </div>
-                  </div>
+                    )
+                  })}
                 </div>
-              )
-            })}
-          </div>
+                <div style={{ display: 'flex', gap: 6, borderTop: '0.5px solid #e8eaf0', paddingTop: 8 }}>
+                  <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: '#6366f1' }}>{stats.laborales}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Labor.</div></div>
+                  <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: '#7c3aed' }}>{stats.festivos}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Festiv.</div></div>
+                  <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: '#dc2626' }}>{stats.domingos}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Dom.</div></div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -225,74 +185,38 @@ borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFul
       {vista === 'mensual' && (
         <div>
           <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 16, overflow: 'hidden' }}>
-            {/* Cabecera días semana */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '0.5px solid #e8eaf0' }}>
               {diasCortos.map((d, i) => (
-                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 12, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>
-                  {d}
-                </div>
+                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 12, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>{d}</div>
               ))}
             </div>
-
-            {/* Grid días */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
               {daysMes.map((d, i) => {
-                const esHoyDia = d && hoy.getDate() === d.day && hoy.getMonth() === mes && hoy.getFullYear() === anio
+                const esHoyDia = esHoyCheck(d, mes)
                 const gruposFiltrados = d ? (filterGrupo === 'todos' ? d.grupos : d.grupos.filter(g => g === filterGrupo)) : []
                 return (
-                  <div key={i}
-                    onClick={() => d && irADia(d)}
-                    style={{
-                      minHeight: 90,
-                      padding: '8px 6px',
-                      background: !d ? '#f8f9ff' : esHoyDia ? '#ede9fe' : getDayBg(d.tipo),
-                      border: `0.5px solid ${esHoyDia ? '#6366f1' : '#e8eaf0'}`,
-                      cursor: d ? 'pointer' : 'default',
-                      position: 'relative',
-                      transition: 'all 0.12s',
-                    }}
+                  <div key={i} onClick={() => d && irADia(d)}
+                    style={{ minHeight: 90, padding: '8px 6px', background: !d ? '#f8f9ff' : esHoyDia ? '#ede9fe' : getDayBg(d.tipo), border: `0.5px solid ${esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fca5a5' : d?.tipo === 'festivo' ? '#c4b5fd' : '#e8eaf0'}`, cursor: d ? 'pointer' : 'default', position: 'relative', transition: 'all 0.12s' }}
                     onMouseEnter={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'brightness(0.96)' }}
                     onMouseLeave={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'none' }}
                   >
                     {d && (
                       <>
-                        {/* Número del día */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                          <div style={{
-                            width: esHoyDia ? 28 : 'auto',
-                            height: esHoyDia ? 28 : 'auto',
-                            background: esHoyDia ? '#6366f1' : 'transparent',
-                            borderRadius: esHoyDia ? '50%' : 0,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 18, fontWeight: esHoyDia ? 700 : 400,
-                            color: esHoyDia ? '#fff' : getDayColor(d.tipo),
-                          }}>
+                          <div style={{ width: esHoyDia ? 28 : 'auto', height: esHoyDia ? 28 : 'auto', background: esHoyDia ? '#6366f1' : 'transparent', borderRadius: esHoyDia ? '50%' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: esHoyDia ? 700 : 400, color: esHoyDia ? '#fff' : getDayColor(d.tipo) }}>
                             {d.day}
                           </div>
-                          {d.tipo === 'festivo' && (
-                            <span style={{ fontSize: 9, background: '#ede9fe', color: '#6366f1', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Festivo</span>
-                          )}
+                          {d.tipo === 'festivo' && <span style={{ fontSize: 9, background: '#ede9fe', color: '#6366f1', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Festivo</span>}
+                          {d.tipo === 'domingo' && <span style={{ fontSize: 9, background: '#fff5f5', color: '#dc2626', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Dom</span>}
                         </div>
-
-                        {/* Chips de grupos */}
                         {gruposFiltrados.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                             {gruposFiltrados.map(g => (
-                              <span key={g} style={{
-                                fontSize: 9, fontWeight: 700, color: '#fff',
-                                background: grupoColors[g]?.solid,
-                                borderRadius: 3, padding: '1px 4px',
-                              }}>{g}</span>
+                              <span key={g} style={{ fontSize: 9, fontWeight: 700, color: '#fff', background: grupoColors[g]?.solid, borderRadius: 3, padding: '1px 4px' }}>{g}</span>
                             ))}
                           </div>
                         )}
-
-                        {/* Barra inferior tipo día */}
-                        <div style={{
-                          position: 'absolute', bottom: 0, left: 0, right: 0, height: 3,
-                          background: d.tipo === 'festivo' ? '#7c3aed' : d.tipo === 'domingo' ? '#dc2626' : '#6366f1',
-                          opacity: 0.3,
-                        }} />
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: d.tipo === 'festivo' ? '#7c3aed' : d.tipo === 'domingo' ? '#dc2626' : '#6366f1', opacity: 0.25 }} />
                       </>
                     )}
                   </div>
@@ -300,8 +224,6 @@ borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFul
               })}
             </div>
           </div>
-
-          {/* Leyenda grupos */}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, padding: '10px 16px', background: '#fff', borderRadius: 10, border: '0.5px solid #e8eaf0' }}>
             {Object.entries(grupoColors).map(([g, v]) => (
               <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -324,28 +246,19 @@ borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFul
       {/* VISTA AGENDA */}
       {vista === 'agenda' && diaSeleccionado && (
         <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
-
-          {/* Mini calendario lateral */}
           <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, height: 'fit-content' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>{meses[mes]} {anio}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 8 }}>
               {['L','M','X','J','V','S','D'].map(d => (
-                <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0', background: '#e8eaf4', borderRadius: 2 }}>{d}</div>
+                <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0' }}>{d}</div>
               ))}
               {daysMes.map((d, i) => (
                 <div key={i} onClick={() => d && irADia(d)}
-                  style={{
-                    textAlign: 'center', fontSize: 11, padding: '4px 2px', borderRadius: 4, cursor: d ? 'pointer' : 'default',
-                    background: d && diaSeleccionado.day === d.day ? '#6366f1' : d?.tipo === 'festivo' ? '#f5f3ff' : d?.tipo === 'domingo' ? '#fff5f5' : 'transparent',
-                    color: d && diaSeleccionado.day === d.day ? '#fff' : d?.tipo === 'domingo' ? '#dc2626' : d?.tipo === 'festivo' ? '#7c3aed' : '#718096',
-                    fontWeight: d && diaSeleccionado.day === d.day ? 700 : 400,
-                  }}>
+                  style={{ textAlign: 'center', fontSize: 11, padding: '4px 2px', borderRadius: 4, cursor: d ? 'pointer' : 'default', background: d && diaSeleccionado.day === d.day ? '#6366f1' : d?.tipo === 'festivo' ? '#f5f3ff' : d?.tipo === 'domingo' ? '#fff5f5' : 'transparent', color: d && diaSeleccionado.day === d.day ? '#fff' : d?.tipo === 'domingo' ? '#dc2626' : d?.tipo === 'festivo' ? '#7c3aed' : '#718096', fontWeight: d && diaSeleccionado.day === d.day ? 700 : 400 }}>
                   {d ? d.day : ''}
                 </div>
               ))}
             </div>
-
-            {/* Stats del mes */}
             <div style={{ borderTop: '0.5px solid #e8eaf0', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {[
                 { label: 'Días laborales', valor: daysMes.filter(d => d?.tipo === 'trabajo').length, color: '#6366f1' },
@@ -360,42 +273,18 @@ borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFul
             </div>
           </div>
 
-          {/* Panel detalle del día */}
           <div>
-            {/* Cabecera día */}
             <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20, marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#1e1b4b', textTransform: 'capitalize' }}>
-                    {diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
-                  </div>
-                  <div style={{ fontSize: 13, color: '#a0aec0', marginTop: 2 }}>
-                    {diaSeleccionado.tipo === 'festivo' ? '🎉 Día festivo' : diaSeleccionado.tipo === 'domingo' ? '📅 Domingo' : '💼 Día laboral'}
-                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: '#1e1b4b', textTransform: 'capitalize' }}>{diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+                  <div style={{ fontSize: 13, color: '#a0aec0', marginTop: 2 }}>{diaSeleccionado.tipo === 'festivo' ? '🎉 Día festivo' : diaSeleccionado.tipo === 'domingo' ? '📅 Domingo' : '💼 Día laboral'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    onClick={() => {
-                      const dias = daysMes.filter(d => d !== null) as DayConfig[]
-                      const idx = dias.findIndex(d => d.day === diaSeleccionado.day)
-                      if (idx > 0) setDiaSeleccionado(dias[idx - 1])
-                    }}
-                    style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>
-                    ← Anterior
-                  </button>
-                  <button
-                    onClick={() => {
-                      const dias = daysMes.filter(d => d !== null) as DayConfig[]
-                      const idx = dias.findIndex(d => d.day === diaSeleccionado.day)
-                      if (idx < dias.length - 1) setDiaSeleccionado(dias[idx + 1])
-                    }}
-                    style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>
-                    Siguiente →
-                  </button>
+                  <button onClick={() => { const dias = daysMes.filter(d => d !== null) as DayConfig[]; const idx = dias.findIndex(d => d.day === diaSeleccionado.day); if (idx > 0) setDiaSeleccionado(dias[idx - 1]) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>← Anterior</button>
+                  <button onClick={() => { const dias = daysMes.filter(d => d !== null) as DayConfig[]; const idx = dias.findIndex(d => d.day === diaSeleccionado.day); if (idx < dias.length - 1) setDiaSeleccionado(dias[idx + 1]) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>Siguiente →</button>
                 </div>
               </div>
-
-              {/* KPIs del día */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {[
                   { label: 'Grupos activos', valor: diaSeleccionado.grupos.length, color: '#6366f1', bg: '#ede9fe' },
@@ -409,8 +298,6 @@ borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFul
                 ))}
               </div>
             </div>
-
-            {/* Grupos del día */}
             {diaSeleccionado.grupos.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {diaSeleccionado.grupos.map(g => (
@@ -420,11 +307,7 @@ borderRadius: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFul
                       <div style={{ fontSize: 15, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>{g}</div>
                       <div style={{ fontSize: 12, color: '#a0aec0' }}>Turno asignado · 12 empleados estimados</div>
                     </div>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <span style={{ background: grupoColors[g]?.solid + '20', color: grupoColors[g]?.solid, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
-                        Activo
-                      </span>
-                    </div>
+                    <span style={{ background: grupoColors[g]?.solid + '20', color: grupoColors[g]?.solid, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>Activo</span>
                   </div>
                 ))}
               </div>
