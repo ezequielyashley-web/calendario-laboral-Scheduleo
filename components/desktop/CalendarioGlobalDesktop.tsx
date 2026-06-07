@@ -161,7 +161,7 @@ export default function CalendarioGlobalDesktop() {
               const esHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
               return (
                 <div key={m} onClick={() => irAMes(m)}
-                  style={{ background: '#f4f5fb', border: esHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+                  style={{ background: '#ffffff', border: esHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.12)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
                 >
