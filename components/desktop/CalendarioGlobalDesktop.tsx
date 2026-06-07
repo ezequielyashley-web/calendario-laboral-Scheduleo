@@ -164,7 +164,7 @@ export default function CalendarioGlobalDesktop() {
                     const bg = esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent'
                     const col = !d ? 'transparent' : esHoyDia ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#718096'
                     return (
-                      <div key={i} style={{ textAlign: 'center', fontSize: 11, padding: '3px 1px', borderRadius: esHoyDia ? '50%' : 2, background: esHoyDia ? 'rgba(99,102,241,0.15)' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent', color: col, fontWeight: esHoyDia ? 600 : 400, border: esHoyDia ? '1px solid #6366f1' : 'none' }}>
+                      <div key={i} style={{ textAlign: 'center', fontSize: 12, padding: '3px 1px', borderRadius: esHoyDia ? '50%' : 2, background: esHoyDia ? 'rgba(99,102,241,0.12)' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent', color: col, fontWeight: esHoyDia ? 700 : 400, border: esHoyDia ? '1.5px solid #6366f1' : 'none', outline: esHoyDia ? '1px solid rgba(99,102,241,0.3)' : 'none' }}>
                         {d ? d.day : ''}
                       </div>
                     )
