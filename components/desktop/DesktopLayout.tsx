@@ -77,44 +77,44 @@ function ClimaWidget() {
 
 function LogoAnimado({ accentColor }: { accentColor: string }) {
   const [hover, setHover] = useState(false)
-  const dur = hover ? '1.2s' : '3s'
-  const amp = hover ? '-3px' : '-1.5px'
-  const ampSide = hover ? '-2px' : '-1px'
+  const dur = hover ? '1s' : '3s'
+  const ampC = hover ? '-3px' : '-1.5px'
+  const ampS = hover ? '-2px' : '-1px'
+  const keyframes = `
+    @keyframes lfC${hover?'H':''} { 0%,100%{transform:translateY(0)} 50%{transform:translateY(${ampC})} }
+    @keyframes lfL${hover?'H':''} { 0%,100%{transform:translateY(0)} 50%{transform:translateY(${ampS})} }
+    @keyframes lfR${hover?'H':''} { 0%,100%{transform:translateY(0)} 50%{transform:translateY(${ampS})} }
+    @keyframes lfP { 0%,100%{opacity:0.08} 50%{opacity:0.2} }
+  `
+  const animC = `lfC${hover?'H':''} ${dur} ease-in-out infinite`
+  const animL = `lfL${hover?'H':''} ${dur} ease-in-out infinite 0.8s`
+  const animR = `lfR${hover?'H':''} ${dur} ease-in-out infinite 1.6s`
+  const animP = `lfP 3s ease-in-out infinite`
   return (
     <div style={{ flexShrink:0, width:54, height:54, position:'relative', cursor:'pointer' }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
-      <style>{
-        @keyframes lfC { 0%,100%{transform:translateY(0)} 50%{transform:translateY(VAR_AMP)} }
-        @keyframes lfL { 0%,100%{transform:translateY(0)} 50%{transform:translateY(VAR_SIDE)} }
-        @keyframes lfR { 0%,100%{transform:translateY(0)} 50%{transform:translateY(VAR_SIDE)} }
-        @keyframes lfP { 0%,100%{opacity:VAR_P1} 50%{opacity:VAR_P2} }
-      }</style>
-      <svg width='54' height='54' viewBox='0 0 48 48' fill='none' style={{ position:'absolute', top:0, left:0 }}>
-        <rect width='48' height='48' rx='12' fill={accentColor}/>
-        <rect x='1.5' y='1.5' width='45' height='45' rx='11' fill='none' stroke='rgba(255,255,255,0.4)' strokeWidth='1'/>
-        <rect x='10' y='10' width='28' height='28' rx='6' fill='rgba(255,255,255,0.08)'
-          style={{ animation: lfP \ ease-in-out infinite }}/>
+      <style>{keyframes}</style>
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ position:'absolute', top:0, left:0 }}>
+        <rect width="48" height="48" rx="12" fill={accentColor}/>
+        <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
+        <rect x="10" y="10" width="28" height="28" rx="6" fill="rgba(255,255,255,0.1)" style={{ animation: animP }}/>
       </svg>
-      <svg width='54' height='54' viewBox='0 0 48 48' fill='none'
-        style={{ position:'absolute', top:0, left:0, animation: lfC \ ease-in-out infinite }}>
-        <circle cx='24' cy='16' r='5' fill='white'/>
-        <path d='M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34' stroke='white' strokeWidth='2.5' strokeLinecap='round' fill='none'/>
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ position:'absolute', top:0, left:0, animation: animC }}>
+        <circle cx="24" cy="16" r="5" fill="white"/>
+        <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
       </svg>
-      <svg width='54' height='54' viewBox='0 0 48 48' fill='none'
-        style={{ position:'absolute', top:0, left:0, animation: lfL \ ease-in-out infinite 0.8s }}>
-        <circle cx='14' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
-        <path d='M7 32C7 28.5 10 27 14 27' stroke='rgba(255,255,255,0.6)' strokeWidth='2' strokeLinecap='round' fill='none'/>
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ position:'absolute', top:0, left:0, animation: animL }}>
+        <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
+        <path d="M7 32C7 28.5 10 27 14 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
       </svg>
-      <svg width='54' height='54' viewBox='0 0 48 48' fill='none'
-        style={{ position:'absolute', top:0, left:0, animation: lfR \ ease-in-out infinite 1.6s }}>
-        <circle cx='34' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
-        <path d='M41 32C41 28.5 38 27 34 27' stroke='rgba(255,255,255,0.6)' strokeWidth='2' strokeLinecap='round' fill='none'/>
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ position:'absolute', top:0, left:0, animation: animR }}>
+        <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
+        <path d="M41 32C41 28.5 38 27 34 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
       </svg>
     </div>
   )
 }
-
 
 const menuSections = [
   { label: 'Principal', items: [
@@ -183,7 +183,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
       <aside style={{ width: open ? 200 : 52, background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'width 0.2s', overflow:'hidden', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
 
-        {/* Nombre empresa — parte superior */}
+        {/* Nombre empresa */}
         <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
           {empresaLogo ? (
             <img src={empresaLogo} alt="logo" style={{ width:28, height:28, borderRadius:6, objectFit:'cover', flexShrink:0 }} />
@@ -220,7 +220,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                     <span style={{ flexShrink:0, opacity: isActive ? 1 : 0.75 }}>{item.icon}</span>
                     {open && <span className="nav-label">{item.label}</span>}
                     {item.href === '/notificaciones' && noLeidas > 0 && (
-                      <span style={{ marginLeft: 'auto', background: '#dc2626', color: '#fff', borderRadius: '50%', fontSize: 10, fontWeight: 700, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                      <span style={{ marginLeft:'auto', background:'#dc2626', color:'#fff', borderRadius:'50%', fontSize:10, fontWeight:700, minWidth:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>
                         {noLeidas > 9 ? '9+' : noLeidas}
                       </span>
                     )}
@@ -230,24 +230,15 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           ))}
         </nav>
+
         {/* CLIMA WIDGET */}
-        {open && (
-          <ClimaWidget />
-        )}
-                {/* LOGO FULL — logo Scheduleo + nombre + version */}
+        {open && <ClimaWidget />}
+
+        {/* LOGO FULL — logo Scheduleo + nombre + version */}
         {open && (
           <div style={{ padding:'16px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-              <svg width="54" height="54" viewBox="0 0 48 48" fill="none" style={{ flexShrink:0 }}>
-                <rect width="48" height="48" rx="12" fill={accentColor}/>
-                <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
-                <circle cx="24" cy="16" r="5" fill="white"/>
-                <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-                <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
-                <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
-                <path d="M7 32C7 28.5 10 27 14 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
-                <path d="M41 32C41 28.5 38 27 34 27" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              </svg>
+              <LogoAnimado accentColor={accentColor} />
               <div>
                 <div style={{ color:'#fff', fontWeight:700, fontSize:17, letterSpacing:'-0.3px', lineHeight:1.1 }}>Scheduleo</div>
                 <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, marginTop:3 }}>v2.0</div>
@@ -259,7 +250,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           <div style={{ padding:'12px 0', borderTop:'1px solid rgba(255,255,255,0.06)', display:'flex', justifyContent:'center' }}>
             <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
               <rect width="48" height="48" rx="12" fill={accentColor}/>
-                <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
+              <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
               <circle cx="24" cy="16" r="5" fill="white"/>
               <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
               <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
@@ -296,7 +287,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 </button>
               ))}
             </div>
-            
             <div className="flex items-center justify-center w-8 h-8 text-white font-bold text-xs cursor-pointer flex-shrink-0"
               style={{ background:accentColor, borderRadius:4 }}>
               A
