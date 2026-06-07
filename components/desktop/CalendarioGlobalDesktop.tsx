@@ -10,16 +10,15 @@ type DayConfig = {
 
 const grupoColors: Record<string,{ solid:string }> = {
   G1A:{solid:'#6366f1'}, G1B:{solid:'#4f46e5'}, G2A:{solid:'#0891b2'}, G2B:{solid:'#0e7490'},
-  G3A:{solid:'#6366f1'}, G3B:{solid:'#4f46e5'}, L1:{solid:'#d97706'}, L2:{solid:'#ca8a04'}, L3:{solid:'#16a34a'},
+  G3A:{solid:'#16a34a'}, G3B:{solid:'#15803d'}, L1:{solid:'#d97706'}, L2:{solid:'#ca8a04'}, L3:{solid:'#dc2626'},
 }
 
 const todosLosGrupos = ['G1A','G1B','G2A','G2B','G3A','G3B','L1','L2','L3']
 const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-const diasCortos = ['dom','lun','mar','mié','jue','vie','sáb']
+const mesesCortos = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+const diasCortos = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
 
-function getDaysInMonth(currentMonth: Date) {
-  const year = currentMonth.getFullYear()
-  const month = currentMonth.getMonth()
+function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
   const firstDay = new Date(year, month, 1)
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   let startDow = firstDay.getDay() - 1
@@ -45,418 +44,385 @@ function getDaysInMonth(currentMonth: Date) {
   return days
 }
 
-function chunkWeeks(days: (DayConfig|null)[]): (DayConfig|null)[][] {
-  const weeks: (DayConfig|null)[][] = []
-  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i+7))
-  while (weeks[weeks.length-1].length < 7) weeks[weeks.length-1].push(null)
-  return weeks
+function getMiniMonthDays(year: number, month: number) {
+  return getDaysInMonth(year, month)
 }
 
+function getDayBg(tipo: string) {
+  if (tipo === 'festivo') return '#f5f3ff'
+  if (tipo === 'domingo') return '#fff5f5'
+  return '#fff'
+}
+
+function getDayBorder(tipo: string) {
+  if (tipo === 'festivo') return '#c4b5fd'
+  if (tipo === 'domingo') return '#fca5a5'
+  return 'var(--color-border-tertiary, #e8eaf0)'
+}
+
+function getDayColor(tipo: string) {
+  if (tipo === 'festivo') return '#7c3aed'
+  if (tipo === 'domingo') return '#dc2626'
+  return 'var(--color-text-primary, #1e1b4b)'
+}
+
+function getDaysInMonthCount(year: number, month: number) {
+  const days = getDaysInMonth(year, month)
+  return {
+    laborales: days.filter(d => d?.tipo === 'trabajo').length,
+    festivos: days.filter(d => d?.tipo === 'festivo').length,
+    domingos: days.filter(d => d?.tipo === 'domingo').length,
+  }
+}
+
+type Vista = 'anual' | 'mensual' | 'agenda'
+
 export default function CalendarioGlobalDesktop() {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 4))
-  const [filterGrupo, setFilterGrupo]   = useState('todos')
-  const [filterSede, setFilterSede]     = useState('todas')
-  const [vistaDetallada, setVistaDetallada] = useState(false)
-  const [selectedDay, setSelectedDay]   = useState<DayConfig|null>(null)
-  const [hoveredDay, setHoveredDay]     = useState<string|null>(null)
-  const [hoveredWeek, setHoveredWeek]   = useState<number|null>(null)
+  const hoy = new Date()
+  const [vista, setVista] = useState<Vista>('anual')
+  const [anio, setAnio] = useState(hoy.getFullYear())
+  const [mes, setMes] = useState(hoy.getMonth())
+  const [diaSeleccionado, setDiaSeleccionado] = useState<DayConfig | null>(null)
+  const [filterGrupo, setFilterGrupo] = useState('todos')
+  const [filterSede, setFilterSede] = useState('todas')
 
-  const days  = getDaysInMonth(currentMonth)
-  const weeks = chunkWeeks(days)
+  const irAMes = (m: number) => { setMes(m); setVista('mensual') }
+  const irADia = (d: DayConfig) => { setDiaSeleccionado(d); setVista('agenda') }
+  const volverAAnual = () => setVista('anual')
+  const volverAMensual = () => setVista('mensual')
 
-  const toggleGrupo = (grupo: string) => {
-    if (!selectedDay) return
-    const grupos = [...selectedDay.grupos]
-    const idx = grupos.indexOf(grupo)
-    idx > -1 ? grupos.splice(idx, 1) : grupos.push(grupo)
-    setSelectedDay({ ...selectedDay, grupos })
-  }
+  const daysMes = getDaysInMonth(anio, mes)
 
-  const toggleLibranza = (grupo: string, tipo: 'completa'|'media') => {
-    if (!selectedDay) return
-    const libranzas = [...selectedDay.libranzas]
-    const idx = libranzas.findIndex(l => l.grupo === grupo)
-    idx > -1 ? libranzas.splice(idx, 1) : libranzas.push({ grupo, empleados:[], tipo })
-    setSelectedDay({ ...selectedDay, libranzas })
-  }
-
-  // Colores por tipo — light y dark
-  const getCellBg    = (tipo:string) => tipo==='festivo' ? '#f5f3ff' : tipo==='domingo' ? '#fff1f2' : 'var(--surface)'
-  const getCellBorder= (tipo:string) => tipo==='festivo' ? '#c4b5fd' : tipo==='domingo' ? '#fca5a5' : 'var(--border-strong)'
-  const getNumColor  = (tipo:string) => tipo==='festivo' ? '#a78bfa' : tipo==='domingo' ? '#f87171' : 'var(--text-muted)'
-  const getDiaColor  = (tipo:string) => tipo==='festivo' ? '#c4b5fd' : tipo==='domingo' ? '#fca5a5' : 'var(--text-muted)'
+  const inputStyle = { padding: '7px 12px', border: '1px solid var(--color-border-tertiary, #e8eaf0)', borderRadius: 8, fontSize: 13, background: '#fff', color: '#1e1b4b', outline: 'none' }
 
   return (
-    <div className="space-y-4">
+    <div style={{ padding: 0, maxWidth: 1200, margin: '0 auto' }}>
 
-      {/* Banner */}
-      <div style={{ display:'flex', gap:10, alignItems:'flex-start', background:'var(--surface)', borderLeft:'3px solid #6366f1', borderRadius:'0 4px 4px 0', padding:'10px 14px', border:'1px solid var(--border)' }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}>
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <div>
-          <p style={{ fontSize:13, fontWeight:600, color:'#1e40af' }}>Calendario de asignación de grupos</p>
-          <p style={{ fontSize:12, color:'#3b82f6', marginTop:2 }}>Haz clic en cualquier día para asignar grupos de trabajo, añadir libranzas o marcar festivos especiales.</p>
+      {/* Header con breadcrumb y controles */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={volverAAnual}
+            style={{ background: vista === 'anual' ? '#6366f1' : '#f0f4ff', color: vista === 'anual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+            {anio}
+          </button>
+          {(vista === 'mensual' || vista === 'agenda') && (
+            <>
+              <span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
+              <button onClick={volverAMensual}
+                style={{ background: vista === 'mensual' ? '#6366f1' : '#f0f4ff', color: vista === 'mensual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                {meses[mes]}
+              </button>
+            </>
+          )}
+          {vista === 'agenda' && diaSeleccionado && (
+            <>
+              <span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
+              <span style={{ background: '#6366f1', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500 }}>
+                {diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
+              </span>
+            </>
+          )}
         </div>
-      </div>
 
-      {/* Controles */}
-      <div className="card p-4 flex flex-col lg:flex-row gap-3 items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1))}
-            className="btn-secondary w-9 h-9 flex items-center justify-center">←</button>
-          <div className="text-center min-w-[160px]">
-            <p style={{ fontSize:22, fontWeight:700, color:'var(--text-primary)', lineHeight:1.1 }}>{meses[currentMonth.getMonth()]}</p>
-            <p style={{ fontSize:14, fontWeight:500, color:'var(--text-secondary)', marginTop:2 }}>{currentMonth.getFullYear()}</p>
-          </div>
-          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1))}
-            className="btn-secondary w-9 h-9 flex items-center justify-center">→</button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <select value={filterSede} onChange={e=>setFilterSede(e.target.value)}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {vista === 'anual' && (
+            <>
+              <button onClick={() => setAnio(a => a - 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
+              <button onClick={() => setAnio(a => a + 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
+            </>
+          )}
+          {vista === 'mensual' && (
+            <>
+              <button onClick={() => { if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }}
+                style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
+              <button onClick={() => { if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }}
+                style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
+            </>
+          )}
+          <select value={filterSede} onChange={e => setFilterSede(e.target.value)} style={inputStyle}>
             <option value="todas">Todas las sedes</option>
             <option value="madrid">Madrid Centro</option>
             <option value="vallecas">Vallecas</option>
           </select>
-          <select value={filterGrupo} onChange={e=>setFilterGrupo(e.target.value)}>
+          <select value={filterGrupo} onChange={e => setFilterGrupo(e.target.value)} style={inputStyle}>
             <option value="todos">Todos los grupos</option>
-            {todosLosGrupos.map(g=><option key={g} value={g}>{g}</option>)}
+            {todosLosGrupos.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
-          <button onClick={()=>setVistaDetallada(!vistaDetallada)} className="btn-secondary text-xs px-3 py-1.5">
-            {vistaDetallada ? 'Vista compacta' : 'Vista detallada'}
-          </button>
         </div>
       </div>
 
-      {/* Leyenda */}
-      <div className="card px-4 py-2.5 flex flex-wrap gap-4 items-center">
-        {[
-          { label:'Laboral', bg:'var(--surface)', border:'var(--border-strong)' },
-          { label:'Festivo', bg:'#f5f3ff', border:'#c4b5fd' },
-          { label:'Domingo', bg:'#fff1f2', border:'#fca5a5' },
-        ].map(l=>(
-          <div key={l.label} className="flex items-center gap-1.5">
-            <div style={{ width:14, height:14, background:l.bg, border:`1px solid ${l.border}`, borderRadius:2 }} />
-            <span style={{ fontSize:12, color:'var(--text-secondary)' }}>{l.label}</span>
-          </div>
-        ))}
-        <div className="ml-auto flex flex-wrap gap-2">
-          {Object.entries(grupoColors).map(([key,val])=>(
-            <div key={key} className="flex items-center gap-1">
-              <div style={{ width:8, height:8, background:val.solid, borderRadius:2 }} />
-              <span style={{ fontSize:10, color:'var(--text-muted)', fontWeight:600 }}>{key}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* VISTA ANUAL */}
+      {vista === 'anual' && (
+        <div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            {Array.from({ length: 12 }, (_, m) => {
+              const stats = getDaysInMonthCount(anio, m)
+              const days = getDaysInMonth(anio, m)
+              const esHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
+              return (
+                <div key={m} onClick={() => irAMes(m)}
+                  style={{ background: '#fff', border: esHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.12)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: esHoy ? '#6366f1' : '#1e1b4b' }}>{meses[m]}</div>
+                    {esHoy && <span style={{ background: '#6366f1', color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>Hoy</span>}
+                  </div>
 
-      {/* Semanas flotantes — sin cabecera, días dentro de cada celda */}
-      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-        {weeks.map((week, wi) => {
-          const isWeekHov = hoveredWeek === wi
-          const hasHoveredDay = hoveredDay?.startsWith(`${wi}-`) ?? false
-          return (
-            <div key={wi}
-              onMouseEnter={()=>setHoveredWeek(wi)}
-              onMouseLeave={()=>setHoveredWeek(null)}
-              style={{
-                display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:5, padding:'6px',
-                borderRadius:6, position:'relative',
-                background: isWeekHov ? 'rgba(2,132,199,0.08)' : 'rgba(2,132,199,0.04)',
-                border:`1px solid ${isWeekHov ? 'rgba(2,132,199,0.4)' : 'rgba(2,132,199,0.15)'}`,
-                boxShadow: isWeekHov ? '0 4px 16px rgba(2,132,199,.15)' : '0 1px 3px rgba(0,0,0,.06)',
-                transform: isWeekHov ? 'translateY(-2px)' : 'translateY(0)',
-                transition:'all .2s ease',
-              }}
-            >
-              {week.map((dayData, di) => {
-                if (!dayData) return (
-                  <div key={di} style={{
-                    aspectRatio: vistaDetallada ? 'auto' : '1 / 1',
-                    minHeight: vistaDetallada ? 88 : undefined,
-                    borderRadius:4, border:'1px dashed rgba(2,132,199,0.12)', background:'transparent',
-                    opacity: hasHoveredDay ? 0.35 : 1,
-                    transition:'opacity .18s ease',
-                  }} />
-                )
-
-                const { day, tipo, grupos, libranzas, date } = dayData
-                const key  = `${wi}-${di}`
-                const isHov = hoveredDay === key
-                const diaNombre = diasCortos[date.getDay()]
-
-                return (
-                  <div key={di}
-                    onMouseEnter={()=>setHoveredDay(key)}
-                    onMouseLeave={()=>setHoveredDay(null)}
-                    style={{
-                      position:'relative',
-                      zIndex: isHov ? 20 : 1,
-                      opacity: hasHoveredDay && !isHov ? 0.3 : 1,
-                      transition:'opacity .18s ease',
-                    }}
-                  >
-                    {/* Panel izquierdo — letras de grupos */}
-                    {isHov && grupos.length > 0 && (
-                      <div style={{
-                        position:'absolute', right:'calc(100% + 6px)', top:'50%', transform:'translateY(-50%)',
-                        display:'flex', flexDirection:'column', gap:3, alignItems:'flex-end',
-                        zIndex:30, pointerEvents:'none',
-                      }}>
-                        {grupos.map(g=>(
-                          <span key={g} style={{
-                            fontSize:10, fontWeight:700, color:'#fff',
-                            background:grupoColors[g]?.solid,
-                            borderRadius:3, padding:'2px 6px',
-                            whiteSpace:'nowrap',
-                            boxShadow:'0 1px 4px rgba(0,0,0,.2)',
-                          }}>{g}</span>
-                        ))}
+                  {/* Mini calendario */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 10 }}>
+                    {['L','M','X','J','V','S','D'].map(d => (
+                      <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#a0aec0', fontWeight: 600, padding: '2px 0' }}>{d}</div>
+                    ))}
+                    {getDaysInMonth(anio, m).map((d, i) => (
+                      <div key={i} style={{
+                        textAlign: 'center', fontSize: 10, padding: '2px 0', borderRadius: 3,
+                        color: !d ? 'transparent' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#718096',
+                        background: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#6366f1' : 'transparent',
+                        fontWeight: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? 700 : 400,
+                      }} style={{ color: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#fff' : undefined }}>
+                        {d ? d.day : ''}
                       </div>
-                    )}
+                    ))}
+                  </div>
 
-                    {/* Panel derecho — dots de color */}
-                    {isHov && grupos.length > 0 && (
-                      <div style={{
-                        position:'absolute', left:'calc(100% + 6px)', top:'50%', transform:'translateY(-50%)',
-                        display:'flex', flexDirection:'column', gap:4, alignItems:'flex-start',
-                        zIndex:30, pointerEvents:'none',
-                      }}>
-                        {grupos.map(g=>(
-                          <div key={g} style={{
-                            width:10, height:10, borderRadius:'50%',
-                            background:grupoColors[g]?.solid,
-                            boxShadow:`0 0 0 2px var(--surface), 0 0 0 3px ${grupoColors[g]?.solid}40`,
-                          }} />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Celda */}
-                    <div
-                      onClick={()=>setSelectedDay({...dayData})}
-                      className={`day-cell day-cell--${tipo}`}
-                      style={{
-                        aspectRatio: vistaDetallada ? 'auto' : '1 / 1',
-                        minHeight: vistaDetallada ? 88 : undefined,
-                        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                        borderRadius:4, cursor:'pointer', position:'relative',
-                        border:`${isHov?'2px':'1px'} solid ${isHov?'#22d3ee':getCellBorder(tipo)}`,
-                        transform: isHov ? 'scale(1.16)' : 'scale(1)',
-                        boxShadow: isHov ? '0 6px 20px rgba(34,211,238,.18), 0 2px 6px rgba(0,0,0,.1)' : '0 1px 2px rgba(0,0,0,.06)',
-                        transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
-                        userSelect:'none', padding:'4px 4px 6px', overflow:'hidden', gap:2,
-                      }}
-                    >
-                      {isHov && <div style={{ position:'absolute', inset:-4, borderRadius:6, border:'2px solid rgba(34,211,238,.18)', pointerEvents:'none' }} />}
-
-                      {/* Día de la semana — mismo tamaño que el número */}
-                      <span
-                        className={`day-dia--${tipo}`}
-                        style={{
-                          fontSize: isHov ? 20 : 15,
-                          fontWeight: 400,
-                          lineHeight: 1,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.04em',
-                          transition:'font-size .18s cubic-bezier(.34,1.56,.64,1)',
-                          display:'block',
-                          opacity: 0.7,
-                        }}
-                      >
-                        {diaNombre}
-                      </span>
-
-                      {/* Número del día — 30% más grande que antes (17px → 22px) */}
-                      <span
-                        className={`day-num--${tipo}`}
-                        style={{
-                          fontSize: isHov ? 30 : 22,
-                          fontWeight: 600,
-                          lineHeight: 1,
-                          textShadow: '0 1px 3px rgba(0,0,0,0.12)',
-                          transition:'font-size .18s cubic-bezier(.34,1.56,.64,1)',
-                          display:'block',
-                        }}
-                      >
-                        {day}
-                      </span>
-
-                      {/* Dots grupos */}
-                      {grupos.length>0 && !vistaDetallada && (
-                        <div style={{ display:'flex', gap:2.5, flexWrap:'wrap', justifyContent:'center', marginTop:3, maxWidth:40, opacity:isHov?0.7:1, transition:'opacity .18s' }}>
-                          {grupos.slice(0,4).map((g,idx)=>(
-                            <div key={idx} style={{ width:5, height:5, borderRadius:'50%', background:grupoColors[g]?.solid, flexShrink:0 }} />
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Badges vista detallada */}
-                      {vistaDetallada && grupos.length>0 && (
-                        <div style={{ display:'flex', flexWrap:'wrap', gap:2, marginTop:4, justifyContent:'center' }}>
-                          {grupos.map((g,idx)=>(
-                            <span key={idx} style={{ fontSize:9, fontWeight:600, color:'#fff', background:grupoColors[g]?.solid, borderRadius:2, padding:'1px 3px' }}>{g}</span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Barra libranzas */}
-                      {libranzas.length>0 && (
-                        <div style={{
-                          position:'absolute', bottom:0, left:0, right:0, height:isHov?4:3,
-                          borderRadius:'0 0 4px 4px', transition:'height .18s',
-                          background: libranzas.length===1 ? grupoColors[libranzas[0].grupo]?.solid
-                            : `linear-gradient(90deg, ${libranzas.map((l,i)=>`${grupoColors[l.grupo]?.solid} ${i*(100/libranzas.length)}% ${(i+1)*(100/libranzas.length)}%`).join(', ')})`,
-                        }} />
-                      )}
+                  <div style={{ display: 'flex', gap: 6, borderTop: '0.5px solid #e8eaf0', paddingTop: 8 }}>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: '#6366f1' }}>{stats.laborales}</div>
+                      <div style={{ fontSize: 9, color: '#a0aec0' }}>Labor.</div>
                     </div>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: '#7c3aed' }}>{stats.festivos}</div>
+                      <div style={{ fontSize: 9, color: '#a0aec0' }}>Festiv.</div>
+                    </div>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: '#dc2626' }}>{stats.domingos}</div>
+                      <div style={{ fontSize: 9, color: '#a0aec0' }}>Dom.</div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
-                    {/* CSS por tipo */}
-                    <style>{`
-                      .day-cell--trabajo { background: var(--surface); }
-                      .day-cell--festivo { background: #f5f3ff; }
-                      .day-cell--domingo { background: #fff1f2; }
-                      .day-num--trabajo  { color: var(--text-muted); }
-                      .day-num--festivo  { color: #a78bfa; }
-                      .day-num--domingo  { color: #f87171; }
-                      .day-dia--trabajo  { color: var(--text-muted); }
-                      .day-dia--festivo  { color: #c4b5fd; }
-                      .day-dia--domingo  { color: #fca5a5; }
-                      html.dark .day-cell--trabajo { background: #1e2a3a; border-color: #2d3f52 !important; }
-                      html.dark .day-cell--festivo { background: #2e1f4a; border-color: #5b3d8a !important; }
-                      html.dark .day-cell--domingo { background: #3b1a20; border-color: #7f3040 !important; }
-                      html.dark .day-num--trabajo  { color: #6b8aaa; }
-                      html.dark .day-num--festivo  { color: #a78bfa; }
-                      html.dark .day-num--domingo  { color: #f87171; }
-                      html.dark .day-dia--trabajo  { color: #3d5570; }
-                      html.dark .day-dia--festivo  { color: #7c5cbf; }
-                      html.dark .day-dia--domingo  { color: #8b3a45; }
-                    `}</style>
+      {/* VISTA MENSUAL */}
+      {vista === 'mensual' && (
+        <div>
+          <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 16, overflow: 'hidden' }}>
+            {/* Cabecera días semana */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '0.5px solid #e8eaf0' }}>
+              {diasCortos.map((d, i) => (
+                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 12, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>
+                  {d}
+                </div>
+              ))}
+            </div>
+
+            {/* Grid días */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+              {daysMes.map((d, i) => {
+                const esHoyDia = d && hoy.getDate() === d.day && hoy.getMonth() === mes && hoy.getFullYear() === anio
+                const gruposFiltrados = d ? (filterGrupo === 'todos' ? d.grupos : d.grupos.filter(g => g === filterGrupo)) : []
+                return (
+                  <div key={i}
+                    onClick={() => d && irADia(d)}
+                    style={{
+                      minHeight: 90,
+                      padding: '8px 6px',
+                      background: !d ? '#f8f9ff' : esHoyDia ? '#ede9fe' : getDayBg(d.tipo),
+                      border: `0.5px solid ${esHoyDia ? '#6366f1' : '#e8eaf0'}`,
+                      cursor: d ? 'pointer' : 'default',
+                      position: 'relative',
+                      transition: 'all 0.12s',
+                    }}
+                    onMouseEnter={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'brightness(0.96)' }}
+                    onMouseLeave={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'none' }}
+                  >
+                    {d && (
+                      <>
+                        {/* Número del día */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                          <div style={{
+                            width: esHoyDia ? 28 : 'auto',
+                            height: esHoyDia ? 28 : 'auto',
+                            background: esHoyDia ? '#6366f1' : 'transparent',
+                            borderRadius: esHoyDia ? '50%' : 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 18, fontWeight: esHoyDia ? 700 : 400,
+                            color: esHoyDia ? '#fff' : getDayColor(d.tipo),
+                          }}>
+                            {d.day}
+                          </div>
+                          {d.tipo === 'festivo' && (
+                            <span style={{ fontSize: 9, background: '#ede9fe', color: '#6366f1', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Festivo</span>
+                          )}
+                        </div>
+
+                        {/* Chips de grupos */}
+                        {gruposFiltrados.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                            {gruposFiltrados.map(g => (
+                              <span key={g} style={{
+                                fontSize: 9, fontWeight: 700, color: '#fff',
+                                background: grupoColors[g]?.solid,
+                                borderRadius: 3, padding: '1px 4px',
+                              }}>{g}</span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Barra inferior tipo día */}
+                        <div style={{
+                          position: 'absolute', bottom: 0, left: 0, right: 0, height: 3,
+                          background: d.tipo === 'festivo' ? '#7c3aed' : d.tipo === 'domingo' ? '#dc2626' : '#6366f1',
+                          opacity: 0.3,
+                        }} />
+                      </>
+                    )}
                   </div>
                 )
               })}
             </div>
-          )
-        })}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label:'Días laborales', value:days.filter(d=>d?.tipo==='trabajo').length, color:'#6366f1', bg:'#eff6ff' },
-          { label:'Festivos',       value:days.filter(d=>d?.tipo==='festivo').length, color:'#7c3aed', bg:'#f5f3ff' },
-          { label:'Domingos',       value:days.filter(d=>d?.tipo==='domingo').length, color:'#b91c1c', bg:'#fff1f2' },
-        ].map(s=>(
-          <div key={s.label} className="flex items-center justify-between px-4 py-3"
-            style={{ background:s.bg, border:'1px solid var(--border)', borderRadius:4 }}>
-            <span style={{ fontSize:12, color:s.color, fontWeight:500 }}>{s.label}</span>
-            <span style={{ fontSize:22, fontWeight:700, color:s.color }}>{s.value}</span>
           </div>
-        ))}
-      </div>
 
-      {/* Modal */}
-      {selectedDay && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background:'rgba(0,0,0,0.6)' }}
-          onClick={e=>{ if(e.target===e.currentTarget) setSelectedDay(null) }}>
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-            style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:6, boxShadow:'var(--shadow-lg)' }}>
-
-            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid var(--border)' }}>
-              <div>
-                <h2 style={{ fontSize:15, fontWeight:700, color:'var(--text-primary)' }}>Configurar día</h2>
-                <p style={{ fontSize:12, color:'var(--text-muted)', marginTop:2, textTransform:'capitalize' }}>
-                  {selectedDay.date.toLocaleDateString('es-ES',{ weekday:'long', day:'numeric', month:'long', year:'numeric' })}
-                </p>
+          {/* Leyenda grupos */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, padding: '10px 16px', background: '#fff', borderRadius: 10, border: '0.5px solid #e8eaf0' }}>
+            {Object.entries(grupoColors).map(([g, v]) => (
+              <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 2, background: v.solid }} />
+                <span style={{ fontSize: 11, color: '#718096', fontWeight: 600 }}>{g}</span>
               </div>
-              <button onClick={()=>setSelectedDay(null)} className="btn-secondary w-8 h-8 flex items-center justify-center text-sm">✕</button>
+            ))}
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
+              {[{ label: 'Laboral', color: '#6366f1' }, { label: 'Festivo', color: '#7c3aed' }, { label: 'Domingo', color: '#dc2626' }].map(l => (
+                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ width: 10, height: 4, borderRadius: 2, background: l.color, opacity: 0.4 }} />
+                  <span style={{ fontSize: 11, color: '#718096' }}>{l.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VISTA AGENDA */}
+      {vista === 'agenda' && diaSeleccionado && (
+        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
+
+          {/* Mini calendario lateral */}
+          <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, height: 'fit-content' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>{meses[mes]} {anio}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 8 }}>
+              {['L','M','X','J','V','S','D'].map(d => (
+                <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#a0aec0', fontWeight: 600, padding: '2px 0' }}>{d}</div>
+              ))}
+              {daysMes.map((d, i) => (
+                <div key={i} onClick={() => d && irADia(d)}
+                  style={{
+                    textAlign: 'center', fontSize: 11, padding: '4px 2px', borderRadius: 4, cursor: d ? 'pointer' : 'default',
+                    background: d && diaSeleccionado.day === d.day ? '#6366f1' : d?.tipo === 'festivo' ? '#f5f3ff' : d?.tipo === 'domingo' ? '#fff5f5' : 'transparent',
+                    color: d && diaSeleccionado.day === d.day ? '#fff' : d?.tipo === 'domingo' ? '#dc2626' : d?.tipo === 'festivo' ? '#7c3aed' : '#718096',
+                    fontWeight: d && diaSeleccionado.day === d.day ? 700 : 400,
+                  }}>
+                  {d ? d.day : ''}
+                </div>
+              ))}
             </div>
 
-            <div className="p-6 space-y-5">
-              <div className="grid grid-cols-3 gap-3">
+            {/* Stats del mes */}
+            <div style={{ borderTop: '0.5px solid #e8eaf0', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {[
+                { label: 'Días laborales', valor: daysMes.filter(d => d?.tipo === 'trabajo').length, color: '#6366f1' },
+                { label: 'Festivos', valor: daysMes.filter(d => d?.tipo === 'festivo').length, color: '#7c3aed' },
+                { label: 'Domingos', valor: daysMes.filter(d => d?.tipo === 'domingo').length, color: '#dc2626' },
+              ].map(s => (
+                <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 11, color: '#a0aec0' }}>{s.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: s.color }}>{s.valor}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Panel detalle del día */}
+          <div>
+            {/* Cabecera día */}
+            <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20, marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: '#1e1b4b', textTransform: 'capitalize' }}>
+                    {diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </div>
+                  <div style={{ fontSize: 13, color: '#a0aec0', marginTop: 2 }}>
+                    {diaSeleccionado.tipo === 'festivo' ? '🎉 Día festivo' : diaSeleccionado.tipo === 'domingo' ? '📅 Domingo' : '💼 Día laboral'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => {
+                      const dias = daysMes.filter(d => d !== null) as DayConfig[]
+                      const idx = dias.findIndex(d => d.day === diaSeleccionado.day)
+                      if (idx > 0) setDiaSeleccionado(dias[idx - 1])
+                    }}
+                    style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>
+                    ← Anterior
+                  </button>
+                  <button
+                    onClick={() => {
+                      const dias = daysMes.filter(d => d !== null) as DayConfig[]
+                      const idx = dias.findIndex(d => d.day === diaSeleccionado.day)
+                      if (idx < dias.length - 1) setDiaSeleccionado(dias[idx + 1])
+                    }}
+                    style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>
+                    Siguiente →
+                  </button>
+                </div>
+              </div>
+
+              {/* KPIs del día */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {[
-                  { label:'Tipo',    value:selectedDay.tipo.charAt(0).toUpperCase()+selectedDay.tipo.slice(1) },
-                  { label:'Grupos',  value:String(selectedDay.grupos.length) },
-                  { label:'Libranzas', value:String(selectedDay.libranzas.length) },
-                ].map(info=>(
-                  <div key={info.label} className="px-4 py-3" style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:4 }}>
-                    <p style={{ fontSize:11, color:'var(--text-muted)' }}>{info.label}</p>
-                    <p style={{ fontSize:18, fontWeight:700, color:'var(--text-primary)', marginTop:2 }}>{info.value}</p>
+                  { label: 'Grupos activos', valor: diaSeleccionado.grupos.length, color: '#6366f1', bg: '#ede9fe' },
+                  { label: 'Empleados est.', valor: diaSeleccionado.grupos.length * 12, color: '#059669', bg: '#d1fae5' },
+                  { label: 'Libranzas', valor: diaSeleccionado.libranzas.length, color: '#d97706', bg: '#fef9c3' },
+                ].map(k => (
+                  <div key={k.label} style={{ background: k.bg, borderRadius: 10, padding: '12px 16px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: k.color }}>{k.valor}</div>
+                    <div style={{ fontSize: 11, color: k.color, opacity: 0.7, marginTop: 2 }}>{k.label}</div>
                   </div>
                 ))}
               </div>
-
-              <div>
-                <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)', marginBottom:8 }}>Grupos asignados</p>
-                <div className="flex flex-wrap gap-2">
-                  {todosLosGrupos.map(grupo=>{
-                    const sel = selectedDay.grupos.includes(grupo)
-                    return (
-                      <button key={grupo} onClick={()=>toggleGrupo(grupo)}
-                        style={{ padding:'6px 12px', fontSize:12, fontWeight:700, borderRadius:4, transition:'all .15s',
-                          background:sel?grupoColors[grupo]?.solid:'var(--surface-2)',
-                          color:sel?'#fff':'var(--text-secondary)',
-                          border:`1px solid ${sel?grupoColors[grupo]?.solid:'var(--border-strong)'}` }}>{grupo}</button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {selectedDay.grupos.length>0 && (
-                <div>
-                  <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)', marginBottom:8 }}>Libranzas</p>
-                  <div className="space-y-2">
-                    {selectedDay.grupos.map(grupo=>{
-                      const lib = selectedDay.libranzas.find(l=>l.grupo===grupo)
-                      return (
-                        <div key={grupo} className="flex items-center justify-between px-4 py-3"
-                          style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:4 }}>
-                          <div className="flex items-center gap-2">
-                            <div style={{ width:8, height:8, background:grupoColors[grupo]?.solid, borderRadius:2 }} />
-                            <span style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>{grupo}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            {(['completa','media'] as const).map(t=>(
-                              <button key={t} onClick={()=>toggleLibranza(grupo,t)}
-                                style={{ padding:'4px 12px', fontSize:12, fontWeight:500, borderRadius:3, transition:'all .15s',
-                                  background:lib?.tipo===t?'#6366f1':'var(--surface)',
-                                  color:lib?.tipo===t?'#fff':'var(--text-secondary)',
-                                  border:`1px solid ${lib?.tipo===t?'#6366f1':'var(--border-strong)'}` }}>
-                                {t==='completa'?'Completa':'Media jornada'}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)', marginBottom:8 }}>Marcas especiales</p>
-                <div className="flex gap-2">
-                  {[{ key:'esFestivo', label:'Festivo', color:'#7c3aed' },{ key:'esEspecial', label:'Día especial', color:'#d97706' }].map(m=>{
-                    const active = selectedDay[m.key as keyof DayConfig] as boolean
-                    return (
-                      <button key={m.key} onClick={()=>setSelectedDay({...selectedDay,[m.key]:!active})}
-                        style={{ padding:'6px 16px', fontSize:12, fontWeight:600, borderRadius:4, transition:'all .15s',
-                          background:active?m.color:'var(--surface-2)', color:active?'#fff':'var(--text-secondary)',
-                          border:`1px solid ${active?m.color:'var(--border-strong)'}` }}>{m.label}</button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4" style={{ borderTop:'1px solid var(--border)' }}>
-                <button onClick={()=>setSelectedDay(null)} className="btn-secondary flex-1 py-2">Cancelar</button>
-                <button onClick={()=>{ console.log('Guardado:',selectedDay); setSelectedDay(null) }} className="btn-primary flex-1 py-2">Guardar cambios</button>
-              </div>
             </div>
+
+            {/* Grupos del día */}
+            {diaSeleccionado.grupos.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {diaSeleccionado.grupos.map(g => (
+                  <div key={g} style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 4, height: 48, background: grupoColors[g]?.solid, borderRadius: 2, flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>{g}</div>
+                      <div style={{ fontSize: 12, color: '#a0aec0' }}>Turno asignado · 12 empleados estimados</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <span style={{ background: grupoColors[g]?.solid + '20', color: grupoColors[g]?.solid, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
+                        Activo
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 12, padding: 40, textAlign: 'center', color: '#a0aec0', fontSize: 14 }}>
+                {diaSeleccionado.tipo === 'domingo' ? 'Domingo — sin grupos asignados' : diaSeleccionado.tipo === 'festivo' ? 'Día festivo — sin grupos asignados' : 'Sin grupos asignados para este día'}
+              </div>
+            )}
           </div>
         </div>
       )}
     </div>
   )
 }
-
