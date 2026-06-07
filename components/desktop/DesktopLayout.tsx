@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "@/components/providers/ThemeProvider"
-import NotificationBell from "@/components/NotificationBell"
+import { useNotifications } from "@/components/providers/NotificationProvider"
 
 const Icons = {
   dashboard:      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
@@ -68,6 +68,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [open, setOpen] = useState(true)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
+  const { noLeidas } = useNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
 
   useEffect(() => {
@@ -127,6 +128,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                   >
                     <span style={{ flexShrink:0, opacity: isActive ? 1 : 0.75 }}>{item.icon}</span>
                     {open && <span className="nav-label">{item.label}</span>}
+                    {item.href === '/notificaciones' && noLeidas > 0 && (
+                      <span style={{ marginLeft: 'auto', background: '#dc2626', color: '#fff', borderRadius: '50%', fontSize: 10, fontWeight: 700, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                        {noLeidas > 9 ? '9+' : noLeidas}
+                      </span>
+                    )}
                   </Link>
                 )
               })}
@@ -196,7 +202,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 </button>
               ))}
             </div>
-            <NotificationBell />
+            
             <div className="flex items-center justify-center w-8 h-8 text-white font-bold text-xs cursor-pointer flex-shrink-0"
               style={{ background:accentColor, borderRadius:4 }}>
               A
