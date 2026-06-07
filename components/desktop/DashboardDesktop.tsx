@@ -1,5 +1,6 @@
 "use client"
 import InspectorBanner from "@/components/desktop/InspectorBanner"
+import { useState, useEffect } from "react"
 
 const kpis = [
   { label: "Empleados activos", valor: 68, trend: "+3%", up: true, color: "#6366f1", bg: "#ede9fe", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
@@ -30,10 +31,92 @@ const actividad = [
   { icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", txt: "Anticipo solicitado", emp: "Ana Sánchez", tiempo: "2h", color: "#ec4899", bg: "#fce7f3" },
 ]
 
+function ClimaWidget() {
+  const [hora, setHora] = useState("")
+  const [fecha, setFecha] = useState("")
+  const [clima, setClima] = useState<any>(null)
+  const [ciudad, setCiudad] = useState("")
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      setHora(now.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" }))
+      setFecha(now.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))
+    }
+    tick()
+    const interval = setInterval(tick, 1000)
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude } = pos.coords
+        try {
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,windspeed_10m,relative_humidity_2m&timezone=auto`)
+          const data = await res.json()
+          setClima(data.current)
+
+          const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+          const geoData = await geoRes.json()
+          setCiudad(geoData.address?.city || geoData.address?.town || geoData.address?.village || "")
+        } catch (e) {}
+        setCargando(false)
+      }, () => setCargando(false))
+    } else {
+      setCargando(false)
+    }
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const getClimaIcon = (code: number) => {
+    if (code === 0) return "☀️"
+    if (code <= 3) return "⛅"
+    if (code <= 48) return "🌫️"
+    if (code <= 67) return "🌧️"
+    if (code <= 77) return "❄️"
+    if (code <= 82) return "🌦️"
+    return "⛈️"
+  }
+
+  const getClimaDesc = (code: number) => {
+    if (code === 0) return "Despejado"
+    if (code <= 3) return "Parcialmente nublado"
+    if (code <= 48) return "Niebla"
+    if (code <= 67) return "Lluvia"
+    if (code <= 77) return "Nieve"
+    if (code <= 82) return "Chubascos"
+    return "Tormenta"
+  }
+
+  return (
+    <div style={{ background: "linear-gradient(135deg, #1e1b4b, #312e81)", borderRadius: 16, padding: "20px 24px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div>
+        <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: "-1px", lineHeight: 1 }}>{hora}</div>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 4, textTransform: "capitalize" }}>{fecha}</div>
+        {ciudad && <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>📍 {ciudad}</div>}
+      </div>
+      {!cargando && clima && (
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: 48 }}>{getClimaIcon(clima.weathercode)}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1 }}>{Math.round(clima.temperature_2m)}°C</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>{getClimaDesc(clima.weathercode)}</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+            💨 {Math.round(clima.windspeed_10m)} km/h · 💧 {clima.relative_humidity_2m}%
+          </div>
+        </div>
+      )}
+      {cargando && (
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Obteniendo clima...</div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardDesktop() {
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
       <InspectorBanner />
+      <ClimaWidget />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
         {kpis.map((k, i) => (
