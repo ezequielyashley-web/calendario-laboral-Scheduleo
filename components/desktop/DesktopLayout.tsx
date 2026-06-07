@@ -13,6 +13,7 @@ const Icons = {
   notificaciones: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
   reportes:       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
   vacaciones:     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 3a3 3 0 0 0-3 3l-7 3a3 3 0 0 0 0 6l7 3a3 3 0 1 0 3-3l-7-3 7-3A3 3 0 0 0 18 3z"/></svg>,
+  grupos:        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><circle cx="17" cy="11" r="3"/><path d="M21 21v-1a3 3 0 0 0-3-3h-2"/></svg>,
   fichajes:       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
   cambiosTurno:   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>,
   bajas:          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
@@ -122,6 +123,7 @@ const menuSections = [
     { href: '/empleados',         icon: Icons.empleados,      label: 'Empleados'      },
     { href: '/calendario-global', icon: Icons.calendario,     label: 'Calendario'     },
     { href: '/fichajes',          icon: Icons.fichajes,       label: 'Fichajes'       },
+    { href: '/grupos',            icon: Icons.grupos,         label: 'Grupos'         },
   ]},
   { label: 'Gestión', items: [
     { href: '/vacaciones',        icon: Icons.vacaciones,     label: 'Vacaciones'     },
@@ -146,6 +148,7 @@ const pageTitles: Record<string, string> = {
   '/reportes':          'Reportes',
   '/vacaciones':        'Vacaciones',
   '/fichajes':          'Fichajes',
+  '/grupos':            'Grupos',
   '/cambios-turno':     'Cambios de Turno',
   '/bajas':             'Bajas Médicas',
   '/chat':              'Chat',
