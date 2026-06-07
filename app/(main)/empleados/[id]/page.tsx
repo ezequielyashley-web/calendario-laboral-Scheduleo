@@ -746,6 +746,22 @@ export default function PerfilEmpleadoPage() {
             <div style={{ background: "#dbeafe", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#1e40af" }}>
               <strong>{empleado.nombre} {empleado.apellidos}</strong> · Días disponibles: <strong>{(empleado.diasVacaciones ?? 22) - (empleado.vacaciones?.filter(v => v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0)}</strong>
             </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Tipo de vacación *</label>
+              <select value={formVacacion.tipo} onChange={e => setFormVacacion(p => ({ ...p, tipo: e.target.value }))}
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }}>
+                <option value="VERANO">☀️ Verano</option>
+                <option value="INVIERNO">❄️ Invierno</option>
+                <option value="MES_COMPLETO">📅 Mes completo</option>
+                <option value="LIBRE_ELECCION">🗓️ Libre elección</option>
+                <option value="ASUNTOS_PROPIOS">📋 Asuntos propios</option>
+              </select>
+              {formVacacion.tipo === "ASUNTOS_PROPIOS" && (
+                <p style={{ fontSize: 11, color: "#9d174d", marginTop: 4, background: "#fce7f3", padding: "6px 10px", borderRadius: 4 }}>
+                  Art. 37.3 ET · 6 días de asuntos propios al año · no acumulables al siguiente año
+                </p>
+              )}
+            </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
                 <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Fecha inicio *</label>

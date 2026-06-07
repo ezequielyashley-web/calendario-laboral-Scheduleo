@@ -257,7 +257,7 @@ export default function VacacionesDesktop() {
                           )}
                         </div>
                       </td>
-                      </td>
+
                       <td style={{ padding:'10px 16px', fontSize:13, fontWeight:600, color:'var(--text-primary)', textAlign:'center' }}>
                         {v.diasTotales}
                       </td>
