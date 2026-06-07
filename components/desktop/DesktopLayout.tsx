@@ -75,6 +75,47 @@ function ClimaWidget() {
   )
 }
 
+function LogoAnimado({ accentColor }: { accentColor: string }) {
+  const [hover, setHover] = useState(false)
+  const dur = hover ? '1.2s' : '3s'
+  const amp = hover ? '-3px' : '-1.5px'
+  const ampSide = hover ? '-2px' : '-1px'
+  return (
+    <div style={{ flexShrink:0, width:54, height:54, position:'relative', cursor:'pointer' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
+      <style>{
+        @keyframes lfC { 0%,100%{transform:translateY(0)} 50%{transform:translateY(VAR_AMP)} }
+        @keyframes lfL { 0%,100%{transform:translateY(0)} 50%{transform:translateY(VAR_SIDE)} }
+        @keyframes lfR { 0%,100%{transform:translateY(0)} 50%{transform:translateY(VAR_SIDE)} }
+        @keyframes lfP { 0%,100%{opacity:VAR_P1} 50%{opacity:VAR_P2} }
+      }</style>
+      <svg width='54' height='54' viewBox='0 0 48 48' fill='none' style={{ position:'absolute', top:0, left:0 }}>
+        <rect width='48' height='48' rx='12' fill={accentColor}/>
+        <rect x='1.5' y='1.5' width='45' height='45' rx='11' fill='none' stroke='rgba(255,255,255,0.4)' strokeWidth='1'/>
+        <rect x='10' y='10' width='28' height='28' rx='6' fill='rgba(255,255,255,0.08)'
+          style={{ animation: lfP \ ease-in-out infinite }}/>
+      </svg>
+      <svg width='54' height='54' viewBox='0 0 48 48' fill='none'
+        style={{ position:'absolute', top:0, left:0, animation: lfC \ ease-in-out infinite }}>
+        <circle cx='24' cy='16' r='5' fill='white'/>
+        <path d='M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34' stroke='white' strokeWidth='2.5' strokeLinecap='round' fill='none'/>
+      </svg>
+      <svg width='54' height='54' viewBox='0 0 48 48' fill='none'
+        style={{ position:'absolute', top:0, left:0, animation: lfL \ ease-in-out infinite 0.8s }}>
+        <circle cx='14' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
+        <path d='M7 32C7 28.5 10 27 14 27' stroke='rgba(255,255,255,0.6)' strokeWidth='2' strokeLinecap='round' fill='none'/>
+      </svg>
+      <svg width='54' height='54' viewBox='0 0 48 48' fill='none'
+        style={{ position:'absolute', top:0, left:0, animation: lfR \ ease-in-out infinite 1.6s }}>
+        <circle cx='34' cy='20' r='3.5' fill='rgba(255,255,255,0.6)'/>
+        <path d='M41 32C41 28.5 38 27 34 27' stroke='rgba(255,255,255,0.6)' strokeWidth='2' strokeLinecap='round' fill='none'/>
+      </svg>
+    </div>
+  )
+}
+
+
 const menuSections = [
   { label: 'Principal', items: [
     { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
