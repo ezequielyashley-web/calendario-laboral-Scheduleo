@@ -161,12 +161,12 @@ export default function CalendarioGlobalDesktop() {
               const esHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
               return (
                 <div key={m} onClick={() => irAMes(m)}
-                  style={{ background: '#fff', border: esHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+                  style={{ background: 'var(--color-background-primary, #fff)', border: esHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.12)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: esHoy ? '#6366f1' : '#1e1b4b' }}>{meses[m]}</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: esHoy ? '#6366f1' : 'var(--color-text-primary, #1e1b4b)' }}>{meses[m]}</div>
                     {esHoy && <span style={{ background: '#6366f1', color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>Hoy</span>}
                   </div>
 
@@ -178,7 +178,7 @@ export default function CalendarioGlobalDesktop() {
                     {getDaysInMonth(anio, m).map((d, i) => (
                       <div key={i} style={{
                         textAlign: 'center', fontSize: 10, padding: '2px 0', borderRadius: 3,
-                        color: !d ? 'transparent' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#718096',
+                        color: !d ? 'transparent' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : 'var(--color-text-secondary, #718096)',
                         background: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#6366f1' : 'transparent',
                         fontWeight: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? 700 : 400,
                       }} style={{ color: d && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio ? '#fff' : undefined }}>
