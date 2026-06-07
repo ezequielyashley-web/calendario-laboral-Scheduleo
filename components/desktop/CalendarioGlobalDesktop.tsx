@@ -187,7 +187,7 @@ export default function CalendarioGlobalDesktop() {
           <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 16, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '0.5px solid #e8eaf0' }}>
               {diasCortos.map((d, i) => (
-                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 12, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>{d}</div>
+                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 13, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>{d}</div>
               ))}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
@@ -196,14 +196,14 @@ export default function CalendarioGlobalDesktop() {
                 const gruposFiltrados = d ? (filterGrupo === 'todos' ? d.grupos : d.grupos.filter(g => g === filterGrupo)) : []
                 return (
                   <div key={i} onClick={() => d && irADia(d)}
-                    style={{ minHeight: 90, padding: '8px 6px', background: !d ? '#f8f9ff' : esHoyDia ? '#ede9fe' : getDayBg(d.tipo), border: `0.5px solid ${esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fca5a5' : d?.tipo === 'festivo' ? '#c4b5fd' : '#e8eaf0'}`, cursor: d ? 'pointer' : 'default', position: 'relative', transition: 'all 0.12s' }}
+                    style={{ minHeight: 110, padding: '10px 8px', background: !d ? '#f8f9ff' : esHoyDia ? '#ede9fe' : getDayBg(d.tipo), border: `0.5px solid ${esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fca5a5' : d?.tipo === 'festivo' ? '#c4b5fd' : '#e8eaf0'}`, cursor: d ? 'pointer' : 'default', position: 'relative', transition: 'all 0.12s' }}
                     onMouseEnter={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'brightness(0.96)' }}
                     onMouseLeave={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'none' }}
                   >
                     {d && (
                       <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                          <div style={{ width: esHoyDia ? 28 : 'auto', height: esHoyDia ? 28 : 'auto', background: esHoyDia ? '#6366f1' : 'transparent', borderRadius: esHoyDia ? '50%' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: esHoyDia ? 700 : 400, color: esHoyDia ? '#fff' : getDayColor(d.tipo) }}>
+                          <div style={{ width: esHoyDia ? 32 : 'auto', height: esHoyDia ? 32 : 'auto', background: esHoyDia ? '#6366f1' : 'transparent', borderRadius: esHoyDia ? '50%' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: esHoyDia ? 700 : 400, color: esHoyDia ? '#fff' : getDayColor(d.tipo) }}>
                             {d.day}
                           </div>
                           {d.tipo === 'festivo' && <span style={{ fontSize: 9, background: '#ede9fe', color: '#6366f1', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Festivo</span>}
