@@ -154,7 +154,7 @@ export default function PerfilEmpleadoPage() {
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>Cargando perfil...</div>
   if (!empleado || empleado.error) return <div style={{ padding: 40, textAlign: "center", color: "#dc2626" }}>Empleado no encontrado</div>
 
-  const esDemo = empleado.esDemostracion === true || empleado.esdemostración === true
+  const esDemo = empleado.esDemostracion === true || empleado.esdemostration === true || empleado.esdemostración === true || String(empleado.esDemostracion) === "true"
   const horasTotales = empleado.fichajes?.reduce((s, f) => {
     if (!f.horaSalida) return s
     return s + (new Date(f.horaSalida).getTime() - new Date(f.horaEntrada).getTime()) / 3600000
