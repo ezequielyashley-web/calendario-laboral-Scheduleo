@@ -22,7 +22,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     let deudas = []
     let bajas = []
-    let historialCargos = []
+    let historialCargos: any[] = []
+
+    let cambiosTurno: any[] = []
     let permisos = []
     let justificantes = []
 
@@ -31,8 +33,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     try { historialCargos = await prisma.$queryRaw`SELECT * FROM "HistorialCargo" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("HistorialCargo:", e) }
     try { permisos = await prisma.$queryRaw`SELECT * FROM "PermisoSalida" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Permisos:", e) }
     try { justificantes = await prisma.$queryRaw`SELECT * FROM "Justificante" WHERE "empleadoId" = ${id}` as any[] } catch(e) { console.error("Justificantes:", e) }
-
-    return NextResponse.json({ ...empleado, esDemostracion: empleadoBase.esDemostracion ?? false, sueldoBase: empleadoBase.sueldoBase, deudas, bajas, historialCargos, permisos, justificantes })
+    try { cambiosTurno = await prisma.cambioTurno.findMany({ where: { OR: [{ empleadoOrigenId: id }, { empleadoDestinoId: id }], estado: "APROBADO" }, include: { empleadoOrigen: { select: { nombre: true, apellidos: true } }, empleadoDestino: { select: { nombre: true, apellidos: true } } } }) } catch(e) { console.error("CambiosTurno:", e) }
+    return NextResponse.json({ ...empleado, esDemostracion: empleadoBase.esDemostracion ?? false, sueldoBase: empleadoBase.sueldoBase, deudas, bajas, historialCargos, permisos, justificantes, cambiosTurno })
   } catch (error) {
     console.error("ERROR PRINCIPAL:", error)
     return NextResponse.json({ error: "Error al obtener empleado" }, { status: 500 })
@@ -60,4 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     console.error(error)
     return NextResponse.json({ error: "Error al actualizar empleado" }, { status: 500 })
   }
+
 }
+
+

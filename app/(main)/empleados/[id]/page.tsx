@@ -1,4 +1,6 @@
-"use client"
+﻿"use client"
+import BannerEstadoEmpleado from "@/components/BannerEstadoEmpleado"
+import CalendarioEmpleado from "@/components/CalendarioEmpleado"
 import CalendarioAsuntosPropios from "@/components/vacaciones/CalendarioAsuntosPropios"
 import React from "react"
 import { useSearchParams } from "next/navigation"
@@ -15,6 +17,7 @@ const TABS = [
   { key: "permisos", label: "Permisos" },
   { key: "justificantes", label: "Justificantes" },
   { key: "historial", label: "Historial cargos" },
+  { key: "calendario", label: "Calendario laboral" },
 ]
 
 export default function PerfilEmpleadoPage() {
@@ -221,6 +224,7 @@ export default function PerfilEmpleadoPage() {
           <span style={{ marginLeft: "auto", background: "rgba(255,255,255,0.25)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20, border: "1px solid rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>MODO DEMO</span>
         </div>
       )}
+      <BannerEstadoEmpleado empleado={empleado} />
       <div style={{ background: esDemo ? "#fffbeb" : "#fff", border: esDemo ? "1px solid #fcd34d" : "0.5px solid #e8eaf0", borderRadius: 16, padding: 24, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 500, color: "#fff", flexShrink: 0 }}>
@@ -248,7 +252,7 @@ export default function PerfilEmpleadoPage() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: "2px solid #e8eaf0", overflowX: "auto" }}>
+      <div className="tabs-scroll" style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: "2px solid #e8eaf0", overflowX: "auto" }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ padding: "10px 18px", border: "none", background: "none", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#6366f1" : "#718096", borderBottom: tab === t.key ? "2px solid #6366f1" : "2px solid transparent", marginBottom: -2, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -841,6 +845,11 @@ export default function PerfilEmpleadoPage() {
         </div>
       )}
 
+      {tab === "calendario" && (
+        <div style={{ background: "#f1f5f9", borderRadius: 16, padding: 28, boxShadow: "0 8px 32px rgba(99,102,241,0.25)" }}>
+          <CalendarioEmpleado empleado={empleado} />
+        </div>
+      )}
       {modalVacacion === "nueva" && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 480, maxWidth: "90vw" }}>
@@ -1006,7 +1015,6 @@ export default function PerfilEmpleadoPage() {
     </div>
   )
 }
-
 
 
 
