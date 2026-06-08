@@ -281,6 +281,20 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // Notificar al admin
+    try {
+      await fetch(`${process.env.NEXTAUTH_URL}/api/push/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: `📋 Nueva solicitud de ${tipo === "ASUNTOS_PROPIOS" ? "asuntos propios" : "vacaciones"}`,
+          mensaje: `${vacacion.empleado.nombre} ${vacacion.empleado.apellidos} ha solicitado ${diasTotales} día(s)`,
+          url: "/vacaciones",
+          empresaId: empleado.empresaId,
+        }),
+      })
+    } catch { /* no bloquear si falla push */ }
+
     return NextResponse.json(vacacion, { status: 201 })
   } catch (error) {
     console.error("POST /api/vacaciones error:", error)
@@ -298,4 +312,5 @@ function calcularDiasLaborables(inicio: Date, fin: Date): number {
   }
   return dias
 }
+
 
