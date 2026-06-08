@@ -1,4 +1,5 @@
 "use client"
+import CalendarioAsuntosPropios from "@/components/vacaciones/CalendarioAsuntosPropios"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -60,6 +61,8 @@ export default function VacacionesDesktop() {
   const [busqueda, setBusqueda] = useState('')
   const [toast, setToast] = useState<{ msg:string; tipo:'ok'|'error' } | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [showCalendarioAP, setShowCalendarioAP] = useState(false)
+  const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState<any>(null)
   const [empleados, setEmpleados] = useState<any[]>([])
   const [form, setForm] = useState({ empleadoId:'', fechaInicio:'', fechaFin:'', tipo:'LIBRE_ELECCION', observaciones:'' })
   const [loadingForm, setLoadingForm] = useState(false)
@@ -93,6 +96,23 @@ export default function VacacionesDesktop() {
     fetch('/api/empleados').then(r=>r.json()).then(d=>setEmpleados(Array.isArray(d)?d:[]))
   }, [])
 
+  const confirmarAsuntosPropios = async (dias: string[], observaciones: string) => {
+    setShowCalendarioAP(false)
+    const res = await fetch("/api/vacaciones", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ empleadoId: form.empleadoId, tipo: "ASUNTOS_PROPIOS", diasSueltos: dias, observaciones }),
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setForm({ empleadoId:"", fechaInicio:"", fechaFin:"", tipo:"LIBRE_ELECCION", observaciones:"" })
+      mostrarToast(`${dias.length} día(s) de asuntos propios solicitados ✅`, "ok")
+      cargar()
+    } else {
+      mostrarToast(data.error || "Error al crear", "error")
+    }
+  }
+
   const gestionar = async (id:string, estado:string) => {
     if (!confirm(`¿${estado==='APROBADA'?'Aprobar':'Rechazar'} esta solicitud?`)) return
     const res = await fetch(`/api/vacaciones/${id}`, {
@@ -105,6 +125,13 @@ export default function VacacionesDesktop() {
   }
 
   const crearSolicitud = async () => {
+    if (form.tipo === "ASUNTOS_PROPIOS") {
+      const emp = empleados.find(e => e.id === form.empleadoId)
+      setEmpleadoSeleccionado(emp || null)
+      setShowModal(false)
+      setShowCalendarioAP(true)
+      return
+    }
     setErrorForm('')
     if (!form.empleadoId || !form.fechaInicio || !form.fechaFin) {
       setErrorForm('Completa todos los campos obligatorios'); return
@@ -356,8 +383,21 @@ export default function VacacionesDesktop() {
           </div>
         </div>
       )}
+
+
+
+
+
+      {showCalendarioAP && empleadoSeleccionado && (
+        <CalendarioAsuntosPropios
+          empleadoId={empleadoSeleccionado.id}
+          grupoTrabajoId={empleadoSeleccionado.grupoTrabajoId}
+          fechaNacimiento={empleadoSeleccionado.fechaNacimiento}
+          diasDisponibles={empleadoSeleccionado.diasAsuntosPropios ?? 6}
+          onConfirmar={confirmarAsuntosPropios}
+          onCancelar={() => { setShowCalendarioAP(false); setShowModal(true) }}
+        />
+      )}
     </div>
   )
 }
-
-

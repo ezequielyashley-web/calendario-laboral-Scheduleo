@@ -51,6 +51,7 @@ model Empresa {
   gruposTrabajo             GrupoTrabajo[]
   puestosDeTrabajo          PuestoDeTrabajo[]
   configuracionesCobertura  ConfiguracionCobertura[]
+  libranzas                 Libranza[]
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
 }
@@ -95,6 +96,7 @@ model GrupoTrabajo {
   descripcion String?
   color       String?
   empleados   Empleado[]
+  libranzas   Libranza[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -109,6 +111,7 @@ model PuestoDeTrabajo {
   descripcion               String?
   empleados                 Empleado[]
   configuracionesCobertura  ConfiguracionCobertura[]
+
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
 
@@ -173,6 +176,21 @@ model Vacacion {
   @@index([estado])
 }
 
+model Libranza {
+  id             String       @id @default(cuid())
+  grupoTrabajoId String
+  grupoTrabajo   GrupoTrabajo @relation(fields: [grupoTrabajoId], references: [id])
+  empresaId      String
+  empresa        Empresa      @relation(fields: [empresaId], references: [id])
+  fecha          DateTime     @db.Date
+  tipo           String       @default("COMPLETA")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([grupoTrabajoId])
+  @@index([fecha])
+}
+
 model CambioTurno {
   id                String    @id @default(cuid())
   empleadoOrigenId  String
@@ -208,6 +226,8 @@ model LogAuditoria {
   @@index([timestamp])
   @@index([entidad])
 }
+
+
 
 
 

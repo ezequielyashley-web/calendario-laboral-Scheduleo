@@ -1,4 +1,5 @@
 "use client"
+import CalendarioAsuntosPropios from "@/components/vacaciones/CalendarioAsuntosPropios"
 import React from "react"
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
@@ -8,6 +9,7 @@ const TABS = [
   { key: "general", label: "General" },
   { key: "fichajes", label: "Fichajes" },
   { key: "vacaciones", label: "Vacaciones" },
+  { key: "asuntos_propios", label: "Asuntos propios" },
   { key: "bajas", label: "Bajas" },
   { key: "deudas", label: "Deudas" },
   { key: "permisos", label: "Permisos" },
@@ -423,6 +425,109 @@ export default function PerfilEmpleadoPage() {
           </div>
         </div>
       )}
+      {tab === "asuntos_propios" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+          {/* Stats asuntos propios */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+            {[
+              { label: "Total (Art.37.3 ET)", valor: empleado.diasAsuntosPropios ?? 6, color: "#9d174d", bg: "#fce7f3" },
+              { label: "Aprobados", valor: empleado.vacaciones?.filter(v => v.tipo === "ASUNTOS_PROPIOS" && v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0, color: "#065f46", bg: "#d1fae5" },
+              { label: "Pendientes", valor: empleado.vacaciones?.filter(v => v.tipo === "ASUNTOS_PROPIOS" && v.estado === "PENDIENTE").reduce((s,v) => s + v.diasTotales, 0) || 0, color: "#92400e", bg: "#fef3c7" },
+              { label: "Disponibles", valor: (empleado.diasAsuntosPropios ?? 6) - (empleado.vacaciones?.filter(v => v.tipo === "ASUNTOS_PROPIOS" && v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0), color: "#6d28d9", bg: "#ede9fe" },
+            ].map(s => (
+              <div key={s.label} style={{ background: s.bg, borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.valor}</div>
+                <div style={{ fontSize: 11, color: s.color, opacity: 0.8, marginTop: 2 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Nota legal */}
+          <div style={{ background: "#fce7f3", border: "1px solid #f9a8d4", borderRadius: 10, padding: "12px 16px" }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#9d174d", margin: "0 0 4px" }}>📋 Art. 37.3 Estatuto de los Trabajadores</p>
+            <p style={{ fontSize: 12, color: "#831843", margin: 0 }}>Los trabajadores tienen derecho a 6 días de asuntos propios al año retribuidos. No son acumulables al año siguiente. No pueden solicitarse en fines de semana, festivos, ni días adyacentes a libranzas, festivos o cumpleaños.</p>
+          </div>
+
+          {/* Botón solicitar */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: 0 }}>Solicitudes de asuntos propios</h3>
+            <button onClick={() => setModalVacacion("asuntos_propios")}
+              style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+              + Solicitar días
+            </button>
+          </div>
+
+          {/* Tabla asuntos propios */}
+          <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead><tr style={{ background: "#f8f9ff" }}>
+                {["Fecha", "Días", "Estado", "Observaciones", "Acciones"].map(h => (
+                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#718096", borderBottom: "1px solid #e8eaf0" }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {!empleado.vacaciones?.filter(v => v.tipo === "ASUNTOS_PROPIOS").length ? (
+                  <tr><td colSpan={5} style={{ padding: 32, textAlign: "center", color: "#a0aec0" }}>Sin solicitudes de asuntos propios</td></tr>
+                ) : empleado.vacaciones?.filter(v => v.tipo === "ASUNTOS_PROPIOS").map((v, i) => (
+                  <tr key={v.id} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f8f9ff" }}>
+                    <td style={{ padding: "10px 16px", fontSize: 13 }}>{new Date(v.fechaInicio).toLocaleDateString("es-ES")}</td>
+                    <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 600 }}>{v.diasTotales}</td>
+                    <td style={{ padding: "10px 16px" }}>
+                      <span style={{ background: v.estado === "APROBADA" ? "#d1fae5" : v.estado === "PENDIENTE" ? "#fef3c7" : "#fee2e2", color: v.estado === "APROBADA" ? "#065f46" : v.estado === "PENDIENTE" ? "#92400e" : "#991b1b", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{v.estado}</span>
+                    </td>
+                    <td style={{ padding: "10px 16px", fontSize: 12, color: "#718096" }}>{v.observaciones || "—"}</td>
+                    <td style={{ padding: "10px 16px" }}>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {v.estado === "PENDIENTE" && (
+                          <>
+                            <button onClick={() => gestionarVacacion(v.id, "APROBADA")}
+                              style={{ background: "#d1fae5", color: "#065f46", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                              Aprobar
+                            </button>
+                            <button onClick={() => gestionarVacacion(v.id, "RECHAZADA")}
+                              style={{ background: "#fee2e2", color: "#991b1b", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                              Rechazar
+                            </button>
+                          </>
+                        )}
+                        {v.estado !== "APROBADA" && (
+                          <button onClick={() => eliminarVacacion(v.id)}
+                            style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                            Eliminar
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Calendario asuntos propios */}
+      {modalVacacion === "asuntos_propios" && (
+        <CalendarioAsuntosPropios
+          empleadoId={String(id)}
+          grupoTrabajoId={empleado.grupoTrabajoId}
+          fechaNacimiento={empleado.fechaNacimiento}
+          diasDisponibles={(empleado.diasAsuntosPropios ?? 6) - (empleado.vacaciones?.filter(v => v.tipo === "ASUNTOS_PROPIOS" && v.estado === "APROBADA").reduce((s,v) => s + v.diasTotales, 0) || 0)}
+          onConfirmar={async (dias, obs) => {
+            const res = await fetch("/api/vacaciones", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ empleadoId: String(id), tipo: "ASUNTOS_PROPIOS", diasSueltos: dias, observaciones: obs }),
+            })
+            const data = await res.json()
+            if (res.ok) { setModalVacacion(null); setMensaje({ texto: `${dias.length} día(s) solicitados`, tipo: "ok" }); cargar() }
+            else setMensaje({ texto: data.error || "Error", tipo: "error" })
+            setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+          }}
+          onCancelar={() => setModalVacacion(null)}
+        />
+      )}
 
       {tab === "bajas" && (
         <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
@@ -754,7 +859,6 @@ export default function PerfilEmpleadoPage() {
                 <option value="INVIERNO">❄️ Invierno</option>
                 <option value="MES_COMPLETO">📅 Mes completo</option>
                 <option value="LIBRE_ELECCION">🗓️ Libre elección</option>
-                <option value="ASUNTOS_PROPIOS">📋 Asuntos propios</option>
               </select>
               {formVacacion.tipo === "ASUNTOS_PROPIOS" && (
                 <p style={{ fontSize: 11, color: "#9d174d", marginTop: 4, background: "#fce7f3", padding: "6px 10px", borderRadius: 4 }}>
@@ -902,6 +1006,9 @@ export default function PerfilEmpleadoPage() {
     </div>
   )
 }
+
+
+
 
 
 
