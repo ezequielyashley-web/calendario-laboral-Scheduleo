@@ -81,6 +81,45 @@ export default function CalendarioEmpleado({ empleado }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
+      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: empleado.grupoTrabajo?.color || "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#fff" }}>
+            {empleado.grupoTrabajo?.nombre?.[0] || "?"}
+          </div>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>Grupo entre semana</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#1e1b4b", margin: "2px 0 0" }}>{empleado.grupoTrabajo?.nombre || "Sin asignar"}</p>
+          </div>
+        </div>
+        <div style={{ width: 1, background: "#e5e7eb", height: 36 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#fff" }}>
+            L
+          </div>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>Grupo libranza lunes</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#1e1b4b", margin: "2px 0 0" }}>Pendiente asignar</p>
+          </div>
+        </div>
+        <div style={{ width: 1, background: "#e5e7eb", height: 36 }} />
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#1e1b4b", margin: 0 }}>Tipo de libranza</p>
+          <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>
+            {["L1","L2","L3"].includes(empleado.grupoTrabajo?.nombre) ? "Libranza lunes" : empleado.grupoTrabajo?.nombre ? "Libranza entre semana" : "Sin asignar"}
+          </p>
+        </div>
+        <div style={{ width: 1, background: "#e5e7eb", height: 36 }} />
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#1e1b4b", margin: 0 }}>Patron de libranza</p>
+          <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>
+            {["L1","L2","L3"].includes(empleado.grupoTrabajo?.nombre) ? "Libra todos los lunes del año" : empleado.grupoTrabajo?.nombre ? "Libra segun rotacion del grupo" : "Se asignara en modulo libranzas"}
+          </p>
+        </div>
+        <div style={{ marginLeft: "auto", background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 6, padding: "4px 10px", fontSize: 11, color: "#854d0e", fontWeight: 500 }}>
+          En desarrollo
+        </div>
+      </div>
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button onClick={() => setAnno(a => a - 1)} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: 16, color: "#374151" }}>&#8249;</button>
