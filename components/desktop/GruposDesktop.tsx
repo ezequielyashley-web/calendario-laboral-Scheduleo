@@ -35,6 +35,10 @@ export default function GruposDesktop() {
   const [toast, setToast] = useState<{ msg: string; tipo: "ok" | "error" } | null>(null)
   const [showHistorial, setShowHistorial] = useState(false)
   const [busqueda, setBusqueda] = useState("")
+  const [pendiente, setPendiente] = useState<{ empleadoId: string; fromGrupo: string; toGrupo: string; tipo: "entresemana" | "lunes" } | null>(null)
+  const [masterPassword, setMasterPassword] = useState("")
+  const [errorMaster, setErrorMaster] = useState("")
+  const [guardando, setGuardando] = useState(false)
 
   const mostrarToast = (msg: string, tipo: "ok" | "error") => {
     setToast({ msg, tipo })
@@ -83,15 +87,60 @@ export default function GruposDesktop() {
 
   const handleDrop = (toGrupoId: string) => {
     if (!dragging || dragging.fromGrupo === toGrupoId) { setDragging(null); setDragOver(null); return }
-    const { empleadoId, fromGrupo, tipo } = dragging
-    const emp = empleados.find(e => e.id === empleadoId)
-    if (!emp) return
-    const grupoFrom = GRUPOS_CONFIG.find(g => g.id === fromGrupo)
-    const grupoTo = GRUPOS_CONFIG.find(g => g.id === toGrupoId)
-    setAsignaciones(prev => ({ ...prev, [empleadoId]: { ...prev[empleadoId], [tipo]: toGrupoId } }))
-    setHistorial(prev => [{ empleadoId, nombre: `${emp.nombre} ${emp.apellidos}`, de: grupoFrom?.nombreCompleto || "Sin grupo", a: grupoTo?.nombreCompleto || "", tipo, fecha: new Date().toLocaleTimeString("es-ES"), asigAnterior: prev[empleadoId] }, ...prev.slice(0, 49)])
-    mostrarToast(`${emp.nombre} → ${grupoTo?.nombreCompleto}`, "ok")
+    setPendiente({ empleadoId: dragging.empleadoId, fromGrupo: dragging.fromGrupo, toGrupo: toGrupoId, tipo: dragging.tipo })
+    setMasterPassword("")
+    setErrorMaster("")
     setDragging(null); setDragOver(null)
+  }
+
+  const confirmarCambio = async () => {
+    if (!pendiente) return
+    setErrorMaster("")
+    if (!masterPassword.trim()) { setErrorMaster("Introduce la clave master"); return }
+    setGuardando(true)
+
+    // Verificar clave master
+    const resVerif = await fetch("/api/empresa", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ masterPassword }) })
+    if (!resVerif.ok) { setErrorMaster("Clave master incorrecta"); setGuardando(false); return }
+
+    const { empleadoId, fromGrupo, toGrupo, tipo } = pendiente
+    const emp = empleados.find(e => e.id === empleadoId)
+    const grupoFrom = GRUPOS_CONFIG.find(g => g.id === fromGrupo)
+    const grupoTo = GRUPOS_CONFIG.find(g => g.id === toGrupo)
+
+    try {
+      // Desasignar del grupo anterior si existe
+      if (fromGrupo) {
+        await fetch("/api/libranzas/asignar", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ empleadoId, grupoLibranzaId: fromGrupo })
+        })
+      }
+      // Asignar al nuevo grupo
+      await fetch("/api/libranzas/asignar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empleadoId, grupoLibranzaId: toGrupo })
+      })
+
+      // Actualizar estado local
+      setAsignaciones(prev => ({ ...prev, [empleadoId]: { ...prev[empleadoId], [tipo]: toGrupo } }))
+      setHistorial(prev => [{
+        empleadoId, nombre: `${emp?.nombre} ${emp?.apellidos}`,
+        de: grupoFrom?.nombreCompleto || "Sin grupo",
+        a: grupoTo?.nombreCompleto || "",
+        tipo, fecha: new Date().toLocaleTimeString("es-ES"),
+        asigAnterior: { ...asignaciones[empleadoId] }
+      }, ...prev.slice(0, 49)])
+
+      mostrarToast(`${emp?.nombre} → ${grupoTo?.nombreCompleto} ✅`, "ok")
+      setPendiente(null)
+      setMasterPassword("")
+    } catch {
+      mostrarToast("Error al guardar en BD", "error")
+    }
+    setGuardando(false)
   }
 
   const handleDropSinAsignar = () => {
@@ -224,6 +273,51 @@ export default function GruposDesktop() {
           )
         })}
       </div>
+
+      {/* Modal confirmacion clave master */}
+      {pendiente && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div style={{ background: "var(--surface)", borderRadius: 14, boxShadow: "var(--shadow-lg)", width: "100%", maxWidth: 420 }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "#fef9c3", borderRadius: "14px 14px 0 0" }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "#854d0e", margin: 0 }}>🔐 Confirmar cambio de grupo</p>
+            </div>
+            <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ background: "var(--surface-2)", borderRadius: 8, padding: 12, fontSize: 13 }}>
+                {(() => {
+                  const emp = empleados.find(e => e.id === pendiente.empleadoId)
+                  const grupoFrom = GRUPOS_CONFIG.find(g => g.id === pendiente.fromGrupo)
+                  const grupoTo = GRUPOS_CONFIG.find(g => g.id === pendiente.toGrupo)
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <p style={{ margin: 0, fontWeight: 700, color: "var(--text-primary)" }}>{emp?.nombre} {emp?.apellidos}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ background: grupoFrom?.bg || "#f3f4f6", color: grupoFrom?.color || "#6b7280", border: `1px solid ${grupoFrom?.border || "#e5e7eb"}`, borderRadius: 6, padding: "2px 10px", fontSize: 12, fontWeight: 700 }}>{grupoFrom?.nombre || "Sin grupo"}</span>
+                        <span style={{ color: "var(--text-muted)" }}>→</span>
+                        <span style={{ background: grupoTo?.bg, color: grupoTo?.color, border: `1px solid ${grupoTo?.border}`, borderRadius: 6, padding: "2px 10px", fontSize: 12, fontWeight: 700 }}>{grupoTo?.nombre}</span>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 4 }}>Clave master *</label>
+                <input type="password" className="input-base text-sm" placeholder="Introduce la clave master"
+                  value={masterPassword} onChange={e => setMasterPassword(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && confirmarCambio()} autoFocus />
+                {errorMaster && <p style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>{errorMaster}</p>}
+              </div>
+            </div>
+            <div style={{ padding: "12px 20px", borderTop: "1px solid var(--border)", display: "flex", gap: 8 }}>
+              <button onClick={() => { setPendiente(null); setMasterPassword(""); setErrorMaster("") }}
+                className="btn-secondary flex-1 py-2 text-sm">Cancelar</button>
+              <button onClick={confirmarCambio} disabled={guardando}
+                style={{ flex: 1, padding: "8px", fontSize: 13, fontWeight: 700, background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>
+                {guardando ? "Guardando..." : "Confirmar cambio"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Historial */}
       {showHistorial && (
