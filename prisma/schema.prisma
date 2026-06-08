@@ -236,12 +236,18 @@ model CambioTurno {
   turnoOrigen       String
   turnoDestino      String
   motivo            String?
+  fechaOrigen       DateTime?
+  fechaDestino      DateTime?
+  tipo              String    @default("ENTRE_EMPLEADOS")
   estado            String    @default("PENDIENTE")
+  validadoOrigen    Boolean   @default(false)
+  validadoDestino   Boolean   @default(false)
   aprobadoPor       String?
   fechaAprobacion   DateTime?
+  empresaId         String?
+  esDemostracion    Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-
   @@index([empleadoOrigenId])
   @@index([empleadoDestinoId])
   @@index([estado])
@@ -261,11 +267,6 @@ model LogAuditoria {
   @@index([timestamp])
   @@index([entidad])
 }
-
-
-
-
-
 
 
 
