@@ -58,35 +58,35 @@ export async function monitorearEmailINSS(): Promise<{
 }> {
   const resultado = { procesados: 0, errores: 0, detalles: [] as string[] }
 
-  // Variables de entorno requeridas:
-  // IMAP_HOST, IMAP_PORT, IMAP_USER, IMAP_PASS, IMAP_TLS
-  const host = process.env.IMAP_HOST
-  const user = process.env.IMAP_USER
-  const pass = process.env.IMAP_PASS
-
+  // Leer credenciales IMAP desde BD con fallback a .env.local
+  let host = process.env.IMAP_HOST
+  let user = process.env.IMAP_USER
+  let pass = process.env.IMAP_PASS
+  let imapPort = Number(process.env.IMAP_PORT || 993)
+  let imapTls = process.env.IMAP_TLS !== "false"
+  let imapFolder = process.env.IMAP_FOLDER || "INBOX"
+  try {
+    const { prisma } = await import("@/lib/prisma")
+    const configs: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "Configuracion" WHERE id = ${"default"}`)
+    const config = configs[0]
+    if (config?.imap_host) host = config.imap_host
+    if (config?.imap_user) user = config.imap_user
+    if (config?.imap_pass) pass = config.imap_pass
+    if (config?.imap_port) imapPort = Number(config.imap_port)
+    if (config?.imap_tls !== undefined) imapTls = config.imap_tls
+    if (config?.imap_folder) imapFolder = config.imap_folder
+  } catch { }
   if (!host || !user || !pass) {
-    resultado.detalles.push('⚠ Variables IMAP no configuradas (IMAP_HOST, IMAP_USER, IMAP_PASS)')
+    resultado.detalles.push("Credenciales IMAP no configuradas. Ve a Configuracion > Email IMAP")
     return resultado
   }
-
-  try {
-    // Importación dinámica de imapflow
-    const { ImapFlow } = await import('imapflow').catch(() => {
-      throw new Error('imapflow no instalado. Ejecuta: npm install imapflow')
-    })
-
-    const client = new ImapFlow({
-      host,
-      port: Number(process.env.IMAP_PORT || 993),
-      secure: process.env.IMAP_TLS !== 'false',
-      auth: { user, pass },
       logger: false,
     })
 
     await client.connect()
 
     // Abrir bandeja de entrada (INBOX o carpeta dedicada)
-    const mailbox = await client.mailboxOpen(process.env.IMAP_FOLDER || 'INBOX')
+    const mailbox = await client.mailboxOpen(imapFolder)
     resultado.detalles.push(`📬 Buzón abierto: ${mailbox.path} — ${mailbox.exists} mensajes`)
 
     // Buscar emails no leídos de remitentes INSS
@@ -252,5 +252,7 @@ function detectarTipoBaja(asunto: string): string {
   if (lower.includes('interrupción') || lower.includes('interrupcion') && lower.includes('embarazo')) return 'interrupcion_embarazo'
   return 'it_comun'
 }
+
+
 
 

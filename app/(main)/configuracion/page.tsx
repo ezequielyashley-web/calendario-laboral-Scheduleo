@@ -13,6 +13,7 @@ const SECCIONES = [
   { key: "inspeccion", label: "Inspección laboral" },
   { key: "usuarios", label: "Usuarios" },
   { key: "demo", label: "Base de datos demo" },
+  { key: "imap", label: "Email IMAP (Bajas IT)" },
 ]
 
 function GenerarToken({ masterPassword }: { masterPassword: string }) {
@@ -211,6 +212,145 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+function SeccionIMAP() {
+  const [form, setForm] = useState({ host: "", port: "993", tls: true, user: "", pass: "", folder: "INBOX" })
+  const [loading, setLoading] = useState(false)
+  const [cargando, setCargando] = useState(true)
+  const [mensaje, setMensaje] = useState({ texto: "", tipo: "" })
+  const [testando, setTestando] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/configuracion")
+      .then(r => r.json())
+      .then(data => {
+        if (data) setForm({
+          host: data.imap_host || "",
+          port: String(data.imap_port || "993"),
+          tls: data.imap_tls ?? true,
+          user: data.imap_user || "",
+          pass: data.imap_pass || "",
+          folder: data.imap_folder || "INBOX",
+        })
+        setCargando(false)
+      })
+      .catch(() => setCargando(false))
+  }, [])
+
+  const guardar = async () => {
+    setLoading(true)
+    const res = await fetch("/api/configuracion", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        imap_host: form.host,
+        imap_port: parseInt(form.port),
+        imap_tls: form.tls,
+        imap_user: form.user,
+        imap_pass: form.pass,
+        imap_folder: form.folder,
+      }),
+    })
+    setLoading(false)
+    if (res.ok) setMensaje({ texto: "Configuracion IMAP guardada correctamente", tipo: "ok" })
+    else setMensaje({ texto: "Error al guardar", tipo: "error" })
+    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000)
+  }
+
+  const testConexion = async () => {
+    setTestando(true)
+    try {
+      const res = await fetch("/api/configuracion/imap-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (res.ok) setMensaje({ texto: `Conexion exitosa. ${data.mensajes} mensajes en bandeja.`, tipo: "ok" })
+      else setMensaje({ texto: data.error || "Error de conexion", tipo: "error" })
+    } catch {
+      setMensaje({ texto: "Error de red al conectar", tipo: "error" })
+    }
+    setTestando(false)
+    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 5000)
+  }
+
+  if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, padding: "12px 16px" }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", margin: "0 0 4px" }}>Email IMAP para bajas IT</p>
+        <p style={{ fontSize: 12, color: "#1d4ed8", margin: 0 }}>Configura el buzon de correo donde el INSS envia los partes de baja telematicos. RD 1060/2022.</p>
+      </div>
+      {mensaje.texto && (
+        <div style={{ background: mensaje.tipo === "ok" ? "#d1fae5" : "#fee2e2", border: `1px solid ${mensaje.tipo === "ok" ? "#86efac" : "#fca5a5"}`, borderRadius: 8, padding: "10px 16px", fontSize: 13, color: mensaje.tipo === "ok" ? "#065f46" : "#991b1b" }}>
+          {mensaje.texto}
+        </div>
+      )}
+      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 24 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: "0 0 16px" }}>Servidor IMAP</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Servidor IMAP</label>
+            <input value={form.host} onChange={e => setForm(p => ({ ...p, host: e.target.value }))} placeholder="mail.tuempresa.com"
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Puerto</label>
+            <input value={form.port} onChange={e => setForm(p => ({ ...p, port: e.target.value }))} placeholder="993"
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Usuario (email)</label>
+            <input value={form.user} onChange={e => setForm(p => ({ ...p, user: e.target.value }))} placeholder="bajas@empresa.com"
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Contrasena</label>
+            <input type="password" value={form.pass} onChange={e => setForm(p => ({ ...p, pass: e.target.value }))} placeholder="••••••••"
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Carpeta</label>
+            <input value={form.folder} onChange={e => setForm(p => ({ ...p, folder: e.target.value }))} placeholder="INBOX"
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} />
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 20 }}>
+            <input type="checkbox" id="tls" checked={form.tls} onChange={e => setForm(p => ({ ...p, tls: e.target.checked }))} />
+            <label htmlFor="tls" style={{ fontSize: 13, color: "#1e1b4b", cursor: "pointer" }}>Usar TLS/SSL</label>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={testConexion} disabled={testando || !form.host || !form.user}
+            style={{ background: "#f0f4ff", color: "#6366f1", border: "1px solid #c7d2fe", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+            {testando ? "Probando..." : "Probar conexion"}
+          </button>
+          <button onClick={guardar} disabled={loading}
+            style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+            {loading ? "Guardando..." : "Guardar configuracion"}
+          </button>
+        </div>
+      </div>
+      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 24 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: "0 0 8px" }}>Como funciona</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            { paso: "1", txt: "El medico emite el parte de baja y lo envia al INSS telematicamente (RD 1060/2022)" },
+            { paso: "2", txt: "El INSS envia un email automatico a tu buzon con los datos del parte" },
+            { paso: "3", txt: "Scheduleo lee el email cada 30 minutos y registra la baja automaticamente" },
+            { paso: "4", txt: "El admin recibe una notificacion push y confirma los datos economicos al INSS en 3 dias habiles" },
+          ].map(p => (
+            <div key={p.paso} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#6366f1", color: "#fff", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{p.paso}</div>
+              <p style={{ fontSize: 13, color: "#718096", margin: 0, paddingTop: 3 }}>{p.txt}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -638,7 +778,8 @@ export default function ConfiguracionPage() {
           )}
 
           {seccion === "demo" && <SeccionDemo />}
-          {seccion === "usuarios" && (
+          {seccion === "demo" && <SeccionDemo />}
+          {seccion === "imap" && <SeccionIMAP />}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Gestión de usuarios</h2>
@@ -750,5 +891,7 @@ export default function ConfiguracionPage() {
     </div>
   )
 }
+
+
 
 
