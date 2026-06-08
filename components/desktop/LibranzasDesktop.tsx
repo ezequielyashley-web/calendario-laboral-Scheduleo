@@ -221,6 +221,41 @@ export default function LibranzasDesktop() {
         </div>
       </div>
 
+      {/* Panel ayuda */}
+      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "12px 16px", display: "flex", gap: 20, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 18 }}>📅</span>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Asignar días manualmente</p>
+            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>Selecciona un grupo y haz click en los días del calendario para marcarlos como libres. Los festivos y domingos no se pueden modificar.</p>
+          </div>
+        </div>
+        <div style={{ width: 1, background: "#bbf7d0" }} />
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 18 }}>⚡</span>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Distribución automática</p>
+            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>El sistema reparte los días libres equitativamente entre todos los grupos. Úsalo como punto de partida y ajusta manualmente.</p>
+          </div>
+        </div>
+        <div style={{ width: 1, background: "#bbf7d0" }} />
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 18 }}>💾</span>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Guardar y aplicar</p>
+            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>Al guardar con clave master, los días libres se aplican automáticamente al calendario de todos los empleados del grupo.</p>
+          </div>
+        </div>
+        <div style={{ width: 1, background: "#bbf7d0" }} />
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 18 }}>🗓️</span>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Renovación anual</p>
+            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>Cambia el año con las flechas y asigna el nuevo calendario cada enero. Los festivos nacionales se cargan automáticamente.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Filtro tipo */}
       <div style={{ display: "flex", gap: 6, background: "var(--surface-2)", borderRadius: 10, padding: 4, width: "fit-content", border: "1px solid var(--border)" }}>
         {[{ key: "TODOS", label: "Todos" }, { key: "ENTRE_SEMANA", label: "📅 Entre semana" }, { key: "LUNES", label: "🗓️ Lunes" }].map(t => (
