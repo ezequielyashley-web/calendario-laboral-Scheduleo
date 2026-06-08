@@ -21,12 +21,12 @@ model User {
   empleado            Empleado?
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
-  passwordResetTokens PasswordResetToken[]   // ✅ NUEVO: Relación con tokens de reset
+  passwordResetTokens PasswordResetToken[]   // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ NUEVO: RelaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n con tokens de reset
 
   @@index([empresaId])
 }
 
-// ✅ NUEVO: Modelo para tokens de restablecimiento de contraseña
+// ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ NUEVO: Modelo para tokens de restablecimiento de contraseÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±a
 model PasswordResetToken {
   id        String   @id @default(cuid())
   token     String   @unique
@@ -81,9 +81,9 @@ model Empleado {
   vacaciones          Vacacion[]
   bajas               BajaMedica[]
   cambiosTurnoOrigen  CambioTurno[]  @relation("EmpleadoOrigen")
+
   cambiosTurnoDestino CambioTurno[]  @relation("EmpleadoDestino")
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  gruposLibranza      EmpleadoGrupoLibranza[]
 
   @@unique([empresaId, numeroEmpleado])
   @@index([grupoTrabajoId])
@@ -274,3 +274,43 @@ model LogAuditoria {
 
 
 
+
+model GrupoLibranza {
+  id          String   @id @default(cuid())
+  nombre      String
+  color       String   @default("#6366f1")
+  tipo        String   @default("ENTRE_SEMANA")
+  descripcion String?
+  empresaId   String?  @default("empresa-001")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dias      DiaLibranza[]
+  empleados EmpleadoGrupoLibranza[]
+}
+
+model DiaLibranza {
+  id              String       @id @default(cuid())
+  grupoLibranzaId String
+  grupoLibranza   GrupoLibranza @relation(fields: [grupoLibranzaId], references: [id], onDelete: Cascade)
+  fecha           DateTime
+  observacion     String?
+  createdAt       DateTime     @default(now())
+
+  @@index([grupoLibranzaId])
+  @@index([fecha])
+}
+
+model EmpleadoGrupoLibranza {
+  id              String        @id @default(cuid())
+  empleadoId      String
+  empleado        Empleado      @relation(fields: [empleadoId], references: [id], onDelete: Cascade)
+  grupoLibranzaId String
+  grupoLibranza   GrupoLibranza @relation(fields: [grupoLibranzaId], references: [id], onDelete: Cascade)
+  fechaInicio     DateTime?     @default(now())
+  fechaFin        DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@index([empleadoId])
+  @@index([grupoLibranzaId])
+}

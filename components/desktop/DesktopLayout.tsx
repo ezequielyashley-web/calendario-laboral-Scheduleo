@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -125,6 +125,7 @@ const menuSections = [
     { href: '/calendario-global', icon: Icons.calendario,     label: 'Calendario'     },
     { href: '/fichajes',          icon: Icons.fichajes,       label: 'Fichajes'       },
     { href: '/grupos',            icon: Icons.grupos,         label: 'Grupos'         },
+    { href: '/libranzas',         icon: Icons.grupos,         label: 'Libranzas'      },
   ]},
   { label: 'Gestión', items: [
     { href: '/vacaciones',        icon: Icons.vacaciones,     label: 'Vacaciones'     },
