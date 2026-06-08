@@ -1,5 +1,6 @@
 ﻿"use client"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 const GRUPOS_CONFIG = [
   { id: "glib-g1a", key: "G1A", nombre: "G1A", nombreCompleto: "Grupo 1 · Azul Claro",  color: "#818cf8", bg: "#f5f3ff", border: "#ddd6fe", tipo: "ENTRE_SEMANA" },
@@ -34,7 +35,9 @@ export default function GruposDesktop() {
   const [tab, setTab] = useState<"entresemana" | "lunes">("entresemana")
   const [toast, setToast] = useState<{ msg: string; tipo: "ok" | "error" } | null>(null)
   const [showHistorial, setShowHistorial] = useState(false)
+  const router = useRouter()
   const [busqueda, setBusqueda] = useState("")
+  const [busquedaGrupo, setBusquedaGrupo] = useState<Record<string, string>>({})
   const [pendiente, setPendiente] = useState<{ empleadoId: string; fromGrupo: string; toGrupo: string; tipo: "entresemana" | "lunes" } | null>(null)
   const [masterPassword, setMasterPassword] = useState("")
   const [errorMaster, setErrorMaster] = useState("")
@@ -245,16 +248,25 @@ export default function GruposDesktop() {
                 </div>
               </div>
 
+              {/* Busqueda interna del grupo */}
+              {empsGrupo.length > 4 && (
+                <div style={{ padding: "6px 10px", borderBottom: "1px solid var(--border)" }}>
+                  <input type="text" placeholder="Buscar en grupo..." value={busquedaGrupo[grupo.id] || ""}
+                    onChange={e => setBusquedaGrupo(prev => ({ ...prev, [grupo.id]: e.target.value }))}
+                    style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-strong)", borderRadius: 6, fontSize: 11, background: "var(--surface)", color: "var(--text-primary)", boxSizing: "border-box" as "border-box" }} />
+                </div>
+              )}
               {/* Empleados */}
-              <div style={{ padding: 10, minHeight: 140, display: "flex", flexDirection: "column", gap: 3 }}>
-                {empsGrupo.length === 0 && !isDragOver && (
+              <div className="grupo-empleados" style={{ padding: 10, minHeight: 140, display: "flex", flexDirection: "column", gap: 3 }}>
+                {empsGrupo.filter(e => !busquedaGrupo[grupo.id] || `${e.nombre} ${e.apellidos}`.toLowerCase().includes(busquedaGrupo[grupo.id].toLowerCase())).length === 0 && !isDragOver && (
                   <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, color: "#d1d5db", paddingTop: 20 }}>
                     <span style={{ fontSize: 24 }}>⠿</span>
                     <span style={{ fontSize: 11, fontStyle: "italic" }}>Arrastra empleados aquí</span>
                   </div>
                 )}
-                {empsGrupo.map((emp, idx) => (
+                {empsGrupo.filter(e => !busquedaGrupo[grupo.id] || `${e.nombre} ${e.apellidos}`.toLowerCase().includes(busquedaGrupo[grupo.id].toLowerCase())).map((emp, idx) => (
                   <div key={emp.id} draggable onDragStart={() => setDragging({ empleadoId: emp.id, fromGrupo: grupo.id, tipo: tab })}
+                    className="emp-card" data-nombre={`${emp.nombre} ${emp.apellidos}`.toLowerCase()}
                     style={{ display: "flex", alignItems: "center", gap: 8, background: grupo.bg, border: `1px solid ${grupo.border}`, borderRadius: 8, padding: "6px 8px", cursor: "grab", userSelect: "none", transition: "transform .1s" }}
                     onMouseEnter={e => (e.currentTarget.style.transform = "translateX(3px)")}
                     onMouseLeave={e => (e.currentTarget.style.transform = "translateX(0)")}>
@@ -265,7 +277,11 @@ export default function GruposDesktop() {
                       </p>
                       <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>Nº {emp.numeroEmpleado}</p>
                     </div>
-                    <span style={{ fontSize: 14, color: "#d1d5db" }}>⠿</span>
+                    <button onClick={e => { e.stopPropagation(); router.push(`/empleados/${emp.id}`) }}
+                      style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(255,255,255,0.7)", color: grupo.color, border: `1px solid ${grupo.border}`, cursor: "pointer", fontWeight: 600, flexShrink: 0 }}
+                      title="Ver perfil">
+                      →
+                    </button>
                   </div>
                 ))}
               </div>
