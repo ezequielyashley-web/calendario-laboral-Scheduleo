@@ -52,6 +52,7 @@ model Empresa {
   puestosDeTrabajo          PuestoDeTrabajo[]
   configuracionesCobertura  ConfiguracionCobertura[]
   libranzas                 Libranza[]
+  bajas                     BajaMedica[]
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
 }
@@ -78,6 +79,7 @@ model Empleado {
   esDemostracion      Boolean         @default(false)
   fichajes            Fichaje[]
   vacaciones          Vacacion[]
+  bajas               BajaMedica[]
   cambiosTurnoOrigen  CambioTurno[]  @relation("EmpleadoOrigen")
   cambiosTurnoDestino CambioTurno[]  @relation("EmpleadoDestino")
   createdAt           DateTime       @default(now())
@@ -176,6 +178,39 @@ model Vacacion {
   @@index([estado])
 }
 
+model BajaMedica {
+  id                        String    @id @default(cuid())
+  empleadoId                String
+  empleado                  Empleado  @relation(fields: [empleadoId], references: [id])
+  empresaId                 String
+  empresa                   Empresa   @relation(fields: [empresaId], references: [id])
+  tipo                      String    @default("it_comun")
+  estado                    String    @default("pendiente_confirmacion_inss")
+  numeroParteINSS           String?
+  fechaInicio               DateTime
+  fechaFin                  DateTime?
+  diasDuracion              Int?
+  diagnostico               String?
+  medico                    String?
+  fechaRecepcionINSS        DateTime?
+  confirmadaDatosEconomicos Boolean   @default(false)
+  fechaConfirmacion         DateTime?
+  confirmadoPorId           String?
+  baseReguladora            Decimal?
+  porcentajePrestacion      Int       @default(0)
+  convenioCubre100          Boolean   @default(false)
+  emailOrigen               String?
+  emailAsunto               String?
+  parteOficial              Json?
+  creadoAutomaticamente     Boolean   @default(false)
+  esDemostracion            Boolean   @default(false)
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  @@index([empleadoId])
+  @@index([estado])
+}
+
 model Libranza {
   id             String       @id @default(cuid())
   grupoTrabajoId String
@@ -226,6 +261,8 @@ model LogAuditoria {
   @@index([timestamp])
   @@index([entidad])
 }
+
+
 
 
 
