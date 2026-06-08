@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "@/components/providers/ThemeProvider"
+import { usePushNotifications } from "@/hooks/usePushNotifications"
 import { useNotifications } from "@/components/providers/NotificationProvider"
 
 const Icons = {
@@ -163,6 +164,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
   const { noLeidas } = useNotifications()
+  const { suscrito, soportado, suscribirse } = usePushNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
 
   useEffect(() => {
@@ -290,6 +292,20 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 </button>
               ))}
             </div>
+            {soportado && !suscrito && (
+              <button onClick={suscribirse} title="Activar notificaciones push"
+                className="flex items-center justify-center w-8 h-8 transition-colors duration-150"
+                style={{ borderRadius:4, background:'var(--surface-2)', border:'1px solid var(--border)', color:'var(--text-muted)', cursor:'pointer' }}>
+                🔔
+              </button>
+            )}
+            {suscrito && (
+              <div title="Notificaciones activadas"
+                className="flex items-center justify-center w-8 h-8"
+                style={{ borderRadius:4, background:'#dcfce7', border:'1px solid #86efac', fontSize:14 }}>
+                🔔
+              </div>
+            )}
             <div className="flex items-center justify-center w-8 h-8 text-white font-bold text-xs cursor-pointer flex-shrink-0"
               style={{ background:accentColor, borderRadius:4 }}>
               A
@@ -303,3 +319,5 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     </div>
   )
 }
+
+

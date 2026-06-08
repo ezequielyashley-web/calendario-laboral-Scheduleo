@@ -7,6 +7,14 @@ export default function InspectorBanner() {
   const [ultimoAcceso, setUltimoAcceso] = useState<any>(null)
   const [accesosHoy, setAccesosHoy] = useState(0)
   const { suscrito, soportado, suscribirse, cargando } = usePushNotifications()
+  const [suscritoLocal, setSuscritoLocal] = useState(false)
+
+  useEffect(() => {
+    setSuscritoLocal(localStorage.getItem("push_suscrito") === "true")
+    const handler = () => setSuscritoLocal(localStorage.getItem("push_suscrito") === "true")
+    window.addEventListener("storage", handler)
+    return () => window.removeEventListener("storage", handler)
+  }, [])
 
   const verificarInspector = async () => {
     try {
@@ -45,7 +53,7 @@ export default function InspectorBanner() {
         </div>
       )}
 
-      {soportado && !suscrito && (
+      {soportado && !suscrito && !suscritoLocal && (
         <div style={{ background: "#f0f4ff", border: "0.5px solid #c7d2fe", borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ fontSize: 13, color: "#4338ca" }}>
             🔔 Activa las notificaciones para recibir alertas cuando Hacienda acceda al sistema
@@ -59,3 +67,4 @@ export default function InspectorBanner() {
     </div>
   )
 }
+
