@@ -212,20 +212,44 @@ export default function GruposDesktop() {
 
       {/* Sin asignar */}
       <div onDragOver={e => { e.preventDefault(); setDragOver("sin-asignar") }} onDragLeave={() => setDragOver(null)} onDrop={handleDropSinAsignar}
-        style={{ background: dragOver === "sin-asignar" ? "#fee2e2" : "var(--surface-2)", border: `2px dashed ${dragOver === "sin-asignar" ? "#dc2626" : "var(--border-strong)"}`, borderRadius: 12, padding: "12px 16px", transition: "all .2s", minHeight: 52 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          Sin asignar · {getSinAsignar(tab).length}
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {getSinAsignar(tab).map((emp, idx) => (
-            <div key={emp.id} draggable onDragStart={() => setDragging({ empleadoId: emp.id, fromGrupo: "", tipo: tab })}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 20, padding: "4px 10px 4px 4px", cursor: "grab", userSelect: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-              <Avatar nombre={`${emp.nombre} ${emp.apellidos}`} color={AVATAR_COLORS[idx % AVATAR_COLORS.length]} size={22} />
-              <span style={{ fontSize: 11, fontWeight: 600, color: "#374151" }}>{emp.nombre} {emp.apellidos.split(" ")[0]}</span>
-            </div>
-          ))}
-          {getSinAsignar(tab).length === 0 && <span style={{ fontSize: 12, color: "#16a34a", fontWeight: 600 }}>✅ Todos asignados</span>}
+        style={{ background: dragOver === "sin-asignar" ? "#fee2e2" : getSinAsignar(tab).length === 0 ? "#f0fdf4" : "var(--surface)", border: `2px dashed ${dragOver === "sin-asignar" ? "#dc2626" : getSinAsignar(tab).length === 0 ? "#86efac" : "var(--border-strong)"}`, borderRadius: 12, padding: "14px 18px", transition: "all .2s" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: getSinAsignar(tab).length > 0 ? 10 : 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {getSinAsignar(tab).length === 0 ? (
+              <>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>✓</div>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#15803d", margin: 0 }}>Todos los empleados asignados</p>
+                  <p style={{ fontSize: 11, color: "#16a34a", margin: "1px 0 0" }}>{empleados.length} empleados distribuidos en sus grupos</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff" }}>{getSinAsignar(tab).length}</div>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#854d0e", margin: 0 }}>Empleados sin asignar</p>
+                  <p style={{ fontSize: 11, color: "#92400e", margin: "1px 0 0" }}>Arrastra a un grupo para asignarlos</p>
+                </div>
+              </>
+            )}
+          </div>
+          {dragOver === "sin-asignar" && (
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#dc2626", background: "#fee2e2", borderRadius: 6, padding: "3px 10px" }}>Suelta aquí para desasignar</span>
+          )}
         </div>
+        {getSinAsignar(tab).length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {getSinAsignar(tab).map((emp, idx) => (
+              <div key={emp.id} draggable onDragStart={() => setDragging({ empleadoId: emp.id, fromGrupo: "", tipo: tab })}
+                style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 20, padding: "4px 10px 4px 4px", cursor: "grab", userSelect: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", transition: "transform .1s" }}
+                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.03)")}
+                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
+                <Avatar nombre={`${emp.nombre} ${emp.apellidos}`} color={AVATAR_COLORS[idx % AVATAR_COLORS.length]} size={22} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#374151" }}>{emp.nombre} {emp.apellidos.split(" ")[0]}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Grid grupos */}
