@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
@@ -47,6 +48,13 @@ export default function DeudasPage() {
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
+        <InfoPanel titulo="Como usar Deudas y Anticipos" color="#dc2626" bg="#fff1f1" border="#fecaca" items={[
+          { icon: "💰", titulo: "Anticipos salariales", desc: "Registra anticipos del salario que el empleado devolvera en proximas nominas. Aparece como saldo negativo en rojo." },
+          { icon: "🛒", titulo: "Compras en pescaderia", desc: "Registra compras realizadas por el empleado que se descontaran de su nomina." },
+          { icon: "📊", titulo: "Estado de deuda", desc: "Verde: pagada. Rojo: pendiente. El saldo se actualiza automaticamente con cada pago parcial." },
+          { icon: "✅", titulo: "Registrar pago", desc: "Marca pagos parciales o totales. Queda registro de cada transaccion con fecha y metodo de pago." },
+          { icon: "👤", titulo: "Ver perfil", desc: "Haz click en el empleado para ir a su perfil y ver el historial completo de deudas." },
+        ]} />
           <h1 style={{ fontSize: 22, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Deudas y Anticipos</h1>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>{empleadosConDeudas.length} empleados con deudas activas</p>
         </div>

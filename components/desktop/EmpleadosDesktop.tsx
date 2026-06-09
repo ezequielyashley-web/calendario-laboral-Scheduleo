@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 
 import { useState } from "react"
 
@@ -286,6 +287,13 @@ export default function EmpleadosDesktop() {
           <option value="baja">Baja</option>
         </select>
 
+        <InfoPanel titulo="Como usar Empleados" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
+          { icon: "👤", titulo: "Ver perfil", desc: "Haz click en cualquier empleado para ver su perfil completo con fichajes, vacaciones, bajas, deudas y calendario laboral." },
+          { icon: "➕", titulo: "Nuevo empleado", desc: "Pulsa el boton para crear un nuevo empleado. Se generan automaticamente credenciales de acceso y PIN." },
+          { icon: "🔍", titulo: "Busqueda y filtros", desc: "Busca por nombre, filtra por grupo de trabajo o estado. Usa el toggle para mostrar/ocultar empleados demo." },
+          { icon: "📊", titulo: "Estado del empleado", desc: "El banner de color indica si el empleado esta trabajando, de vacaciones, de baja o con cambio de turno hoy." },
+          { icon: "📅", titulo: "Calendario laboral", desc: "En el perfil del empleado encontraras su calendario anual con todos sus dias libres, festivos y eventos en color." },
+        ]} />
         <button onClick={()=>setShowNuevo(true)} className="btn-primary text-sm px-4 py-2 whitespace-nowrap">+ Nuevo empleado</button>
       </div>
 

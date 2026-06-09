@@ -1,4 +1,5 @@
-﻿"use client"
+"use client"
+import InfoPanel from "@/components/InfoPanel"
 import { useState, useEffect, useCallback } from "react"
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
@@ -218,41 +219,13 @@ export default function LibranzasDesktop() {
             style={{ background: "#ede9fe", color: "#6d28d9", border: "1px solid #c4b5fd", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
             ⚡ Distribución automática
           </button>
-        </div>
-      </div>
-
-      {/* Panel ayuda */}
-      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "12px 16px", display: "flex", gap: 20, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 18 }}>📅</span>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Asignar días manualmente</p>
-            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>Selecciona un grupo y haz click en los días del calendario para marcarlos como libres. Los festivos y domingos no se pueden modificar.</p>
-          </div>
-        </div>
-        <div style={{ width: 1, background: "#bbf7d0" }} />
-        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 18 }}>⚡</span>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Distribución automática</p>
-            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>El sistema reparte los días libres equitativamente entre todos los grupos. Úsalo como punto de partida y ajusta manualmente.</p>
-          </div>
-        </div>
-        <div style={{ width: 1, background: "#bbf7d0" }} />
-        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 18 }}>💾</span>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Guardar y aplicar</p>
-            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>Al guardar con clave master, los días libres se aplican automáticamente al calendario de todos los empleados del grupo.</p>
-          </div>
-        </div>
-        <div style={{ width: 1, background: "#bbf7d0" }} />
-        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 18 }}>🗓️</span>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Renovación anual</p>
-            <p style={{ fontSize: 11, color: "#16a34a", margin: "2px 0 0" }}>Cambia el año con las flechas y asigna el nuevo calendario cada enero. Los festivos nacionales se cargan automáticamente.</p>
-          </div>
+          <InfoPanel color="#15803d" bg="#f0fdf4" border="#bbf7d0" items={[
+            { icon: "📅", titulo: "Asignar dias manualmente", desc: "Selecciona un grupo y haz click en los dias del calendario para marcarlos como libres. Los festivos y domingos no se pueden modificar." },
+            { icon: "⚡", titulo: "Distribucion automatica", desc: "El sistema reparte los dias libres equitativamente entre todos los grupos. Usalo como punto de partida y ajusta manualmente." },
+            { icon: "💾", titulo: "Guardar y aplicar", desc: "Al guardar con clave master los dias libres se aplican automaticamente al calendario de todos los empleados del grupo." },
+            { icon: "🗓️", titulo: "Renovacion anual", desc: "Cambia el año con las flechas y asigna el nuevo calendario cada enero. Los festivos nacionales se cargan automaticamente." },
+            { icon: "🟣", titulo: "Festivos", desc: "Los dias en morado son festivos nacionales y de la Comunidad de Madrid. No se pueden marcar como libranza." },
+          ]} />
         </div>
       </div>
 

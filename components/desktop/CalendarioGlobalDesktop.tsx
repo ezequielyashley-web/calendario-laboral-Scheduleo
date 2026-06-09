@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 
 import { useState } from "react"
 
@@ -104,6 +105,15 @@ export default function CalendarioGlobalDesktop() {
 
   return (
     <div style={{ padding: 0, maxWidth: '100%', margin: '0 auto' }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <InfoPanel titulo="Como usar el Calendario" color="#0891b2" bg="#f0f9ff" border="#bae6fd" items={[
+          { icon: "📅", titulo: "Vista anual", desc: "Ve todos los meses del año de un vistazo. Haz click en un mes para ver el detalle mensual." },
+          { icon: "📆", titulo: "Vista mensual", desc: "Detalle del mes con todos los grupos y sus libranzas. Haz click en un dia para ver quien trabaja." },
+          { icon: "📋", titulo: "Vista agenda", desc: "Lista detallada del dia seleccionado con todos los empleados y su estado." },
+          { icon: "🎨", titulo: "Colores por grupo", desc: "G1A/G1B azul, G2A/G2B rojo, G3A/G3B verde, L1/L2/L3 naranja." },
+          { icon: "🔍", titulo: "Filtros", desc: "Filtra por grupo de trabajo o sede para ver solo los empleados que te interesan." },
+        ]} />
+      </div>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>

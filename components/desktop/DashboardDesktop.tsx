@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 import InspectorBanner from "@/components/desktop/InspectorBanner"
 import { useState, useEffect } from "react"
 
@@ -117,6 +118,15 @@ export default function DashboardDesktop() {
     <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
       <InspectorBanner />
       <ClimaWidget />
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <InfoPanel titulo="Como usar el Dashboard" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
+          { icon: "📊", titulo: "KPIs en tiempo real", desc: "Los 4 indicadores principales muestran empleados activos, horas del mes, solicitudes pendientes y alertas. Se actualizan automaticamente." },
+          { icon: "📅", titulo: "Calendario rapido", desc: "Vista rapida del mes actual con los eventos mas importantes del equipo." },
+          { icon: "🔔", titulo: "Actividad reciente", desc: "Ultimas acciones del equipo: solicitudes de vacaciones, cambios de turno, fichajes y alertas." },
+          { icon: "🌤️", titulo: "Clima y hora", desc: "Widget con el clima actual de Madrid y la hora en tiempo real." },
+          { icon: "🔍", titulo: "Inspeccion laboral", desc: "Si hay una inspeccion activa aparece el banner naranja en la parte superior con acceso rapido." },
+        ]} />
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
         {kpis.map((k, i) => (

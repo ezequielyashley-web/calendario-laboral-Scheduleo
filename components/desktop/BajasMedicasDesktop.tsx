@@ -1,5 +1,7 @@
-"use client"
+﻿"use client"
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
+import InfoPanel from "@/components/InfoPanel"
 
 type TipoBaja = 'it_comun' | 'it_profesional' | 'at' | 'maternidad' | 'paternidad' | 'menstruacion' | 'semana39' | 'interrupcion_embarazo'
 
@@ -65,6 +67,7 @@ function Avatar({ nombre, size = 32 }: { nombre: string; size?: number }) {
 }
 
 export default function BajasMedicasDesktop() {
+  const router = useRouter()
   const [bajas, setBajas] = useState<Baja[]>([])
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('todas')
@@ -210,6 +213,13 @@ export default function BajasMedicasDesktop() {
           {Object.entries(tipoStyle).map(([k, v]) => <option key={k} value={k}>{v.emoji} {v.label}</option>)}
         </select>
         <button onClick={cargar} className="btn-secondary text-xs px-3 py-1.5">🔄</button>
+        <InfoPanel color="#0891b2" bg="#f0f9ff" border="#bae6fd" items={[
+          { icon: "🏥", titulo: "Registrar baja", desc: "Pulsa + Nueva baja para registrar un parte de baja médica. Introduce el tipo, fecha de inicio y datos del parte." },
+          { icon: "✅", titulo: "Confirmar INSS", desc: "Tienes 3 días hábiles para confirmar los datos económicos al INSS (Art. 169 LGSS). Las bajas pendientes se marcan en amarillo." },
+          { icon: "🔝", titulo: "Dar alta médica", desc: "Cuando el médico emita el alta, regístrala aquí para cerrar la baja y actualizar el calendario del empleado." },
+          { icon: "⚠️", titulo: "Alertas urgentes", desc: "El sistema avisa automáticamente cuando una baja supera los 545 días (riesgo de incapacidad permanente) o cuando se acerca el plazo INSS." },
+          { icon: "👤", titulo: "Ver perfil", desc: "Haz doble click en cualquier fila para ir directamente al perfil del empleado." },
+        ]} />
         <button onClick={() => setShowNueva(true)} className="btn-primary text-xs px-4 py-2 ml-auto">+ Nueva baja</button>
       </div>
 
@@ -240,7 +250,7 @@ export default function BajasMedicasDesktop() {
                   const ts = tipoStyle[b.tipo] || tipoStyle.it_comun
                   const es = estadoStyle[b.estado] || estadoStyle.ACTIVA
                   return (
-                    <tr key={b.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background .15s' }}
+                    <tr key={b.id} onDoubleClick={() => router.push(`/empleados/${b.empleadoId}`)} style={{ cursor: "pointer", borderBottom: '1px solid var(--border)', transition: 'background .15s' }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                       <td style={{ padding: '12px 16px' }}>

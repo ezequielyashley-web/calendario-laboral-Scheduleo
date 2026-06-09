@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 
 import { useState } from "react"
 
@@ -92,6 +93,15 @@ export default function ReportesDesktop() {
   return (
     <div className="space-y-5">
 
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
+        <InfoPanel titulo="Como usar Reportes" color="#7c3aed" bg="#f5f3ff" border="#ddd6fe" items={[
+          { icon: "📊", titulo: "Tipos de reporte", desc: "Selecciona entre Asistencia, Horas extra, Vacaciones o Incidencias para ver el reporte correspondiente." },
+          { icon: "📅", titulo: "Rango de fechas", desc: "Filtra por dia, semana, mes o año para acotar los datos que necesitas analizar." },
+          { icon: "🏢", titulo: "Filtro por sede", desc: "Si tienes varias sedes puedes ver los datos de cada una por separado." },
+          { icon: "📤", titulo: "Exportar", desc: "Exporta cualquier reporte en CSV o PDF para compartirlo o guardarlo." },
+          { icon: "📈", titulo: "Graficos", desc: "Los reportes incluyen graficos visuales para identificar tendencias rapidamente." },
+        ]} />
+      </div>
       {/* Controles */}
       <Card hoverable={false} style={{ padding:16 }}>
         <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -241,4 +251,3 @@ export default function ReportesDesktop() {
     </div>
   )
 }
-

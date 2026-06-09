@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 
 import { useState } from "react"
 
@@ -79,6 +80,15 @@ export default function FichajesDesktop() {
 
   return (
     <div className="space-y-4">
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <InfoPanel titulo="Como usar Fichajes" color="#16a34a" bg="#f0fdf4" border="#bbf7d0" items={[
+          { icon: "⏰", titulo: "Registro horario", desc: "Todos los fichajes del dia aparecen aqui. Cumple con el RDL 8/2019 de registro horario obligatorio." },
+          { icon: "✅", titulo: "Estados", desc: "Verde: entrada y salida. Amarillo: sin salida registrada. Rojo: ausente sin fichar." },
+          { icon: "📊", titulo: "KPIs diarios", desc: "Resumen de empleados activos, sin salida, ausentes y horas totales trabajadas hoy." },
+          { icon: "📤", titulo: "Exportar", desc: "Exporta los fichajes en CSV o PDF para inspecciones laborales o auditorias." },
+          { icon: "🔍", titulo: "Filtros", desc: "Filtra por empleado, grupo o estado para localizar rapidamente incidencias." },
+        ]} />
+      </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -104,6 +114,15 @@ export default function FichajesDesktop() {
       <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:6, padding:'14px 16px', boxShadow:'var(--shadow-sm)', display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
         {/* Tabs días */}
         <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <InfoPanel titulo="Como usar Fichajes" color="#16a34a" bg="#f0fdf4" border="#bbf7d0" items={[
+          { icon: "⏰", titulo: "Registro de entrada y salida", desc: "Todos los fichajes del dia aparecen aqui. El sistema cumple con el RDL 8/2019 de registro horario obligatorio." },
+          { icon: "✅", titulo: "Estados", desc: "Verde: ficho entrada y salida. Amarillo: sin salida registrada. Rojo: ausente sin fichar." },
+          { icon: "📊", titulo: "KPIs diarios", desc: "Resumen de empleados activos, sin salida, ausentes y horas totales trabajadas hoy." },
+          { icon: "📤", titulo: "Exportar", desc: "Exporta los fichajes en CSV o PDF para inspecciones laborales o auditorias internas." },
+          { icon: "🔍", titulo: "Filtros", desc: "Filtra por empleado, grupo o estado para localizar rapidamente quien falta o lleva horas extra." },
+        ]} />
+      </div>
           {dias.map(d => (
             <button key={d} onClick={()=>setDiaActivo(d)}
               style={{ padding:'5px 12px', fontSize:12, fontWeight:600, borderRadius:4, transition:'all .15s',
@@ -283,4 +302,3 @@ export default function FichajesDesktop() {
     </div>
   )
 }
-

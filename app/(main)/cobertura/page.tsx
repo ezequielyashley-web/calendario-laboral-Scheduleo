@@ -1,4 +1,5 @@
 "use client"
+import InfoPanel from "@/components/InfoPanel"
 
 import { useState, useEffect } from "react"
 
@@ -58,6 +59,14 @@ export default function CoberturaPage() {
   return (
     <div style={{ padding: 32, maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8, color: "#6366f1" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <InfoPanel titulo="Como usar Cobertura" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
+          { icon: "👥", titulo: "Minimos por puesto", desc: "Define cuantos empleados como minimo deben estar trabajando cada dia en cada puesto." },
+          { icon: "⚠️", titulo: "Alertas de cobertura", desc: "El sistema avisa automaticamente cuando hay menos empleados de los requeridos por vacaciones o bajas." },
+          { icon: "📅", titulo: "Vista por dia", desc: "Consulta la cobertura de cualquier dia del año para anticipar problemas de personal." },
+          { icon: "🔧", titulo: "Configurar minimos", desc: "Edita los minimos requeridos segun la temporada o necesidades del negocio." },
+        ]} />
+      </div>
         Cobertura mínima por puesto
       </h1>
       <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 24 }}>
@@ -121,4 +130,3 @@ export default function CoberturaPage() {
     </div>
   )
 }
-
