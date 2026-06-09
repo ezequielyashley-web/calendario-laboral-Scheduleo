@@ -13,14 +13,14 @@ export default function InfoPanel({ titulo = "Como funciona", items, color = "#0
   const [visible, setVisible] = useState(false)
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <>
       <button onClick={() => setVisible(!visible)}
         title={visible ? "Cerrar ayuda" : "Ver instrucciones"}
-        style={{ background: visible ? "#f59e0b" : "#fef9c3", color: "#92400e", border: "2px solid #f59e0b", borderRadius: "50%", width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 15, fontWeight: 900, transition: "all .2s", flexShrink: 0, boxShadow: "0 2px 8px rgba(245,158,11,0.4)" }}>
+        style={{ position: "fixed", top: 80, right: 16, zIndex: 9998, background: visible ? "#f59e0b" : "#fef9c3", color: "#92400e", border: "2px solid #f59e0b", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 16, fontWeight: 900, transition: "all .2s", boxShadow: "0 2px 12px rgba(245,158,11,0.5)" }}>
         ℹ
       </button>
       {visible && (
-        <div style={{ position: "fixed", top: 80, right: 20, zIndex: 9999, background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: "14px 16px", width: 440, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", borderTop: `3px solid #f59e0b` }}>
+        <div style={{ position: "fixed", top: 120, right: 16, zIndex: 9999, background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: "14px 16px", width: 420, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", borderTop: `3px solid #f59e0b` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 16 }}>💡</span>
@@ -28,7 +28,7 @@ export default function InfoPanel({ titulo = "Como funciona", items, color = "#0
             </div>
             <button onClick={() => setVisible(false)} style={{ background: "#f3f4f6", border: "none", cursor: "pointer", color: "#6b7280", fontSize: 12, borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: "60vh", overflowY: "auto" }}>
             {items.map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", background: "#f8f9ff", borderRadius: 8, border: "1px solid #e8eaf0" }}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
@@ -41,6 +41,6 @@ export default function InfoPanel({ titulo = "Como funciona", items, color = "#0
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
