@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -132,12 +132,12 @@ const menuSections = [
     { href: '/cambios-turno',     icon: Icons.cambiosTurno,   label: 'Cambios turno'  },
     { href: '/bajas',             icon: Icons.bajas,          label: 'Bajas médicas'  },
     { href: '/chat',              icon: Icons.chat,           label: 'Chat'           },
+    { href: '/notificaciones',    icon: Icons.notificaciones, label: 'Notificaciones' },
     { href: '/deudas',            icon: Icons.deudas,         label: 'Deudas'         },
-    { href: '/cobertura',         icon: Icons.cobertura,      label: 'Cobertura'      },
   ]},
   { label: 'Sistema', items: [
     { href: '/reportes',          icon: Icons.reportes,       label: 'Reportes'       },
-    { href: '/notificaciones',    icon: Icons.notificaciones, label: 'Notificaciones' },
+    { href: '/cobertura',         icon: Icons.cobertura,      label: 'Cobertura'      },
     { href: '/configuracion',     icon: Icons.configuracion,  label: 'Configuración'  },
   ]},
 ]
@@ -320,5 +320,3 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     </div>
   )
 }
-
-

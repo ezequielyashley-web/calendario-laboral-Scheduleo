@@ -1,113 +1,81 @@
 "use client"
-
 import { useNotifications } from "@/components/providers/NotificationProvider"
 
 export default function NotificacionesPage() {
   const { notificaciones, marcarComoLeida, marcarTodasComoLeidas } = useNotifications()
 
-  const tipoIcons: any = {
-    info: "📬",
-    success: "✅",
-    warning: "⚠️",
-    error: "❌",
+  const tipoConfig: Record<string, { icon: string; color: string; bg: string; border: string }> = {
+    info:    { icon: "📬", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
+    success: { icon: "✅", color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+    warning: { icon: "⚠️", color: "#d97706", bg: "#fffbeb", border: "#fde68a" },
+    error:   { icon: "❌", color: "#dc2626", bg: "#fff1f1", border: "#fecaca" },
   }
 
-  const tipoColors: any = {
-    info: "from-blue-400 to-indigo-400",
-    success: "from-green-400 to-emerald-400",
-    warning: "from-yellow-400 to-amber-400",
-    error: "from-red-400 to-pink-400",
+  const formatFecha = (fecha: any) => {
+    if (!fecha) return "Ahora"
+    try {
+      const d = new Date(fecha)
+      if (isNaN(d.getTime())) return "Ahora"
+      return d.toLocaleDateString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+    } catch { return "Ahora" }
   }
+
+  const sinLeer = notificaciones.filter(n => !n.leida).length
 
   return (
-    
-      <div className="min-h-screen space-y-6">
-        {/* Header */}
-        <div className="glass-card p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-                Notificaciones
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {notificaciones.filter(n => !n.leida).length} sin leer de {notificaciones.length} totales
-              </p>
-            </div>
-            
-            {notificaciones.some(n => !n.leida) && (
-              <button
-                onClick={marcarTodasComoLeidas}
-                className="px-6 py-3 bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
-              >
-                ✓ Marcar todas como leídas
-              </button>
-            )}
-          </div>
-        </div>
+    <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
 
-        {/* Lista de notificaciones */}
-        <div className="space-y-3">
-          {notificaciones.length === 0 ? (
-            <div className="glass-card p-12 text-center">
-              <div className="text-6xl mb-4">📭</div>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
-                No tienes notificaciones
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Cuando recibas notificaciones, aparecerán aquí
-              </p>
-            </div>
-          ) : (
-            notificaciones.map((notif) => (
-              <div
-                key={notif.id}
-                onClick={() => marcarComoLeida(notif.id)}
-                className={`glass-card p-5 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${
-                  !(notif as any).leida ? "border-l-4 border-[#00A896]" : ""
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${tipoColors[(notif as any).tipo]} flex items-center justify-center text-3xl shadow-lg flex-shrink-0`}>
-                    {tipoIcons[(notif as any).tipo]}
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Notificaciones</h1>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "4px 0 0" }}>
+            {sinLeer > 0 ? `${sinLeer} sin leer de ${notificaciones.length} totales` : `${notificaciones.length} notificaciones · todas leídas`}
+          </p>
+        </div>
+        {sinLeer > 0 && (
+          <button onClick={marcarTodasComoLeidas}
+            style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(99,102,241,0.3)" }}>
+            ✓ Marcar todas como leídas
+          </button>
+        )}
+      </div>
+
+      {/* Lista */}
+      {notificaciones.length === 0 ? (
+        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: 60, textAlign: "center" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🔔</div>
+          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>No hay notificaciones</p>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "6px 0 0" }}>Las notificaciones de vacaciones, bajas y cambios de turno aparecerán aquí</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {notificaciones.map((n: any) => {
+            const config = tipoConfig[n.tipo] || tipoConfig.info
+            return (
+              <div key={n.id} onClick={() => marcarComoLeida(n.id)}
+                style={{ background: n.leida ? "var(--surface)" : config.bg, border: `1px solid ${n.leida ? "var(--border)" : config.border}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer", transition: "all .15s", borderLeft: `4px solid ${n.leida ? "var(--border)" : config.color}` }}
+                onMouseEnter={e => (e.currentTarget.style.transform = "translateX(4px)")}
+                onMouseLeave={e => (e.currentTarget.style.transform = "translateX(0)")}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: n.leida ? "var(--surface-2)" : config.bg, border: `1px solid ${config.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
+                  {config.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <p style={{ fontSize: 14, fontWeight: n.leida ? 500 : 700, color: "var(--text-primary)", margin: 0 }}>{n.titulo || "Notificación"}</p>
+                    {!n.leida && <span style={{ background: config.color, color: "#fff", fontSize: 9, fontWeight: 800, borderRadius: 20, padding: "2px 8px", textTransform: "uppercase" }}>NUEVO</span>}
                   </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-bold text-gray-900 dark:text-gray-100">
-                        {(notif as any).remitente}
-                      </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date((notif as any).timestamp).toLocaleString('es-ES', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                      {!(notif as any).leida && (
-                        <span className="px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full">
-                          NUEVO
-                        </span>
-                      )}
-                    </div>
-                    
-                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">
-                      {notif.titulo}
-                    </h4>
-                    
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {(notif as any).mensaje}
-                    </p>
-                  </div>
+                  <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>{n.mensaje || n.cuerpo || ""}</p>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                  <span style={{ fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>{formatFecha(n.createdAt || n.fecha)}</span>
+                  {n.leida && <span style={{ fontSize: 10, color: "#9ca3af" }}>Leída</span>}
                 </div>
               </div>
-            ))
-          )}
+            )
+          })}
         </div>
-      </div>
-    
+      )}
+    </div>
   )
 }
-
-
-
