@@ -29,7 +29,7 @@ export default function PerfilEmpleadoPage() {
   const [editando, setEditando] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState({ texto: "", tipo: "" })
-  const [form, setForm] = useState({ nombre: "", apellidos: "", dni: "", telefono: "", fechaNacimiento: "", fechaContratacion: "" })
+  const [form, setForm] = useState({ nombre: "", apellidos: "", dni: "", naf: "", iban: "", telefono: "", salario: "", fechaNacimiento: "", fechaContratacion: "" })
   const [modalHistorial, setModalHistorial] = useState(null)
   const [formHistorial, setFormHistorial] = useState({ nuevoSueldo: "", porcentaje: "", puesto: "", fechaInicio: "", notas: "" })
   const [modalDeuda, setModalDeuda] = useState(null)
