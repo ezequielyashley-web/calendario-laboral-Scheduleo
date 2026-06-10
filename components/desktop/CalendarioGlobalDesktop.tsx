@@ -18,6 +18,8 @@ const todosLosGrupos = ['G1A','G1B','G2A','G2B','G3A','G3B','L1','L2','L3']
 const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 const diasCortos = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
 
+const DOMINGOS_LABORABLES_2026 = ["2026-12-20", "2026-12-27"]
+
 const FESTIVOS_NACIONALES: Record<number, number[]> = {
   0: [1, 6],
   3: [2, 3],
@@ -43,18 +45,18 @@ function getDaysInMonth(year: number, month: number): (DayConfig | null)[] {
     const dow = date.getDay()
     let tipo = 'trabajo', grupos: string[] = [], esFestivo = false
     const esFestNacional = FESTIVOS_NACIONALES[month]?.includes(day) ?? false
-    if (dow === 0) {
+    const fechaStr2 = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`
+    if (dow === 0 && DOMINGOS_LABORABLES_2026.includes(fechaStr2)) {
+      tipo = 'trabajo'
+    } else if (dow === 0) {
       tipo = 'domingo'
-    } else if (esFestNacional) {
-      tipo = 'festivo'; esFestivo = true
-    } else {
-      if (dow === 1) grupos = ['L1','L2','L3']
-      else if ([2,3,4,5,6].includes(dow)) {
+    } else if (dow === 1) { grupos = ['L1','L2','L3']
+    } else if ([2,3,4,5,6].includes(dow)) {
         if (day%6===0||day%6===1)      grupos = ['G1A','G2A','G3A']
         else if (day%6===2||day%6===3) grupos = ['G1B','G2B','G3B']
         else grupos = ['G1A','G2B','G3A']
-      }
     }
+
     days.push({ day, tipo, grupos, date, libranzas:[], esFestivo, esEspecial:false })
   }
   return days
