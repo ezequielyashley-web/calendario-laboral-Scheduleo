@@ -1,92 +1,52 @@
 /**
- * SCHEDULEO - FASE 6: VALIDACIÓN Y SANITIZACIÓN
- * Protección contra XSS, SQL Injection y inputs maliciosos
+ * SCHEDULEO - VALIDACION Y SANITIZACION
+ * Proteccion contra XSS, SQL Injection e inputs maliciosos
  */
 
-import DOMPurify from 'isomorphic-dompurify'
-
 /**
- * VALIDACIÓN DE CONTRASEÑAS
- * Mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula, 1 número
+ * VALIDACION DE CONTRASENAS
  */
 export interface PasswordValidation {
   valid: boolean
   errors: string[]
-  strength: 'débil' | 'media' | 'fuerte'
+  strength: 'debil' | 'media' | 'fuerte'
 }
 
 export function validatePassword(password: string): PasswordValidation {
   const errors: string[] = []
-  let strength: 'débil' | 'media' | 'fuerte' = 'débil'
-
-  // Mínimo 8 caracteres
-  if (password.length < 8) {
-    errors.push('Mínimo 8 caracteres')
-  }
-
-  // Al menos una mayúscula
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Al menos una letra mayúscula')
-  }
-
-  // Al menos una minúscula
-  if (!/[a-z]/.test(password)) {
-    errors.push('Al menos una letra minúscula')
-  }
-
-  // Al menos un número
-  if (!/[0-9]/.test(password)) {
-    errors.push('Al menos un número')
-  }
-
-  // Calcular fortaleza
+  let strength: 'debil' | 'media' | 'fuerte' = 'debil'
+  if (password.length < 8) errors.push('Minimo 8 caracteres')
+  if (!/[A-Z]/.test(password)) errors.push('Al menos una letra mayuscula')
+  if (!/[a-z]/.test(password)) errors.push('Al menos una letra minuscula')
+  if (!/[0-9]/.test(password)) errors.push('Al menos un numero')
   if (errors.length === 0) {
-    if (password.length >= 12 && /[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      strength = 'fuerte'
-    } else if (password.length >= 10) {
-      strength = 'media'
-    }
+    if (password.length >= 12 && /[!@#$%^&*(),.?":{}|<>]/.test(password)) strength = 'fuerte'
+    else if (password.length >= 10) strength = 'media'
   }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    strength
-  }
+  return { valid: errors.length === 0, errors, strength }
 }
 
 /**
- * SANITIZACIÓN DE TEXTO
- * Elimina HTML peligroso, scripts, etc.
+ * SANITIZACION DE TEXTO
  */
 export function sanitizeText(text: string): string {
   if (!text) return ''
-  
-  // Eliminar HTML peligroso
-  const cleaned = DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: [], // No permitir ningún tag HTML
-    ALLOWED_ATTR: []
-  })
-
-  // Trim y limitar longitud
-  return cleaned.trim().slice(0, 1000)
+  return text
+    .replace(/<[^>]*>/g, '')
+    .trim()
+    .slice(0, 1000)
 }
 
 /**
- * SANITIZACIÓN DE EMAIL
+ * SANITIZACION DE EMAIL
  */
 export function sanitizeEmail(email: string): string {
   if (!email) return ''
-  
-  return email
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9@._-]/g, '') // Solo caracteres válidos
-    .slice(0, 100)
+  return email.toLowerCase().trim().replace(/[^a-z0-9@._-]/g, '').slice(0, 100)
 }
 
 /**
- * VALIDACIÓN DE EMAIL
+ * VALIDACION DE EMAIL
  */
 export function validateEmail(email: string): boolean {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
@@ -94,52 +54,121 @@ export function validateEmail(email: string): boolean {
 }
 
 /**
- * SANITIZACIÓN DE NOMBRE
- * Permite letras, espacios, guiones y apóstrofes
+ * SANITIZACION DE NOMBRE
  */
 export function sanitizeName(name: string): string {
   if (!name) return ''
-  
-  return name
-    .trim()
-    .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]/g, '') // Solo letras españolas, espacios, guiones
-    .slice(0, 100)
+  return name.trim().replace(/[^a-zA-ZaeiouAEIOUanNuU\s'-]/g, '').slice(0, 100)
 }
 
 /**
- * SANITIZACIÓN DE NÚMERO DE TELÉFONO
+ * SANITIZACION DE TELEFONO
  */
 export function sanitizePhone(phone: string): string {
   if (!phone) return ''
-  
-  return phone
-    .replace(/[^0-9+\s()-]/g, '') // Solo números y caracteres de teléfono
-    .slice(0, 20)
+  return phone.replace(/[^0-9+\s()-]/g, '').slice(0, 20)
 }
 
 /**
- * VALIDACIÓN DE PIN (legacy - mantener para compatibilidad)
+ * VALIDACION DE PIN
  */
 export function validatePIN(pin: string): boolean {
   return /^\d{4}$/.test(pin)
 }
 
 /**
- * PREVENCIÓN DE SQL INJECTION
- * Escapar caracteres peligrosos en queries
+ * VALIDACION DE DNI/NIE espanol
+ * DNI: 8 digitos + letra
+ * NIE: X/Y/Z + 7 digitos + letra
  */
-export function escapeSQLInput(input: string): string {
-  if (!input) return ''
-  
-  return input
-    .replace(/'/g, "''") // Escape single quotes
-    .replace(/;/g, '') // Remove semicolons
-    .replace(/--/g, '') // Remove SQL comments
-    .replace(/\/\*/g, '') // Remove block comments
+export function validateDNI(dni: string): boolean {
+  if (!dni) return true // opcional
+  const dniRegex = /^[0-9]{8}[A-Z]$/
+  const nieRegex = /^[XYZ][0-9]{7}[A-Z]$/
+  const upper = dni.toUpperCase().trim()
+  if (!dniRegex.test(upper) && !nieRegex.test(upper)) return false
+  const letras = 'TRWAGMYFPDXBNJZSQVHLCKE'
+  if (dniRegex.test(upper)) {
+    return upper[8] === letras[parseInt(upper.slice(0, 8)) % 23]
+  }
+  // NIE: sustituir X=0, Y=1, Z=2
+  const nieNum = upper.replace('X', '0').replace('Y', '1').replace('Z', '2')
+  return upper[8] === letras[parseInt(nieNum.slice(0, 8)) % 23]
 }
 
 /**
- * VALIDACIÓN DE FECHA
+ * VALIDACION DE NAF (Numero Afiliacion Seguridad Social)
+ * Formato: 2 digitos provincia + 9 digitos
+ */
+export function validateNAF(naf: string): boolean {
+  if (!naf) return true // opcional
+  return /^\d{11,12}$/.test(naf.replace(/\s/g, ''))
+}
+
+/**
+ * VALIDACION DE IBAN espanol
+ * Formato: ES + 22 digitos
+ */
+export function validateIBAN(iban: string): boolean {
+  if (!iban) return true // opcional
+  const clean = iban.replace(/\s/g, '').toUpperCase()
+  if (!/^ES\d{22}$/.test(clean)) return false
+  // Verificacion modulo 97
+  const rearranged = clean.slice(4) + clean.slice(0, 4)
+  const numeric = rearranged.replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55))
+  let remainder = 0
+  for (const chunk of numeric.match(/.{1,9}/g) || []) {
+    remainder = parseInt(String(remainder) + chunk) % 97
+  }
+  return remainder === 1
+}
+
+/**
+ * VALIDACION DE SALARIO
+ */
+export function validateSalario(salario: string | number): boolean {
+  if (!salario) return true // opcional
+  const num = parseFloat(String(salario))
+  return !isNaN(num) && num >= 0 && num <= 999999
+}
+
+/**
+ * VALIDAR TODOS LOS DATOS DE EMPLEADO
+ * Devuelve array de errores (vacio = OK)
+ */
+export function validarDatosEmpleado(datos: {
+  nombre?: string
+  apellidos?: string
+  email?: string
+  pin?: string
+  dni?: string
+  naf?: string
+  iban?: string
+  salario?: string | number
+}): string[] {
+  const errores: string[] = []
+  if (!datos.nombre?.trim()) errores.push('El nombre es obligatorio')
+  if (!datos.apellidos?.trim()) errores.push('Los apellidos son obligatorios')
+  if (!datos.email?.trim()) errores.push('El email es obligatorio')
+  if (datos.email && !validateEmail(datos.email)) errores.push('El email no tiene un formato valido')
+  if (datos.pin && !validatePIN(datos.pin)) errores.push('El PIN debe tener exactamente 4 digitos')
+  if (datos.dni && !validateDNI(datos.dni)) errores.push('El DNI/NIE no es valido')
+  if (datos.naf && !validateNAF(datos.naf)) errores.push('El NAF debe tener 11 o 12 digitos')
+  if (datos.iban && !validateIBAN(datos.iban)) errores.push('El IBAN espanol no es valido (ES + 22 digitos)')
+  if (datos.salario && !validateSalario(datos.salario)) errores.push('El salario debe ser un numero entre 0 y 999.999')
+  return errores
+}
+
+/**
+ * PREVENCION DE SQL INJECTION
+ */
+export function escapeSQLInput(input: string): string {
+  if (!input) return ''
+  return input.replace(/'/g, "''").replace(/;/g, '').replace(/--/g, '').replace(/\/\*/g, '')
+}
+
+/**
+ * VALIDACION DE FECHA
  */
 export function validateDate(dateString: string): boolean {
   const date = new Date(dateString)
@@ -147,15 +176,12 @@ export function validateDate(dateString: string): boolean {
 }
 
 /**
- * SANITIZACIÓN DE URL
+ * SANITIZACION DE URL
  */
 export function sanitizeURL(url: string): string {
   try {
     const parsed = new URL(url)
-    // Solo permitir http y https
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
-      return ''
-    }
+    if (!['http:', 'https:'].includes(parsed.protocol)) return ''
     return parsed.toString()
   } catch {
     return ''

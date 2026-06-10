@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getEmpleadoData, prepararCamposCifrados } from "@/lib/empleadoData"
+import { validarDatosEmpleado, sanitizeText, sanitizeEmail, sanitizePhone } from "@/lib/validation"
+import { checkRateLimit } from "@/lib/rate-limit"
+import { getClientIP } from "@/lib/security-middleware"
 
 export async function GET(req: NextRequest) {
   try {
@@ -44,6 +47,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: max 10 creaciones por IP por hora
+    const ip = getClientIP(req)
+    const rl = checkRateLimit(`empleados-post-${ip}`, 10, 60 * 60 * 1000)
+    if (!rl.success) {
+      return NextResponse.json({ error: "Demasiadas solicitudes. Intenta de nuevo en 1 hora." }, { status: 429 })
+    }
+
     const body = await req.json()
     const {
       nombre, apellidos, email, pin,
@@ -53,9 +63,17 @@ export async function POST(req: NextRequest) {
       diasVacaciones, diasAsuntosPropios,
     } = body
 
-    if (!nombre || !apellidos || !email) {
-      return NextResponse.json({ error: "Nombre, apellidos y email son obligatorios" }, { status: 400 })
+    // Validar y sanitizar inputs
+    const errores = validarDatosEmpleado({ nombre, apellidos, email, pin, dni, naf, iban, salario })
+    if (errores.length > 0) {
+      return NextResponse.json({ error: errores[0], errores }, { status: 400 })
     }
+
+    // Sanitizar
+    const nombreLimpio   = sanitizeText(nombre)
+    const apellidosLimpio = sanitizeText(apellidos)
+    const emailLimpio    = sanitizeEmail(email)
+    const telefonoLimpio = telefono ? sanitizePhone(telefono) : undefined
 
     // Empleados reales: esDemostracion = false
     const esDemostracion = false
@@ -87,9 +105,9 @@ export async function POST(req: NextRequest) {
     const resultado = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          email,
+          email:    emailLimpio,
           password: passwordHash,
-          name: `${nombre} ${apellidos}`,
+          name: `${nombreLimpio} ${apellidosLimpio}`,
           role: 'EMPLEADO',
           empresaId: 'empresa-001',
         }
@@ -100,8 +118,8 @@ export async function POST(req: NextRequest) {
           userId:            user.id,
           empresaId:         'empresa-001',
           numeroEmpleado:    nuevoNumero,
-          nombre,
-          apellidos,
+          nombre:            nombreLimpio,
+          apellidos:         apellidosLimpio,
           esDemostracion,
           diasVacaciones:    diasVacaciones    ?? 22,
           diasAsuntosPropios: diasAsuntosPropios ?? 6,
@@ -115,6 +133,18 @@ export async function POST(req: NextRequest) {
 
       return { user, empleado }
     })
+
+    // Audit log
+    await prisma.logAuditoria.create({
+      data: {
+        userId:    resultado.user.id,
+        accion:    "EMPLEADO_CREADO",
+        entidad:   "Empleado",
+        entidadId: resultado.empleado.id,
+        detalles:  `Empleado real creado: ${nombreLimpio} ${apellidosLimpio} (${resultado.empleado.numeroEmpleado}). Datos sensibles cifrados AES-256-GCM.`,
+        ip:        getClientIP(req),
+      }
+    }).catch(() => null)
 
     return NextResponse.json({
       ok: true,
