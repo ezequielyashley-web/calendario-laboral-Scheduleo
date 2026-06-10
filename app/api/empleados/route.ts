@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { getEmpleadoData } from "@/lib/empleadoData"
+import { getEmpleadoData, prepararCamposCifrados } from "@/lib/empleadoData"
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,17 +18,15 @@ export async function GET(req: NextRequest) {
       ORDER BY e."numeroEmpleado"
     ` as any[]
 
-    // Descifrar datos sensibles segun tipo (demo vs real)
     const empleadosDecifrados = empleados.map((e: any) => {
       const sensible = getEmpleadoData(e)
       return {
         ...e,
-        dni:      sensible.dni,
-        naf:      sensible.naf,
-        iban:     sensible.iban,
-        telefono: sensible.telefono,
-        salario:  sensible.salario,
-        // Nunca exponer campos cifrados al frontend
+        dni:         sensible.dni,
+        naf:         sensible.naf,
+        iban:        sensible.iban,
+        telefono:    sensible.telefono,
+        salario:     sensible.salario,
         dniEnc:      undefined,
         nafEnc:      undefined,
         ibanEnc:     undefined,
@@ -41,5 +39,95 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error(error)
     return NextResponse.json([])
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const {
+      nombre, apellidos, email, pin,
+      dni, naf, iban, telefono, salario,
+      fechaNacimiento, fechaContratacion,
+      grupoTrabajoId, puestoDeTrabajoId,
+      diasVacaciones, diasAsuntosPropios,
+    } = body
+
+    if (!nombre || !apellidos || !email) {
+      return NextResponse.json({ error: "Nombre, apellidos y email son obligatorios" }, { status: 400 })
+    }
+
+    // Empleados reales: esDemostracion = false
+    const esDemostracion = false
+
+    // Cifrar datos sensibles
+    const camposSensibles = prepararCamposCifrados(
+      { dni, naf, iban, telefono, salario: salario ? String(salario) : undefined },
+      esDemostracion
+    )
+
+    // Generar numero de empleado correlativo
+    const ultimo = await prisma.$queryRaw`
+      SELECT "numeroEmpleado" FROM "Empleado"
+      WHERE "empresaId" = 'empresa-001' AND "esDemostracion" = false
+      ORDER BY "numeroEmpleado" DESC LIMIT 1
+    ` as any[]
+
+    let nuevoNumero = "EMP-001"
+    if (ultimo.length > 0) {
+      const num = parseInt(ultimo[0].numeroEmpleado?.replace(/\D/g, '') || '0') + 1
+      nuevoNumero = `EMP-${String(num).padStart(3, '0')}`
+    }
+
+    // Hash del PIN
+    const bcrypt = await import('bcryptjs')
+    const passwordHash = await bcrypt.hash(pin || '1234', 10)
+
+    // Crear User + Empleado en transaccion
+    const resultado = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          password: passwordHash,
+          name: `${nombre} ${apellidos}`,
+          role: 'EMPLEADO',
+          empresaId: 'empresa-001',
+        }
+      })
+
+      const empleado = await tx.empleado.create({
+        data: {
+          userId:            user.id,
+          empresaId:         'empresa-001',
+          numeroEmpleado:    nuevoNumero,
+          nombre,
+          apellidos,
+          esDemostracion,
+          diasVacaciones:    diasVacaciones    ?? 22,
+          diasAsuntosPropios: diasAsuntosPropios ?? 6,
+          ...(grupoTrabajoId   && { grupoTrabajoId }),
+          ...(puestoDeTrabajoId && { puestoDeTrabajoId }),
+          ...(fechaNacimiento   && { fechaNacimiento:   new Date(fechaNacimiento) }),
+          ...(fechaContratacion && { fechaContratacion: new Date(fechaContratacion) }),
+          ...camposSensibles,
+        }
+      })
+
+      return { user, empleado }
+    })
+
+    return NextResponse.json({
+      ok: true,
+      id:             resultado.empleado.id,
+      numeroEmpleado: resultado.empleado.numeroEmpleado,
+      email:          resultado.user.email,
+    }, { status: 201 })
+
+  } catch (error: any) {
+    console.error("Error creando empleado:", error)
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: "El email ya existe en el sistema" }, { status: 409 })
+    }
+    return NextResponse.json({ error: "Error al crear empleado" }, { status: 500 })
   }
 }
