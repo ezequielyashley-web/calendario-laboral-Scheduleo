@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from "react"
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
 
+// Domingos especiales laborables 2026
+const DOMINGOS_LABORABLES_2026 = ["2026-12-20", "2026-12-27"]
+
 // Festivos nacionales + Comunidad de Madrid 2026
 const FESTIVOS_2026: Record<string, string> = {
   "2026-01-01": "Año Nuevo",
@@ -325,7 +328,7 @@ export default function LibranzasDesktop() {
                 const fechaStr = getFechaStr(mesVista, dia)
                 const esLibre = diasGrupoActual.includes(fechaStr)
                 const fecha = new Date(anno, mesVista, dia)
-                const esDomingo = fecha.getDay() === 0
+                const esDomingo = fecha.getDay() === 0 && !DOMINGOS_LABORABLES_2026.includes(fechaStr)
                 const esSabado = fecha.getDay() === 6
                 const esFestivo = !!FESTIVOS_2026[fechaStr]
                 const hoy = new Date().toISOString().split("T")[0] === fechaStr

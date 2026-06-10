@@ -1,8 +1,10 @@
-﻿"use client"
+"use client"
 import { useState } from "react"
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
 const DIAS = ["L","M","X","J","V","S","D"]
+const DOMINGOS_LABORABLES_2026 = ["2026-12-20", "2026-12-27"]
+
 const FESTIVOS: Record<number, number[]> = {
   0:[1,6], 3:[2,3], 4:[1], 5:[24], 6:[25], 7:[15], 8:[12], 9:[12], 10:[1,2,9], 11:[6,8,25]
 }
@@ -20,6 +22,7 @@ export default function CalendarioEmpleado({ empleado }: Props) {
     const dow = fecha.getDay()
     const fechaStr = fecha.toISOString().split("T")[0]
 
+    if (dow === 0 && DOMINGOS_LABORABLES_2026.includes(fechaStr)) return { tipo: "trabajo", color: "#6b7280", bg: "#fff", border: "#f3f4f6", tooltip: "Domingo laborable (excepcion empresa)" }
     if (dow === 0) return { tipo: "domingo", color: "#ef4444", bg: "#fff1f1", border: "#fecaca", tooltip: "Domingo" }
     if (FESTIVOS[mes]?.includes(dia)) return { tipo: "festivo", color: "#8b5cf6", bg: "#f5f3ff", border: "#ddd6fe", tooltip: "Festivo" }
 
