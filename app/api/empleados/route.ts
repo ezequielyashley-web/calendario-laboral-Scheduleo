@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     }, { status: 201 })
 
   } catch (error: any) {
-    console.error("Error creando empleado:", error)
+    console.error("Error creando empleado DETALLE:", error?.message, error?.code, error?.meta)
     if (error.code === 'P2002') {
       return NextResponse.json({ error: "El email ya existe en el sistema" }, { status: 409 })
     }

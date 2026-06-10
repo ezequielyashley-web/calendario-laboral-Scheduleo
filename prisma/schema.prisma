@@ -84,6 +84,8 @@ model Empleado {
   diasVacaciones      Int             @default(22)
   diasAsuntosPropios  Int             @default(6)
   esDemostracion      Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
   fichajes            Fichaje[]
   vacaciones          Vacacion[]
   bajas               BajaMedica[]

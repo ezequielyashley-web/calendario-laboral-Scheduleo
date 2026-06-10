@@ -89,16 +89,16 @@ export default function PerfilEmpleadoPage() {
           nombre: data.nombre || "",
           apellidos: data.apellidos || "",
           dni: data.dni || "",
+          naf: data.naf || "",
+          iban: data.iban || "",
           telefono: data.telefono || "",
+          salario: data.salario || "",
           fechaNacimiento: data.fechaNacimiento ? data.fechaNacimiento.split("T")[0] : "",
           fechaContratacion: data.fechaContratacion ? data.fechaContratacion.split("T")[0] : "",
         })
         setLoading(false)
       })
   }
-
-  useEffect(() => { cargar() }, [id])
-
   const guardar = async () => {
     setGuardando(true)
     const res = await fetch(`/api/empleados/${id}`, {
