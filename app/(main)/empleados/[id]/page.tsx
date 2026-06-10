@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 import BannerEstadoEmpleado from "@/components/BannerEstadoEmpleado"
 import CalendarioEmpleado from "@/components/CalendarioEmpleado"
 import CalendarioAsuntosPropios from "@/components/vacaciones/CalendarioAsuntosPropios"
@@ -36,7 +36,7 @@ export default function PerfilEmpleadoPage() {
   const [formDeuda, setFormDeuda] = useState({ estado: "", fechaAprobacion: "", fechaPago: "", aprobadoPor: "", metodoPago: "EFECTIVO", porcentajeCobro: "", notas: "", importePagado: "" })
   const [pagoTipo, setPagoTipo] = useState("importe")
   const [modalVacacion, setModalVacacion] = useState<string | null>(null)
-  const [formVacacion, setFormVacacion] = useState({ fechaInicio: "", fechaFin: "", observaciones: "" })
+  const [formVacacion, setFormVacacion] = useState({ fechaInicio: "", fechaFin: "", observaciones: "", tipo: "LIBRE_ELECCION" })
   const [loadingVacacion, setLoadingVacacion] = useState(false)
 
   const gestionarVacacion = async (vid: string, estado: string) => {
@@ -70,7 +70,7 @@ export default function PerfilEmpleadoPage() {
     setLoadingVacacion(false)
     if (res.ok) {
       setModalVacacion(null)
-      setFormVacacion({ fechaInicio: "", fechaFin: "", observaciones: "" })
+      setFormVacacion({ fechaInicio: "", fechaFin: "", observaciones: "", tipo: "LIBRE_ELECCION" })
       setMensaje({ texto: "Solicitud creada correctamente", tipo: "ok" })
       cargar()
     } else {

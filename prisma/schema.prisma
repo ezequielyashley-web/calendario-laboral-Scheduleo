@@ -21,12 +21,11 @@ model User {
   empleado            Empleado?
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
-  passwordResetTokens PasswordResetToken[]   // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ NUEVO: RelaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n con tokens de reset
+  passwordResetTokens PasswordResetToken[]
 
   @@index([empresaId])
 }
 
-// ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ NUEVO: Modelo para tokens de restablecimiento de contraseÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±a
 model PasswordResetToken {
   id        String   @id @default(cuid())
   token     String   @unique
@@ -58,20 +57,28 @@ model Empresa {
 }
 
 model Empleado {
-  id                  String         @id @default(cuid())
-  userId              String         @unique
-  user                User           @relation(fields: [userId], references: [id])
+  id                  String          @id @default(cuid())
+  userId              String          @unique
+  user                User            @relation(fields: [userId], references: [id])
   empresaId           String
-  empresa             Empresa        @relation(fields: [empresaId], references: [id])
+  empresa             Empresa         @relation(fields: [empresaId], references: [id])
   numeroEmpleado      String
   nombre              String
   apellidos           String
   dni                 String?
   telefono            String?
+  naf                 String?
+  iban                String?
+  salario             Decimal?
+  dniEnc              String          @default("")
+  nafEnc              String          @default("")
+  ibanEnc             String          @default("")
+  telefonoEnc         String          @default("")
+  salarioEnc          String          @default("")
   fechaNacimiento     DateTime?
   fechaContratacion   DateTime?
   grupoTrabajoId      String?
-  grupoTrabajo        GrupoTrabajo?  @relation(fields: [grupoTrabajoId], references: [id])
+  grupoTrabajo        GrupoTrabajo?   @relation(fields: [grupoTrabajoId], references: [id])
   puestoDeTrabajoId   String?
   puestoDeTrabajo     PuestoDeTrabajo? @relation(fields: [puestoDeTrabajoId], references: [id])
   diasVacaciones      Int             @default(22)
@@ -80,9 +87,8 @@ model Empleado {
   fichajes            Fichaje[]
   vacaciones          Vacacion[]
   bajas               BajaMedica[]
-  cambiosTurnoOrigen  CambioTurno[]  @relation("EmpleadoOrigen")
-
-  cambiosTurnoDestino CambioTurno[]  @relation("EmpleadoDestino")
+  cambiosTurnoOrigen  CambioTurno[]   @relation("EmpleadoOrigen")
+  cambiosTurnoDestino CambioTurno[]   @relation("EmpleadoDestino")
   gruposLibranza      EmpleadoGrupoLibranza[]
 
   @@unique([empresaId, numeroEmpleado])
@@ -113,7 +119,6 @@ model PuestoDeTrabajo {
   descripcion               String?
   empleados                 Empleado[]
   configuracionesCobertura  ConfiguracionCobertura[]
-
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
 
@@ -143,36 +148,36 @@ model ConfiguracionCobertura {
 }
 
 model Fichaje {
-  id          String    @id @default(cuid())
-  empleadoId  String
-  empleado    Empleado  @relation(fields: [empleadoId], references: [id])
-  fecha       DateTime
-  horaEntrada DateTime?
-  horaSalida  DateTime?
-  tipo        String    @default("NORMAL")
+  id            String    @id @default(cuid())
+  empleadoId    String
+  empleado      Empleado  @relation(fields: [empleadoId], references: [id])
+  fecha         DateTime
+  horaEntrada   DateTime?
+  horaSalida    DateTime?
+  tipo          String    @default("NORMAL")
   observaciones String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([empleadoId])
   @@index([fecha])
 }
 
 model Vacacion {
-  id            String    @id @default(cuid())
-  empleadoId    String
-  empleado      Empleado  @relation(fields: [empleadoId], references: [id])
-  fechaInicio   DateTime
-  fechaFin      DateTime
-  diasTotales   Int
-  estado        String    @default("PENDIENTE")
-  observaciones String?
-  aprobadoPor   String?
+  id              String    @id @default(cuid())
+  empleadoId      String
+  empleado        Empleado  @relation(fields: [empleadoId], references: [id])
+  fechaInicio     DateTime
+  fechaFin        DateTime
+  diasTotales     Int
+  estado          String    @default("PENDIENTE")
+  observaciones   String?
+  aprobadoPor     String?
   fechaAprobacion DateTime?
   esDemostracion  Boolean   @default(false)
   tipo            String    @default("LIBRE_ELECCION")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([empleadoId])
   @@index([estado])
@@ -248,32 +253,26 @@ model CambioTurno {
   esDemostracion    Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+
   @@index([empleadoOrigenId])
   @@index([empleadoDestinoId])
   @@index([estado])
 }
 
 model LogAuditoria {
-  id          String   @id @default(cuid())
-  userId      String
-  accion      String
-  entidad     String?
-  entidadId   String?
-  detalles    String?
-  ip          String?
-  timestamp   DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  accion    String
+  entidad   String?
+  entidadId String?
+  detalles  String?
+  ip        String?
+  timestamp DateTime @default(now())
 
   @@index([userId])
   @@index([timestamp])
   @@index([entidad])
 }
-
-
-
-
-
-
-
 
 model GrupoLibranza {
   id          String   @id @default(cuid())
@@ -290,12 +289,12 @@ model GrupoLibranza {
 }
 
 model DiaLibranza {
-  id              String       @id @default(cuid())
+  id              String        @id @default(cuid())
   grupoLibranzaId String
   grupoLibranza   GrupoLibranza @relation(fields: [grupoLibranzaId], references: [id], onDelete: Cascade)
   fecha           DateTime
   observacion     String?
-  createdAt       DateTime     @default(now())
+  createdAt       DateTime      @default(now())
 
   @@index([grupoLibranzaId])
   @@index([fecha])
