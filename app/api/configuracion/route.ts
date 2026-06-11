@@ -24,6 +24,10 @@ export async function GET() {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  return POST(req)
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
