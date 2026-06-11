@@ -1,21 +1,14 @@
-// v202606061954
-self.addEventListener("push", function(event) {
-  const data = event.data ? event.data.json() : {}
+const CACHE_NAME = "scheduleo-v1"
+const urlsToCache = ["/", "/empleados", "/fichajes", "/vacaciones"]
+
+self.addEventListener("install", event => {
   event.waitUntil(
-    self.registration.showNotification(data.titulo || "Scheduleo", {
-      body: data.mensaje || "",
-      icon: "/icon-192.png",
-      badge: "/icon-192.png",
-      data: { url: data.url || "/" },
-      vibrate: [200, 100, 200],
-      requireInteraction: true
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   )
 })
 
-self.addEventListener("notificationclick", function(event) {
-  event.notification.close()
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url || "/")
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(response => response || fetch(event.request))
   )
 })

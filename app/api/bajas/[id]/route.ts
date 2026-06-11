@@ -18,33 +18,40 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     if (accion === 'CONFIRMAR_INSS') {
       data.confirmadaDatosEconomicos = true
-      data.fechaConfirmacion = new Date()
-      data.confirmadoPorId = (session.user as any)?.id || null
-      data.estado = 'activa'
-      if (baseReguladora) data.baseReguladora = baseReguladora
-      if (convenioCubre100 !== undefined) data.convenioCubre100 = convenioCubre100
+      data.fechaConfirmacion         = new Date()
+      data.confirmadoPorId           = (session.user as any)?.id || null
+      data.estado                    = 'ACTIVA'
+      if (baseReguladora !== undefined)     data.baseReguladora   = baseReguladora
+      if (convenioCubre100 !== undefined)   data.convenioCubre100 = convenioCubre100
+
     } else if (accion === 'ALTA_MEDICA') {
-      data.estado = 'alta'
+      data.estado   = 'CERRADA'
       data.fechaFin = fechaFin ? new Date(fechaFin) : new Date()
-      const inicio = new Date(baja.fechaInicio)
-      const fin = new Date(data.fechaFin)
+      const inicio  = new Date(baja.fechaInicio)
+      const fin     = new Date(data.fechaFin)
       data.diasDuracion = Math.floor((fin.getTime() - inicio.getTime()) / 86400000)
+
     } else if (accion === 'EDITAR') {
-      if (body.medico) data.medico = body.medico
-      if (body.diagnostico) data.diagnostico = body.diagnostico
-      if (body.numeroParteINSS) data.numeroParteINSS = body.numeroParteINSS
-      if (baseReguladora) data.baseReguladora = baseReguladora
+      if (body.medico)           data.medico           = body.medico
+      if (body.diagnostico)      data.diagnostico      = body.diagnostico
+      if (body.numeroParteINSS)  data.numeroParteINSS  = body.numeroParteINSS
+      if (baseReguladora !== undefined)   data.baseReguladora   = baseReguladora
       if (convenioCubre100 !== undefined) data.convenioCubre100 = convenioCubre100
     }
 
     const updated = await prisma.bajaMedica.update({ where: { id }, data })
 
-    // Log auditoría
+    // Log auditoria en LogAuditoria (tabla existente)
     try {
-      await prisma.$executeRaw`
-        INSERT INTO "BajaMedicaLog" (id, "bajaId", accion, descripcion, "usuarioId", timestamp)
-        VALUES (gen_random_uuid()::text, ${id}, ${accion}, ${observaciones || accion}, ${(session.user as any)?.id || 'admin'}, NOW())
-      `
+      await prisma.logAuditoria.create({
+        data: {
+          userId:    (session.user as any)?.id || 'admin',
+          accion:    `BAJA_${accion}`,
+          entidad:   'BajaMedica',
+          entidadId: id,
+          detalles:  observaciones || accion,
+        }
+      })
     } catch { }
 
     return NextResponse.json(updated)
@@ -62,7 +69,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { id } = await params
     const baja = await prisma.bajaMedica.findUnique({ where: { id } })
     if (!baja) return NextResponse.json({ error: 'Baja no encontrada' }, { status: 404 })
-    if (baja.estado === 'activa') return NextResponse.json({ error: 'No se puede eliminar una baja activa' }, { status: 400 })
+
+    if (baja.estado === 'ACTIVA') {
+      return NextResponse.json({ error: 'No se puede eliminar una baja activa' }, { status: 400 })
+    }
 
     await prisma.bajaMedica.delete({ where: { id } })
     return NextResponse.json({ ok: true })
@@ -71,4 +81,3 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }
-
