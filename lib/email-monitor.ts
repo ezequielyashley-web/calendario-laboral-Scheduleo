@@ -1,10 +1,4 @@
-/**
- * Monitor de email INSS - Scheduleo 2.0
- * Conecta via IMAP a bajas@empresa.com cada 5 minutos.
- * Normativa: RD 1060/2022 - Orden ISM/2/2023
- */
-
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -23,21 +17,21 @@ export type ParteINSS = {
 }
 
 const INSS_SENDERS = [
-  'noreply@seg-social.es',
-  'inss@seg-social.gob.es',
-  'notificaciones@tgss.es',
-  'bajas@inss.es',
-  'it@seg-social.gob.es',
+  "noreply@seg-social.es",
+  "inss@seg-social.gob.es",
+  "notificaciones@tgss.es",
+  "bajas@inss.es",
+  "it@seg-social.gob.es",
 ]
 
 const INSS_KEYWORDS = [
-  'parte de baja',
-  'incapacidad temporal',
-  'parte medico',
-  'IT/',
-  'baja laboral',
-  'parte de alta',
-  'alta medica',
+  "parte de baja",
+  "incapacidad temporal",
+  "parte medico",
+  "IT/",
+  "baja laboral",
+  "parte de alta",
+  "alta medica",
 ]
 
 export async function monitorearEmailINSS(): Promise<{
@@ -51,11 +45,11 @@ export async function monitorearEmailINSS(): Promise<{
   let user = process.env.IMAP_USER
   let pass = process.env.IMAP_PASS
   let imapPort = Number(process.env.IMAP_PORT || 993)
-  let imapTls = process.env.IMAP_TLS !== 'false'
-  let imapFolder = process.env.IMAP_FOLDER || 'INBOX'
+  let imapTls = process.env.IMAP_TLS !== "false"
+  let imapFolder = process.env.IMAP_FOLDER || "INBOX"
 
   try {
-    const { prisma: prismaClient } = await import('@/lib/prisma')
+    const { prisma: prismaClient } = await import("@/lib/prisma")
     const configs: any[] = await prismaClient.$queryRawUnsafe(
       `SELECT * FROM "Configuracion" WHERE id = 'default'`
     )
@@ -69,12 +63,12 @@ export async function monitorearEmailINSS(): Promise<{
   } catch { }
 
   if (!host || !user || !pass) {
-    resultado.detalles.push('Credenciales IMAP no configuradas. Ve a Configuracion > Email IMAP')
+    resultado.detalles.push("Credenciales IMAP no configuradas. Ve a Configuracion > Email IMAP")
     return resultado
   }
 
   try {
-    const { ImapFlow } = await import('imapflow')
+    const { ImapFlow } = await import("imapflow")
     const client = new ImapFlow({
       host,
       port: imapPort,
@@ -90,8 +84,7 @@ export async function monitorearEmailINSS(): Promise<{
 
     const unseenRaw = await client.search({ seen: false }).catch(() => [] as number[])
     const unseen: number[] = Array.isArray(unseenRaw) ? unseenRaw : []
-    resultado.detalles.push(`Emails no leidos encontrados: ${unseen.length}`)
-    // unseen ya es number[] garantizado
+    resultado.detalles.push(`Emails no leidos: ${unseen.length}`)
 
     for (const uid of unseen) {
       try {
@@ -101,13 +94,10 @@ export async function monitorearEmailINSS(): Promise<{
           source: true,
         })
 
-        // Guard: fetchOne puede devolver false
         if (!message) continue
-        if (!(message as any).envelope) continue
-
         const msg = message as any
-        const asunto    = msg.envelope?.subject || ''
-        const remitente = msg.envelope?.from?.[0]?.address || ''
+        const asunto    = msg.envelope?.subject || ""
+        const remitente = msg.envelope?.from?.[0]?.address || ""
 
         const esINSS = INSS_SENDERS.some(s => remitente.toLowerCase().includes(s)) ||
                        INSS_KEYWORDS.some(k => asunto.toLowerCase().includes(k.toLowerCase()))
@@ -118,7 +108,7 @@ export async function monitorearEmailINSS(): Promise<{
 
         const parteData = extraerDatosParteEmail(asunto, remitente)
 
-        let empleadoId = 'pendiente'
+        let empleadoId = "pendiente"
         if (parteData.nif) {
           const foundUser = await prisma.user.findFirst({
             where: { email: { contains: parteData.nif } }
@@ -134,7 +124,7 @@ export async function monitorearEmailINSS(): Promise<{
 
           if (existe.length > 0) {
             resultado.detalles.push(`Parte ${parteData.numeroParteINSS} ya registrado - omitido`)
-            await client.messageFlagsAdd(uid.toString(), ['\\Seen'])
+            await client.messageFlagsAdd(uid.toString(), ["\\Seen"])
             continue
           }
         }
@@ -159,12 +149,12 @@ export async function monitorearEmailINSS(): Promise<{
             NOW()
           )
         `.catch((e: any) => {
-          throw new Error(`Error al crear baja en BD: ${e.message}`)
+          throw new Error(`Error al crear baja: ${e.message}`)
         })
 
-        await client.messageFlagsAdd(uid.toString(), ['\\Seen'])
+        await client.messageFlagsAdd(uid.toString(), ["\\Seen"])
         resultado.procesados++
-        resultado.detalles.push(`Baja creada para parte: ${parteData.numeroParteINSS || 'sin numero'}`)
+        resultado.detalles.push(`Baja creada para parte: ${parteData.numeroParteINSS || "sin numero"}`)
 
       } catch (emailError: any) {
         resultado.errores++
@@ -203,7 +193,7 @@ function extraerDatosParteEmail(asunto: string, remitente: string): Partial<Part
   const matchFecha = asunto.match(regexFecha)
   if (matchFecha) {
     datos.fechaInicio = new Date(
-      `${matchFecha[3]}-${matchFecha[2].padStart(2,'0')}-${matchFecha[1].padStart(2,'0')}`
+      `${matchFecha[3]}-${matchFecha[2].padStart(2,"0")}-${matchFecha[1].padStart(2,"0")}`
     )
   } else {
     datos.fechaInicio = new Date()
@@ -214,11 +204,11 @@ function extraerDatosParteEmail(asunto: string, remitente: string): Partial<Part
 
 function detectarTipoBaja(asunto: string): string {
   const lower = asunto.toLowerCase()
-  if (lower.includes('accidente') || lower.includes(' at ') || lower.includes('contingencias profesionales')) return 'at'
-  if (lower.includes('maternidad') || lower.includes('nacimiento')) return 'maternidad'
-  if (lower.includes('paternidad')) return 'paternidad'
-  if (lower.includes('menstruacion')) return 'menstruacion'
-  if (lower.includes('semana 39') || lower.includes('semana39')) return 'semana39'
-  if (lower.includes('interrupcion') && lower.includes('embarazo')) return 'interrupcion_embarazo'
-  return 'it_comun'
+  if (lower.includes("accidente") || lower.includes(" at ")) return "at"
+  if (lower.includes("maternidad") || lower.includes("nacimiento")) return "maternidad"
+  if (lower.includes("paternidad")) return "paternidad"
+  if (lower.includes("menstruacion")) return "menstruacion"
+  if (lower.includes("semana 39") || lower.includes("semana39")) return "semana39"
+  if (lower.includes("interrupcion") && lower.includes("embarazo")) return "interrupcion_embarazo"
+  return "it_comun"
 }
