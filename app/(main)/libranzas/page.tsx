@@ -1,4 +1,8 @@
-﻿import LibranzasDesktop from "@/components/desktop/LibranzasDesktop"
+import LibranzasDesktop from "@/components/desktop/LibranzasDesktop"
 export default function LibranzasPage() {
-  return <LibranzasDesktop />
+  return (
+    <div className="bg-section-dark">
+      <LibranzasDesktop />
+    </div>
+  )
 }

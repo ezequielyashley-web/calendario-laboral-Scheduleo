@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -172,3 +172,10 @@ html.dark {
 /* Ocultar scrollbar en tabs */
 .tabs-scroll::-webkit-scrollbar { display: none; }
 .tabs-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── FONDO SECCIONES ESPECIFICAS ───────────────────────────── */
+.bg-section-dark {
+  background-color: #e2e8f0;
+  min-height: 100vh;
+  padding: 24px;
+}
