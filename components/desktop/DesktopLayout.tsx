@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "@/components/providers/ThemeProvider"
@@ -167,10 +168,17 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const { noLeidas } = useNotifications()
   const { suscrito, soportado, suscribirse } = usePushNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
+  const [cerrandoSesion, setCerrandoSesion] = useState(false)
 
   useEffect(() => {
     fetch("/api/empresa").then(r => r.json()).then(data => setEmpresa(data)).catch(() => {})
   }, [])
+
+  const handleSignOut = async () => {
+    setCerrandoSesion(true)
+    await new Promise(r => setTimeout(r, 5500))
+    await signOut({ callbackUrl: '/login' })
+  }
 
   const sidebarBg = empresa?.colorSidebar || '#2d2b55'
   const accentColor = empresa?.colorAccent || '#6366f1'
@@ -262,6 +270,45 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
               <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
             </svg>
+          </div>
+        )}
+
+        {/* BOTON CERRAR SESION */}
+        {open && (
+          <div style={{ padding:'0 10px 10px' }}>
+            <button onClick={handleSignOut}
+              style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.55)', fontSize:13, fontWeight:400, cursor:'pointer', transition:'all 0.25s', letterSpacing:'0.01em' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background='rgba(255,255,255,0.1)'
+                e.currentTarget.style.color='rgba(255,255,255,0.9)'
+                e.currentTarget.style.borderColor='rgba(255,255,255,0.18)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background='rgba(255,255,255,0.05)'
+                e.currentTarget.style.color='rgba(255,255,255,0.55)'
+                e.currentTarget.style.borderColor='rgba(255,255,255,0.08)'
+              }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:0.7 }}>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              <span>Cerrar sesion</span>
+            </button>
+          </div>
+        )}
+        {!open && (
+          <div style={{ padding:'0 8px 10px', display:'flex', justifyContent:'center' }}>
+            <button onClick={handleSignOut} title="Cerrar sesion"
+              style={{ width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.5)', cursor:'pointer', transition:'all 0.25s' }}
+              onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.12)'; e.currentTarget.style.color='rgba(255,255,255,0.9)' }}
+              onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.05)'; e.currentTarget.style.color='rgba(255,255,255,0.5)' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
           </div>
         )}
 
