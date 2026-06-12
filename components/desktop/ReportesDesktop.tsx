@@ -92,6 +92,12 @@ export default function ReportesDesktop() {
 
   return (
     <div className="space-y-5">
+      {!modoDemo && (
+        <div style={{ padding:"10px 16px", background:"#fef9c3", border:"1px solid #fde68a", borderRadius:8, display:"flex", alignItems:"center", gap:10, fontSize:13, color:"#854d0e" }}>
+          <span>⚠️</span>
+          <span><strong>Modo real activo</strong> — Los reportes muestran datos de ejemplo. Proximamente se conectaran a datos reales.</span>
+        </div>
+      )}
 
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
         <InfoPanel titulo="Como usar Reportes" color="#7c3aed" bg="#f5f3ff" border="#ddd6fe" items={[

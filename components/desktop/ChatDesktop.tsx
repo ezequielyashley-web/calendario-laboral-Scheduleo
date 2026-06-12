@@ -278,6 +278,10 @@ export default function ChatDesktop() {
     setShowStorage(false)
   }
 
+  const [modoDemo, setModoDemo] = useState(true)
+  useEffect(() => {
+    fetch('/api/config/modo-demo').then(r=>r.json()).then(d=>setModoDemo(d.modoDemo??true))
+  }, [])
   const convsFiltradas = convs.filter(c => {
     const matchSearch = !search || c.nombre.toLowerCase().includes(search.toLowerCase())
     if (tab==='mi_sede')  return matchSearch && c.tipo==='individual' && c.sede==='Madrid Centro'
