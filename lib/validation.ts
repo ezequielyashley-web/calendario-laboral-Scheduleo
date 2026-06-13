@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SCHEDULEO - VALIDACION Y SANITIZACION
  * Proteccion contra XSS, SQL Injection e inputs maliciosos
  */
@@ -15,13 +15,14 @@ export interface PasswordValidation {
 export function validatePassword(password: string): PasswordValidation {
   const errors: string[] = []
   let strength: 'debil' | 'media' | 'fuerte' = 'debil'
-  if (password.length < 8) errors.push('Minimo 8 caracteres')
+  if (password.length < 12) errors.push('Minimo 12 caracteres')
   if (!/[A-Z]/.test(password)) errors.push('Al menos una letra mayuscula')
   if (!/[a-z]/.test(password)) errors.push('Al menos una letra minuscula')
   if (!/[0-9]/.test(password)) errors.push('Al menos un numero')
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push('Al menos un simbolo (!@#$...)')
   if (errors.length === 0) {
-    if (password.length >= 12 && /[!@#$%^&*(),.?":{}|<>]/.test(password)) strength = 'fuerte'
-    else if (password.length >= 10) strength = 'media'
+    if (password.length >= 16 && /[!@#$%^&*(),.?":{}|<>]/.test(password)) strength = 'fuerte'
+    else if (password.length >= 12) strength = 'media'
   }
   return { valid: errors.length === 0, errors, strength }
 }
@@ -186,4 +187,16 @@ export function sanitizeURL(url: string): string {
   } catch {
     return ''
   }
+}
+export function getPasswordStrength(password: string): { level: number; label: string; color: string } {
+  let score = 0
+  if (password.length >= 12) score++
+  if (password.length >= 16) score++
+  if (/[A-Z]/.test(password)) score++
+  if (/[0-9]/.test(password)) score++
+  if (/[^A-Za-z0-9]/.test(password)) score++
+  if (score <= 2) return { level: score, label: 'Debil',   color: '#dc2626' }
+  if (score <= 3) return { level: score, label: 'Media',   color: '#d97706' }
+  if (score <= 4) return { level: score, label: 'Fuerte',  color: '#16a34a' }
+  return             { level: score, label: 'Muy fuerte', color: '#0284c7' }
 }
