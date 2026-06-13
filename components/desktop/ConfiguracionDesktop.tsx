@@ -180,6 +180,26 @@ function ConfigSistema() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between py-3 border-b">
+      <div className="py-4 border-b">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h4 className="font-medium">Expiracion de Contrasena</h4>
+            <p className="text-sm text-gray-600">El sistema pedira cambiar la contrasena cada X dias</p>
+          </div>
+          {guardado && <span style={{ fontSize:12, color:'#16a34a', fontWeight:600 }}>Guardado</span>}
+        </div>
+        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+          {[['0','Nunca'],['30','30 dias'],['60','60 dias'],['90','90 dias'],['180','180 dias']].map(([val,label]) => (
+            <button key={val} onClick={() => guardarExpiracion(val)} disabled={guardando}
+              style={{ padding:'8px 16px', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', transition:'all 0.2s',
+                background: expiracion===val ? '#6366f1' : '#f1f5f9',
+                color: expiracion===val ? '#fff' : '#475569',
+                border: expiracion===val ? '1px solid #6366f1' : '1px solid #e2e8f0' }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
         <div>
           <h4 className="font-medium">Notificaciones por Email</h4>
           <p className="text-sm text-gray-600">Recibir alertas y resúmenes</p>
