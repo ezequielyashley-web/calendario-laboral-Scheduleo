@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { signOut } from "next-auth/react"
@@ -60,7 +60,7 @@ function ClimaWidget() {
     return () => clearInterval(iv)
   }, [])
   return (
-    <div style={{ margin:'8px', padding:'10px 12px', background:'rgba(255,255,255,0.07)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)' }}>
+    <div style={{ margin:'8px 6px', padding:'10px 14px', background:'rgba(255,255,255,0.07)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div>
           <div style={{ color:'#fff', fontSize:20, fontWeight:700, lineHeight:1 }}>{hora}</div>
@@ -213,7 +213,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </div>
 
         {/* Nav */}
-        <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'0 8px 8px', scrollbarWidth:'none' }}>
+        <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'0 8px 8px', scrollbarWidth:'none', paddingBottom:'0' }}>
           {menuSections.map(section => (
             <div key={section.label} style={{ marginBottom:10 }}>
               {open && (
@@ -245,7 +245,13 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </nav>
 
         {/* CLIMA WIDGET */}
-        {open && <ClimaWidget />}
+        {open && (
+          <div style={{ display:'flex', justifyContent:'center', padding:'0 6px', marginTop:'-8px' }}>
+            <div style={{ width:'100%' }}>
+              <ClimaWidget />
+            </div>
+          </div>
+        )}
 
         {/* LOGO FULL — logo Scheduleo + nombre + version */}
         {open && (
@@ -276,16 +282,16 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         {open && (
           <div style={{ padding:'0 10px 10px' }}>
             <button onClick={handleSignOut}
-              style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.55)', fontSize:13, fontWeight:400, cursor:'pointer', transition:'all 0.25s', letterSpacing:'0.01em' }}
+              style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.18)', color:'rgba(255,180,180,0.85)', fontSize:13, fontWeight:500, cursor:'pointer', transition:'all 0.25s', letterSpacing:'0.01em' }}
               onMouseEnter={e => {
-                e.currentTarget.style.background='rgba(255,255,255,0.1)'
-                e.currentTarget.style.color='rgba(255,255,255,0.9)'
-                e.currentTarget.style.borderColor='rgba(255,255,255,0.18)'
+                e.currentTarget.style.background='rgba(239,68,68,0.18)'
+                e.currentTarget.style.color='rgba(255,200,200,1)'
+                e.currentTarget.style.borderColor='rgba(239,68,68,0.35)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background='rgba(255,255,255,0.05)'
-                e.currentTarget.style.color='rgba(255,255,255,0.55)'
-                e.currentTarget.style.borderColor='rgba(255,255,255,0.08)'
+                e.currentTarget.style.background='rgba(239,68,68,0.08)'
+                e.currentTarget.style.color='rgba(255,180,180,0.85)'
+                e.currentTarget.style.borderColor='rgba(239,68,68,0.18)'
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:0.7 }}>
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
