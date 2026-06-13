@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { signOut } from "next-auth/react"
@@ -127,18 +127,17 @@ const menuSections = [
     { href: '/fichajes',          icon: Icons.fichajes,       label: 'Fichajes'       },
     { href: '/grupos',            icon: Icons.grupos,         label: 'Grupos'         },
     { href: '/libranzas',         icon: Icons.grupos,         label: 'Libranzas'      },
+    { href: '/cobertura',         icon: Icons.cobertura,      label: 'Minimos por puesto' },
   ]},
   { label: 'Gestión', items: [
     { href: '/vacaciones',        icon: Icons.vacaciones,     label: 'Vacaciones'     },
     { href: '/cambios-turno',     icon: Icons.cambiosTurno,   label: 'Cambios turno'  },
     { href: '/bajas',             icon: Icons.bajas,          label: 'Bajas médicas'  },
-    { href: '/chat',              icon: Icons.chat,           label: 'Chat'           },
-    { href: '/notificaciones',    icon: Icons.notificaciones, label: 'Notificaciones' },
+    { href: '/chat',              icon: Icons.chat,           label: 'Chat y Notificaciones' },
     { href: '/deudas',            icon: Icons.deudas,         label: 'Deudas'         },
   ]},
   { label: 'Sistema', items: [
     { href: '/reportes',          icon: Icons.reportes,       label: 'Reportes'       },
-    { href: '/cobertura',         icon: Icons.cobertura,      label: 'Cobertura'      },
     { href: '/configuracion',     icon: Icons.configuracion,  label: 'Configuración'  },
   ]},
 ]
@@ -156,7 +155,7 @@ const pageTitles: Record<string, string> = {
   '/bajas':             'Bajas Médicas',
   '/chat':              'Chat',
   '/deudas':            'Deudas y Anticipos',
-  '/cobertura':         'Cobertura Mínima',
+  '/cobertura':         'Minimos por puesto de trabajo',
   '/configuracion':     'Configuración',
 }
 
@@ -214,9 +213,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </div>
 
         {/* Nav */}
-        <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'0 8px', scrollbarWidth:'none' }}>
+        <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'0 8px 8px', scrollbarWidth:'none' }}>
           {menuSections.map(section => (
-            <div key={section.label} style={{ marginBottom:16 }}>
+            <div key={section.label} style={{ marginBottom:10 }}>
               {open && (
                 <div style={{ fontSize:10, fontWeight:600, color:'var(--sidebar-text-muted)', letterSpacing:'0.08em', padding:'0 6px', marginBottom:4, textTransform:'uppercase' }}>
                   {section.label}
