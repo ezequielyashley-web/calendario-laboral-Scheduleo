@@ -15,6 +15,7 @@ const SECCIONES = [
   { key: "usuarios", label: "Usuarios" },
   { key: "demo", label: "Base de datos demo" },
   { key: "imap", label: "Email IMAP (Bajas IT)" },
+  { key: "seguridad", label: "Seguridad" },
 ]
 
 function GenerarToken({ masterPassword }: { masterPassword: string }) {
@@ -827,6 +828,7 @@ export default function ConfiguracionPage() {
 
           {seccion === "demo" && <SeccionDemo />}
           {seccion === "imap" && <SeccionIMAP />}
+          {seccion === "seguridad" && <SeccionSeguridad />}
           {seccion === "usuarios" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
