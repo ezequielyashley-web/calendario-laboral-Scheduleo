@@ -1,467 +1,289 @@
 "use client"
+import { useState, useEffect } from "react"
+import InfoPanel from "@/components/InfoPanel"
 
-import { useState } from "react"
+type Empleado = { id: string; nombre: string; apellidos: string; numeroEmpleado: string }
+type Puesto = { id: string; nombre: string; descripcion: string; empleados: Empleado[]; total_empleados: number }
 
-type Grupo = {
-  id: string
-  nombre: string
-  tipo: "ENTRE_SEMANA" | "LUNES"
-  color: string
-  emoji: string
-  empleados: number
-  diasTrabajo: string[]
-  libranzas: { fecha: string, tipo: "COMPLETA" | "MEDIA" }[]
-}
+const COLORES = ["#0284c7","#6366f1","#0891b2","#16a34a","#d97706","#7c3aed"]
 
-export default function GestionGruposDesktop() {
-  const [grupos, setGrupos] = useState<Grupo[]>([
-    { id: "g1a", nombre: "G1A", tipo: "ENTRE_SEMANA", color: "#7BA8A8", emoji: "🔵", empleados: 12, diasTrabajo: ["M", "X", "J", "V", "S"], libranzas: [] },
-    { id: "g1b", nombre: "G1B", tipo: "ENTRE_SEMANA", color: "#6B9999", emoji: "🔵", empleados: 11, diasTrabajo: ["M", "X", "J", "V", "S"], libranzas: [] },
-    { id: "g2a", nombre: "G2A", tipo: "ENTRE_SEMANA", color: "#00A896", emoji: "💠", empleados: 11, diasTrabajo: ["M", "X", "J", "V", "S"], libranzas: [] },
-    { id: "g2b", nombre: "G2B", tipo: "ENTRE_SEMANA", color: "#008B8B", emoji: "💠", empleados: 12, diasTrabajo: ["M", "X", "J", "V", "S"], libranzas: [] },
-    { id: "g3a", nombre: "G3A", tipo: "ENTRE_SEMANA", color: "#7BA8A8", emoji: "🟦", empleados: 11, diasTrabajo: ["M", "X", "J", "V", "S"], libranzas: [] },
-    { id: "g3b", nombre: "G3B", tipo: "ENTRE_SEMANA", color: "#6B9999", emoji: "🟦", empleados: 11, diasTrabajo: ["M", "X", "J", "V", "S"], libranzas: [] },
-    { id: "l1", nombre: "L1", tipo: "LUNES", color: "#9333EA", emoji: "📅", empleados: 4, diasTrabajo: ["L"], libranzas: [] },
-    { id: "l2", nombre: "L2", tipo: "LUNES", color: "#A855F7", emoji: "📅", empleados: 3, diasTrabajo: ["L"], libranzas: [] },
-    { id: "l3", nombre: "L3", tipo: "LUNES", color: "#C084FC", emoji: "📅", empleados: 3, diasTrabajo: ["L"], libranzas: [] },
-  ])
+export default function CoberturaDesktop() {
+  const [puestos, setPuestos] = useState<Puesto[]>([])
+  const [todosEmpleados, setTodosEmpleados] = useState<Empleado[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [dragEmpleado, setDragEmpleado] = useState<{ empleado: Empleado; desdePuesto: string | null } | null>(null)
+  const [dragOverPuesto, setDragOverPuesto] = useState<string | null>(null)
+  const [modal, setModal] = useState<any>(null)
+  const [password, setPassword] = useState("")
+  const [errorPass, setErrorPass] = useState("")
+  const [guardando, setGuardando] = useState(false)
+  const [modalPuesto, setModalPuesto] = useState<any>(null)
+  const [formPuesto, setFormPuesto] = useState({ nombre: "", descripcion: "" })
 
-  const [vistaActual, setVistaActual] = useState<"lista" | "calendario" | "mover">("lista")
-  const [modalCrear, setModalCrear] = useState(false)
-  const [grupoEditar, setGrupoEditar] = useState<Grupo | null>(null)
-  const [empleadosMover, setEmpleadosMover] = useState(false)
+  const cargar = async () => {
+    setCargando(true)
+    const [p, e] = await Promise.all([
+      fetch("/api/puestos?empresaId=empresa-001").then(r => r.json()),
+      fetch("/api/empleados?empresaId=empresa-001").then(r => r.json()),
+    ])
+    setPuestos(Array.isArray(p) ? p : [])
+    setTodosEmpleados(Array.isArray(e) ? e : [])
+    setCargando(false)
+  }
 
-  const gruposEntreSemana = grupos.filter(g => g.tipo === "ENTRE_SEMANA")
-  const gruposLunes = grupos.filter(g => g.tipo === "LUNES")
+  useEffect(() => { cargar() }, [])
 
-  return (
-    <div className="min-h-screen space-y-6">
-      {/* Header */}
-      <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent flex items-center gap-3">
-              <span className="text-4xl">👥</span>
-              Gestión de Grupos de Turno
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 font-semibold">
-              Crea, edita y organiza los grupos de trabajo
-            </p>
-          </div>
-
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setVistaActual("lista")}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg flex items-center gap-2 ${
-                vistaActual === "lista"
-                  ? 'bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white scale-105'
-                  : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-600/50 hover:scale-105'
-              }`}
-            >
-              <span className="text-xl">📋</span>
-              Lista Grupos
-            </button>
-
-            <button
-              onClick={() => setVistaActual("calendario")}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg flex items-center gap-2 ${
-                vistaActual === "calendario"
-                  ? 'bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white scale-105'
-                  : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-600/50 hover:scale-105'
-              }`}
-            >
-              <span className="text-xl">📅</span>
-              Asignar Días
-            </button>
-
-            <button
-              onClick={() => setVistaActual("mover")}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg flex items-center gap-2 ${
-                vistaActual === "mover"
-                  ? 'bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white scale-105'
-                  : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-600/50 hover:scale-105'
-              }`}
-            >
-              <span className="text-xl">↔️</span>
-              Mover Empleados
-            </button>
-
-            <button
-              onClick={() => {
-                setGrupoEditar(null)
-                setModalCrear(true)
-              }}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg flex items-center gap-2"
-            >
-              <span className="text-xl">➕</span>
-              Nuevo Grupo
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Vista Lista */}
-      {vistaActual === "lista" && (
-        <>
-          {/* Grupos Entre Semana */}
-          <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <span className="text-3xl">🗓️</span>
-              <span className="bg-gradient-to-r from-[#7BA8A8] to-[#00A896] bg-clip-text text-transparent">
-                Grupos Entre Semana (MXJVS)
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {gruposEntreSemana.map((grupo) => (
-                <GrupoCard
-                  key={grupo.id}
-                  grupo={grupo}
-                  onEditar={() => {
-                    setGrupoEditar(grupo)
-                    setModalCrear(true)
-                  }}
-                  onEliminar={() => {
-                    if (confirm(`¿Eliminar grupo ${grupo.nombre}?`)) {
-                      setGrupos(grupos.filter(g => g.id !== grupo.id))
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Grupos Lunes */}
-          <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <span className="text-3xl">📅</span>
-              <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-                Grupos Lunes
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {gruposLunes.map((grupo) => (
-                <GrupoCard
-                  key={grupo.id}
-                  grupo={grupo}
-                  onEditar={() => {
-                    setGrupoEditar(grupo)
-                    setModalCrear(true)
-                  }}
-                  onEliminar={() => {
-                    if (confirm(`¿Eliminar grupo ${grupo.nombre}?`)) {
-                      setGrupos(grupos.filter(g => g.id !== grupo.id))
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Vista Calendario */}
-      {vistaActual === "calendario" && (
-        <VistaCalendario grupos={grupos} />
-      )}
-
-      {/* Vista Mover Empleados */}
-      {vistaActual === "mover" && (
-        <VistaMoverEmpleados grupos={grupos} />
-      )}
-
-      {/* Modal Crear/Editar Grupo */}
-      {modalCrear && (
-        <ModalCrearGrupo
-          grupoEditar={grupoEditar}
-          onCerrar={() => {
-            setModalCrear(false)
-            setGrupoEditar(null)
-          }}
-          onGuardar={(nuevoGrupo) => {
-            if (grupoEditar) {
-              setGrupos(grupos.map(g => g.id === grupoEditar.id ? nuevoGrupo : g))
-            } else {
-              setGrupos([...grupos, { ...nuevoGrupo, id: Date.now().toString() }])
-            }
-            setModalCrear(false)
-            setGrupoEditar(null)
-          }}
-        />
-      )}
-    </div>
+  const empleadosSinPuesto = todosEmpleados.filter(e =>
+    !puestos.some(p => p.empleados.some(em => em.id === e.id))
   )
-}
 
-// Componente Card de Grupo
-function GrupoCard({ grupo, onEditar, onEliminar }: { grupo: Grupo, onEditar: () => void, onEliminar: () => void }) {
+  const confirmarAccion = async () => {
+    if (!password) { setErrorPass("Introduce la contrasena"); return }
+    setGuardando(true)
+    setErrorPass("")
+    const res = await fetch("/api/puestos", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...modal.payload, masterPassword: password })
+    })
+    const data = await res.json()
+    setGuardando(false)
+    if (data.error) { setErrorPass(data.error); return }
+    setModal(null)
+    setPassword("")
+    cargar()
+  }
+
+  const confirmarPuesto = async () => {
+    if (!password) { setErrorPass("Introduce la contrasena"); return }
+    setGuardando(true)
+    setErrorPass("")
+    const res = await fetch("/api/puestos", {
+      method: modalPuesto.id ? "PATCH" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...(modalPuesto.id ? { id: modalPuesto.id, accion: "editar" } : {}),
+        nombre: formPuesto.nombre,
+        descripcion: formPuesto.descripcion,
+        empresaId: "empresa-001",
+        masterPassword: password
+      })
+    })
+    const data = await res.json()
+    setGuardando(false)
+    if (data.error) { setErrorPass(data.error); return }
+    setModalPuesto(null)
+    setPassword("")
+    setFormPuesto({ nombre: "", descripcion: "" })
+    cargar()
+  }
+
+  const onDrop = (hastaPuesto: string) => {
+    if (!dragEmpleado) return
+    if (dragEmpleado.desdePuesto === hastaPuesto) { setDragEmpleado(null); setDragOverPuesto(null); return }
+    setModal({
+      titulo: `Mover a ${puestos.find(p => p.id === hastaPuesto)?.nombre}`,
+      descripcion: `Asignar a ${dragEmpleado.empleado.nombre} ${dragEmpleado.empleado.apellidos} al puesto seleccionado.`,
+      payload: { id: hastaPuesto, empleadoId: dragEmpleado.empleado.id, accion: "asignar" }
+    })
+    setDragEmpleado(null)
+    setDragOverPuesto(null)
+  }
+
+  const asignarEmpleado = (puestoId: string, empleado: Empleado) => {
+    setModal({
+      titulo: `Asignar a ${puestos.find(p => p.id === puestoId)?.nombre}`,
+      descripcion: `Asignar a ${empleado.nombre} ${empleado.apellidos} a este puesto.`,
+      payload: { id: puestoId, empleadoId: empleado.id, accion: "asignar" }
+    })
+  }
+
+  const quitarEmpleado = (puestoId: string, empleado: Empleado) => {
+    setModal({
+      titulo: "Quitar del puesto",
+      descripcion: `Quitar a ${empleado.nombre} ${empleado.apellidos} de este puesto.`,
+      payload: { id: puestoId, empleadoId: empleado.id, accion: "quitar" }
+    })
+  }
+
+  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }
+
+  if (cargando) return <div style={{ padding: 60, textAlign: "center", color: "var(--text-muted)" }}>Cargando puestos...</div>
+
   return (
-    <div className="backdrop-blur-xl bg-white/60 dark:bg-gray-700/60 rounded-xl p-5 border border-gray-200/50 dark:border-gray-600/50 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300"
-            style={{ background: `linear-gradient(135deg, ${grupo.color}, ${grupo.color}dd)` }}
-          >
-            {grupo.emoji}
-          </div>
-          <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{grupo.nombre}</h3>
-            <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-              {grupo.tipo === "ENTRE_SEMANA" ? "Entre Semana" : "Solo Lunes"}
-            </p>
-          </div>
+    <div className="space-y-5">
+
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 4px" }}>Puestos de trabajo</h1>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>Asigna y gestiona empleados por puesto arrastrando o usando el selector</p>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <InfoPanel titulo="Como usar Puestos de trabajo" color="#0284c7" bg="#eff6ff" border="#bfdbfe" items={[
+            { icon: "🏷️", titulo: "Tarjetas por puesto", desc: "Cada tarjeta representa un puesto. Muestra los empleados asignados y el total." },
+            { icon: "🖱️", titulo: "Drag and drop", desc: "Arrastra un empleado de una tarjeta a otra para moverlo entre puestos." },
+            { icon: "➕", titulo: "Asignar desde lista", desc: "Usa el selector inferior de cada puesto para asignar un empleado sin puesto." },
+            { icon: "✕", titulo: "Quitar empleado", desc: "Pulsa la X junto a un empleado para quitarlo del puesto." },
+            { icon: "✏️", titulo: "Editar puesto", desc: "Pulsa Editar en cualquier tarjeta para cambiar nombre y descripcion." },
+            { icon: "🔒", titulo: "Validacion master", desc: "Todas las acciones requieren contrasena master para confirmar." },
+            { icon: "📱", titulo: "Notificacion movil", desc: "El empleado recibira un aviso en su app con el nuevo puesto asignado." },
+          ]} />
+          <button onClick={() => { setModalPuesto({ id: null }); setFormPuesto({ nombre: "", descripcion: "" }) }}
+            style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            + Nuevo puesto
+          </button>
         </div>
       </div>
 
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-gray-700 dark:text-gray-300">👥 Empleados:</span>
-          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{grupo.empleados}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-gray-700 dark:text-gray-300">📅 Días:</span>
-          <div className="flex gap-1">
-            {grupo.diasTrabajo.map((dia, i) => (
-              <span
-                key={i}
-                className="px-2 py-1 rounded-lg text-xs font-bold text-white shadow-md"
-                style={{ background: grupo.color }}
-              >
-                {dia}
-              </span>
+      {/* Sin puesto */}
+      {empleadosSinPuesto.length > 0 && (
+        <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 12, padding: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#854d0e", marginBottom: 10 }}>
+            Sin puesto asignado ({empleadosSinPuesto.length})
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {empleadosSinPuesto.map(e => (
+              <div key={e.id} draggable onDragStart={() => setDragEmpleado({ empleado: e, desdePuesto: null })}
+                style={{ background: "#fff", border: "1px solid #fde68a", borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 500, color: "#92400e", cursor: "grab", display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 10, fontWeight: 700 }}>
+                  {e.nombre[0]}{e.apellidos[0]}
+                </div>
+                {e.nombre} {e.apellidos}
+              </div>
             ))}
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex gap-2">
-        <button
-          onClick={onEditar}
-          className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm flex items-center justify-center gap-2"
-        >
-          <span>✏️</span>
-          Editar
-        </button>
-        <button
-          onClick={onEliminar}
-          className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm flex items-center justify-center gap-2"
-        >
-          <span>🗑️</span>
-          Eliminar
-        </button>
-      </div>
-    </div>
-  )
-}
+      {/* Grid puestos */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 16 }}>
+        {puestos.map((puesto, idx) => (
+          <div key={puesto.id}
+            onDragOver={e => { e.preventDefault(); setDragOverPuesto(puesto.id) }}
+            onDragLeave={() => setDragOverPuesto(null)}
+            onDrop={() => onDrop(puesto.id)}
+            style={{ background: "var(--surface)", border: `2px solid ${dragOverPuesto === puesto.id ? "#0284c7" : "var(--border)"}`, borderRadius: 14, padding: 20, transition: "all 0.2s", boxShadow: dragOverPuesto === puesto.id ? "0 0 0 4px rgba(2,132,199,0.15)" : "var(--shadow-sm)", borderTop: `3px solid ${COLORES[idx % COLORES.length]}` }}>
 
-// Modal Crear/Editar Grupo
-function ModalCrearGrupo({ grupoEditar, onCerrar, onGuardar }: any) {
-  const [nombre, setNombre] = useState(grupoEditar?.nombre || "")
-  const [tipo, setTipo] = useState<"ENTRE_SEMANA" | "LUNES">(grupoEditar?.tipo || "ENTRE_SEMANA")
-  const [color, setColor] = useState(grupoEditar?.color || "#7BA8A8")
-  const [emoji, setEmoji] = useState(grupoEditar?.emoji || "🔵")
-
-  const coloresPreset = [
-    { color: "#7BA8A8", nombre: "Patina Blue" },
-    { color: "#00A896", nombre: "Teal" },
-    { color: "#6B9999", nombre: "Deep Patina" },
-    { color: "#008B8B", nombre: "Dark Teal" },
-    { color: "#9333EA", nombre: "Purple" },
-    { color: "#EC4899", nombre: "Pink" },
-    { color: "#F59E0B", nombre: "Amber" },
-    { color: "#10B981", nombre: "Emerald" },
-  ]
-
-  const emojisPreset = ["🔵", "💠", "🟦", "📅", "⭐", "🎯", "🌟", "💎"]
-
-  const diasSemana = tipo === "ENTRE_SEMANA"
-    ? ["M", "X", "J", "V", "S"]
-    : ["L"]
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
-          <span className="text-3xl">{grupoEditar ? "✏️" : "➕"}</span>
-          {grupoEditar ? "Editar Grupo" : "Crear Nuevo Grupo"}
-        </h2>
-
-        <div className="space-y-6">
-          {/* Nombre */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Nombre del Grupo
-            </label>
-            <input
-              type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="input-base w-full"
-              placeholder="Ej: G1A, L1, Grupo Mañanas..."
-            />
-          </div>
-
-          {/* Tipo */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Tipo de Grupo
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setTipo("ENTRE_SEMANA")}
-                className={`px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg ${
-                  tipo === "ENTRE_SEMANA"
-                    ? 'bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white scale-105'
-                    : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-600/50'
-                }`}
-              >
-                🗓️ Entre Semana (MXJVS)
-              </button>
-              <button
-                onClick={() => setTipo("LUNES")}
-                className={`px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg ${
-                  tipo === "LUNES"
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105'
-                    : 'bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300/50 dark:border-gray-600/50'
-                }`}
-              >
-                📅 Solo Lunes
-              </button>
-            </div>
-          </div>
-
-          {/* Color */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Color
-            </label>
-            <div className="grid grid-cols-4 gap-3">
-              {coloresPreset.map((preset) => (
-                <button
-                  key={preset.color}
-                  onClick={() => setColor(preset.color)}
-                  className={`h-16 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 ${
-                    color === preset.color ? 'ring-4 ring-offset-2 ring-[#00A896] scale-110' : ''
-                  }`}
-                  style={{ background: preset.color }}
-                  title={preset.nombre}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Emoji */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Emoji
-            </label>
-            <div className="grid grid-cols-4 gap-3">
-              {emojisPreset.map((e) => (
-                <button
-                  key={e}
-                  onClick={() => setEmoji(e)}
-                  className={`h-16 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 text-3xl flex items-center justify-center ${
-                    emoji === e
-                      ? 'bg-gradient-to-r from-[#7BA8A8] to-[#00A896] scale-110'
-                      : 'bg-white/50 dark:bg-gray-700/50 border border-gray-300/50 dark:border-gray-600/50'
-                  }`}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div className="backdrop-blur-xl bg-white/60 dark:bg-gray-700/60 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50">
-            <p className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-3">Vista Previa:</p>
-            <div className="flex items-center gap-3">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg"
-                style={{ background: `linear-gradient(135deg, ${color}, ${color}dd)` }}
-              >
-                {emoji}
-              </div>
+            {/* Header puesto */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{nombre || "Nombre del Grupo"}</h3>
-                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                  {tipo === "ENTRE_SEMANA" ? "Entre Semana" : "Solo Lunes"}
-                </p>
-                <div className="flex gap-1 mt-1">
-                  {diasSemana.map((dia, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-1 rounded-lg text-xs font-bold text-white shadow-md"
-                      style={{ background: color }}
-                    >
-                      {dia}
-                    </span>
-                  ))}
-                </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 3 }}>{puesto.nombre}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{puesto.descripcion}</div>
               </div>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <span style={{ background: "#dbeafe", color: "#1e40af", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>
+                  {puesto.empleados.length} emp.
+                </span>
+                <button onClick={() => { setModalPuesto(puesto); setFormPuesto({ nombre: puesto.nombre, descripcion: puesto.descripcion }) }}
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, padding: "4px 8px", fontSize: 11, cursor: "pointer", color: "var(--text-secondary)" }}>
+                  Editar
+                </button>
+              </div>
+            </div>
+
+            {/* Empleados */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, minHeight: 60 }}>
+              {puesto.empleados.length === 0 ? (
+                <div style={{ padding: "16px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 12, border: "2px dashed var(--border)", borderRadius: 8 }}>
+                  Arrastra empleados aqui
+                </div>
+              ) : puesto.empleados.map(emp => (
+                <div key={emp.id} draggable onDragStart={() => setDragEmpleado({ empleado: emp, desdePuesto: puesto.id })}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: "var(--surface-2)", borderRadius: 8, border: "1px solid var(--border)", cursor: "grab" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: `linear-gradient(135deg,${COLORES[idx % COLORES.length]},${COLORES[(idx+1) % COLORES.length]})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
+                    {emp.nombre[0]}{emp.apellidos[0]}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{emp.nombre} {emp.apellidos}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Nº {emp.numeroEmpleado}</div>
+                  </div>
+                  <button onClick={() => quitarEmpleado(puesto.id, emp)}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 16, padding: "2px 4px", borderRadius: 4 }}>✕</button>
+                </div>
+              ))}
+            </div>
+
+            {/* Selector asignar */}
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+              <select onChange={e => {
+                const emp = todosEmpleados.find(em => em.id === e.target.value)
+                if (emp) { asignarEmpleado(puesto.id, emp); e.target.value = "" }
+              }}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, color: "var(--text-secondary)", background: "var(--surface)", cursor: "pointer" }}>
+                <option value="">+ Asignar empleado...</option>
+                {empleadosSinPuesto.map(e => (
+                  <option key={e.id} value={e.id}>{e.nombre} {e.apellidos}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal confirmacion */}
+      {modal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 28, width: 400, maxWidth: "90vw" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>{modal.titulo}</div>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 20 }}>{modal.descripcion}</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, fontWeight: 600 }}>Contrasena master para confirmar</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && confirmarAccion()}
+                placeholder="••••••••" style={inputStyle} />
+              {errorPass && <p style={{ fontSize: 12, color: "#dc2626", marginTop: 6 }}>{errorPass}</p>}
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => { setModal(null); setPassword(""); setErrorPass("") }}
+                style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 16px", fontSize: 13, cursor: "pointer", color: "var(--text-secondary)" }}>
+                Cancelar
+              </button>
+              <button onClick={confirmarAccion} disabled={guardando}
+                style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                {guardando ? "Guardando..." : "Confirmar"}
+              </button>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Acciones */}
-        <div className="flex gap-3 mt-8">
-          <button
-            onClick={onCerrar}
-            className="flex-1 px-6 py-3 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => {
-              if (!nombre.trim()) {
-                alert("El nombre es obligatorio")
-                return
-              }
-              onGuardar({
-                nombre,
-                tipo,
-                color,
-                emoji,
-                empleados: grupoEditar?.empleados || 0,
-                diasTrabajo: diasSemana,
-                libranzas: grupoEditar?.libranzas || [],
-              })
-            }}
-            className="flex-1 px-6 py-3 bg-gradient-to-r from-[#7BA8A8] to-[#00A896] text-white font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
-          >
-            💾 Guardar
-          </button>
+      {/* Modal crear/editar puesto */}
+      {modalPuesto && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 28, width: 420, maxWidth: "90vw" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginBottom: 20 }}>
+              {modalPuesto.id ? "Editar puesto" : "Nuevo puesto"}
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, fontWeight: 600 }}>Nombre del puesto</label>
+              <input value={formPuesto.nombre} onChange={e => setFormPuesto(p => ({ ...p, nombre: e.target.value }))}
+                placeholder="Ej: Pescadero/a" style={inputStyle} />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, fontWeight: 600 }}>Descripcion</label>
+              <input value={formPuesto.descripcion} onChange={e => setFormPuesto(p => ({ ...p, descripcion: e.target.value }))}
+                placeholder="Descripcion del puesto" style={inputStyle} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, fontWeight: 600 }}>Contrasena master</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••" style={inputStyle} />
+              {errorPass && <p style={{ fontSize: 12, color: "#dc2626", marginTop: 6 }}>{errorPass}</p>}
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => { setModalPuesto(null); setPassword(""); setErrorPass(""); setFormPuesto({ nombre: "", descripcion: "" }) }}
+                style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 16px", fontSize: 13, cursor: "pointer", color: "var(--text-secondary)" }}>
+                Cancelar
+              </button>
+              <button onClick={confirmarPuesto} disabled={guardando || !formPuesto.nombre}
+                style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: !formPuesto.nombre ? 0.6 : 1 }}>
+                {guardando ? "Guardando..." : modalPuesto.id ? "Guardar cambios" : "Crear puesto"}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
-
-// Vista Calendario (placeholder)
-function VistaCalendario({ grupos }: { grupos: Grupo[] }) {
-  return (
-    <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-        📅 Asignar Días a Grupos
-      </h2>
-      <p className="text-gray-600 dark:text-gray-400">
-        Vista de calendario para asignar días (próximamente)
-      </p>
-    </div>
-  )
-}
-
-// Vista Mover Empleados (placeholder)
-function VistaMoverEmpleados({ grupos }: { grupos: Grupo[] }) {
-  return (
-    <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-        ↔️ Mover Empleados Entre Grupos
-      </h2>
-      <p className="text-gray-600 dark:text-gray-400">
-        Interfaz para mover empleados (próximamente)
-      </p>
-    </div>
-  )
-}
-
