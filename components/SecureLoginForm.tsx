@@ -16,6 +16,11 @@ export default function SecureLoginForm() {
   const [userName, setUserName] = useState('')
   const [attemptsLeft, setAttemptsLeft] = useState(5)
   const [blockedUntil, setBlockedUntil] = useState<number | null>(null)
+  const [show2FA, setShow2FA] = useState(false)
+  const [userId2FA, setUserId2FA] = useState('')
+  const [code2FA, setCode2FA] = useState('')
+  const [error2FA, setError2FA] = useState('')
+  const [verifying2FA, setVerifying2FA] = useState(false)
 
   useEffect(() => {
     if (!blockedUntil) return
@@ -47,9 +52,24 @@ export default function SecureLoginForm() {
       })
       setShowLoading(false)
       if (result.status === 302 || result.status === 200 || result.type === 'opaqueredirect') {
-        setUserName(email.split('@')[0])
-        setSuccess(true)
-        setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
+        // Verificar si necesita 2FA
+        const twoFARes = await fetch('/api/auth/2fa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, action: 'send' })
+        })
+        const twoFAData = await twoFARes.json()
+        if (twoFAData.skip) {
+          // No es SUPER_ADMIN - acceso directo
+          setUserName(email.split('@')[0])
+          setSuccess(true)
+          setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
+        } else {
+          // Es SUPER_ADMIN - mostrar 2FA
+          setUserId2FA(twoFAData.userId)
+          setShowLoading(false)
+          setShow2FA(true)
+        }
       } else {
         const newAttempts = attemptsLeft - 1
         setAttemptsLeft(Math.max(0, newAttempts))
@@ -168,8 +188,73 @@ export default function SecureLoginForm() {
         </div>
       )}
 
+      {/* 2FA SCREEN */}
+      {show2FA && !success && (
+        <div style={{position:'fixed',inset:0,zIndex:150,background:'linear-gradient(135deg,#1e3a8a 0%,#1e40af 50%,#1d4ed8 100%)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{background:'rgba(255,255,255,0.1)',backdropFilter:'blur(20px)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:24,padding:'40px 36px',width:'100%',maxWidth:400,textAlign:'center'}}>
+            <div style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#3b82f6,#1e40af)',marginBottom:20}}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h2 style={{fontSize:24,fontWeight:700,color:'#fff',marginBottom:8}}>Verificacion en 2 pasos</h2>
+            <p style={{color:'#bfdbfe',fontSize:14,marginBottom:28}}>Hemos enviado un codigo de 6 digitos a tu email. Introducelo para continuar.</p>
+            <div style={{display:'flex',gap:8,justifyContent:'center',marginBottom:20}}>
+              {[0,1,2,3,4,5].map(i => (
+                <input key={i} type="text" maxLength={1}
+                  value={code2FA[i] || ''}
+                  onChange={e => {
+                    const val = e.target.value.replace(/[^0-9]/g,'')
+                    const arr = code2FA.split('')
+                    arr[i] = val
+                    setCode2FA(arr.join(''))
+                    if (val && i < 5) {
+                      const next = document.getElementById('tfa'+i+1)
+                      if (next) (next as HTMLInputElement).focus()
+                    }
+                  }}
+                  id={'tfa'+i}
+                  style={{width:44,height:54,borderRadius:10,border:'2px solid rgba(255,255,255,0.3)',background:'rgba(255,255,255,0.1)',color:'#fff',fontSize:24,fontWeight:700,textAlign:'center',outline:'none'}}
+                />
+              ))}
+            </div>
+            {error2FA && <p style={{color:'#fca5a5',fontSize:13,marginBottom:12}}>{error2FA}</p>}
+            <button disabled={verifying2FA}
+              onClick={async () => {
+                if (code2FA.length < 6) { setError2FA('Introduce los 6 digitos'); return }
+                setVerifying2FA(true)
+                setError2FA('')
+                const res = await fetch('/api/auth/2fa', {
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  body:JSON.stringify({action:'verify',userId:userId2FA,code:code2FA})
+                })
+                const data = await res.json()
+                setVerifying2FA(false)
+                if (data.ok) {
+                  setShow2FA(false)
+                  setUserName(email.split('@')[0])
+                  setSuccess(true)
+                  setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
+                } else {
+                  setError2FA(data.error || 'Codigo incorrecto')
+                  setCode2FA('')
+                }
+              }}
+              style={{width:'100%',height:46,background:'linear-gradient(135deg,#3b82f6,#1e40af)',color:'#fff',border:'none',borderRadius:10,fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:14}}>
+              {verifying2FA ? 'Verificando...' : 'Verificar codigo'}
+            </button>
+            <button onClick={async () => {
+                setCode2FA('')
+                setError2FA('')
+                await fetch('/api/auth/2fa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,action:'send'})})
+              }}
+              style={{background:'none',border:'none',color:'#bfdbfe',fontSize:13,cursor:'pointer',textDecoration:'underline'}}>
+              Reenviar codigo
+            </button>
+          </div>
+        </div>
+      )}
       {/* MAIN LOGIN */}
-      {!success && !showLoading && (
+      {!success && !showLoading && !show2FA && (
         <div style={{position:'relative',minHeight:'100vh',width:'100%',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center'}}>
           {/* Imagen fondo */}
           <div style={{position:'absolute',inset:0,width:'100%',height:'100%'}}>
