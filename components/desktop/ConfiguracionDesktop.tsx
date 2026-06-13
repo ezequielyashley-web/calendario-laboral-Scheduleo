@@ -159,6 +159,24 @@ function ConfigPuestos() {
 }
 
 function ConfigSistema() {
+  const [expiracion, setExpiracion] = useState('90')
+  const [guardando, setGuardando] = useState(false)
+  const [guardado, setGuardado] = useState(false)
+
+  const guardarExpiracion = async (valor: string) => {
+    setGuardando(true)
+    setExpiracion(valor)
+    try {
+      await fetch('/api/configuracion', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expiracionContrasena: parseInt(valor) || null })
+      })
+      setGuardado(true)
+      setTimeout(() => setGuardado(false), 2000)
+    } catch {}
+    setGuardando(false)
+  }
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between py-3 border-b">
