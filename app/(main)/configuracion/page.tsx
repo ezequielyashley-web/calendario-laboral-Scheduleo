@@ -12,7 +12,7 @@ const SECCIONES = [
   { key: "apariencia", label: "Apariencia" },
   { key: "licencia", label: "Licencia" },
   { key: "inspeccion", label: "Inspección laboral" },
-  { key: "usuarios", label: "Usuarios" },
+  { key: "usuarios", label: "Usuarios gerenciales" },
   { key: "demo", label: "Base de datos demo" },
   { key: "imap", label: "Email IMAP (Bajas IT)" },
   { key: "seguridad", label: "Seguridad" },
@@ -478,6 +478,176 @@ function SeccionSeguridad() {
     </div>
   )
 }
+function SuperAdminSidebar({ usuario, onCambiarEmail, onResetPwd }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
+  const [abierto, setAbierto] = useState(false)
+  const [pin, setPin] = useState("")
+  const [error, setError] = useState("")
+  const [verificado, setVerificado] = useState(false)
+  const [guardando, setGuardando] = useState(false)
+
+  const verificar = async () => {
+    if (!pin) { setError("Introduce tu contrasena"); return }
+    setGuardando(true)
+    const res = await fetch("/api/empresa", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ masterPassword: pin, _test: true })
+    })
+    const data = await res.json()
+    setGuardando(false)
+    if (data.error === "Contraseña incorrecta") { setError("Contrasena incorrecta"); return }
+    setVerificado(true)
+    setError("")
+  }
+
+  const cerrar = () => {
+    setAbierto(false)
+    setVerificado(false)
+    setPin("")
+    setError("")
+  }
+
+  if (!usuario) return null
+
+  return (
+    <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
+      {/* Header siempre visible */}
+      <button onClick={() => abierto ? cerrar() : setAbierto(true)}
+        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: "#1e1b4b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Super Admin</div>
+          <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 1 }}>Acceso total al sistema</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2">
+          {abierto ? <polyline points="18 15 12 9 6 15"/> : <polyline points="6 9 12 15 18 9"/>}
+        </svg>
+      </button>
+
+      {/* Panel expandido */}
+      {abierto && (
+        <div style={{ borderTop: "0.5px solid #e8eaf0", padding: 16 }}>
+          {!verificado ? (
+            <div>
+              <p style={{ fontSize: 12, color: "#718096", marginBottom: 10 }}>Introduce tu contrasena para acceder a tus datos</p>
+              <input type="password" value={pin} onChange={e => setPin(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && verificar()}
+                placeholder="Contrasena master"
+                style={{ width: "100%", padding: "8px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const, marginBottom: 8, outline: "none" }} />
+              {error && <p style={{ fontSize: 11, color: "#dc2626", marginBottom: 8 }}>{error}</p>}
+              <button onClick={verificar} disabled={guardando}
+                style={{ width: "100%", background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, padding: "8px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+                {guardando ? "Verificando..." : "Acceder"}
+              </button>
+            </div>
+          ) : (
+            <div>
+              {/* Datos */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                {[["Nombre", usuario.name || "—"],["Email", usuario.email],["Desde", new Date(usuario.createdAt).toLocaleDateString("es-ES")]].map(([label, val]) => (
+                  <div key={label}>
+                    <div style={{ fontSize: 10, color: "#a0aec0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>{label}</div>
+                    <div style={{ fontSize: 13, color: "#1e1b4b", fontWeight: 500, wordBreak: "break-all" }}>{val}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Acciones */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <button onClick={onCambiarEmail}
+                  style={{ width: "100%", padding: "8px 12px", background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#374151", cursor: "pointer", textAlign: "left" }}>
+                  Cambiar email
+                </button>
+                <button onClick={onResetPwd}
+                  style={{ width: "100%", padding: "8px 12px", background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#374151", cursor: "pointer", textAlign: "left" }}>
+                  Cambiar contrasena
+                </button>
+                <button onClick={cerrar}
+                  style={{ width: "100%", padding: "8px 12px", background: "none", border: "none", fontSize: 12, color: "#a0aec0", cursor: "pointer", textAlign: "left" }}>
+                  Cerrar sesion de admin
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
+  const [verDatos, setVerDatos] = useState(false)
+  const [pinVer, setPinVer] = useState("")
+  const [errPin, setErrPin] = useState("")
+
+  const verificarPin = async () => {
+    const res = await fetch("/api/empresa", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ masterPassword: pinVer, _test: true }) })
+    const data = await res.json()
+    if (data.error === "Contraseña incorrecta") { setErrPin("Contrasena incorrecta"); return }
+    setVerDatos(true); setErrPin("")
+  }
+
+  return (
+    <div style={{ background: "linear-gradient(135deg,#1e1b4b,#312e81)", borderRadius: 16, padding: 24, color: "#fff" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👑</div>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>Super Administrador</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>Acceso total al sistema</div>
+        </div>
+        <span style={{ marginLeft: "auto", background: "rgba(99,102,241,0.3)", border: "1px solid rgba(99,102,241,0.5)", color: "#a5b4fc", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20 }}>SUPER_ADMIN</span>
+      </div>
+      {!verDatos ? (
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+            {[["Nombre","••••••••••"],["Email","•••••••••••••••"],["Creado","••/••/••••"],["ID","••••••••"]].map(([label, val]) => (
+              <div key={label} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 8, padding: "10px 14px" }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 2 }}>{val}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input type="password" value={pinVer} onChange={e => setPinVer(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && verificarPin()}
+              placeholder="Introduce tu contrasena master"
+              style={{ flex: 1, padding: "9px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 13, outline: "none" }} />
+            <button onClick={verificarPin}
+              style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+              Ver mis datos
+            </button>
+          </div>
+          {errPin && <p style={{ color: "#fca5a5", fontSize: 12, marginTop: 8 }}>{errPin}</p>}
+        </div>
+      ) : (
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+            {[["Nombre", usuario.name || "—"],["Email", usuario.email],["Creado", new Date(usuario.createdAt).toLocaleDateString("es-ES")],["ID", usuario.id.slice(0,8)+"..."]].map(([label, val]) => (
+              <div key={label} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 8, padding: "10px 14px" }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{val}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={onCambiarEmail}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+              Cambiar email
+            </button>
+            <button onClick={onResetPwd}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+              Cambiar contrasena
+            </button>
+            <button onClick={() => setVerDatos(false)}
+              style={{ marginLeft: "auto", background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 12, cursor: "pointer" }}>
+              Ocultar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 export default function ConfiguracionPage() {
   const [acceso, setAcceso] = useState(false)
   const [pinAcceso, setPinAcceso] = useState("")
@@ -490,6 +660,16 @@ export default function ConfiguracionPage() {
   const [masterPassword, setMasterPassword] = useState("")
   const [mensaje, setMensaje] = useState({ texto: "", tipo: "" })
   const [usuarios, setUsuarios] = useState([])
+  const [superAdmin, setSuperAdmin] = useState<any>(null)
+
+  useEffect(() => {
+    fetch("/api/usuarios").then(r => r.json()).then(u => {
+      if (Array.isArray(u)) {
+        const sa = u.find((x: any) => x.role === "SUPER_ADMIN")
+        if (sa) setSuperAdmin(sa)
+      }
+    })
+  }, [])
   const [modal, setModal] = useState<any>(null)
   const [tempPassword, setTempPassword] = useState("")
   const [form, setForm] = useState({ email: "", name: "", role: "EMPLEADO" })
@@ -592,6 +772,19 @@ export default function ConfiguracionPage() {
     cargar(); cerrarModal()
   }
 
+  const cambiarEmail = async () => {
+    if (!form.email) { mostrarMensaje("El email es obligatorio", "error"); return }
+    const res = await fetch(`/api/usuarios/${modal.usuario.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "cambiarEmail", nuevoEmail: form.email, masterPassword: modalPin })
+    })
+    const data = await res.json()
+    if (data.error) { mostrarMensaje(data.error, "error"); return }
+    mostrarMensaje(`Email actualizado a ${form.email}`)
+    cargar(); cerrarModal()
+  }
+
   const borrarUsuario = async () => {
     const res = await fetch(`/api/usuarios/${modal.usuario.id}`, {
       method: "DELETE",
@@ -670,13 +863,20 @@ export default function ConfiguracionPage() {
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 20 }}>
-        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 12, height: "fit-content" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <SuperAdminSidebar
+            usuario={usuarios.find((u: any) => u.role === "SUPER_ADMIN")}
+            onCambiarEmail={() => abrirModal("cambiarEmail", usuarios.find((u: any) => u.role === "SUPER_ADMIN"))}
+            onResetPwd={() => abrirModal("reset", usuarios.find((u: any) => u.role === "SUPER_ADMIN"))}
+          />
+          <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 12, height: "fit-content" }}>
           {SECCIONES.map(s => (
             <button key={s.key} onClick={() => setSeccion(s.key)}
               style={{ width: "100%", textAlign: "left", padding: "10px 14px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#6366f1" : "#718096", background: seccion === s.key ? "#ede9fe" : "transparent", cursor: "pointer", marginBottom: 2 }}>
               {s.label}
             </button>
           ))}
+          </div>
         </div>
 
         <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 28 }}>
@@ -860,7 +1060,8 @@ export default function ConfiguracionPage() {
                           <td style={{ padding: "10px 16px" }}>
                             <div style={{ display: "flex", gap: 6 }}>
                               <button onClick={() => abrirModal("editar", u)} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Editar</button>
-                              <button onClick={() => abrirModal("reset", u)} style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Reset</button>
+                              <button onClick={() => abrirModal("reset", u)} style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Reset pwd</button>
+                              <button onClick={() => abrirModal("cambiarEmail", u)} style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Email</button>
                               <button onClick={() => abrirModal(u.role === "PAUSADO" ? "reactivar" : "pausar", u)} style={{ background: u.role === "PAUSADO" ? "#059669" : "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>
                                 {u.role === "PAUSADO" ? "Activar" : "Pausar"}
                               </button>
@@ -888,8 +1089,17 @@ export default function ConfiguracionPage() {
               {modal.tipo === "borrar" && `Borrar: ${modal.usuario.email}`}
               {modal.tipo === "pausar" && `Pausar: ${modal.usuario.email}`}
               {modal.tipo === "reactivar" && `Activar: ${modal.usuario.email}`}
-              {modal.tipo === "reset" && `Reset contraseña: ${modal.usuario.email}`}
+              {modal.tipo === "reset" && `Reset contrasena: ${modal.usuario.email}`}
+              {modal.tipo === "cambiarEmail" && `Cambiar email: ${modal.usuario.email}`}
             </h2>
+            {modal.tipo === "cambiarEmail" && (
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Nuevo email</label>
+                <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                  placeholder="nuevo@email.com" style={inputStyle} />
+                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 6 }}>El usuario debera usar este nuevo email para iniciar sesion.</p>
+              </div>
+            )}
             {(modal.tipo === "crear" || modal.tipo === "editar") && (
               <div style={{ marginBottom: 16 }}>
                 {[{ label: "Nombre", key: "name", type: "text" }, { label: "Email", key: "email", type: "email" }].map(f => (

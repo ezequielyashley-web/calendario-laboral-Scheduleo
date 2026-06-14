@@ -4,18 +4,13 @@ import bcrypt from "bcryptjs"
 
 export async function GET() {
   try {
-    const usuarios = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        empresaId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: { createdAt: "desc" }
-    })
+    const usuarios = await prisma.$queryRaw`
+      SELECT u.id, u.email, u.name, u.role, u."empresaId", u."createdAt", u."updatedAt"
+      FROM "User" u
+      LEFT JOIN "Empleado" e ON e."userId" = u.id
+      WHERE e.id IS NULL
+      ORDER BY u."createdAt" DESC
+    ` as any[]
     return NextResponse.json(usuarios)
   } catch (error) {
     console.error(error)
