@@ -589,13 +589,13 @@ export default function ConfiguracionPage() {
   const [superAdmin, setSuperAdmin] = useState<any>(null)
 
   useEffect(() => {
-    fetch("/api/usuarios").then(r => r.json()).then(u => {
-      if (Array.isArray(u)) {
-        const sa = u.find((x: any) => x.role === "SUPER_ADMIN")
-        if (sa) setSuperAdmin(sa)
-      }
+    fetch("/api/super-admin").then(r => r.json()).then(data => {
+      if (data.usuario) setSuperAdmin(data.usuario)
     })
   }, [])
+
+
+
   const [modal, setModal] = useState<any>(null)
   const [tempPassword, setTempPassword] = useState("")
   const [form, setForm] = useState({ email: "", name: "", role: "EMPLEADO" })
@@ -791,9 +791,9 @@ export default function ConfiguracionPage() {
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <SuperAdminSidebar
-            usuario={usuarios.find((u: any) => u.role === "SUPER_ADMIN")}
-            onCambiarEmail={() => abrirModal("cambiarEmail", usuarios.find((u: any) => u.role === "SUPER_ADMIN"))}
-            onResetPwd={() => abrirModal("reset", usuarios.find((u: any) => u.role === "SUPER_ADMIN"))}
+            usuario={superAdmin}
+            onCambiarEmail={() => abrirModal("cambiarEmail", superAdmin)}
+            onResetPwd={() => abrirModal("reset", superAdmin)}
           />
           <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 12, height: "fit-content" }}>
           {SECCIONES.map(s => (

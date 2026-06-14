@@ -8,7 +8,7 @@ export async function GET() {
       SELECT u.id, u.email, u.name, u.role, u."empresaId", u."createdAt", u."updatedAt"
       FROM "User" u
       LEFT JOIN "Empleado" e ON e."userId" = u.id
-      WHERE e.id IS NULL
+      WHERE e.id IS NULL AND u.role != 'SUPER_ADMIN'
       ORDER BY u."createdAt" DESC
     ` as any[]
     return NextResponse.json(usuarios)
