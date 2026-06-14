@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 
@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest) {
     const admin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!admin) return NextResponse.json({ error: "No se encontró admin" }, { status: 401 })
 
-    const ok = await bcrypt.compare(masterPassword, (admin as any).hashedPin)
+    const ok = await bcrypt.compare(masterPassword, admin.password)
     if (!ok) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
 
     await prisma.$executeRaw`
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     if (!masterPassword) return NextResponse.json({ error: "Contrasena master requerida" }, { status: 401 })
     const admin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!admin) return NextResponse.json({ error: "No se encontro admin" }, { status: 401 })
-    const ok = await bcrypt.compare(masterPassword, (admin as any).hashedPin)
+    const ok = await bcrypt.compare(masterPassword, admin.password)
     if (!ok) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 401 })
     return NextResponse.json({ ok: true })
   } catch (error) {

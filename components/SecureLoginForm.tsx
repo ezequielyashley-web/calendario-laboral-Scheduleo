@@ -54,7 +54,7 @@ export default function SecureLoginForm() {
       setShowLoading(false)
       if (result.status === 302 || result.status === 200 || result.type === 'opaqueredirect') {
         // Verificar si necesita 2FA
-        const twoFARes = await fetch('/api/auth/2fa', {
+        const twoFARes = await fetch('/api/verificacion', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, action: 'send' })
@@ -223,7 +223,7 @@ export default function SecureLoginForm() {
                 if (code2FA.length < 6) { setError2FA('Introduce los 6 digitos'); return }
                 setVerifying2FA(true)
                 setError2FA('')
-                const res = await fetch('/api/auth/2fa', {
+                const res = await fetch('/api/verificacion', {
                   method:'POST',
                   headers:{'Content-Type':'application/json'},
                   body:JSON.stringify({action:'verify',userId:userId2FA,code:code2FA})
@@ -246,7 +246,7 @@ export default function SecureLoginForm() {
             <button onClick={async () => {
                 setCode2FA('')
                 setError2FA('')
-                await fetch('/api/auth/2fa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,action:'send'})})
+                await fetch('/api/verificacion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,action:'send'})})
               }}
               style={{background:'none',border:'none',color:'#bfdbfe',fontSize:13,cursor:'pointer',textDecoration:'underline'}}>
               Reenviar codigo
