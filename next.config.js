@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  allowedDevOrigins: ['192.168.1.106'],
   images: {
-    domains: ['localhost'],
+    remotePatterns: [{ protocol: 'http', hostname: 'localhost' }],
   },
   experimental: {
     serverActions: {

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
       // Enviar email
       await resend.emails.send({
-        from: "Scheduleo <no-reply@scheduleo.app>",
+        from: "Scheduleo <onboarding@resend.dev>",
         to: email,
         subject: "Codigo de verificacion — Scheduleo",
         html: `
