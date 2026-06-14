@@ -478,101 +478,27 @@ function SeccionSeguridad() {
     </div>
   )
 }
-function SuperAdminSidebar({ usuario, onCambiarEmail, onResetPwd }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
-  const [abierto, setAbierto] = useState(false)
-  const [pin, setPin] = useState("")
-  const [error, setError] = useState("")
-  const [verificado, setVerificado] = useState(false)
-  const [guardando, setGuardando] = useState(false)
-
-  const verificar = async () => {
-    if (!pin) { setError("Introduce tu contrasena"); return }
-    setGuardando(true)
-    const res = await fetch("/api/empresa", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ masterPassword: pin, _test: true })
-    })
-    const data = await res.json()
-    setGuardando(false)
-    if (data.error === "Contraseña incorrecta") { setError("Contrasena incorrecta"); return }
-    setVerificado(true)
-    setError("")
-  }
-
-  const cerrar = () => {
-    setAbierto(false)
-    setVerificado(false)
-    setPin("")
-    setError("")
-  }
-
+function SuperAdminSidebar({ usuario }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
   if (!usuario) return null
-
   return (
-    <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
-      {/* Header siempre visible */}
-      <button onClick={() => abierto ? cerrar() : setAbierto(true)}
-        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: "#1e1b4b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <a href="/super-admin" style={{ textDecoration: "none", display: "block" }}>
+      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s" }}
+        onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)")}
+        onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px" }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "#1e1b4b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Super Admin</div>
+            <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 1 }}>Ver mi perfil completo</div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Super Admin</div>
-          <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 1 }}>Acceso total al sistema</div>
-        </div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2">
-          {abierto ? <polyline points="18 15 12 9 6 15"/> : <polyline points="6 9 12 15 18 9"/>}
-        </svg>
-      </button>
-
-      {/* Panel expandido */}
-      {abierto && (
-        <div style={{ borderTop: "0.5px solid #e8eaf0", padding: 16 }}>
-          {!verificado ? (
-            <div>
-              <p style={{ fontSize: 12, color: "#718096", marginBottom: 10 }}>Introduce tu contrasena para acceder a tus datos</p>
-              <input type="password" value={pin} onChange={e => setPin(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && verificar()}
-                placeholder="Contrasena master"
-                style={{ width: "100%", padding: "8px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const, marginBottom: 8, outline: "none" }} />
-              {error && <p style={{ fontSize: 11, color: "#dc2626", marginBottom: 8 }}>{error}</p>}
-              <button onClick={verificar} disabled={guardando}
-                style={{ width: "100%", background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, padding: "8px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
-                {guardando ? "Verificando..." : "Acceder"}
-              </button>
-            </div>
-          ) : (
-            <div>
-              {/* Datos */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-                {[["Nombre", usuario.name || "—"],["Email", usuario.email],["Desde", new Date(usuario.createdAt).toLocaleDateString("es-ES")]].map(([label, val]) => (
-                  <div key={label}>
-                    <div style={{ fontSize: 10, color: "#a0aec0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>{label}</div>
-                    <div style={{ fontSize: 13, color: "#1e1b4b", fontWeight: 500, wordBreak: "break-all" }}>{val}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Acciones */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <button onClick={onCambiarEmail}
-                  style={{ width: "100%", padding: "8px 12px", background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#374151", cursor: "pointer", textAlign: "left" }}>
-                  Cambiar email
-                </button>
-                <button onClick={onResetPwd}
-                  style={{ width: "100%", padding: "8px 12px", background: "#f8f9ff", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#374151", cursor: "pointer", textAlign: "left" }}>
-                  Cambiar contrasena
-                </button>
-                <button onClick={cerrar}
-                  style={{ width: "100%", padding: "8px 12px", background: "none", border: "none", fontSize: 12, color: "#a0aec0", cursor: "pointer", textAlign: "left" }}>
-                  Cerrar sesion de admin
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      </div>
+    </a>
   )
 }
 function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
