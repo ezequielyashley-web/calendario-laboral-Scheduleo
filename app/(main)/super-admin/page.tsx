@@ -24,6 +24,13 @@ export default function SuperAdminPage() {
     setTimeout(() => setMensaje({ texto: "", tipo: "" }), 4000)
   }
 
+  useEffect(() => {
+    fetch("/api/solicitudes-gerenciales").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setSolicitudes(data)
+    }).catch(() => {})
+  }, [])
+
+
   const verificar = async () => {
     if (!pin) { setErrorPin("Introduce tu contraseña"); return }
     setVerificando(true)
@@ -165,7 +172,7 @@ export default function SuperAdminPage() {
           { key: "perfil", label: "Datos del perfil", icon: "👤" },
           { key: "seguridad", label: "Acceso y seguridad", icon: "🔒" },
           { key: "superadmins", label: "Super Admins", icon: "👑" },
-          { key: "solicitudes", label: "Solicitudes", icon: "📋" },
+          { key: "solicitudes", label: "Solicitudes", icon: "📋", badge: solicitudes.filter((s:any) => s.estado === "pendiente").length },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#0f172a" : "#94a3b8", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent", cursor: "pointer", marginBottom: -1, transition: "all 0.15s" }}>

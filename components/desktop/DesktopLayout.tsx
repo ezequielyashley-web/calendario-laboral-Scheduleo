@@ -160,6 +160,15 @@ const pageTitles: Record<string, string> = {
 }
 
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
+  const [solicitudesBadge, setSolicitudesBadge] = useState(0)
+  useEffect(() => {
+    const cargar = () => fetch("/api/solicitudes-gerenciales").then(r => r.json()).then(d => {
+      if (Array.isArray(d)) setSolicitudesBadge(d.filter((s:any) => s.estado === "pendiente").length)
+    }).catch(() => {})
+    cargar()
+    const interval = setInterval(cargar, 60000)
+    return () => clearInterval(interval)
+  }, [])
   const pathname = usePathname()
   const [open, setOpen] = useState(true)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)

@@ -597,6 +597,10 @@ export default function ConfiguracionPage() {
 
 
   const [modal, setModal] = useState<any>(null)
+  const [showRevision, setShowRevision] = useState(false)
+  const [showExito, setShowExito] = useState(false)
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
+  const [errorRevision, setErrorRevision] = useState("")
   const [tempPassword, setTempPassword] = useState("")
   const [form, setForm] = useState<any>({ email: "", name: "", role: "EMPLEADO", telefono: "", dni: "", cargo: "", departamento: "", tipoContrato: "indefinido", jornada: "completa", horario: "manana", sueldoBase: "", mensaje: "" })
   const [modalPin, setModalPin] = useState("")
@@ -662,12 +666,20 @@ export default function ConfiguracionPage() {
   const cerrarModal = () => { setModal(null); setModalPin(""); setTempPassword("") }
 
   const crearUsuario = async () => {
-    if (!form.name || !form.email || !form.cargo) { mostrarMensaje("Nombre, email y cargo son obligatorios", "error"); return }
+    if (!form.nombre || !form.apellidos || !form.email || !form.cargo || !form.telefono || !form.departamento || !form.sueldoBase) { mostrarMensaje("Todos los campos son obligatorios", "error"); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { mostrarMensaje("El email no tiene formato valido", "error"); return }
+    if (!form.permisos || Object.keys(form.permisos).filter(k => form.permisos[k]).length === 0) { mostrarMensaje("Debes asignar al menos un permiso de acceso al sistema", "error"); return }
+    setShowRevision(true)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { mostrarMensaje("El email no tiene formato valido", "error"); return }
+    setShowRevision(true)
+  }
+
+  const enviarSolicitud = async () => {
     const res = await fetch("/api/solicitudes-gerenciales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        nombre: form.name,
+        nombre: (form.nombre + " " + form.apellidos).trim(),
         email: form.email,
         cargo: form.cargo,
         telefono: form.telefono || "",
@@ -683,8 +695,13 @@ export default function ConfiguracionPage() {
     })
     const data = await res.json()
     if (data.error) { mostrarMensaje(data.error, "error"); return }
-    mostrarMensaje("Solicitud enviada al Super Admin para validacion")
+    setShowRevision(false)
     cerrarModal()
+    setShowExito(true)
+    setTimeout(() => setShowExito(false), 5000)
+    fetch("/api/solicitudes-gerenciales").then(r => r.json()).then((d:any) => {
+      if (Array.isArray(d)) setSolicitudesPendientes(d.filter((s:any) => s.estado === "pendiente").length)
+    })
   }
   const editarUsuario = async () => {
     const res = await fetch(`/api/usuarios/${modal.usuario.id}`, {
@@ -1019,6 +1036,81 @@ export default function ConfiguracionPage() {
         </div>
       </div>
 
+      {/* VENTANA EXITO */}
+      {showExito && (
+        <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000, pointerEvents: "none" }}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: "32px 40px", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: "1px solid #e2e8f0", pointerEvents: "all" }}>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Solicitud enviada correctamente</div>
+            <div style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, maxWidth: 320 }}>La solicitud ha sido enviada al Super Admin para su revision.<br/>Pronto recibiras una notificacion con el acceso temporal.</div>
+          </div>
+        </div>
+      )}
+
+      {/* VENTANA REVISION */}
+      {showRevision && modal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 560, maxWidth: "95vw", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Revision de solicitud</div>
+            <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>Revisa bien todos los datos antes de enviar. Una vez enviada no podras modificarla.</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, letterSpacing: "0.05em" }}>DATOS PERSONALES</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
+                  <div><span style={{ color: "#94a3b8" }}>Nombre: </span><strong>{form.nombre} {form.apellidos}</strong></div>
+                  <div><span style={{ color: "#94a3b8" }}>Email: </span><strong>{form.email}</strong></div>
+                  {form.telefono && <div><span style={{ color: "#94a3b8" }}>Telefono: </span><strong>{form.telefono}</strong></div>}
+                  {form.dni && <div><span style={{ color: "#94a3b8" }}>DNI/NIE: </span><strong>{form.dni}</strong></div>}
+                </div>
+              </div>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, letterSpacing: "0.05em" }}>DATOS DEL PUESTO</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
+                  <div><span style={{ color: "#94a3b8" }}>Cargo: </span><strong>{form.cargo}</strong></div>
+                  {form.departamento && <div><span style={{ color: "#94a3b8" }}>Depto: </span><strong>{form.departamento}</strong></div>}
+                  {form.sueldoBase && <div><span style={{ color: "#94a3b8" }}>Sueldo: </span><strong>{form.sueldoBase}€/mes</strong></div>}
+                  <div><span style={{ color: "#94a3b8" }}>Contrato: </span><strong>{form.tipoContrato}</strong></div>
+                  <div><span style={{ color: "#94a3b8" }}>Jornada: </span><strong>{form.jornada}</strong></div>
+                  <div><span style={{ color: "#94a3b8" }}>Horario: </span><strong>{form.horario}</strong></div>
+                </div>
+              </div>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, letterSpacing: "0.05em" }}>ACCESO AL SISTEMA</div>
+                {form.permisos && Object.keys(form.permisos).filter(k => form.permisos[k]).length > 0 ? (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {Object.keys(form.permisos).filter(k => form.permisos[k]).map(k => (
+                      <span key={k} style={{ background: k.endsWith("_mod") ? "#dbeafe" : "#f0fdf4", color: k.endsWith("_mod") ? "#1e40af" : "#15803d", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
+                        {k.replace("_ver", " (ver)").replace("_mod", " (modificar)")}
+                      </span>
+                    ))}
+                  </div>
+                ) : <div style={{ fontSize: 13, color: "#94a3b8" }}>Sin permisos</div>}
+              </div>
+              {form.mensaje && (
+                <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 6 }}>NOTAS</div>
+                  <div style={{ fontSize: 13, color: "#374151" }}>{form.mensaje}</div>
+                </div>
+              )}
+            </div>
+            <div style={{ marginTop: 16, padding: "10px 14px", background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 8, fontSize: 13, color: "#854d0e" }}>
+              Esta solicitud expirara en <strong>48 horas</strong>. Si no es aprobada o rechazada se rechazara automaticamente.
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+              <button onClick={() => setShowRevision(false)} style={{ background: "#f8fafc", color: "#374151", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer" }}>
+                Volver y editar
+              </button>
+              <button onClick={enviarSolicitud} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                Confirmar y enviar solicitud
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {modal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 880, maxWidth: "98vw" }}>
@@ -1043,15 +1135,16 @@ export default function ConfiguracionPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "70vh", overflowY: "auto", paddingRight: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em" }}>DATOS PERSONALES</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <div><label style={labelStyle}>Nombre completo *</label><input value={form.name||""} onChange={e=>setForm((p:any)=>({...p,name:e.target.value}))} style={inputStyle} placeholder="Juan Garcia"/></div>
-                  <div><label style={labelStyle}>Email *</label><input type="email" value={form.email||""} onChange={e=>setForm((p:any)=>({...p,email:e.target.value}))} style={inputStyle} placeholder="juan@empresa.com"/></div>
-                  <div><label style={labelStyle}>Telefono</label><input value={form.telefono||""} onChange={e=>setForm((p:any)=>({...p,telefono:e.target.value}))} style={inputStyle} placeholder="+34 600 000 000"/></div>
-                  <div><label style={labelStyle}>DNI / NIF</label><input value={form.dni||""} onChange={e=>setForm((p:any)=>({...p,dni:e.target.value}))} style={inputStyle} placeholder="12345678A"/></div>
+                  <div><label style={labelStyle}>Nombre *</label><input value={form.nombre||""} onChange={e=>setForm((p:any)=>({...p,nombre:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Carlos"/></div>
+                  <div><label style={labelStyle}>Apellidos *</label><input value={form.apellidos||""} onChange={e=>setForm((p:any)=>({...p,apellidos:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Garcia Lopez"/></div>
+                  <div><label style={labelStyle}>Email *</label><input type="email" value={form.email||""} onChange={e=>setForm((p:any)=>({...p,email:e.target.value.toLowerCase()}))} style={{...inputStyle,borderColor:form.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)?"#ef4444":"var(--border)"}} placeholder="Ej: correo@empresa.com"/>{form.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)&&<div style={{fontSize:11,color:"#ef4444"}}>Email invalido</div>}</div>
+                  <div><label style={labelStyle}>Telefono</label><input value={form.telefono||""} onChange={e=>setForm((p:any)=>({...p,telefono:e.target.value.replace(/[^0-9+\s]/g,"")}))} style={inputStyle} placeholder="Ej: 600 000 000" maxLength={15}/></div>
+                  <div><label style={labelStyle}>DNI / NIE</label><input value={form.dni||""} onChange={e=>setForm((p:any)=>({...p,dni:e.target.value.toUpperCase()}))} style={{...inputStyle,borderColor:form.dni&&!/^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/.test(form.dni)?"#ef4444":"var(--border)"}} placeholder="Ej: 12345678A" maxLength={9}/>{form.dni&&!/^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/.test(form.dni)&&<div style={{fontSize:11,color:"#ef4444"}}>Formato invalido</div>}</div>
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>DATOS DEL PUESTO</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value}))} style={inputStyle} placeholder="Director de sede"/></div>
-                  <div><label style={labelStyle}>Departamento</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value}))} style={inputStyle} placeholder="Operaciones"/></div>
+                  <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Director de area"/></div>
+                  <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div>
                   <div><label style={labelStyle}>Sueldo base (euros/mes)</label><input type="number" value={form.sueldoBase||""} onChange={e=>setForm((p:any)=>({...p,sueldoBase:e.target.value}))} style={inputStyle} placeholder="2500"/></div>
                   <div><label style={labelStyle}>Tipo de contrato</label>
                     <select value={form.tipoContrato||"indefinido"} onChange={e=>setForm((p:any)=>({...p,tipoContrato:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
@@ -1077,7 +1170,7 @@ export default function ConfiguracionPage() {
                   </div>
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>ACCESO AL SISTEMA</div>
-                <div style={{ background: "#f8fafc", borderRadius: 10, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+                <div style={{ background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
                   {/* Header */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0" }}>
                     <div style={{ padding: "8px 14px", fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>MODULO</div>
@@ -1103,7 +1196,7 @@ export default function ConfiguracionPage() {
                     const activo = tieneVer || tieneMod
                     return (
                       <div key={p.modulo} style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", borderBottom: i < 11 ? "1px solid #e2e8f0" : "none", background: i % 2 === 0 ? "#fff" : "#f8fafc" }}>
-                        <div style={{ padding: "10px 14px", fontSize: 13, fontWeight: activo ? 600 : 400, color: activo ? "#0f172a" : "#cbd5e1", display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ padding: "10px 14px", fontSize: 13, fontWeight: activo ? 600 : 400, color: activo ? "#0f172a" : "#475569", display: "flex", alignItems: "center", gap: 8 }}>
                           <div style={{ width: 6, height: 6, borderRadius: "50%", background: activo ? "#6366f1" : "#e2e8f0", flexShrink: 0 }} />
                           {p.modulo}
                         </div>

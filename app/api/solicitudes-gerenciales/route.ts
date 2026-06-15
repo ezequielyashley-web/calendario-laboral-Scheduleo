@@ -4,9 +4,18 @@ import bcrypt from "bcryptjs"
 
 export async function GET() {
   try {
+    // Auto-rechazar expiradas 48h usando SQL directo sin parametros en INTERVAL
+    await prisma.$executeRawUnsafe(`
+      UPDATE "SolicitudGerencial"
+      SET estado = 'rechazada', "resueltaEn" = NOW()
+      WHERE estado = 'pendiente'
+      AND "creadaEn" < NOW() - INTERVAL '48 hours'
+    `)
+
     const solicitudes = await prisma.$queryRaw`
       SELECT * FROM "SolicitudGerencial" ORDER BY "creadaEn" DESC
     ` as any[]
+
     return NextResponse.json(solicitudes)
   } catch (error) {
     console.error(error)
@@ -16,12 +25,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { nombre, email, cargo, telefono, mensaje } = await req.json()
+    const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, sueldoBase, permisos, mensaje } = await req.json()
     if (!nombre || !email || !cargo) return NextResponse.json({ error: "Nombre, email y cargo son obligatorios" }, { status: 400 })
 
     await prisma.$executeRaw`
-      INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, mensaje)
-      VALUES (gen_random_uuid()::text, ${nombre}, ${email}, ${cargo}, ${telefono || ""}, ${mensaje || ""})
+      INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
+      VALUES (gen_random_uuid()::text, ${nombre}, ${email}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase||null}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
     `
     return NextResponse.json({ ok: true })
   } catch (error) {
@@ -37,7 +46,7 @@ export async function PATCH(req: NextRequest) {
     const master = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!master) return NextResponse.json({ error: "No hay SUPER_ADMIN" }, { status: 403 })
     const valid = await bcrypt.compare(masterPassword, master.password)
-    if (!valid) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 403 })
+    if (!valid) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 403 })
 
     const solicitudes = await prisma.$queryRaw`
       SELECT * FROM "SolicitudGerencial" WHERE id = ${id} LIMIT 1
@@ -46,7 +55,6 @@ export async function PATCH(req: NextRequest) {
     const sol = solicitudes[0]
 
     if (accion === "aprobar") {
-      // Crear usuario
       const rawPassword = Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!"
       const hashedPassword = await bcrypt.hash(rawPassword, 10)
       await prisma.user.create({
@@ -58,16 +66,12 @@ export async function PATCH(req: NextRequest) {
           empresaId: "empresa-001"
         }
       })
-      await prisma.$executeRaw`
-        UPDATE "SolicitudGerencial" SET estado = 'aprobada', "resueltaEn" = NOW() WHERE id = ${id}
-      `
+      await prisma.$executeRawUnsafe(`UPDATE "SolicitudGerencial" SET estado = 'aprobada', "resueltaEn" = NOW() WHERE id = '${id}'`)
       return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email })
     }
 
     if (accion === "rechazar") {
-      await prisma.$executeRaw`
-        UPDATE "SolicitudGerencial" SET estado = 'rechazada', "resueltaEn" = NOW() WHERE id = ${id}
-      `
+      await prisma.$executeRawUnsafe(`UPDATE "SolicitudGerencial" SET estado = 'rechazada', "resueltaEn" = NOW() WHERE id = '${id}'`)
       return NextResponse.json({ ok: true })
     }
 
