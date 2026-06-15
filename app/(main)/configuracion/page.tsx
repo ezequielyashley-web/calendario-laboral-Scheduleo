@@ -1,7 +1,7 @@
 "use client"
 import InfoPanel from "@/components/InfoPanel"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment } from "react"
 
 const ROLES = ["SUPER_ADMIN", "ADMIN_SEDE", "EMPLEADO"]
 
@@ -598,7 +598,7 @@ export default function ConfiguracionPage() {
 
   const [modal, setModal] = useState<any>(null)
   const [tempPassword, setTempPassword] = useState("")
-  const [form, setForm] = useState({ email: "", name: "", role: "EMPLEADO" })
+  const [form, setForm] = useState<any>({ email: "", name: "", role: "EMPLEADO", telefono: "", dni: "", cargo: "", departamento: "", tipoContrato: "indefinido", jornada: "completa", horario: "manana", sueldoBase: "", mensaje: "" })
   const [modalPin, setModalPin] = useState("")
 
   const mostrarMensaje = (texto, tipo = "ok") => {
@@ -662,16 +662,23 @@ export default function ConfiguracionPage() {
   const cerrarModal = () => { setModal(null); setModalPin(""); setTempPassword("") }
 
   const crearUsuario = async () => {
-    // Enviar solicitud al Super Admin en vez de crear directamente
+    if (!form.name || !form.email || !form.cargo) { mostrarMensaje("Nombre, email y cargo son obligatorios", "error"); return }
     const res = await fetch("/api/solicitudes-gerenciales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         nombre: form.name,
         email: form.email,
-        cargo: form.role || "Gerencial",
-        telefono: "",
-        mensaje: "Solicitud enviada desde panel de configuracion"
+        cargo: form.cargo,
+        telefono: form.telefono || "",
+        dni: form.dni || "",
+        departamento: form.departamento || "",
+        tipoContrato: form.tipoContrato || "indefinido",
+        jornada: form.jornada || "completa",
+        horario: form.horario || "manana",
+        sueldoBase: form.sueldoBase || null,
+        permisos: form.permisos || {},
+        mensaje: form.mensaje || ""
       })
     })
     const data = await res.json()
@@ -736,7 +743,7 @@ export default function ConfiguracionPage() {
     return { background: "#d1fae5", color: "#065f46" }
   }
 
-  const inputStyle = { width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as const, color: "#1e1b4b", outline: "none" }
+  const inputStyle = { width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as const, color: "#0f172a", outline: "none", background: "#fff" }
   const labelStyle = { display: "block" as const, fontSize: 12, color: "#a0aec0", marginBottom: 4, fontWeight: 500 as const }
 
   if (!acceso) {
@@ -1014,9 +1021,9 @@ export default function ConfiguracionPage() {
 
       {modal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 460, maxWidth: "90vw" }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 880, maxWidth: "98vw" }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 20, color: "#1e1b4b" }}>
-              {modal.tipo === "crear" && "Solicitar nuevo usuario gerencial"}
+              {modal.tipo === "crear" && "Nueva solicitud gerencial — revisa y envia"}
               {modal.tipo === "editar" && `Editar: ${modal.usuario.email}`}
               {modal.tipo === "borrar" && `Borrar: ${modal.usuario.email}`}
               {modal.tipo === "pausar" && `Pausar: ${modal.usuario.email}`}
@@ -1032,17 +1039,124 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 6 }}>El usuario debera usar este nuevo email para iniciar sesion.</p>
               </div>
             )}
-            {(modal.tipo === "crear" || modal.tipo === "editar") && (
+            {modal.tipo === "crear" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "70vh", overflowY: "auto", paddingRight: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em" }}>DATOS PERSONALES</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div><label style={labelStyle}>Nombre completo *</label><input value={form.name||""} onChange={e=>setForm((p:any)=>({...p,name:e.target.value}))} style={inputStyle} placeholder="Juan Garcia"/></div>
+                  <div><label style={labelStyle}>Email *</label><input type="email" value={form.email||""} onChange={e=>setForm((p:any)=>({...p,email:e.target.value}))} style={inputStyle} placeholder="juan@empresa.com"/></div>
+                  <div><label style={labelStyle}>Telefono</label><input value={form.telefono||""} onChange={e=>setForm((p:any)=>({...p,telefono:e.target.value}))} style={inputStyle} placeholder="+34 600 000 000"/></div>
+                  <div><label style={labelStyle}>DNI / NIF</label><input value={form.dni||""} onChange={e=>setForm((p:any)=>({...p,dni:e.target.value}))} style={inputStyle} placeholder="12345678A"/></div>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>DATOS DEL PUESTO</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value}))} style={inputStyle} placeholder="Director de sede"/></div>
+                  <div><label style={labelStyle}>Departamento</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value}))} style={inputStyle} placeholder="Operaciones"/></div>
+                  <div><label style={labelStyle}>Sueldo base (euros/mes)</label><input type="number" value={form.sueldoBase||""} onChange={e=>setForm((p:any)=>({...p,sueldoBase:e.target.value}))} style={inputStyle} placeholder="2500"/></div>
+                  <div><label style={labelStyle}>Tipo de contrato</label>
+                    <select value={form.tipoContrato||"indefinido"} onChange={e=>setForm((p:any)=>({...p,tipoContrato:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
+                      <option value="indefinido">Indefinido</option>
+                      <option value="temporal">Temporal</option>
+                      <option value="obra">Obra y servicio</option>
+                      <option value="practicas">Practicas</option>
+                    </select>
+                  </div>
+                  <div><label style={labelStyle}>Jornada</label>
+                    <select value={form.jornada||"completa"} onChange={e=>setForm((p:any)=>({...p,jornada:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
+                      <option value="completa">Jornada completa</option>
+                      <option value="parcial">Jornada parcial</option>
+                    </select>
+                  </div>
+                  <div><label style={labelStyle}>Horario</label>
+                    <select value={form.horario||"manana"} onChange={e=>setForm((p:any)=>({...p,horario:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
+                      <option value="manana">Mañana</option>
+                      <option value="tarde">Tarde</option>
+                      <option value="rotativo">Turno rotativo</option>
+                      <option value="flexible">Flexible</option>
+                    </select>
+                  </div>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>ACCESO AL SISTEMA</div>
+                <div style={{ background: "#f8fafc", borderRadius: 10, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+                  {/* Header */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0" }}>
+                    <div style={{ padding: "8px 14px", fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>MODULO</div>
+                    <div style={{ padding: "8px 0", fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "center" as const }}>VER</div>
+                    <div style={{ padding: "8px 0", fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "center" as const }}>MODIFICAR</div>
+                  </div>
+                  {[
+                    { modulo: "Empleados", ver: "empleados_ver", mod: "empleados_mod" },
+                    { modulo: "Vacaciones", ver: "vacaciones_ver", mod: "vacaciones_mod" },
+                    { modulo: "Fichajes", ver: "fichajes_ver", mod: "fichajes_mod" },
+                    { modulo: "Reportes", ver: "reportes_ver", mod: "reportes_mod" },
+                    { modulo: "Bajas medicas", ver: "bajas_ver", mod: "bajas_mod" },
+                    { modulo: "Cambios de turno", ver: "cambios_ver", mod: "cambios_mod" },
+                    { modulo: "Deudas", ver: "deudas_ver", mod: "deudas_mod" },
+                    { modulo: "Grupos", ver: "grupos_ver", mod: "grupos_mod" },
+                    { modulo: "Libranzas", ver: "libranzas_ver", mod: "libranzas_mod" },
+                    { modulo: "Minimos por puesto", ver: "minimos_ver", mod: "minimos_mod" },
+                    { modulo: "Calendario", ver: "calendario_ver", mod: "calendario_mod" },
+                    { modulo: "Configuracion", ver: "config_ver", mod: "config_mod" },
+                  ].map((p, i) => {
+                    const tieneVer = form.permisos?.[p.ver] || false
+                    const tieneMod = form.permisos?.[p.mod] || false
+                    const activo = tieneVer || tieneMod
+                    return (
+                      <div key={p.modulo} style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", borderBottom: i < 11 ? "1px solid #e2e8f0" : "none", background: i % 2 === 0 ? "#fff" : "#f8fafc" }}>
+                        <div style={{ padding: "10px 14px", fontSize: 13, fontWeight: activo ? 600 : 400, color: activo ? "#0f172a" : "#cbd5e1", display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: activo ? "#6366f1" : "#e2e8f0", flexShrink: 0 }} />
+                          {p.modulo}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
+                          <input type="checkbox" checked={tieneVer} onChange={e=>setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.ver]:e.target.checked}}))} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#6366f1" }} />
+                          <span style={{ fontSize: 9, fontWeight: 700, color: tieneVer ? "#6366f1" : "#e2e8f0" }}>{tieneVer ? "ON" : "OFF"}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
+                          <input type="checkbox" checked={tieneMod} onChange={e=>setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.mod]:e.target.checked}}))} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#0284c7" }} />
+                          <span style={{ fontSize: 9, fontWeight: 700, color: tieneMod ? "#0284c7" : "#e2e8f0" }}>{tieneMod ? "ON" : "OFF"}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div><label style={labelStyle}>Notas adicionales</label>
+                  <textarea value={form.mensaje||""} onChange={e=>setForm((p:any)=>({...p,mensaje:e.target.value}))}
+                    placeholder="Informacion adicional..."
+                    style={{...inputStyle, height:60, resize:"none" as const}}/>
+                </div>
+                {/* Resumen */}
+                {(form.name || form.email || form.cargo) && (
+                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 10, padding: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#0284c7", marginBottom: 8, letterSpacing: "0.05em" }}>RESUMEN DE LA SOLICITUD</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, fontSize: 12, color: "#0f172a" }}>
+                      {form.name && <div><span style={{ color: "#94a3b8" }}>Nombre: </span><strong>{form.name}</strong></div>}
+                      {form.email && <div><span style={{ color: "#94a3b8" }}>Email: </span><strong>{form.email}</strong></div>}
+                      {form.cargo && <div><span style={{ color: "#94a3b8" }}>Cargo: </span><strong>{form.cargo}</strong></div>}
+                      {form.departamento && <div><span style={{ color: "#94a3b8" }}>Depto: </span><strong>{form.departamento}</strong></div>}
+                      {form.sueldoBase && <div><span style={{ color: "#94a3b8" }}>Sueldo: </span><strong>{form.sueldoBase}€/mes</strong></div>}
+                      {form.tipoContrato && <div><span style={{ color: "#94a3b8" }}>Contrato: </span><strong>{form.tipoContrato}</strong></div>}
+                    </div>
+                    {form.permisos && Object.keys(form.permisos).filter(k => form.permisos[k]).length > 0 && (
+                      <div style={{ marginTop: 8, fontSize: 11, color: "#0284c7" }}>
+                        <span style={{ fontWeight: 700 }}>Permisos: </span>
+                        {Object.keys(form.permisos).filter(k => form.permisos[k]).map(k => k.replace("_ver", " (ver)").replace("_mod", " (mod)")).join(", ")}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {modal.tipo === "editar" && (
               <div style={{ marginBottom: 16 }}>
-                {[{ label: "Nombre", key: "name", type: "text" }, { label: "Email", key: "email", type: "email" }].map(f => (
+                {[{ label: "Nombre", key: "name", type: "text" }, { label: "Email", key: "email", type: "email" }].map((f:any) => (
                   <div key={f.key} style={{ marginBottom: 12 }}>
                     <label style={labelStyle}>{f.label}</label>
-                    <input type={f.type} value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} style={inputStyle} />
+                    <input type={f.type} value={form[f.key]||""} onChange={e => setForm((p:any) => ({ ...p, [f.key]: e.target.value }))} style={inputStyle} />
                   </div>
                 ))}
                 <div style={{ marginBottom: 12 }}>
                   <label style={labelStyle}>Rol</label>
-                  <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} style={{ ...inputStyle, cursor: "pointer" }}>
+                  <select value={form.role||""} onChange={e => setForm((p:any) => ({ ...p, role: e.target.value }))} style={{ ...inputStyle, cursor: "pointer" }}>
                     {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
