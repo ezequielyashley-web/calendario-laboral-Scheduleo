@@ -662,17 +662,23 @@ export default function ConfiguracionPage() {
   const cerrarModal = () => { setModal(null); setModalPin(""); setTempPassword("") }
 
   const crearUsuario = async () => {
-    const res = await fetch("/api/usuarios", {
+    // Enviar solicitud al Super Admin en vez de crear directamente
+    const res = await fetch("/api/solicitudes-gerenciales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, masterPassword: modalPin, empresaId: "empresa-001" })
+      body: JSON.stringify({
+        nombre: form.name,
+        email: form.email,
+        cargo: form.role || "Gerencial",
+        telefono: "",
+        mensaje: "Solicitud enviada desde panel de configuracion"
+      })
     })
     const data = await res.json()
     if (data.error) { mostrarMensaje(data.error, "error"); return }
-    setTempPassword(data.tempPassword)
-    cargar()
+    mostrarMensaje("Solicitud enviada al Super Admin para validacion")
+    cerrarModal()
   }
-
   const editarUsuario = async () => {
     const res = await fetch(`/api/usuarios/${modal.usuario.id}`, {
       method: "PATCH",
@@ -960,7 +966,7 @@ export default function ConfiguracionPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Gestión de usuarios</h2>
                 <button onClick={() => abrirModal("crear")} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
-                  + Nuevo usuario
+                  + Solicitar usuario gerencial
                 </button>
               </div>
               <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, overflow: "hidden" }}>
@@ -1010,7 +1016,7 @@ export default function ConfiguracionPage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 460, maxWidth: "90vw" }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 20, color: "#1e1b4b" }}>
-              {modal.tipo === "crear" && "Crear nuevo usuario"}
+              {modal.tipo === "crear" && "Solicitar nuevo usuario gerencial"}
               {modal.tipo === "editar" && `Editar: ${modal.usuario.email}`}
               {modal.tipo === "borrar" && `Borrar: ${modal.usuario.email}`}
               {modal.tipo === "pausar" && `Pausar: ${modal.usuario.email}`}

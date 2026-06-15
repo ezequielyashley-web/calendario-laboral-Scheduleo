@@ -15,6 +15,9 @@ export default function SuperAdminPage() {
   const [modalNuevo, setModalNuevo] = useState(false)
   const [formNuevo, setFormNuevo] = useState({ name: "", email: "", cargo: "", telefono: "" })
   const [masterPassword, setMasterPassword] = useState("")
+  const [solicitudes, setSolicitudes] = useState<any[]>([])
+  const [procesando, setProcesando] = useState<string|null>(null)
+  const [ultimoCreado, setUltimoCreado] = useState<any>(null)
 
   const mostrarMensaje = (texto: string, tipo = "ok") => {
     setMensaje({ texto, tipo })
@@ -22,7 +25,7 @@ export default function SuperAdminPage() {
   }
 
   const verificar = async () => {
-    if (!pin) { setErrorPin("Introduce tu contrasena"); return }
+    if (!pin) { setErrorPin("Introduce tu contraseña"); return }
     setVerificando(true)
     const res = await fetch("/api/empresa", {
       method: "PATCH",
@@ -59,6 +62,8 @@ export default function SuperAdminPage() {
       })
     }
     if (data.superAdmins) setSuperAdmins(data.superAdmins)
+    const sol = await fetch("/api/solicitudes-gerenciales").then(r => r.json())
+    if (Array.isArray(sol)) setSolicitudes(sol)
   }
 
   const guardarPerfil = async () => {
@@ -83,7 +88,7 @@ export default function SuperAdminPage() {
     })
     const data = await res.json()
     if (data.error) { mostrarMensaje(data.error, "error"); return }
-    mostrarMensaje(`Super Admin creado. Contrasena temporal: ${data.tempPassword}`)
+    mostrarMensaje(`Super Admin creado. Contraseña temporal: ${data.tempPassword}`)
     setModalNuevo(false)
     setFormNuevo({ name: "", email: "", cargo: "", telefono: "" })
     cargar()
@@ -107,7 +112,7 @@ export default function SuperAdminPage() {
           </div>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.1em", marginBottom: 8 }}>ACCESO RESTRINGIDO</div>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>Panel Super Admin</h2>
-          <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 28px", lineHeight: 1.6 }}>Introduce tu contrasena master para acceder al panel de administracion</p>
+          <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 28px", lineHeight: 1.6 }}>Introduce tu contraseña master para acceder al panel de administracion</p>
           <input type="password" value={pin} onChange={e => setPin(e.target.value)}
             onKeyDown={e => e.key === "Enter" && verificar()}
             placeholder="••••••••••••"
@@ -160,6 +165,7 @@ export default function SuperAdminPage() {
           { key: "perfil", label: "Datos del perfil", icon: "👤" },
           { key: "seguridad", label: "Acceso y seguridad", icon: "🔒" },
           { key: "superadmins", label: "Super Admins", icon: "👑" },
+          { key: "solicitudes", label: "Solicitudes", icon: "📋" },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#0f172a" : "#94a3b8", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent", cursor: "pointer", marginBottom: -1, transition: "all 0.15s" }}>
@@ -259,30 +265,30 @@ export default function SuperAdminPage() {
           </div>
 
           <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 20 }}>Cambiar contrasena</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 20 }}>Cambiar contraseña</div>
             <div style={{ marginBottom: 14 }}>
-              <label style={labelStyle}>Nueva contrasena</label>
+              <label style={labelStyle}>Nueva contraseña</label>
               <input type="password" value={form.nuevaPassword || ""} onChange={e => setForm((p: any) => ({ ...p, nuevaPassword: e.target.value }))}
-                placeholder="Minimo 12 caracteres" style={inputStyle} />
+                placeholder="Mínimo 12 caracteres" style={inputStyle} />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={labelStyle}>Confirmar contrasena</label>
+              <label style={labelStyle}>Confirmar contraseña</label>
               <input type="password" value={form.confirmarPassword || ""} onChange={e => setForm((p: any) => ({ ...p, confirmarPassword: e.target.value }))}
-                placeholder="Repite la contrasena" style={inputStyle} />
+                placeholder="Repite la contraseña" style={inputStyle} />
             </div>
             <button onClick={async () => {
-              if (!form.nuevaPassword || form.nuevaPassword !== form.confirmarPassword) { mostrarMensaje("Las contrasenas no coinciden", "error"); return }
-              if (form.nuevaPassword.length < 12) { mostrarMensaje("Minimo 12 caracteres", "error"); return }
+              if (!form.nuevaPassword || form.nuevaPassword !== form.confirmarPassword) { mostrarMensaje("Las contraseñas no coinciden", "error"); return }
+              if (form.nuevaPassword.length < 12) { mostrarMensaje("Mínimo 12 caracteres", "error"); return }
               const res = await fetch(`/api/usuarios/${usuario.id}`, {
                 method: "PATCH", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "reset", masterPassword, nuevaPassword: form.nuevaPassword })
               })
               const data = await res.json()
               if (data.error) { mostrarMensaje(data.error, "error"); return }
-              mostrarMensaje("Contrasena actualizada correctamente")
+              mostrarMensaje("Contraseña actualizada correctamente")
               setForm((p: any) => ({ ...p, nuevaPassword: "", confirmarPassword: "" }))
             }} style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-              Cambiar contrasena
+              Cambiar contraseña
             </button>
           </div>
         </div>
@@ -348,6 +354,88 @@ export default function SuperAdminPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* TAB: Solicitudes */}
+      {tab === "solicitudes" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Solicitudes de acceso gerencial</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                {solicitudes.filter((s: any) => s.estado === "pendiente").length} pendientes de revision
+              </div>
+            </div>
+          </div>
+
+          {solicitudes.length === 0 ? (
+            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 40, textAlign: "center", color: "#94a3b8" }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>📋</div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>No hay solicitudes pendientes</div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {solicitudes.map((sol: any) => (
+                <div key={sol.id} style={{ background: "#fff", border: `1px solid ${sol.estado === "pendiente" ? "#fde68a" : sol.estado === "aprobada" ? "#86efac" : "#fca5a5"}`, borderRadius: 14, padding: "20px 24px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: sol.estado === "pendiente" ? "#fef9c3" : sol.estado === "aprobada" ? "#d1fae5" : "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
+                      {sol.estado === "pendiente" ? "⏳" : sol.estado === "aprobada" ? "✅" : "❌"}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{sol.nombre}</div>
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: sol.estado === "pendiente" ? "#fef9c3" : sol.estado === "aprobada" ? "#d1fae5" : "#fee2e2", color: sol.estado === "pendiente" ? "#854d0e" : sol.estado === "aprobada" ? "#15803d" : "#991b1b" }}>
+                          {sol.estado.toUpperCase()}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 13, color: "#64748b", marginBottom: 4 }}>{sol.email} · {sol.cargo}</div>
+                      {sol.telefono && <div style={{ fontSize: 12, color: "#94a3b8" }}>{sol.telefono}</div>}
+                      {sol.mensaje && <div style={{ fontSize: 12, color: "#64748b", marginTop: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8 }}>{sol.mensaje}</div>}
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 8 }}>Solicitado: {new Date(sol.creadaEn).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+                    </div>
+                    {sol.estado === "pendiente" && (
+                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                        <button onClick={async () => {
+                          setProcesando(sol.id + "_aprobar")
+                          const res = await fetch("/api/solicitudes-gerenciales", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ id: sol.id, accion: "aprobar", masterPassword })
+                          })
+                          const data = await res.json()
+                          setProcesando(null)
+                          if (data.error) { mostrarMensaje(data.error, "error"); return }
+                          setUltimoCreado({ name: data.nombre, email: data.email, tempPassword: data.tempPassword, tipo: "gerencial" })
+                          cargar()
+                        }} disabled={procesando === sol.id + "_aprobar"}
+                          style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                          {procesando === sol.id + "_aprobar" ? "Aprobando..." : "✓ Aprobar"}
+                        </button>
+                        <button onClick={async () => {
+                          if (!confirm("Rechazar esta solicitud?")) return
+                          setProcesando(sol.id + "_rechazar")
+                          const res = await fetch("/api/solicitudes-gerenciales", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ id: sol.id, accion: "rechazar", masterPassword })
+                          })
+                          const data = await res.json()
+                          setProcesando(null)
+                          if (data.error) { mostrarMensaje(data.error, "error"); return }
+                          mostrarMensaje("Solicitud rechazada")
+                          cargar()
+                        }} disabled={procesando === sol.id + "_rechazar"}
+                          style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                          ✕ Rechazar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
