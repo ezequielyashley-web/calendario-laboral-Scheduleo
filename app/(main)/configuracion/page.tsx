@@ -820,11 +820,18 @@ export default function ConfiguracionPage() {
 
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <SuperAdminSidebar
-            usuario={superAdmin}
-            onCambiarEmail={() => abrirModal("cambiarEmail", superAdmin)}
-            onResetPwd={() => abrirModal("reset", superAdmin)}
-          />
+          <div style={{ position: "relative" }}>
+            <SuperAdminSidebar
+              usuario={superAdmin}
+              onCambiarEmail={() => abrirModal("cambiarEmail", superAdmin)}
+              onResetPwd={() => abrirModal("reset", superAdmin)}
+            />
+            {solicitudesPendientes > 0 && (
+              <div style={{ position: "absolute", top: -6, right: -6, background: "#dc2626", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, border: "2px solid #fff", zIndex: 10 }}>
+                {solicitudesPendientes > 9 ? "9+" : solicitudesPendientes}
+              </div>
+            )}
+          </div>
           <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 12, height: "fit-content" }}>
           {SECCIONES.map(s => (
             <button key={s.key} onClick={() => setSeccion(s.key)}
@@ -1038,7 +1045,7 @@ export default function ConfiguracionPage() {
 
       {/* VENTANA EXITO */}
       {showExito && (
-        <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000, pointerEvents: "none" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000 }}>
           <div style={{ background: "#fff", borderRadius: 20, padding: "32px 40px", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: "1px solid #e2e8f0", pointerEvents: "all" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1145,7 +1152,7 @@ export default function ConfiguracionPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Director de area"/></div>
                   <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div>
-                  <div><label style={labelStyle}>Sueldo base (euros/mes)</label><input type="number" value={form.sueldoBase||""} onChange={e=>setForm((p:any)=>({...p,sueldoBase:e.target.value}))} style={inputStyle} placeholder="2500"/></div>
+                  <div><label style={labelStyle}>Sueldo base *</label><div style={{position:"relative"}}><span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#64748b",fontSize:14,pointerEvents:"none",zIndex:1}}>€</span><input type="text" inputMode="numeric" value={form.sueldoBase||""} onChange={e=>setForm((p:any)=>({...p,sueldoBase:e.target.value.replace(/[^0-9]/g,"")}))} style={{...inputStyle,paddingLeft:26}} placeholder="Ej: 2000" autoComplete="off" name="sueldobase" id="sueldobase"/></div></div>
                   <div><label style={labelStyle}>Tipo de contrato</label>
                     <select value={form.tipoContrato||"indefinido"} onChange={e=>setForm((p:any)=>({...p,tipoContrato:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
                       <option value="indefinido">Indefinido</option>
@@ -1205,7 +1212,7 @@ export default function ConfiguracionPage() {
                           <span style={{ fontSize: 9, fontWeight: 700, color: tieneVer ? "#6366f1" : "#e2e8f0" }}>{tieneVer ? "ON" : "OFF"}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
-                          <input type="checkbox" checked={tieneMod} onChange={e=>setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.mod]:e.target.checked}}))} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#0284c7" }} />
+                          <input type="checkbox" checked={tieneMod} onChange={e=>{const v=e.target.checked;setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.mod]:v,...(v?{[p.ver]:true}:{})}}))}} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#0284c7" }} />
                           <span style={{ fontSize: 9, fontWeight: 700, color: tieneMod ? "#0284c7" : "#e2e8f0" }}>{tieneMod ? "ON" : "OFF"}</span>
                         </div>
                       </div>

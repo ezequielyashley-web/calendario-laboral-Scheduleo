@@ -178,6 +178,11 @@ export default function SuperAdminPage() {
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#0f172a" : "#94a3b8", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent", cursor: "pointer", marginBottom: -1, transition: "all 0.15s" }}>
             <span style={{ fontSize: 14 }}>{t.icon}</span>
             {t.label}
+            {"badge" in t && (t as any).badge > 0 && (
+              <span style={{ background: "#dc2626", color: "#fff", borderRadius: "50%", fontSize: 10, fontWeight: 700, minWidth: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>
+                {(t as any).badge > 9 ? "9+" : (t as any).badge}
+              </span>
+            )}
           </button>
         ))}
       </div>

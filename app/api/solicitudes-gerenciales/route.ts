@@ -11,6 +11,12 @@ export async function GET() {
       WHERE estado = 'pendiente'
       AND "creadaEn" < NOW() - INTERVAL '48 hours'
     `)
+    // Auto-eliminar rechazadas tras 24h
+    await prisma.$executeRawUnsafe(`
+      DELETE FROM "SolicitudGerencial"
+      WHERE estado = 'rechazada'
+      AND "resueltaEn" < NOW() - INTERVAL '24 hours'
+    `)
 
     const solicitudes = await prisma.$queryRaw`
       SELECT * FROM "SolicitudGerencial" ORDER BY "creadaEn" DESC
@@ -25,7 +31,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, sueldoBase, permisos, mensaje } = await req.json()
+    const body = await req.json()
+    const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje } = body
+    const sueldoBase = body.sueldoBase ? parseFloat(body.sueldoBase) : null
     if (!nombre || !email || !cargo) return NextResponse.json({ error: "Nombre, email y cargo son obligatorios" }, { status: 400 })
 
     await prisma.$executeRaw`
@@ -79,5 +87,18 @@ export async function PATCH(req: NextRequest) {
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al procesar solicitud" }, { status: 500 })
+  }
+}
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get("id")
+    if (!id) return NextResponse.json({ error: "ID requerido" }, { status: 400 })
+
+    await prisma.$executeRawUnsafe(`DELETE FROM "SolicitudGerencial" WHERE id = '${id}' AND estado = 'rechazada'`)
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: "Error al eliminar solicitud" }, { status: 500 })
   }
 }

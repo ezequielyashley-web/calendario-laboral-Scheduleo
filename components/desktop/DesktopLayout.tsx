@@ -246,6 +246,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                         {noLeidas > 9 ? '9+' : noLeidas}
                       </span>
                     )}
+                    {item.href === '/configuracion' && solicitudesBadge > 0 && open && (
+                      <span style={{ marginLeft:'auto', background:'#dc2626', color:'#fff', borderRadius:'50%', fontSize:10, fontWeight:700, minWidth:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>
+                        {solicitudesBadge > 9 ? '9+' : solicitudesBadge}
+                      </span>
+                    )}
                   </Link>
                 )
               })}
