@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(req: Request) {
@@ -10,7 +10,6 @@ export async function GET(req: Request) {
     const usuario = await prisma.user.findFirst({
       where: { email: email.toLowerCase() }
     }) as any
-
     if (!usuario) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
 
     let notificaciones = 0
@@ -21,8 +20,15 @@ export async function GET(req: Request) {
       notificaciones = Number(notifs[0]?.count || 0)
     } catch {}
 
-    const ultimoLogin = usuario.ultimoLogin
+    let empresa = "Mi Empresa S.L."
+    try {
+      const emp = await prisma.$queryRaw`
+        SELECT nombre FROM "Empresa" WHERE id = ${usuario.empresaId} LIMIT 1
+      ` as any[]
+      if (emp[0]?.nombre) empresa = emp[0].nombre
+    } catch {}
 
+    const ultimoLogin = usuario.ultimoLogin
     try {
       await prisma.$executeRawUnsafe(`UPDATE "User" SET "ultimoLogin" = NOW() WHERE id = '${usuario.id}'`)
     } catch {}
@@ -33,7 +39,9 @@ export async function GET(req: Request) {
       cargo: usuario.cargo || "",
       departamento: usuario.departamento || "",
       permisos: usuario.permisos || {},
+      genero: usuario.genero || "masculino",
       role: usuario.role,
+      empresa,
       notificaciones,
       ultimoLogin
     })
