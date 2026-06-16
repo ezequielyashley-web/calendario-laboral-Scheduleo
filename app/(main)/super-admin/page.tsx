@@ -17,6 +17,7 @@ export default function SuperAdminPage() {
   const [masterPassword, setMasterPassword] = useState("")
   const [solicitudes, setSolicitudes] = useState<any[]>([])
   const [procesando, setProcesando] = useState<string|null>(null)
+  const [expandida, setExpandida] = useState<string|null>(null)
   const [modalModificar, setModalModificar] = useState<any>(null)
   const [modalEliminarUsuario, setModalEliminarUsuario] = useState<any>(null)
   const [pinEliminar, setPinEliminar] = useState("")
@@ -395,90 +396,118 @@ export default function SuperAdminPage() {
               <div style={{ fontSize: 14, fontWeight: 500 }}>No hay solicitudes pendientes</div>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {solicitudes.map((sol: any) => (
-                <div key={sol.id} style={{ position: "relative", background: "#fff", border: `1px solid ${sol.estado === "pendiente" ? "#fde68a" : sol.estado === "aprobada" ? "#86efac" : "#fca5a5"}`, borderRadius: 14, padding: "20px 24px" }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div key={sol.id} style={{ background: "#fff", border: `1px solid ${sol.estado === "pendiente" ? "#fde68a" : sol.estado === "aprobada" ? "#86efac" : "#fca5a5"}`, borderRadius: 14, overflow: "hidden", cursor: "pointer" }}
+                  onClick={() => setExpandida(expandida === sol.id ? null : sol.id)}>
+
+                  {/* CABECERA */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px" }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: sol.estado === "pendiente" ? "#fef9c3" : sol.estado === "aprobada" ? "#d1fae5" : "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
                       {sol.estado === "pendiente" ? "⏳" : sol.estado === "aprobada" ? "✅" : "❌"}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                         <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{sol.nombre}</div>
                         <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: sol.estado === "pendiente" ? "#fef9c3" : sol.estado === "aprobada" ? "#d1fae5" : "#fee2e2", color: sol.estado === "pendiente" ? "#854d0e" : sol.estado === "aprobada" ? "#15803d" : "#991b1b" }}>
                           {sol.estado.toUpperCase()}
                         </span>
                       </div>
-                      <div style={{ fontSize: 13, color: "#64748b", marginBottom: 4 }}>{sol.email} · {sol.cargo}</div>
-                      {sol.telefono && <div style={{ fontSize: 12, color: "#94a3b8" }}>{sol.telefono}</div>}
-                      {sol.mensaje && <div style={{ fontSize: 12, color: "#64748b", marginTop: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8 }}>{sol.mensaje}</div>}
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 8 }}>Solicitado: {new Date(sol.creadaEn).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+                      <div style={{ fontSize: 13, color: "#64748b" }}>{sol.email} · {sol.cargo}</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Solicitado: {new Date(sol.creadaEn).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
                     </div>
-                    {sol.estado === "pendiente" && (
-                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                        <button onClick={async () => {
-                          setProcesando(sol.id + "_aprobar")
-                          const res = await fetch("/api/solicitudes-gerenciales", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ id: sol.id, accion: "aprobar", masterPassword })
-                          })
-                          const data = await res.json()
-                          setProcesando(null)
-                          if (data.error) { mostrarMensaje(data.error, "error"); return }
-                          setUltimoCreado({ name: data.nombre, email: data.email, tempPassword: data.tempPassword, tipo: "gerencial" })
-                          cargar()
-                        }} disabled={procesando === sol.id + "_aprobar"}
-                          style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                          {procesando === sol.id + "_aprobar" ? "Aprobando..." : "✓ Aprobar"}
-                        </button>
-                        <button onClick={async () => {
-                          if (!confirm("Rechazar esta solicitud?")) return
-                          setProcesando(sol.id + "_rechazar")
-                          const res = await fetch("/api/solicitudes-gerenciales", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ id: sol.id, accion: "rechazar", masterPassword })
-                          })
-                          const data = await res.json()
-                          setProcesando(null)
-                          if (data.error) { mostrarMensaje(data.error, "error"); return }
-                          mostrarMensaje("Solicitud rechazada")
-                          cargar()
-                        }} disabled={procesando === sol.id + "_rechazar"}
-                          style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                          ✕ Rechazar
-                        </button>
-                      </div>
-                    )}
-                    {sol.estado === "rechazada" && (
-                      <button onClick={async () => {
-                        await fetch(`/api/solicitudes-gerenciales?id=${sol.id}`, { method: "DELETE" })
-                        cargar()
-                      }} title="Eliminar solicitud rechazada"
-                        style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18, lineHeight: 1, padding: 4 }}
-                        onMouseEnter={e=>(e.currentTarget.style.color="#dc2626")}
-                        onMouseLeave={e=>(e.currentTarget.style.color="#94a3b8")}>
-                        ✕
-                      </button>
-                    )}
-                    {sol.estado === "aprobada" && (
-                      <div style={{ display: "flex", gap: 8, position: "absolute", top: 12, right: 12 }}>
-                        <button onClick={() => setModalModificar(sol)}
-                          title="Modificar permisos"
-                          style={{ background: "#ede9fe", color: "#6366f1", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                          ✏️ Modificar
-                        </button>
-                        <button onClick={() => setModalEliminarUsuario(sol)}
-                          title="Eliminar usuario"
-                          style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18, lineHeight: 1, padding: 4 }}
-                          onMouseEnter={e=>(e.currentTarget.style.color="#dc2626")}
-                          onMouseLeave={e=>(e.currentTarget.style.color="#94a3b8")}>
-                          ✕
-                        </button>
-                      </div>
-                    )}
+                    <div style={{ color: "#94a3b8", fontSize: 20, flexShrink: 0, transform: expandida === sol.id ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▾</div>
                   </div>
+
+                  {/* FICHA EXPANDIDA */}
+                  {expandida === sol.id && (
+                    <div style={{ borderTop: "1px solid #f1f5f9", padding: 20, background: "#fafafa" }} onClick={e => e.stopPropagation()}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                        <div style={{ background: "#fff", borderRadius: 10, padding: 14, border: "1px solid #e2e8f0" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 8 }}>DATOS PERSONALES</div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 13 }}>
+                            <div><span style={{ color: "#94a3b8" }}>Email: </span><strong>{sol.email}</strong></div>
+                            {sol.telefono && <div><span style={{ color: "#94a3b8" }}>Telefono: </span><strong>{sol.telefono}</strong></div>}
+                            {sol.dni && <div><span style={{ color: "#94a3b8" }}>DNI/NIE: </span><strong>{sol.dni}</strong></div>}
+                          </div>
+                        </div>
+                        <div style={{ background: "#fff", borderRadius: 10, padding: 14, border: "1px solid #e2e8f0" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 8 }}>DATOS DEL PUESTO</div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 13 }}>
+                            {sol.departamento && <div><span style={{ color: "#94a3b8" }}>Depto: </span><strong>{sol.departamento}</strong></div>}
+                            {sol.sueldoBase && <div><span style={{ color: "#94a3b8" }}>Sueldo: </span><strong>{sol.sueldoBase}€/mes</strong></div>}
+                            {sol.tipoContrato && <div><span style={{ color: "#94a3b8" }}>Contrato: </span><strong>{sol.tipoContrato}</strong></div>}
+                            {sol.jornada && <div><span style={{ color: "#94a3b8" }}>Jornada: </span><strong>{sol.jornada}</strong></div>}
+                            {sol.horario && <div><span style={{ color: "#94a3b8" }}>Horario: </span><strong>{sol.horario}</strong></div>}
+                          </div>
+                        </div>
+                      </div>
+                      {sol.permisos && Object.keys(sol.permisos).filter((k:string) => sol.permisos[k]).length > 0 && (
+                        <div style={{ background: "#fff", borderRadius: 10, padding: 14, border: "1px solid #e2e8f0", marginBottom: 16 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 8 }}>PERMISOS SOLICITADOS</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {Object.keys(sol.permisos).filter((k:string) => sol.permisos[k]).map((k:string) => (
+                              <span key={k} style={{ background: k.endsWith("_mod") ? "#dbeafe" : "#f0fdf4", color: k.endsWith("_mod") ? "#1e40af" : "#15803d", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
+                                {k.replace("_ver", " (ver)").replace("_mod", " (modificar)")}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {sol.mensaje && (
+                        <div style={{ background: "#fff", borderRadius: 10, padding: 14, border: "1px solid #e2e8f0", marginBottom: 16, fontSize: 13, color: "#374151" }}>
+                          <span style={{ fontWeight: 700, color: "#6366f1" }}>Notas: </span>{sol.mensaje}
+                        </div>
+                      )}
+                      {sol.estado === "pendiente" && (
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                          <button onClick={async (e) => {
+                            e.stopPropagation()
+                            if (!confirm("Rechazar esta solicitud?")) return
+                            setProcesando(sol.id + "_rechazar")
+                            const res = await fetch("/api/solicitudes-gerenciales", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: sol.id, accion: "rechazar", masterPassword }) })
+                            const data = await res.json()
+                            setProcesando(null)
+                            if (data.error) { mostrarMensaje(data.error, "error"); return }
+                            mostrarMensaje("Solicitud rechazada"); cargar()
+                          }} style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                            ✕ Rechazar
+                          </button>
+                          <button onClick={async (e) => {
+                            e.stopPropagation()
+                            setProcesando(sol.id + "_aprobar")
+                            const res = await fetch("/api/solicitudes-gerenciales", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: sol.id, accion: "aprobar", masterPassword }) })
+                            const data = await res.json()
+                            setProcesando(null)
+                            if (data.error) { mostrarMensaje(data.error, "error"); return }
+                            setUltimoCreado({ name: data.nombre, email: data.email, tempPassword: data.tempPassword, tipo: "gerencial" }); cargar()
+                          }} style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                            {procesando === sol.id + "_aprobar" ? "Aprobando..." : "✓ Aprobar"}
+                          </button>
+                        </div>
+                      )}
+                      {sol.estado === "rechazada" && (
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <button onClick={async (e) => { e.stopPropagation(); await fetch(`/api/solicitudes-gerenciales?id=${sol.id}`, { method: "DELETE" }); cargar() }}
+                            style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                            🗑 Eliminar
+                          </button>
+                        </div>
+                      )}
+                      {sol.estado === "aprobada" && (
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                          <button onClick={(e) => { e.stopPropagation(); setModalModificar(sol) }}
+                            style={{ background: "#ede9fe", color: "#6366f1", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                            ✏️ Modificar permisos
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); setModalEliminarUsuario(sol) }}
+                            style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                            🗑 Eliminar usuario
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
