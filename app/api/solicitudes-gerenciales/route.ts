@@ -83,6 +83,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
+    if (accion === "eliminar_usuario") {
+      const usuario = await prisma.user.findFirst({ where: { email: sol.email.toLowerCase() } })
+      if (usuario) await prisma.user.delete({ where: { id: usuario.id } })
+      await prisma.$executeRawUnsafe(`DELETE FROM "SolicitudGerencial" WHERE id = ` + `"${id}"`)
+      return NextResponse.json({ ok: true })
+    }
     return NextResponse.json({ error: "Accion no valida" }, { status: 400 })
   } catch (error) {
     console.error(error)

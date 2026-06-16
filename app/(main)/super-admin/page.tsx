@@ -17,6 +17,9 @@ export default function SuperAdminPage() {
   const [masterPassword, setMasterPassword] = useState("")
   const [solicitudes, setSolicitudes] = useState<any[]>([])
   const [procesando, setProcesando] = useState<string|null>(null)
+  const [modalModificar, setModalModificar] = useState<any>(null)
+  const [modalEliminarUsuario, setModalEliminarUsuario] = useState<any>(null)
+  const [pinEliminar, setPinEliminar] = useState("")
   const [ultimoCreado, setUltimoCreado] = useState<any>(null)
 
   const mostrarMensaje = (texto: string, tipo = "ok") => {
@@ -389,7 +392,7 @@ export default function SuperAdminPage() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {solicitudes.map((sol: any) => (
-                <div key={sol.id} style={{ background: "#fff", border: `1px solid ${sol.estado === "pendiente" ? "#fde68a" : sol.estado === "aprobada" ? "#86efac" : "#fca5a5"}`, borderRadius: 14, padding: "20px 24px" }}>
+                <div key={sol.id} style={{ position: "relative", background: "#fff", border: `1px solid ${sol.estado === "pendiente" ? "#fde68a" : sol.estado === "aprobada" ? "#86efac" : "#fca5a5"}`, borderRadius: 14, padding: "20px 24px" }}>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: sol.estado === "pendiente" ? "#fef9c3" : sol.estado === "aprobada" ? "#d1fae5" : "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
                       {sol.estado === "pendiente" ? "⏳" : sol.estado === "aprobada" ? "✅" : "❌"}
@@ -443,11 +446,84 @@ export default function SuperAdminPage() {
                         </button>
                       </div>
                     )}
+                    {sol.estado === "rechazada" && (
+                      <button onClick={async () => {
+                        await fetch(`/api/solicitudes-gerenciales?id=${sol.id}`, { method: "DELETE" })
+                        cargar()
+                      }} title="Eliminar solicitud rechazada"
+                        style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18, lineHeight: 1, padding: 4 }}
+                        onMouseEnter={e=>(e.currentTarget.style.color="#dc2626")}
+                        onMouseLeave={e=>(e.currentTarget.style.color="#94a3b8")}>
+                        ✕
+                      </button>
+                    )}
+                    {sol.estado === "aprobada" && (
+                      <div style={{ display: "flex", gap: 8, position: "absolute", top: 12, right: 12 }}>
+                        <button onClick={() => setModalModificar(sol)}
+                          title="Modificar permisos"
+                          style={{ background: "#ede9fe", color: "#6366f1", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                          ✏️ Modificar
+                        </button>
+                        <button onClick={() => setModalEliminarUsuario(sol)}
+                          title="Eliminar usuario"
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18, lineHeight: 1, padding: 4 }}
+                          onMouseEnter={e=>(e.currentTarget.style.color="#dc2626")}
+                          onMouseLeave={e=>(e.currentTarget.style.color="#94a3b8")}>
+                          ✕
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Modal eliminar usuario aprobado */}
+      {modalEliminarUsuario && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 460, maxWidth: "95vw" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>⚠️</div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Eliminar usuario gerencial</div>
+                <div style={{ fontSize: 13, color: "#64748b" }}>Esta accion no se puede deshacer</div>
+              </div>
+            </div>
+            <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: 14, marginBottom: 16, fontSize: 13, color: "#991b1b", lineHeight: 1.6 }}>
+              Vas a eliminar el usuario <strong>{modalEliminarUsuario.nombre}</strong> ({modalEliminarUsuario.email}).<br/>
+              Este usuario perdera acceso inmediatamente al sistema y no podra iniciar sesion.
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>CONTRASEÑA MASTER PARA CONFIRMAR</label>
+              <input type="password" value={pinEliminar} onChange={e => setPinEliminar(e.target.value)}
+                placeholder="Contraseña master" autoComplete="off"
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as const }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => { setModalEliminarUsuario(null); setPinEliminar("") }}
+                style={{ background: "#f8fafc", color: "#374151", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer" }}>
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                const res = await fetch("/api/solicitudes-gerenciales", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id: modalEliminarUsuario.id, accion: "eliminar_usuario", masterPassword: pinEliminar })
+                })
+                const data = await res.json()
+                if (data.error) { mostrarMensaje(data.error, "error"); return }
+                mostrarMensaje("Usuario eliminado correctamente")
+                setModalEliminarUsuario(null)
+                setPinEliminar("")
+                cargar()
+              }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                Eliminar usuario
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
