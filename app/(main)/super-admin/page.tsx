@@ -20,6 +20,10 @@ export default function SuperAdminPage() {
   const [modalModificar, setModalModificar] = useState<any>(null)
   const [modalEliminarUsuario, setModalEliminarUsuario] = useState<any>(null)
   const [pinEliminar, setPinEliminar] = useState("")
+  const [motivoEliminar, setMotivoEliminar] = useState("")
+  const [historial, setHistorial] = useState<any[]>([])
+  const [pinLimpiar, setPinLimpiar] = useState("")
+  const [showLimpiar, setShowLimpiar] = useState(false)
   const [ultimoCreado, setUltimoCreado] = useState<any>(null)
 
   const mostrarMensaje = (texto: string, tipo = "ok") => {
@@ -176,6 +180,7 @@ export default function SuperAdminPage() {
           { key: "seguridad", label: "Acceso y seguridad", icon: "🔒" },
           { key: "superadmins", label: "Super Admins", icon: "👑" },
           { key: "solicitudes", label: "Solicitudes", icon: "📋", badge: solicitudes.filter((s:any) => s.estado === "pendiente").length },
+          { key: "historial", label: "Historial", icon: "📜" },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#0f172a" : "#94a3b8", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent", cursor: "pointer", marginBottom: -1, transition: "all 0.15s" }}>
@@ -481,6 +486,89 @@ export default function SuperAdminPage() {
         </div>
       )}
 
+      {/* TAB: Historial */}
+      {tab === "historial" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Historial de accesos gerenciales</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{historial.length} registros</div>
+            </div>
+            <button onClick={() => setShowLimpiar(true)}
+              style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              🗑 Limpiar historial
+            </button>
+          </div>
+
+          {historial.length === 0 ? (
+            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 40, textAlign: "center", color: "#94a3b8" }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>📜</div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>No hay registros en el historial</div>
+            </div>
+          ) : (
+            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 120px 1fr 140px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.05em" }}>
+                <div>NOMBRE</div>
+                <div>EMAIL</div>
+                <div>ACCION</div>
+                <div>MOTIVO</div>
+                <div>FECHA</div>
+              </div>
+              {historial.map((h: any, i: number) => (
+                <div key={h.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 120px 1fr 140px", padding: "12px 16px", fontSize: 13, borderBottom: i < historial.length - 1 ? "1px solid #f1f5f9" : "none", background: i % 2 === 0 ? "#fff" : "#fafafa", alignItems: "center" }}>
+                  <div style={{ fontWeight: 500, color: "#0f172a" }}>{h.nombre}</div>
+                  <div style={{ color: "#64748b", fontSize: 12 }}>{h.email}</div>
+                  <div>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: h.accion === "aprobada" ? "#d1fae5" : h.accion === "eliminado" ? "#fee2e2" : "#fef9c3", color: h.accion === "aprobada" ? "#15803d" : h.accion === "eliminado" ? "#991b1b" : "#854d0e" }}>
+                      {h.accion === "aprobada" ? "✅ Aprobada" : h.accion === "eliminado" ? "🗑 Eliminado" : "❌ Rechazada"}
+                    </span>
+                  </div>
+                  <div style={{ color: "#64748b", fontSize: 12 }}>{h.motivo || "—"}</div>
+                  <div style={{ color: "#94a3b8", fontSize: 12 }}>{new Date(h.creadoEn).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Modal limpiar historial */}
+          {showLimpiar && (
+            <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+              <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 400, maxWidth: "95vw" }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Limpiar historial</div>
+                <div style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>Esta accion eliminara todos los registros del historial permanentemente.</div>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>CONTRASEÑA MASTER</label>
+                  <input type="password" value={pinLimpiar} onChange={e => setPinLimpiar(e.target.value)}
+                    placeholder="Contraseña master" autoComplete="off"
+                    style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as const }} />
+                </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                  <button onClick={() => { setShowLimpiar(false); setPinLimpiar("") }}
+                    style={{ background: "#f8fafc", color: "#374151", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer" }}>
+                    Cancelar
+                  </button>
+                  <button onClick={async () => {
+                    const res = await fetch("/api/historial-gerencial", {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ masterPassword: pinLimpiar })
+                    })
+                    const data = await res.json()
+                    if (data.error) { mostrarMensaje(data.error, "error"); return }
+                    mostrarMensaje("Historial limpiado correctamente")
+                    setShowLimpiar(false)
+                    setPinLimpiar("")
+                    cargar()
+                  }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                    Limpiar todo
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Modal eliminar usuario aprobado */}
       {modalEliminarUsuario && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
@@ -495,6 +583,12 @@ export default function SuperAdminPage() {
             <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: 14, marginBottom: 16, fontSize: 13, color: "#991b1b", lineHeight: 1.6 }}>
               Vas a eliminar el usuario <strong>{modalEliminarUsuario.nombre}</strong> ({modalEliminarUsuario.email}).<br/>
               Este usuario perdera acceso inmediatamente al sistema y no podra iniciar sesion.
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>MOTIVO DE LA ELIMINACION *</label>
+              <textarea value={motivoEliminar} onChange={e => setMotivoEliminar(e.target.value)}
+                placeholder="Explica el motivo por el que se elimina este usuario..."
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const, height: 80, resize: "none" as const }} />
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>CONTRASEÑA MASTER PARA CONFIRMAR</label>
@@ -511,13 +605,14 @@ export default function SuperAdminPage() {
                 const res = await fetch("/api/solicitudes-gerenciales", {
                   method: "PATCH",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ id: modalEliminarUsuario.id, accion: "eliminar_usuario", masterPassword: pinEliminar })
+                  body: JSON.stringify({ id: modalEliminarUsuario.id, accion: "eliminar_usuario", masterPassword: pinEliminar, motivo: motivoEliminar })
                 })
                 const data = await res.json()
                 if (data.error) { mostrarMensaje(data.error, "error"); return }
                 mostrarMensaje("Usuario eliminado correctamente")
                 setModalEliminarUsuario(null)
                 setPinEliminar("")
+                setMotivoEliminar("")
                 cargar()
               }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                 Eliminar usuario

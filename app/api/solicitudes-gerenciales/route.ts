@@ -4,24 +4,20 @@ import bcrypt from "bcryptjs"
 
 export async function GET() {
   try {
-    // Auto-rechazar expiradas 48h usando SQL directo sin parametros en INTERVAL
     await prisma.$executeRawUnsafe(`
       UPDATE "SolicitudGerencial"
       SET estado = 'rechazada', "resueltaEn" = NOW()
       WHERE estado = 'pendiente'
       AND "creadaEn" < NOW() - INTERVAL '48 hours'
     `)
-    // Auto-eliminar rechazadas tras 24h
     await prisma.$executeRawUnsafe(`
       DELETE FROM "SolicitudGerencial"
       WHERE estado = 'rechazada'
       AND "resueltaEn" < NOW() - INTERVAL '24 hours'
     `)
-
     const solicitudes = await prisma.$queryRaw`
       SELECT * FROM "SolicitudGerencial" ORDER BY "creadaEn" DESC
     ` as any[]
-
     return NextResponse.json(solicitudes)
   } catch (error) {
     console.error(error)
@@ -38,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.$executeRaw`
       INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
-      VALUES (gen_random_uuid()::text, ${nombre}, ${email}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase||null}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
+      VALUES (gen_random_uuid()::text, ${nombre}, ${email}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
     `
     return NextResponse.json({ ok: true })
   } catch (error) {
@@ -49,7 +45,8 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { id, accion, masterPassword } = await req.json()
+    const body = await req.json()
+    const { id, accion, masterPassword, motivo } = body
 
     const master = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!master) return NextResponse.json({ error: "No hay SUPER_ADMIN" }, { status: 403 })
@@ -74,34 +71,49 @@ export async function PATCH(req: NextRequest) {
           empresaId: "empresa-001"
         }
       })
-      await prisma.$executeRawUnsafe(`UPDATE "SolicitudGerencial" SET estado = 'aprobada', "resueltaEn" = NOW() WHERE id = '${id}'`)
+      const aprobada = "aprobada"
+      await prisma.$executeRaw`UPDATE "SolicitudGerencial" SET estado = ${aprobada}, "resueltaEn" = NOW() WHERE id = ${id}`
+      const accionStr = "aprobada"
+      const realizadoPor = "Super Admin"
+      const motivoStr = ""
+      await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
       return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email })
     }
 
     if (accion === "rechazar") {
-      await prisma.$executeRawUnsafe(`UPDATE "SolicitudGerencial" SET estado = 'rechazada', "resueltaEn" = NOW() WHERE id = '${id}'`)
+      const rechazada = "rechazada"
+      await prisma.$executeRaw`UPDATE "SolicitudGerencial" SET estado = ${rechazada}, "resueltaEn" = NOW() WHERE id = ${id}`
+      const accionStr = "rechazada"
+      const realizadoPor = "Super Admin"
+      const motivoStr = motivo || ""
+      await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
       return NextResponse.json({ ok: true })
     }
 
     if (accion === "eliminar_usuario") {
       const usuario = await prisma.user.findFirst({ where: { email: sol.email.toLowerCase() } })
       if (usuario) await prisma.user.delete({ where: { id: usuario.id } })
-      await prisma.$executeRawUnsafe(`DELETE FROM "SolicitudGerencial" WHERE id = ` + `"${id}"`)
+      await prisma.$executeRaw`DELETE FROM "SolicitudGerencial" WHERE id = ${id}`
+      const accionStr = "eliminado"
+      const realizadoPor = "Super Admin"
+      const motivoStr = motivo || ""
+      await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
       return NextResponse.json({ ok: true })
     }
+
     return NextResponse.json({ error: "Accion no valida" }, { status: 400 })
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al procesar solicitud" }, { status: 500 })
   }
 }
+
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")
     if (!id) return NextResponse.json({ error: "ID requerido" }, { status: 400 })
-
-    await prisma.$executeRawUnsafe(`DELETE FROM "SolicitudGerencial" WHERE id = '${id}' AND estado = 'rechazada'`)
+    await prisma.$executeRaw`DELETE FROM "SolicitudGerencial" WHERE id = ${id}`
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error(error)
