@@ -191,19 +191,17 @@ export default function BienvenidaPopup({ email }: { email?: string }) {
 
           {/* Cambios de permisos */}
           {datos.cambiosPermisos && datos.cambiosPermisos.length > 0 && (
-            <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#15803d", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-                Cambios en tu acceso desde tu ultimo ingreso
+            <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#15803d", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}>
+                ✅ Cambios en tu acceso desde tu ultimo ingreso
               </div>
               {datos.cambiosPermisos[0].added?.length > 0 && (
                 <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginBottom: 6 }}>NUEVOS PERMISOS</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  <div style={{ fontSize: 10, color: "#16a34a", fontWeight: 700, marginBottom: 5 }}>NUEVOS PERMISOS</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {datos.cambiosPermisos[0].added.map((k: string) => (
-                      <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#dcfce7", color: "#15803d", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: "1px solid #86efac" }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-                        NUEVO · {MODULOS[k] || k}
+                      <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#dcfce7", color: "#15803d", fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, border: "1px solid #86efac" }}>
+                        ✓ NUEVO · {MODULOS[k] || k}
                       </span>
                     ))}
                   </div>
@@ -211,10 +209,10 @@ export default function BienvenidaPopup({ email }: { email?: string }) {
               )}
               {datos.cambiosPermisos[0].removed?.length > 0 && (
                 <div>
-                  <div style={{ fontSize: 11, color: "#dc2626", fontWeight: 600, marginBottom: 6 }}>PERMISOS RETIRADOS</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  <div style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, marginBottom: 5 }}>PERMISOS RETIRADOS</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {datos.cambiosPermisos[0].removed.map((k: string) => (
-                      <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#fee2e2", color: "#991b1b", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: "1px solid #fca5a5" }}>
+                      <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fee2e2", color: "#991b1b", fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, border: "1px solid #fca5a5" }}>
                         ✕ {MODULOS[k] || k}
                       </span>
                     ))}
