@@ -598,6 +598,90 @@ export default function SuperAdminPage() {
         </div>
       )}
 
+      {/* Modal modificar permisos */}
+      {modalModificar && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 560, maxWidth: "95vw", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Modificar permisos</div>
+            <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
+              {modalModificar.nombre} · {modalModificar.email}
+            </div>
+            <div style={{ background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", borderRadius: "10px 10px 0 0" }}>
+                <div style={{ padding: "8px 14px", fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>MODULO</div>
+                <div style={{ padding: "8px 0", fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "center" as const }}>VER</div>
+                <div style={{ padding: "8px 0", fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "center" as const }}>MODIFICAR</div>
+              </div>
+              {[
+                { modulo: "Empleados", ver: "empleados_ver", mod: "empleados_mod" },
+                { modulo: "Vacaciones", ver: "vacaciones_ver", mod: "vacaciones_mod" },
+                { modulo: "Fichajes", ver: "fichajes_ver", mod: "fichajes_mod" },
+                { modulo: "Reportes", ver: "reportes_ver", mod: "reportes_mod" },
+                { modulo: "Bajas medicas", ver: "bajas_ver", mod: "bajas_mod" },
+                { modulo: "Cambios de turno", ver: "cambios_ver", mod: "cambios_mod" },
+                { modulo: "Deudas", ver: "deudas_ver", mod: "deudas_mod" },
+                { modulo: "Grupos", ver: "grupos_ver", mod: "grupos_mod" },
+                { modulo: "Libranzas", ver: "libranzas_ver", mod: "libranzas_mod" },
+                { modulo: "Minimos por puesto", ver: "minimos_ver", mod: "minimos_mod" },
+                { modulo: "Calendario", ver: "calendario_ver", mod: "calendario_mod" },
+                { modulo: "Configuracion", ver: "config_ver", mod: "config_mod" },
+              ].map((p, i) => {
+                const permisos = modalModificar.permisos || {}
+                const tieneVer = permisos[p.ver] || false
+                const tieneMod = permisos[p.mod] || false
+                const activo = tieneVer || tieneMod
+                return (
+                  <div key={p.modulo} style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", borderBottom: i < 11 ? "1px solid #e2e8f0" : "none", background: i % 2 === 0 ? "#fff" : "#f8fafc" }}>
+                    <div style={{ padding: "10px 14px", fontSize: 13, fontWeight: activo ? 600 : 400, color: activo ? "#0f172a" : "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: activo ? "#6366f1" : "#e2e8f0", flexShrink: 0 }} />
+                      {p.modulo}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
+                      <input type="checkbox" checked={tieneVer}
+                        onChange={e => setModalModificar((prev: any) => ({ ...prev, permisos: { ...prev.permisos, [p.ver]: e.target.checked } }))}
+                        style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#6366f1" }} />
+                      <span style={{ fontSize: 9, fontWeight: 700, color: tieneVer ? "#6366f1" : "#e2e8f0" }}>{tieneVer ? "ON" : "OFF"}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
+                      <input type="checkbox" checked={tieneMod}
+                        onChange={e => { const v = e.target.checked; setModalModificar((prev: any) => ({ ...prev, permisos: { ...prev.permisos, [p.mod]: v, ...(v ? { [p.ver]: true } : {}) } })) }}
+                        style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#0284c7" }} />
+                      <span style={{ fontSize: 9, fontWeight: 700, color: tieneMod ? "#0284c7" : "#e2e8f0" }}>{tieneMod ? "ON" : "OFF"}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>CONTRASEÑA MASTER PARA CONFIRMAR</label>
+              <input type="password" value={masterPassword} onChange={e => setMasterPassword(e.target.value)}
+                placeholder="Contraseña master" autoComplete="off"
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as const }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setModalModificar(null)}
+                style={{ background: "#f8fafc", color: "#374151", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer" }}>
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                const res = await fetch("/api/historial-permisos", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ usuarioEmail: modalModificar.email, permisosNuevos: modalModificar.permisos || {}, masterPassword })
+                })
+                const data = await res.json()
+                if (data.error) { mostrarMensaje(data.error, "error"); return }
+                mostrarMensaje("Permisos actualizados correctamente")
+                setModalModificar(null)
+                cargar()
+              }} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                Guardar cambios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal eliminar usuario aprobado */}
       {modalEliminarUsuario && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>

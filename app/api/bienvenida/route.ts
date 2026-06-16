@@ -28,6 +28,30 @@ export async function GET(req: Request) {
       if (emp[0]?.nombre) empresa = emp[0].nombre
     } catch {}
 
+    // Cambios de permisos desde ultimo login
+    let cambiosPermisos: any[] = []
+    try {
+      if (usuario.ultimoLogin) {
+        const cambios = await prisma.$queryRaw`
+          SELECT * FROM "HistorialPermisos" 
+          WHERE "usuarioId" = ${usuario.id} 
+          AND "creadoEn" > ${usuario.ultimoLogin}
+          ORDER BY "creadoEn" DESC
+          LIMIT 1
+        ` as any[]
+        if (cambios.length > 0) {
+          const ultimo = cambios[0]
+          const antes = ultimo.permisosAntes || {}
+          const despues = ultimo.permisosDespues || {}
+          const added = Object.keys(despues).filter(k => despues[k] && !antes[k])
+          const removed = Object.keys(antes).filter(k => antes[k] && !despues[k])
+          if (added.length > 0 || removed.length > 0) {
+            cambiosPermisos = [{ added, removed, fecha: ultimo.creadoEn }]
+          }
+        }
+      }
+    } catch {}
+
     const ultimoLogin = usuario.ultimoLogin
     try {
       await prisma.$executeRawUnsafe(`UPDATE "User" SET "ultimoLogin" = NOW() WHERE id = '${usuario.id}'`)
@@ -43,7 +67,8 @@ export async function GET(req: Request) {
       role: usuario.role,
       empresa,
       notificaciones,
-      ultimoLogin
+      ultimoLogin,
+      cambiosPermisos
     })
   } catch (error) {
     console.error(error)
