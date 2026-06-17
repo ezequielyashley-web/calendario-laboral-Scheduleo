@@ -35,41 +35,6 @@ function HistorialUsuario({ email }: { email: string }) {
   )
 }
 
-function HistorialUsuario({ email }: { email: string }) {
-  const [historial, setHistorial] = useState<any[]>([])
-  const [cargando, setCargando] = useState(true)
-  useEffect(() => {
-    if (!email) return
-    fetch(`/api/historial-permisos?email=${encodeURIComponent(email)}`)
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setHistorial(data); setCargando(false) })
-      .catch(() => setCargando(false))
-  }, [email])
-  if (cargando) return <div style={{ fontSize: 12, color: "#94a3b8", padding: "8px 0" }}>Cargando historial...</div>
-  if (historial.length === 0) return null
-  return (
-    <div style={{ background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 16, overflow: "hidden" }}>
-      <div style={{ padding: "10px 14px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.06em" }}>HISTORIAL DE MODIFICACIONES</div>
-      {historial.map((h: any, i: number) => {
-        const antes = h.permisosAntes || {}
-        const despues = h.permisosDespues || {}
-        const added = Object.keys(despues).filter(k => despues[k] && !antes[k])
-        const removed = Object.keys(antes).filter(k => antes[k] && !despues[k])
-        return (
-          <div key={h.id} style={{ padding: "10px 14px", borderBottom: i < historial.length - 1 ? "1px solid #f1f5f9" : "none", background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>Modificacion por {h.modificadoPor}</div>
-              <div style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(h.creadoEn).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
-            </div>
-            {added.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 4 }}>{added.map(k => <span key={k} style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "#dcfce7", color: "#15803d", border: "1px solid #86efac" }}>✓ +{k.replace("_ver"," (ver)").replace("_mod"," (mod)")}</span>)}</div>}
-            {removed.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>{removed.map(k => <span key={k} style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5" }}>✕ -{k.replace("_ver"," (ver)").replace("_mod"," (mod)")}</span>)}</div>}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 
 export default function SuperAdminPage() {
   const [acceso, setAcceso] = useState(false)
