@@ -20,7 +20,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json()
-    const { masterPassword, name } = body
+    const { masterPassword, name, genero, cargo, departamento, telefono } = body
 
     const master = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!master) return NextResponse.json({ error: "No hay SUPER_ADMIN" }, { status: 403 })
@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest) {
 
     await prisma.user.update({
       where: { id: master.id },
-      data: { name }
+      data: { name, ...(genero && { genero }), ...(cargo !== undefined && { cargo }), ...(departamento !== undefined && { departamento }), ...(telefono !== undefined && { telefono }) }
     })
 
     return NextResponse.json({ ok: true })

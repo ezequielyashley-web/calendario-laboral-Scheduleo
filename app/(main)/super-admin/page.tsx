@@ -121,7 +121,7 @@ export default function SuperAdminPage() {
     const res = await fetch("/api/super-admin", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ masterPassword, name: form.name })
+      body: JSON.stringify({ masterPassword, name: form.name, genero: form.genero || "masculino", cargo: form.cargo || "", departamento: form.departamento || "", telefono: form.telefono || "" })
     })
     const data = await res.json()
     setGuardando(false)
@@ -252,6 +252,14 @@ export default function SuperAdminPage() {
                     style={inputStyle} />
                 </div>
               ))}
+              <div>
+                <label style={labelStyle}>Genero</label>
+                <select value={form.genero || "masculino"} onChange={e => setForm((p: any) => ({ ...p, genero: e.target.value }))}
+                  style={{ ...inputStyle, cursor: "pointer" }}>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                </select>
+              </div>
             </div>
           </div>
 
