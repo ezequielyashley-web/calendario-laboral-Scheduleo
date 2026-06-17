@@ -84,6 +84,7 @@ export default function PerfilEmpleadoPage() {
     fetch(`/api/empleados/${id}`)
       .then(r => r.json())
       .then(data => {
+        if (data.error) { setLoading(false); return }
         setEmpleado(data)
         setForm({
           nombre: data.nombre || "",
@@ -98,7 +99,9 @@ export default function PerfilEmpleadoPage() {
         })
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }
+  useEffect(() => { cargar() }, [id])
   const guardar = async () => {
     setGuardando(true)
     const res = await fetch(`/api/empleados/${id}`, {
