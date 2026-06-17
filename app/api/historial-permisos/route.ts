@@ -6,7 +6,17 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const usuarioId = searchParams.get("usuarioId")
-    
+    const email = searchParams.get("email")
+
+    if (email) {
+      const usuario = await prisma.user.findFirst({ where: { email: email.toLowerCase() } }) as any
+      if (!usuario) return NextResponse.json([])
+      const historial = await prisma.$queryRaw`
+        SELECT * FROM "HistorialPermisos" WHERE "usuarioId" = ${usuario.id} ORDER BY "creadoEn" DESC
+      ` as any[]
+      return NextResponse.json(historial)
+    }
+
     if (usuarioId) {
       const historial = await prisma.$queryRaw`
         SELECT * FROM "HistorialPermisos" WHERE "usuarioId" = ${usuarioId} ORDER BY "creadoEn" DESC
