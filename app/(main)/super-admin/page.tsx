@@ -496,9 +496,9 @@ export default function SuperAdminPage() {
                       )}
                       {sol.estado === "aprobada" && (
                         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                          <button onClick={(e) => { e.stopPropagation(); setModalModificar(sol) }}
+                          <button onClick={(e) => { e.stopPropagation(); setModalModificar({ ...sol, _emailOriginal: sol.email }) }}
                             style={{ background: "#ede9fe", color: "#6366f1", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                            ✏️ Modificar permisos
+                            ✏️ Editar usuario completo
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); setModalEliminarUsuario(sol) }}
                             style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
@@ -601,11 +601,49 @@ export default function SuperAdminPage() {
       {/* Modal modificar permisos */}
       {modalModificar && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 560, maxWidth: "95vw", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Modificar permisos</div>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 640, maxWidth: "95vw", maxHeight: "92vh", overflowY: "auto" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Editar usuario gerencial</div>
             <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
               {modalModificar.nombre} · {modalModificar.email}
             </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginBottom: 10 }}>DATOS PERSONALES</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Nombre completo</label>
+                <input value={modalModificar.nombre||""} onChange={e=>setModalModificar((p:any)=>({...p,nombre:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Email</label>
+                <input value={modalModificar.email||""} onChange={e=>setModalModificar((p:any)=>({...p,email:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Telefono</label>
+                <input value={modalModificar.telefono||""} onChange={e=>setModalModificar((p:any)=>({...p,telefono:e.target.value.replace(/[^0-9+\s]/g,"")}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>DNI / NIE</label>
+                <input value={modalModificar.dni||""} onChange={e=>setModalModificar((p:any)=>({...p,dni:e.target.value.toUpperCase()}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Genero</label>
+                <select value={modalModificar.genero||"masculino"} onChange={e=>setModalModificar((p:any)=>({...p,genero:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const, cursor:"pointer" }}>
+                  <option value="masculino">Masculino</option><option value="femenino">Femenino</option>
+                </select></div>
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginBottom: 10 }}>DATOS DEL PUESTO</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Cargo / Puesto</label>
+                <input value={modalModificar.cargo||""} onChange={e=>setModalModificar((p:any)=>({...p,cargo:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Departamento</label>
+                <input value={modalModificar.departamento||""} onChange={e=>setModalModificar((p:any)=>({...p,departamento:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Sueldo base (euros/mes)</label>
+                <div style={{ position:"relative" }}><input type="text" inputMode="numeric" value={modalModificar.sueldoBase||""} onChange={e=>setModalModificar((p:any)=>({...p,sueldoBase:e.target.value.replace(/[^0-9]/g,"")}))} style={{ width:"100%", padding:"8px 28px 8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const }} />
+                <span style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", fontSize:13 }}>€</span></div></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Tipo de contrato</label>
+                <select value={modalModificar.tipoContrato||"indefinido"} onChange={e=>setModalModificar((p:any)=>({...p,tipoContrato:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const, cursor:"pointer" }}>
+                  <option value="indefinido">Indefinido</option><option value="temporal">Temporal</option><option value="obra">Obra y servicio</option><option value="practicas">Practicas</option>
+                </select></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Jornada</label>
+                <select value={modalModificar.jornada||"completa"} onChange={e=>setModalModificar((p:any)=>({...p,jornada:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const, cursor:"pointer" }}>
+                  <option value="completa">Jornada completa</option><option value="parcial">Jornada parcial</option>
+                </select></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4 }}>Horario</label>
+                <select value={modalModificar.horario||"manana"} onChange={e=>setModalModificar((p:any)=>({...p,horario:e.target.value}))} style={{ width:"100%", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, boxSizing:"border-box" as const, cursor:"pointer" }}>
+                  <option value="manana">Mañana</option><option value="tarde">Tarde</option><option value="rotativo">Turno rotativo</option><option value="flexible">Flexible</option>
+                </select></div>
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginBottom: 10 }}>ACCESO AL SISTEMA</div>
             <div style={{ background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 20 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", borderRadius: "10px 10px 0 0" }}>
                 <div style={{ padding: "8px 14px", fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>MODULO</div>
