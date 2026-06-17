@@ -850,6 +850,53 @@ export default function PerfilEmpleadoPage() {
           <CalendarioEmpleado empleado={empleado} />
         </div>
       )}
+      {tab === "acceso" && empleado && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Acceso al sistema</div>
+            <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>Permisos asignados a este usuario</div>
+            {empleado.permisos && Object.keys(empleado.permisos).filter((k: string) => empleado.permisos[k]).length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  { modulo: "Empleados", ver: "empleados_ver", mod: "empleados_mod" },
+                  { modulo: "Vacaciones", ver: "vacaciones_ver", mod: "vacaciones_mod" },
+                  { modulo: "Fichajes", ver: "fichajes_ver", mod: "fichajes_mod" },
+                  { modulo: "Reportes", ver: "reportes_ver", mod: "reportes_mod" },
+                  { modulo: "Bajas medicas", ver: "bajas_ver", mod: "bajas_mod" },
+                  { modulo: "Cambios de turno", ver: "cambios_ver", mod: "cambios_mod" },
+                  { modulo: "Deudas", ver: "deudas_ver", mod: "deudas_mod" },
+                  { modulo: "Grupos", ver: "grupos_ver", mod: "grupos_mod" },
+                  { modulo: "Libranzas", ver: "libranzas_ver", mod: "libranzas_mod" },
+                  { modulo: "Minimos por puesto", ver: "minimos_ver", mod: "minimos_mod" },
+                  { modulo: "Calendario", ver: "calendario_ver", mod: "calendario_mod" },
+                  { modulo: "Configuracion", ver: "config_ver", mod: "config_mod" },
+                ].filter(p => empleado.permisos[p.ver] || empleado.permisos[p.mod]).map(p => (
+                  <div key={p.modulo} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#6366f1" }} />
+                      {p.modulo}
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {empleado.permisos[p.ver] && (
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0" }}>Ver</span>
+                      )}
+                      {empleado.permisos[p.mod] && (
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "#eff6ff", color: "#1e40af", border: "1px solid #bfdbfe" }}>Modificar</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>Sin permisos gerenciales asignados</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>Este empleado tiene acceso basico al sistema</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {modalVacacion === "nueva" && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 480, maxWidth: "90vw" }}>
