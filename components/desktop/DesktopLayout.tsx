@@ -119,6 +119,22 @@ function LogoAnimado({ accentColor }: { accentColor: string }) {
   )
 }
 
+// Mapa de permisos requeridos por ruta
+const PERMISOS_RUTA: Record<string, string> = {
+  "/empleados":         "empleados_ver",
+  "/calendario-global": "calendario_ver",
+  "/fichajes":          "fichajes_ver",
+  "/grupos":            "grupos_ver",
+  "/libranzas":         "libranzas_ver",
+  "/cobertura":         "minimos_ver",
+  "/vacaciones":        "vacaciones_ver",
+  "/cambios-turno":     "cambios_ver",
+  "/bajas":             "bajas_ver",
+  "/deudas":            "deudas_ver",
+  "/reportes":          "reportes_ver",
+  "/configuracion":     "config_ver",
+}
+
 const menuSections = [
   { label: 'Principal', items: [
     { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
@@ -161,6 +177,8 @@ const pageTitles: Record<string, string> = {
 
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
   const [solicitudesBadge, setSolicitudesBadge] = useState(0)
+  const [userPermisos, setUserPermisos] = useState<Record<string,boolean> | null>(null)
+  const [userRole, setUserRole] = useState<string>("")
   useEffect(() => {
     const cargar = () => fetch("/api/solicitudes-gerenciales").then(r => r.json()).then(d => {
       if (Array.isArray(d)) setSolicitudesBadge(d.filter((s:any) => s.estado === "pendiente").length)
@@ -223,7 +241,19 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
         {/* Nav */}
         <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'0 8px 8px', scrollbarWidth:'none', paddingBottom:'0' }}>
-          {menuSections.map(section => (
+          {menuSections.map(section => ({
+            ...section,
+            items: section.items.filter(item => {
+              // SUPER_ADMIN y ADMIN ven todo
+              if (!userPermisos || userRole === "SUPER_ADMIN" || userRole === "ADMIN") return true
+              // Dashboard siempre visible
+              if (item.href === "/dashboard") return true
+              // Verificar permiso especifico
+              const permisoReq = PERMISOS_RUTA[item.href]
+              if (!permisoReq) return true
+              return userPermisos[permisoReq] === true
+            })
+          })).filter(section => section.items.length > 0).map(section => (
             <div key={section.label} style={{ marginBottom:10 }}>
               {open && (
                 <div style={{ fontSize:10, fontWeight:600, color:'var(--sidebar-text-muted)', letterSpacing:'0.08em', padding:'0 6px', marginBottom:4, textTransform:'uppercase' }}>
