@@ -409,7 +409,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-6" style={{ background:'var(--bg)' }}>
+        <main className="flex-1" style={{ background:"var(--bg)", padding: pathname === "/chat" ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           {children}
         </main>
       </div>

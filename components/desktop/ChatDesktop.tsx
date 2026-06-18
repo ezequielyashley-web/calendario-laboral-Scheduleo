@@ -1,440 +1,264 @@
 "use client"
+import { useState, useEffect, useRef } from "react"
 
-import { useState, useRef, useEffect } from "react"
+type Mensaje = { id: string; autorId: string; autorNombre: string; autorRol: string; contenido: string; tipo: string; creadoEn: string }
+type Conversacion = { id: string; nombre: string; tipo: string; participantes: any[]; ultimoMensaje: string; ultimoMensajeEn: string }
 
-// ── Tipos ─────────────────────────────────────────────────────
-type TipoChat = 'individual' | 'grupo'
-type TabSede  = 'mi_sede' | 'todas' | 'grupos'
-
-type Mensaje = {
-  id: number
-  texto: string
-  hora: string
-  mio: boolean
-  leido: boolean
-  autor?: string
-}
-
-type Conversacion = {
-  id: number
-  nombre: string
-  tipo: TipoChat
-  sede: string
-  grupo?: string
-  ultimoMensaje: string
-  hora: string
-  noLeidos: number
-  online: boolean
-  mensajes: Mensaje[]
-  guardandoMensajes: boolean
-}
-
-// ── Datos demo ─────────────────────────────────────────────────
-const conversacionesData: Conversacion[] = [
-  {
-    id:1, nombre:'María García López', tipo:'individual', sede:'Madrid Centro', grupo:'G2A',
-    ultimoMensaje:'Vale, te veo mañana 👍', hora:'09:42', noLeidos:0, online:true,
-    guardandoMensajes:true,
-    mensajes:[
-      { id:1, texto:'Hola, ¿puedes cubrir mi turno del jueves?', hora:'09:38', mio:false, leido:true },
-      { id:2, texto:'Sí, no hay problema. ¿Mañana o turno de tarde?', hora:'09:40', mio:true, leido:true },
-      { id:3, texto:'Tarde, de 14 a 22h. Te lo agradezco mucho 🙏', hora:'09:41', mio:false, leido:true },
-      { id:4, texto:'Vale, te veo mañana 👍', hora:'09:42', mio:true, leido:true },
-    ]
-  },
-  {
-    id:2, nombre:'Grupo G1A', tipo:'grupo', sede:'Madrid Centro', grupo:'G1A',
-    ultimoMensaje:'Carlos: Turno cambiado al viernes', hora:'09:15', noLeidos:3, online:false,
-    guardandoMensajes:true,
-    mensajes:[
-      { id:1, texto:'Buenos días a todos 👋', hora:'08:00', mio:false, leido:true, autor:'Juan Pérez' },
-      { id:2, texto:'He cambiado el turno al viernes', hora:'09:10', mio:false, leido:true, autor:'Carlos López' },
-      { id:3, texto:'Perfecto, anotado', hora:'09:12', mio:true, leido:true },
-      { id:4, texto:'¿Alguien puede hacer la apertura?', hora:'09:14', mio:false, leido:false, autor:'Carlos López' },
-      { id:5, texto:'Turno cambiado al viernes confirmado', hora:'09:15', mio:false, leido:false, autor:'Carlos López' },
-    ]
-  },
-  {
-    id:3, nombre:'Juan Pérez García', tipo:'individual', sede:'Madrid Centro', grupo:'G1A',
-    ultimoMensaje:'¿A qué hora empieza el turno?', hora:'Ayer', noLeidos:1, online:false,
-    guardandoMensajes:false,
-    mensajes:[
-      { id:1, texto:'¿A qué hora empieza el turno mañana?', hora:'18:30', mio:false, leido:false },
-    ]
-  },
-  {
-    id:4, nombre:'General Empresa', tipo:'grupo', sede:'todas', grupo:'',
-    ultimoMensaje:'Admin: Reunión el viernes a las 10h', hora:'Lun', noLeidos:0, online:false,
-    guardandoMensajes:true,
-    mensajes:[
-      { id:1, texto:'Reunión de equipo el viernes a las 10h en sala principal', hora:'10:00', mio:false, leido:true, autor:'Administrador' },
-      { id:2, texto:'Anotado, gracias', hora:'10:05', mio:true, leido:true },
-    ]
-  },
-  {
-    id:5, nombre:'Ana Martínez Sanz', tipo:'individual', sede:'Vallecas', grupo:'G2B',
-    ultimoMensaje:'Gracias por el cambio', hora:'Dom', noLeidos:0, online:false,
-    guardandoMensajes:false,
-    mensajes:[
-      { id:1, texto:'Muchas gracias por el cambio de turno', hora:'16:20', mio:false, leido:true },
-      { id:2, texto:'De nada, para eso estamos 😊', hora:'16:25', mio:true, leido:true },
-    ]
-  },
-  {
-    id:6, nombre:'Grupo Vallecas', tipo:'grupo', sede:'Vallecas', grupo:'',
-    ultimoMensaje:'Pedro: Mañana hay inventario', hora:'Dom', noLeidos:2, online:false,
-    guardandoMensajes:true,
-    mensajes:[
-      { id:1, texto:'Recordad que mañana hay inventario a las 7h', hora:'19:00', mio:false, leido:false, autor:'Pedro Sánchez' },
-      { id:2, texto:'Ok, estaremos', hora:'19:05', mio:false, leido:false, autor:'Laura Torres' },
-    ]
-  },
+const COLORS = [
+  { bg: "#7c3aed", text: "#fff" }, { bg: "#0891b2", text: "#fff" },
+  { bg: "#059669", text: "#fff" }, { bg: "#d97706", text: "#fff" },
+  { bg: "#db2777", text: "#fff" },
 ]
+function getColor(s: string) { return COLORS[s.charCodeAt(0) % COLORS.length] }
 
-// ── Avatar ─────────────────────────────────────────────────────
-function Avatar({ nombre, size=38, online=false }: { nombre:string, size?:number, online?:boolean }) {
-  const initials = nombre.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()
-  const colors   = ['#6366f1','#4f46e5','#6366f1','#0891b2','#d97706','#16a34a','#7c3aed','#dc2626']
-  const color    = colors[nombre.charCodeAt(0)%colors.length]
+function Avatar({ nombre, size = 36 }: { nombre: string; size?: number }) {
+  const c = getColor(nombre)
+  const initials = nombre.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase()
+  return <div style={{ width: size, height: size, borderRadius: "50%", background: c.bg, color: c.text, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.35, fontWeight: 600, flexShrink: 0 }}>{initials}</div>
+}
+
+export default function ChatDesktop() {
+  const [tab, setTab] = useState<"mensajes" | "comunicados">("mensajes")
+  const [conversaciones, setConversaciones] = useState<Conversacion[]>([])
+  const [mensajes, setMensajes] = useState<Mensaje[]>([])
+  const [convActiva, setConvActiva] = useState<Conversacion | null>(null)
+  const [texto, setTexto] = useState("")
+  const [comunicados, setComunicados] = useState<any[]>([])
+  const [nuevaConv, setNuevaConv] = useState(false)
+  const [nuevaCom, setNuevaCom] = useState(false)
+  const [nombreConv, setNombreConv] = useState("")
+  const [tipoConv, setTipoConv] = useState("individual")
+  const [formCom, setFormCom] = useState({ titulo: "", contenido: "", urgente: false })
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const usuario = { id: "admin-001", nombre: "Administrador", rol: "SUPER_ADMIN" }
+
+  const cargarConvs = async () => {
+    const r = await fetch("/api/mensajes").catch(() => null)
+    if (r) { const d = await r.json(); if (Array.isArray(d)) setConversaciones(d) }
+  }
+  const cargarMsgs = async (id: string) => {
+    const r = await fetch(`/api/mensajes?conversacionId=${id}`).catch(() => null)
+    if (r) { const d = await r.json(); if (Array.isArray(d)) setMensajes(d) }
+  }
+  const cargarComs = async () => {
+    const r = await fetch("/api/comunicados").catch(() => null)
+    if (r) { const d = await r.json(); if (Array.isArray(d)) setComunicados(d) }
+  }
+
+  useEffect(() => { cargarConvs(); cargarComs() }, [])
+  useEffect(() => {
+    if (!convActiva) return
+    cargarMsgs(convActiva.id)
+    const t = setInterval(() => cargarMsgs(convActiva.id), 5000)
+    return () => clearInterval(t)
+  }, [convActiva])
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }) }, [mensajes])
+
+  const enviar = async () => {
+    if (!texto.trim() || !convActiva) return
+    const t = texto; setTexto("")
+    await fetch("/api/mensajes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ conversacionId: convActiva.id, autorId: usuario.id, autorNombre: usuario.nombre, autorRol: usuario.rol, contenido: t, tipo: "texto" }) })
+    await cargarMsgs(convActiva.id)
+    await cargarConvs()
+  }
+
+  const crearConv = async () => {
+    if (!nombreConv.trim()) return
+    await fetch("/api/conversaciones", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nombre: nombreConv, tipo: tipoConv, participantes: [] }) })
+    await cargarConvs(); setNuevaConv(false); setNombreConv("")
+  }
+
+  const publicarCom = async () => {
+    if (!formCom.titulo || !formCom.contenido) return
+    await fetch("/api/comunicados", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...formCom, autorId: usuario.id, autorNombre: usuario.nombre }) })
+    await cargarComs(); setNuevaCom(false); setFormCom({ titulo: "", contenido: "", urgente: false })
+  }
+
+  const S = { sidebar: { width: 280, background: "#1e1b4b", borderRight: "1px solid rgba(255,255,255,0.08)", display: "flex" as const, flexDirection: "column" as const, flexShrink: 0 } }
+
   return (
-    <div style={{ position:'relative', flexShrink:0 }}>
-      <div style={{ width:size, height:size, borderRadius:'50%', background:color, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:size*0.34, fontWeight:600 }}>
-        {initials}
+    <div style={{ display: "flex", height: "calc(100vh - 57px)", background: "#fff", border: "none", borderRadius: 0, overflow: "hidden", position: "relative" as const }}>
+
+      {/* SIDEBAR OSCURO */}
+      <div style={S.sidebar}>
+        <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>Mensajes</span>
+          <button onClick={() => setNuevaConv(true)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 6, cursor: "pointer", color: "#fff", width: 28, height: 28, fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+        </div>
+        <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          {[{ k: "mensajes", l: "Mensajes" }, { k: "comunicados", l: "Comunicados" }].map(t => (
+            <button key={t.k} onClick={() => setTab(t.k as any)} style={{ flex: 1, padding: "10px 0", fontSize: 12, border: "none", background: "none", cursor: "pointer", color: tab === t.k ? "#a5b4fc" : "rgba(255,255,255,0.45)", borderBottom: tab === t.k ? "2px solid #a5b4fc" : "2px solid transparent", fontWeight: tab === t.k ? 600 : 400 }}>{t.l}</button>
+          ))}
+        </div>
+        <div style={{ flex: 1, overflowY: "auto" as const }}>
+          {tab === "mensajes" && (
+            conversaciones.length === 0 ? (
+              <div style={{ padding: 24, textAlign: "center", color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>💬</div>
+                No hay conversaciones
+              </div>
+            ) : conversaciones.map(conv => (
+              <div key={conv.id} onClick={() => setConvActiva(conv)} style={{ padding: "12px 14px", display: "flex", gap: 10, alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer", background: convActiva?.id === conv.id ? "rgba(255,255,255,0.1)" : "transparent" }}>
+                <Avatar nombre={conv.nombre || "?"} size={38} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{conv.nombre}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1 }}>{conv.ultimoMensaje || "Sin mensajes"}</div>
+                </div>
+                {conv.ultimoMensajeEn && <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", flexShrink: 0 }}>{new Date(conv.ultimoMensajeEn).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</div>}
+              </div>
+            ))
+          )}
+          {tab === "comunicados" && (
+            <>
+              <div style={{ padding: "10px 14px" }}>
+                <button onClick={() => setNuevaCom(true)} style={{ width: "100%", padding: "8px", background: "rgba(165,180,252,0.15)", color: "#a5b4fc", border: "1px solid rgba(165,180,252,0.2)", borderRadius: 8, fontSize: 12, cursor: "pointer", fontWeight: 500 }}>+ Nuevo comunicado</button>
+              </div>
+              {comunicados.map(com => (
+                <div key={com.id} style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "#fff", display: "flex", alignItems: "center", gap: 5 }}>
+                    {com.urgente && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", flexShrink: 0 }} />}
+                    {com.titulo}
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{new Date(com.creadoEn).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}</div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
       </div>
-      {online && (
-        <div style={{ position:'absolute', bottom:1, right:1, width:9, height:9, borderRadius:'50%', background:'#22c55e', border:'2px solid var(--surface)' }} />
+
+      {/* AREA PRINCIPAL */}
+      {tab === "mensajes" && (
+        convActiva ? (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "#f0f2f5" }}>
+            <div style={{ padding: "12px 18px", background: "#fff", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 10 }}>
+              <Avatar nombre={convActiva.nombre || "?"} size={36} />
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{convActiva.nombre}</div>
+                <div style={{ fontSize: 11, color: "#1D9E75", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1D9E75", display: "inline-block" }} />
+                  {convActiva.tipo === "grupo" ? "Grupo" : "En linea"}
+                </div>
+              </div>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {mensajes.length === 0 ? (
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", fontSize: 13, textAlign: "center" }}>
+                  <div><div style={{ fontSize: 40, marginBottom: 8 }}>💬</div>Ningún mensaje aún</div>
+                </div>
+              ) : mensajes.map(m => {
+                const esMio = m.autorId === usuario.id
+                return (
+                  <div key={m.id} style={{ display: "flex", gap: 6, maxWidth: "72%", alignSelf: esMio ? "flex-end" : "flex-start", flexDirection: esMio ? "row-reverse" : "row" }}>
+                    {!esMio && <Avatar nombre={m.autorNombre} size={28} />}
+                    <div>
+                      {!esMio && <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 2, marginLeft: 4 }}>{m.autorNombre}</div>}
+                      <div style={{ padding: "8px 12px", borderRadius: esMio ? "12px 2px 12px 12px" : "2px 12px 12px 12px", background: esMio ? "#1e1b4b" : "#fff", color: esMio ? "#fff" : "#111827", fontSize: 13, lineHeight: 1.5, boxShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>
+                        {m.contenido}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 3, textAlign: esMio ? "right" : "left" }}>
+                        {new Date(m.creadoEn).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}{esMio && " ✓✓"}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+            <div style={{ padding: "10px 16px", background: "#fff", borderTop: "1px solid #e2e8f0", display: "flex", gap: 8, alignItems: "center" }}>
+              <input value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && enviar()} placeholder="Escribe un mensaje..." autoComplete="off"
+                style={{ flex: 1, padding: "10px 16px", border: "1px solid #e2e8f0", borderRadius: 24, fontSize: 13, background: "#f9fafb", color: "#111827", outline: "none" }} />
+              <button onClick={enviar} disabled={!texto.trim()}
+                style={{ width: 38, height: 38, borderRadius: "50%", background: texto.trim() ? "#1e1b4b" : "#e2e8f0", border: "none", cursor: texto.trim() ? "pointer" : "default", color: texto.trim() ? "#fff" : "#9ca3af", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                ➤
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f0f2f5", color: "#9ca3af" }}>
+            <div style={{ fontSize: 56, marginBottom: 16, opacity: 0.5 }}>💬</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Selecciona una conversacion</div>
+            <div style={{ fontSize: 13 }}>o crea una nueva con el boton +</div>
+          </div>
+        )
+      )}
+
+      {tab === "comunicados" && (
+        <div style={{ flex: 1, overflowY: "auto", padding: 20, background: "#f9fafb" }}>
+          {comunicados.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>📢</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Sin comunicados</div>
+              <div style={{ fontSize: 13 }}>Publica el primer comunicado oficial</div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {comunicados.map(com => (
+                <div key={com.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderLeft: com.urgente ? "4px solid #ef4444" : "4px solid #e2e8f0", borderRadius: 12, padding: "16px 18px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    {com.urgente && <span style={{ fontSize: 10, background: "#fef2f2", color: "#dc2626", padding: "2px 8px", borderRadius: 20, fontWeight: 600, border: "1px solid #fecaca" }}>URGENTE</span>}
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{com.titulo}</div>
+                  </div>
+                  <div style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.6, marginBottom: 10 }}>{com.contenido}</div>
+                  <div style={{ fontSize: 11, color: "#9ca3af" }}>{com.autorNombre} · {new Date(com.creadoEn).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MODAL NUEVA CONVERSACION */}
+      {nuevaConv && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 380, maxWidth: "95vw" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "#111827", marginBottom: 16 }}>Nueva conversacion</div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 5 }}>Nombre</label>
+              <input value={nombreConv} onChange={e => setNombreConv(e.target.value)} placeholder="Ej: Ana Garcia o Grupo G1A"
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const }} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 5 }}>Tipo</label>
+              <select value={tipoConv} onChange={e => setTipoConv(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13 }}>
+                <option value="individual">Individual</option>
+                <option value="grupo">Grupo</option>
+              </select>
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setNuevaConv(false)} style={{ padding: "8px 16px", background: "#f9fafb", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
+              <button onClick={crearConv} style={{ padding: "8px 16px", background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 500 }}>Crear</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL NUEVO COMUNICADO */}
+      {nuevaCom && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 460, maxWidth: "95vw" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "#111827", marginBottom: 16 }}>Nuevo comunicado oficial</div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 5 }}>Titulo *</label>
+              <input value={formCom.titulo} onChange={e => setFormCom(p => ({ ...p, titulo: e.target.value }))} placeholder="Titulo del comunicado"
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 5 }}>Mensaje *</label>
+              <textarea value={formCom.contenido} onChange={e => setFormCom(p => ({ ...p, contenido: e.target.value }))} placeholder="Escribe el comunicado..."
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const, height: 100, resize: "none" as const }} />
+            </div>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#374151", marginBottom: 16, cursor: "pointer" }}>
+              <input type="checkbox" checked={formCom.urgente} onChange={e => setFormCom(p => ({ ...p, urgente: e.target.checked }))} />
+              Marcar como urgente
+            </label>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setNuevaCom(false)} style={{ padding: "8px 16px", background: "#f9fafb", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
+              <button onClick={publicarCom} style={{ padding: "8px 16px", background: "#1e1b4b", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 500 }}>Publicar</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
 }
-
-// ── Modal configuración almacenamiento ─────────────────────────
-function ModalStorage({ conv, onClose, onGuardar }: { conv:Conversacion, onClose:()=>void, onGuardar:(guardar:boolean, pin:string)=>void }) {
-  const [guardar, setGuardar] = useState(conv.guardandoMensajes)
-  const [pin, setPin]         = useState('')
-  const [error, setError]     = useState('')
-
-  const confirmar = () => {
-    if (!pin || pin.length < 4) { setError('Introduce el PIN del encargado'); return }
-    onGuardar(guardar, pin)
-  }
-
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background:'rgba(0,0,0,0.6)' }}
-      onClick={e=>{ if(e.target===e.currentTarget) onClose() }}>
-      <div style={{ background:'var(--surface)', border:'0.5px solid var(--border)', borderRadius:6, boxShadow:'var(--shadow-lg)', width:'100%', maxWidth:380 }}>
-        <div style={{ padding:'14px 18px', borderBottom:'0.5px solid var(--border)' }}>
-          <p style={{ fontSize:14, fontWeight:600, color:'var(--text-primary)' }}>Almacenamiento de mensajes</p>
-          <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>{conv.nombre}</p>
-        </div>
-        <div style={{ padding:18 }} className="space-y-4">
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-            <button onClick={()=>setGuardar(true)}
-              style={{ padding:'12px', borderRadius:6, cursor:'pointer', textAlign:'left', transition:'all .15s',
-                background: guardar?'#dcfce7':'var(--surface-2)',
-                border:`0.5px solid ${guardar?'#86efac':'var(--border-strong)'}`,
-                color: guardar?'#15803d':'var(--text-secondary)' }}>
-              <p style={{ fontSize:12, fontWeight:600, marginBottom:4 }}>💾 Guardar</p>
-              <p style={{ fontSize:11, lineHeight:1.5 }}>Los mensajes se almacenan en la base de datos y quedan registrados.</p>
-            </button>
-            <button onClick={()=>setGuardar(false)}
-              style={{ padding:'12px', borderRadius:6, cursor:'pointer', textAlign:'left', transition:'all .15s',
-                background: !guardar?'#fee2e2':'var(--surface-2)',
-                border:`0.5px solid ${!guardar?'#fca5a5':'var(--border-strong)'}`,
-                color: !guardar?'#b91c1c':'var(--text-secondary)' }}>
-              <p style={{ fontSize:12, fontWeight:600, marginBottom:4 }}>🗑 Borrar siempre</p>
-              <p style={{ fontSize:11, lineHeight:1.5 }}>Los mensajes se eliminan automáticamente al cerrar la sesión.</p>
-            </button>
-          </div>
-          <div style={{ background:'#fff7ed', border:'0.5px solid #fed7aa', borderRadius:4, padding:'9px 12px' }}>
-            <p style={{ fontSize:11, color:'#c2410c' }}>Este cambio requiere el PIN del encargado de sesión para aplicarse.</p>
-          </div>
-          <div>
-            <label style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>PIN del encargado de sesión</label>
-            <input type="password" placeholder="••••" maxLength={6} value={pin} onChange={e=>{ setPin(e.target.value); setError('') }}
-              className="input-base text-sm" style={{ letterSpacing:4 }} />
-            {error && <p style={{ fontSize:11, color:'#b91c1c', marginTop:4 }}>{error}</p>}
-          </div>
-          <div style={{ display:'flex', gap:8 }}>
-            <button onClick={onClose} className="btn-secondary flex-1 py-2 text-sm">Cancelar</button>
-            <button onClick={confirmar} className="btn-primary flex-1 py-2 text-sm">Confirmar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Modal nueva conversación ───────────────────────────────────
-function ModalNueva({ onClose }: { onClose:()=>void }) {
-  const [tipo, setTipo] = useState<TipoChat>('individual')
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background:'rgba(0,0,0,0.6)' }}
-      onClick={e=>{ if(e.target===e.currentTarget) onClose() }}>
-      <div style={{ background:'var(--surface)', border:'0.5px solid var(--border)', borderRadius:6, boxShadow:'var(--shadow-lg)', width:'100%', maxWidth:400 }}>
-        <div style={{ padding:'14px 18px', borderBottom:'0.5px solid var(--border)', display:'flex', justifyContent:'space-between' }}>
-          <p style={{ fontSize:14, fontWeight:600, color:'var(--text-primary)' }}>Nueva conversación</p>
-          <button onClick={onClose} className="btn-secondary w-7 h-7 flex items-center justify-center text-sm">✕</button>
-        </div>
-        <div style={{ padding:18 }} className="space-y-4">
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-            {(['individual','grupo'] as TipoChat[]).map(t => (
-              <button key={t} onClick={()=>setTipo(t)}
-                style={{ padding:'10px', borderRadius:6, cursor:'pointer', transition:'all .15s', textAlign:'center',
-                  background: tipo===t?'#dbeafe':'var(--surface-2)',
-                  border:`0.5px solid ${tipo===t?'#93c5fd':'var(--border-strong)'}`,
-                  color: tipo===t?'#1d4ed8':'var(--text-secondary)' }}>
-                <p style={{ fontSize:18, marginBottom:4 }}>{t==='individual'?'👤':'👥'}</p>
-                <p style={{ fontSize:12, fontWeight:600 }}>{t==='individual'?'Individual':'Grupo'}</p>
-              </button>
-            ))}
-          </div>
-          {tipo==='individual' && (
-            <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>Empleado</label>
-              <select className="w-full">
-                <option>Seleccionar empleado...</option>
-                <option>Juan Pérez García — G1A</option>
-                <option>María García López — G2A</option>
-                <option>Carlos López Martín — G1B</option>
-                <option>Ana Martínez Sanz — G2B</option>
-              </select>
-            </div>
-          )}
-          {tipo==='grupo' && (
-            <>
-              <div>
-                <label style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>Nombre del grupo</label>
-                <input type="text" placeholder="Ej: Equipo mañana" className="input-base text-sm" />
-              </div>
-              <div>
-                <label style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>Sede</label>
-                <select className="w-full">
-                  <option>Mi sede (Madrid Centro)</option>
-                  <option>Vallecas</option>
-                  <option>Todas las sedes</option>
-                </select>
-              </div>
-            </>
-          )}
-          <div>
-            <label style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>Almacenamiento inicial</label>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
-              {[{ v:true, label:'💾 Guardar mensajes' },{ v:false, label:'🗑 Borrar al cerrar' }].map(o=>(
-                <button key={String(o.v)} style={{ padding:'7px', borderRadius:4, fontSize:11, fontWeight:500, cursor:'pointer',
-                  background:'var(--surface-2)', border:'0.5px solid var(--border-strong)', color:'var(--text-secondary)' }}>
-                  {o.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ display:'flex', gap:8 }}>
-            <button onClick={onClose} className="btn-secondary flex-1 py-2 text-sm">Cancelar</button>
-            <button className="btn-primary flex-1 py-2 text-sm">Crear conversación</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Componente principal ───────────────────────────────────────
-export default function ChatDesktop() {
-  const [tab, setTab]           = useState<TabSede>('mi_sede')
-  const [search, setSearch]     = useState('')
-  const [convActiva, setConvActiva] = useState<Conversacion>(conversacionesData[0])
-  const [convs, setConvs]       = useState<Conversacion[]>(conversacionesData)
-  const [texto, setTexto]       = useState('')
-  const [showStorage, setShowStorage] = useState(false)
-  const [showNueva, setShowNueva]     = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior:'smooth' })
-  }, [convActiva])
-
-  const enviarMensaje = () => {
-    if (!texto.trim()) return
-    const nuevoMsg: Mensaje = {
-      id: Date.now(), texto: texto.trim(),
-      hora: new Date().toLocaleTimeString('es-ES',{ hour:'2-digit', minute:'2-digit' }),
-      mio: true, leido: false,
-    }
-    const updated = convs.map(c => c.id===convActiva.id
-      ? { ...c, mensajes:[...c.mensajes, nuevoMsg], ultimoMensaje:texto.trim(), hora:'Ahora' }
-      : c
-    )
-    setConvs(updated)
-    setConvActiva(updated.find(c=>c.id===convActiva.id)!)
-    setTexto('')
-  }
-
-  const handleStorage = (guardar:boolean, pin:string) => {
-    // En producción verifica el PIN contra la BD
-    if (pin !== '1234') { alert('PIN incorrecto'); return }
-    const updated = convs.map(c => c.id===convActiva.id ? { ...c, guardandoMensajes:guardar } : c)
-    setConvs(updated)
-    setConvActiva(updated.find(c=>c.id===convActiva.id)!)
-    setShowStorage(false)
-  }
-
-  const [modoDemo, setModoDemo] = useState(true)
-  useEffect(() => {
-    fetch('/api/config/modo-demo').then(r=>r.json()).then(d=>setModoDemo(d.modoDemo??true))
-  }, [])
-  const convsFiltradas = convs.filter(c => {
-    const matchSearch = !search || c.nombre.toLowerCase().includes(search.toLowerCase())
-    if (tab==='mi_sede')  return matchSearch && c.tipo==='individual' && c.sede==='Madrid Centro'
-    if (tab==='todas')    return matchSearch && c.tipo==='individual'
-    if (tab==='grupos')   return matchSearch && c.tipo==='grupo'
-    return matchSearch
-  })
-
-  return (
-    <div style={{ display:'flex', height:'calc(100vh - 120px)', background:'var(--surface)', border:'0.5px solid var(--border)', borderRadius:6, overflow:'hidden', boxShadow:'var(--shadow-sm)' }}>
-
-      {/* ── Sidebar ─────────────────────────────────────────── */}
-      <div style={{ width:300, flexShrink:0, display:'flex', flexDirection:'column', borderRight:'0.5px solid var(--border)' }}>
-
-        {/* Header sidebar */}
-        <div style={{ padding:'12px 14px', borderBottom:'0.5px solid var(--border)', background:'var(--surface-2)' }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
-            <p style={{ fontSize:14, fontWeight:600, color:'var(--text-primary)' }}>Mensajes</p>
-            <button onClick={()=>setShowNueva(true)}
-              style={{ width:28, height:28, borderRadius:'50%', background:'var(--accent)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:18, lineHeight:1 }}>+</button>
-          </div>
-          {/* Tabs */}
-          <div style={{ display:'flex', gap:4 }}>
-            {([
-              { key:'mi_sede', label:'Mi sede'    },
-              { key:'todas',   label:'Todas'      },
-              { key:'grupos',  label:'Grupos'     },
-            ] as {key:TabSede, label:string}[]).map(t=>(
-              <button key={t.key} onClick={()=>setTab(t.key)}
-                style={{ flex:1, padding:'5px 0', fontSize:11, fontWeight:500, textAlign:'center', borderRadius:20, cursor:'pointer', transition:'all .15s',
-                  background: tab===t.key?'#dcfce7':'var(--surface)',
-                  color:      tab===t.key?'#15803d':'var(--text-secondary)',
-                  border:`0.5px solid ${tab===t.key?'#86efac':'var(--border-strong)'}` }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Búsqueda */}
-        <div style={{ padding:'8px 12px', borderBottom:'0.5px solid var(--border)' }}>
-          <div style={{ position:'relative' }}>
-            <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar conversación..."
-              style={{ width:'100%', padding:'6px 10px 6px 30px', fontSize:12, border:'0.5px solid var(--border-strong)', borderRadius:20, background:'var(--surface-2)', color:'var(--text-primary)', outline:'none' }} />
-          </div>
-        </div>
-
-        {/* Lista conversaciones */}
-        <div style={{ flex:1, overflowY:'auto' }}>
-          {convsFiltradas.length === 0
-            ? <p style={{ fontSize:12, color:'var(--text-muted)', textAlign:'center', padding:'24px 14px', fontStyle:'italic' }}>Sin conversaciones</p>
-            : convsFiltradas.map(c => (
-              <div key={c.id} onClick={()=>setConvActiva(c)}
-                style={{ display:'flex', gap:10, padding:'10px 14px', cursor:'pointer', borderBottom:'0.5px solid var(--border)', transition:'background .1s', alignItems:'center',
-                  background: convActiva.id===c.id?'var(--surface-2)':'transparent' }}>
-                <Avatar nombre={c.nombre} size={38} online={c.online} />
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p style={{ fontSize:12, fontWeight:600, color:'var(--text-primary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{c.nombre}</p>
-                  <p style={{ fontSize:11, color:'var(--text-secondary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginTop:1 }}>{c.ultimoMensaje}</p>
-                </div>
-                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4, flexShrink:0 }}>
-                  <span style={{ fontSize:10, color:'var(--text-muted)' }}>{c.hora}</span>
-                  {c.noLeidos>0
-                    ? <span style={{ background:'#22c55e', color:'#fff', fontSize:9, fontWeight:700, padding:'2px 5px', borderRadius:10, minWidth:16, textAlign:'center' }}>{c.noLeidos}</span>
-                    : <span style={{ fontSize:9, fontWeight:500, padding:'1px 5px', borderRadius:10, background: c.tipo==='grupo'?'#f3e8ff':'#dbeafe', color: c.tipo==='grupo'?'#7e22ce':'#1d4ed8' }}>
-                        {c.tipo==='grupo'?'Grupo':'Chat'}
-                      </span>
-                  }
-                </div>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-
-      {/* ── Panel chat ──────────────────────────────────────── */}
-      <div style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0 }}>
-
-        {/* Header chat */}
-        <div style={{ padding:'10px 16px', borderBottom:'0.5px solid var(--border)', background:'var(--surface-2)', display:'flex', alignItems:'center', gap:10 }}>
-          <Avatar nombre={convActiva.nombre} size={36} online={convActiva.online} />
-          <div style={{ flex:1, minWidth:0 }}>
-            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>
-              {convActiva.nombre}
-              {convActiva.grupo && <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:'#6366f1', borderRadius:3, padding:'1px 6px', marginLeft:6 }}>{convActiva.grupo}</span>}
-            </p>
-            <p style={{ fontSize:11, color: convActiva.online?'#22c55e':'var(--text-muted)', marginTop:1 }}>
-              {convActiva.online ? 'En línea' : `${convActiva.sede}`}
-            </p>
-          </div>
-
-          {/* Indicador almacenamiento */}
-          <button onClick={()=>setShowStorage(true)}
-            style={{ fontSize:10, fontWeight:500, padding:'3px 10px', borderRadius:20, cursor:'pointer', transition:'all .15s', border:'0.5px solid',
-              background: convActiva.guardandoMensajes?'#dcfce7':'#fee2e2',
-              color:      convActiva.guardandoMensajes?'#15803d':'#b91c1c',
-              borderColor:convActiva.guardandoMensajes?'#86efac':'#fca5a5' }}>
-            {convActiva.guardandoMensajes ? '💾 Guardando' : '🗑 Sin guardar'}
-          </button>
-        </div>
-
-        {/* Mensajes */}
-        <div style={{ flex:1, overflowY:'auto', padding:'14px 16px', display:'flex', flexDirection:'column', gap:4, background:'#f0f2f5' }}>
-          <div style={{ alignSelf:'center', fontSize:10, color:'#94a3b8', background:'#e2e8f0', borderRadius:10, padding:'2px 10px', marginBottom:6 }}>Hoy</div>
-
-          {convActiva.mensajes.map((msg, i) => {
-            const prevMio = i>0 ? convActiva.mensajes[i-1].mio : null
-            const showAuthor = !msg.mio && convActiva.tipo==='grupo' && msg.autor && msg.autor !== convActiva.mensajes[i-1]?.autor
-            return (
-              <div key={msg.id} style={{ display:'flex', flexDirection:'column', alignItems: msg.mio?'flex-end':'flex-start', marginTop: prevMio===msg.mio?2:8 }}>
-                {showAuthor && (
-                  <p style={{ fontSize:10, fontWeight:600, color:'#6366f1', marginBottom:2, paddingLeft:12 }}>{msg.autor}</p>
-                )}
-                <div style={{
-                  maxWidth:'65%', padding:'7px 11px', fontSize:13, lineHeight:1.5, wordBreak:'break-word',
-                  background:  msg.mio?'#dcfce7':'#ffffff',
-                  borderRadius: msg.mio?'12px 12px 2px 12px':'12px 12px 12px 2px',
-                  border: msg.mio?'none':'0.5px solid #e2e8f0',
-                  color:'#0f172a',
-                }}>
-                  {msg.texto}
-                </div>
-                <div style={{ display:'flex', alignItems:'center', gap:3, marginTop:2, paddingLeft:4, paddingRight:4 }}>
-                  <span style={{ fontSize:10, color:'#94a3b8' }}>{msg.hora}</span>
-                  {msg.mio && <span style={{ fontSize:10, color: msg.leido?'#3b82f6':'#94a3b8' }}>{msg.leido?'✓✓':'✓'}</span>}
-                </div>
-              </div>
-            )
-          })}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input mensaje */}
-        <div style={{ padding:'10px 16px', borderTop:'0.5px solid var(--border)', display:'flex', gap:8, alignItems:'center', background:'var(--surface-2)' }}>
-          <input
-            value={texto}
-            onChange={e=>setTexto(e.target.value)}
-            onKeyDown={e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); enviarMensaje() } }}
-            placeholder="Escribe un mensaje..."
-            style={{ flex:1, padding:'8px 14px', fontSize:13, border:'0.5px solid var(--border-strong)', borderRadius:22, background:'var(--surface)', color:'var(--text-primary)', outline:'none' }}
-          />
-          <button onClick={enviarMensaje}
-            style={{ width:38, height:38, borderRadius:'50%', background:'var(--accent)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, opacity: texto.trim()?1:0.5, transition:'opacity .15s' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Modales */}
-      {showStorage && <ModalStorage conv={convActiva} onClose={()=>setShowStorage(false)} onGuardar={handleStorage} />}
-      {showNueva   && <ModalNueva onClose={()=>setShowNueva(false)} />}
-    </div>
-  )
-}
-
