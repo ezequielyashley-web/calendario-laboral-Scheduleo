@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
         SELECT * FROM "Conversacion"
         WHERE "empresaId" = 'empresa-001'
         AND estado = 'pendiente'
-        AND "receptorId" = ${userId}
+        AND receptor_id = ${userId}
         ORDER BY "creadoEn" DESC
       ` as any[]
       return NextResponse.json(solicitudes)
@@ -22,10 +22,7 @@ export async function GET(req: NextRequest) {
       SELECT * FROM "Conversacion"
       WHERE "empresaId" = 'empresa-001'
       AND estado = 'activa'
-      AND (
-        "solicitanteId" = ${userId}
-        OR "receptorId" = ${userId}
-      )
+      AND (solicitante_id = ${userId} OR receptor_id = ${userId})
       ORDER BY "ultimoMensajeEn" DESC NULLS LAST
     ` as any[]
     return NextResponse.json(conversaciones)
@@ -37,28 +34,29 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { nombre, tipo, participantes, solicitanteId, solicitanteNombre, receptorId, receptorNombre } = await req.json()
+    const { nombre, tipo, participantes, solicitanteId, solicitanteNombre, receptorId, receptorNombre, autoAceptar } = await req.json()
     const tipoConv = tipo || "individual"
     const parts = JSON.stringify(participantes || [])
+    const estadoInicial = autoAceptar ? 'activa' : 'pendiente'
 
     const result = await prisma.$queryRaw`
-      INSERT INTO "Conversacion" (id, nombre, tipo, participantes, estado, "solicitanteId", "solicitanteNombre", "receptorId", "receptorNombre", "expiraEn")
+      INSERT INTO "Conversacion" (id, nombre, tipo, participantes, estado, solicitante_id, solicitante_nombre, receptor_id, receptor_nombre, expira_en)
       VALUES (
         gen_random_uuid()::text,
         ${nombre || ""},
         ${tipoConv},
         ${parts}::jsonb,
-        'pendiente',
+        ${estadoInicial},
         ${solicitanteId || ""},
         ${solicitanteNombre || ""},
         ${receptorId || ""},
         ${receptorNombre || ""},
         NOW() + INTERVAL '30 days'
       )
-      RETURNING id
+      RETURNING *
     ` as any[]
 
-    return NextResponse.json({ ok: true, id: result[0]?.id })
+    return NextResponse.json({ ok: true, id: result[0]?.id, conv: result[0] })
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al crear conversacion" }, { status: 500 })
@@ -71,27 +69,17 @@ export async function PATCH(req: NextRequest) {
     if (!conversacionId || !accion) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
 
     if (accion === "aceptar") {
-      await prisma.$executeRaw`
-        UPDATE "Conversacion" SET estado = 'activa' WHERE id = ${conversacionId}
-      `
-      return NextResponse.json({ ok: true, accion: "aceptada" })
+      await prisma.$executeRaw`UPDATE "Conversacion" SET estado = 'activa' WHERE id = ${conversacionId}`
+      return NextResponse.json({ ok: true })
     }
-
     if (accion === "rechazar") {
-      await prisma.$executeRaw`
-        UPDATE "Conversacion" SET estado = 'rechazada' WHERE id = ${conversacionId}
-      `
-      return NextResponse.json({ ok: true, accion: "rechazada" })
+      await prisma.$executeRaw`UPDATE "Conversacion" SET estado = 'rechazada' WHERE id = ${conversacionId}`
+      return NextResponse.json({ ok: true })
     }
-
     if (accion === "cerrar") {
-      await prisma.$executeRaw`
-        DELETE FROM "Mensaje" WHERE "conversacionId" = ${conversacionId}
-      `
-      await prisma.$executeRaw`
-        UPDATE "Conversacion" SET estado = 'cerrada' WHERE id = ${conversacionId}
-      `
-      return NextResponse.json({ ok: true, accion: "cerrada" })
+      await prisma.$executeRaw`DELETE FROM "Mensaje" WHERE "conversacionId" = ${conversacionId}`
+      await prisma.$executeRaw`UPDATE "Conversacion" SET estado = 'cerrada' WHERE id = ${conversacionId}`
+      return NextResponse.json({ ok: true })
     }
 
     return NextResponse.json({ error: "Accion no valida" }, { status: 400 })
