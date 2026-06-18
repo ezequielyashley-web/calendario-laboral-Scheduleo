@@ -2,234 +2,182 @@
 import InfoPanel from "@/components/InfoPanel"
 import { useState, useEffect } from "react"
 
-const reportes = {
-  asistencia: {
-    label: 'Asistencia',
-    metricas: [
-      { label:'Asistencia promedio', valor:'94.5%', tendencia:'+2.3%', up:true,  color:'#16a34a' },
-      { label:'Ausencias',           valor:'5.5%',  tendencia:'-1.2%', up:false, color:'#b91c1c' },
-      { label:'Llegadas tarde',      valor:'3.2%',  tendencia:'-0.8%', up:false, color:'#d97706' },
-    ]
-  },
-  vacaciones: {
-    label: 'Vacaciones',
-    metricas: [
-      { label:'Dias aprobados',  valor:'248', tendencia:'+12', up:true,  color:'#16a34a' },
-      { label:'Dias pendientes', valor:'45',  tendencia:'-8',  up:false, color:'#d97706' },
-      { label:'Dias rechazados', valor:'3',   tendencia:'0',   up:false, color:'#b91c1c' },
-    ]
-  },
-  fichajes: {
-    label: 'Fichajes',
-    metricas: [
-      { label:'Fichajes correctos', valor:'96.8%', tendencia:'+1.5%', up:true,  color:'#16a34a' },
-      { label:'Fichajes tardios',   valor:'2.1%',  tendencia:'-0.5%', up:false, color:'#d97706' },
-      { label:'Sin fichar',         valor:'1.1%',  tendencia:'-0.3%', up:false, color:'#b91c1c' },
-    ]
-  },
-  horas: {
-    label: 'Horas',
-    metricas: [
-      { label:'Horas trabajadas',  valor:'5.440h', tendencia:'+120h', up:true, color:'#16a34a' },
-      { label:'Horas extra',       valor:'248h',   tendencia:'+32h',  up:true, color:'#d97706' },
-      { label:'Promedio/empleado', valor:'80h',    tendencia:'+2h',   up:true, color:'#6366f1' },
-    ]
-  },
-}
-
-const barras = [
-  { dia:'L', pct:85, emp:58 }, { dia:'M', pct:92, emp:63 }, { dia:'X', pct:88, emp:60 },
-  { dia:'J', pct:95, emp:65 }, { dia:'V', pct:90, emp:61 }, { dia:'S', pct:87, emp:59 },
-  { dia:'D', pct:20, emp:14, danger:true },
-]
-
-const grupos = [
-  { nombre:'G1A', empleados:12, color:'#6366f1' }, { nombre:'G1B', empleados:11, color:'#4f46e5' },
-  { nombre:'G2A', empleados:11, color:'#0891b2' }, { nombre:'G2B', empleados:12, color:'#0e7490' },
-  { nombre:'G3A', empleados:11, color:'#6366f1' }, { nombre:'G3B', empleados:11, color:'#4f46e5' },
-]
-
-const empleadosData = [
-  { nombre:'Juan Perez',   grupo:'G1A', asistencia:98, horas:168, estado:'Excelente' },
-  { nombre:'Maria Garcia', grupo:'G2A', asistencia:95, horas:164, estado:'Muy bien'  },
-  { nombre:'Carlos Lopez', grupo:'G1B', asistencia:92, horas:160, estado:'Bien'      },
-  { nombre:'Ana Martinez', grupo:'G2B', asistencia:88, horas:156, estado:'Regular'   },
-]
-
-const rangos = ['semana','mes','trimestre','anno']
-const sedes  = ['Todas las sedes','Madrid Centro','Vallecas']
-const estadoColor: Record<string,string> = { Excelente:'#16a34a', 'Muy bien':'#6366f1', Bien:'#d97706', Regular:'#b91c1c' }
-const grupoColorMap: Record<string,string> = { G1A:'#6366f1', G1B:'#4f46e5', G2A:'#0891b2', G2B:'#0e7490', G3A:'#6366f1', G3B:'#4f46e5' }
-
-function Card({ children, style={}, hoverable=true }: { children:React.ReactNode, style?:React.CSSProperties, hoverable?:boolean }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <div
-      onMouseEnter={() => hoverable && setHov(true)}
-      onMouseLeave={() => hoverable && setHov(false)}
-      style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:6, boxShadow: hov ? 'var(--shadow-lg)' : 'var(--shadow-sm)', transform: hov ? 'scale(1.02) translateY(-2px)' : 'scale(1) translateY(0)', transition:'transform .2s, box-shadow .2s', ...style }}
-    >
-      {children}
-    </div>
-  )
-}
-
-function MetricaCard({ m }: { m: { label:string; valor:string; tendencia:string; up:boolean; color:string } }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:6, padding:20, boxShadow: hov ? 'var(--shadow-lg)' : 'var(--shadow-sm)', transform: hov ? 'scale(1.04) translateY(-3px)' : 'scale(1)', transition:'transform .2s, box-shadow .2s', borderLeft: `3px solid ${m.color}` }}>
-      <p style={{ fontSize:11, color:'var(--text-muted)', marginBottom:8 }}>{m.label}</p>
-      <p style={{ fontSize:30, fontWeight:700, color:'var(--text-primary)', lineHeight:1 }}>{m.valor}</p>
-      <span style={{ display:'inline-flex', alignItems:'center', gap:4, marginTop:8, fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:3, background: m.up?'#dcfce7':'#fee2e2', color: m.up?'#15803d':'#b91c1c' }}>
-        {m.up ? '↑' : '↓'} {m.tendencia}
-      </span>
-    </div>
-  )
-}
-
-function FilaEmpleado({ e }: { e: { nombre:string; grupo:string; asistencia:number; horas:number; estado:string } }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <tr onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{ background: hov?'var(--surface-2)':'transparent', transition:'background .15s', borderBottom:'1px solid var(--border)' }}>
-      <td style={{ padding:'12px 16px', fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>{e.nombre}</td>
-      <td style={{ padding:'12px 16px' }}>
-        <span style={{ fontSize:11, fontWeight:700, color:'#fff', background:grupoColorMap[e.grupo], borderRadius:3, padding:'2px 8px' }}>{e.grupo}</span>
-      </td>
-      <td style={{ padding:'12px 16px', fontSize:13, color:'var(--text-primary)' }}>{e.asistencia}%</td>
-      <td style={{ padding:'12px 16px', fontSize:13, color:'var(--text-primary)' }}>{e.horas}h</td>
-      <td style={{ padding:'12px 16px' }}>
-        <span style={{ fontSize:11, fontWeight:600, color:estadoColor[e.estado], background:estadoColor[e.estado]+'18', borderRadius:3, padding:'2px 8px' }}>{e.estado}</span>
-      </td>
-    </tr>
-  )
-}
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
 
 export default function ReportesDesktop() {
-  const [tipo, setTipo]   = useState<keyof typeof reportes>('asistencia')
-  const [rango, setRango] = useState('mes')
-  const [sede, setSede]   = useState('Todas las sedes')
-  const [barHov, setBarHov] = useState<number|null>(null)
-  const [modoDemo, setModoDemo] = useState(true)
+  const [datos, setDatos] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [mes, setMes] = useState(new Date().getMonth() + 1)
+  const [anio, setAnio] = useState(new Date().getFullYear())
+  const [tab, setTab] = useState("fichajes")
 
   useEffect(() => {
-    fetch('/api/config/modo-demo').then(r=>r.json()).then(d=>setModoDemo(d.modoDemo??true))
-  }, [])
+    setLoading(true)
+    fetch(`/api/reportes?mes=${mes}&anio=${anio}`)
+      .then(r => r.json())
+      .then(data => { setDatos(data); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [mes, anio])
 
-  const reporte = reportes[tipo]
+  if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando reportes...</div>
+  if (!datos) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Error al cargar datos</div>
+
+  const tabs = [
+    { key: "fichajes", label: "Fichajes" },
+    { key: "vacaciones", label: "Vacaciones" },
+    { key: "horas", label: "Horas" },
+    { key: "bajas", label: "Bajas" },
+    { key: "cambios", label: "Cambios turno" },
+    { key: "grupos", label: "Grupos" },
+  ]
 
   return (
-    <div className="space-y-5">
-      {!modoDemo && (
-        <div style={{ padding:'10px 16px', background:'#fef9c3', border:'1px solid #fde68a', borderRadius:8, display:'flex', alignItems:'center', gap:10, fontSize:13, color:'#854d0e' }}>
-          <span>⚠️</span>
-          <span><strong>Modo real activo</strong> — Los reportes muestran datos de ejemplo. Proximamente se conectaran a datos reales.</span>
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+      <InfoPanel titulo="Reportes del sistema" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
+        { icon: "📊", titulo: "Fichajes", desc: "Analiza la asistencia y puntualidad de tus empleados." },
+        { icon: "🏖️", titulo: "Vacaciones", desc: "Revisa el estado de las solicitudes de vacaciones." },
+        { icon: "⏱️", titulo: "Horas", desc: "Controla las horas trabajadas y el cumplimiento horario." },
+      ]} />
+
+      {/* Selector mes/año */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: "#1e1b4b", flex: 1 }}>
+          Reportes — {MESES[mes-1]} {anio}
+        </div>
+        <select value={mes} onChange={e => setMes(Number(e.target.value))}
+          style={{ padding: "8px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+          {MESES.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
+        </select>
+        <select value={anio} onChange={e => setAnio(Number(e.target.value))}
+          style={{ padding: "8px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+          {[2024, 2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+      </div>
+
+      {/* KPIs generales */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+        {[
+          { label: "Empleados activos", valor: datos.totalEmpleados, color: "#6366f1", bg: "#f5f3ff" },
+          { label: "Fichajes del mes", valor: datos.fichajes.total, color: "#0891b2", bg: "#f0f9ff" },
+          { label: "Días vacaciones aprobados", valor: datos.vacaciones.diasAprobados, color: "#16a34a", bg: "#f0fdf4" },
+          { label: "Bajas activas", valor: datos.bajas.enCurso, color: "#dc2626", bg: "#fef2f2" },
+        ].map(k => (
+          <div key={k.label} style={{ background: k.bg, borderRadius: 14, padding: "18px 20px", border: `1px solid ${k.color}22` }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: k.color }}>{k.valor}</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #e2e8f0", marginBottom: 20 }}>
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            style={{ padding: "10px 18px", border: "none", background: "none", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#6366f1" : "#64748b", borderBottom: tab === t.key ? "2px solid #6366f1" : "2px solid transparent", marginBottom: -2, cursor: "pointer", whiteSpace: "nowrap" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* TAB: Fichajes */}
+      {tab === "fichajes" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          {[
+            { label: "Fichajes correctos", valor: datos.fichajes.correctos, pct: datos.fichajes.pctCorrectos + "%", color: "#16a34a", bg: "#f0fdf4" },
+            { label: "Fichajes tardios", valor: datos.fichajes.tardios, pct: datos.fichajes.pctTardios + "%", color: "#d97706", bg: "#fef9c3" },
+            { label: "Sin hora salida", valor: datos.fichajes.sinSalida, pct: datos.fichajes.total > 0 ? (datos.fichajes.sinSalida / datos.fichajes.total * 100).toFixed(1) + "%" : "0%", color: "#dc2626", bg: "#fef2f2" },
+          ].map(k => (
+            <div key={k.label} style={{ background: k.bg, borderRadius: 14, padding: "24px 20px", border: `1px solid ${k.color}33`, textAlign: "center" }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: k.color }}>{k.valor}</div>
+              <div style={{ fontSize: 22, fontWeight: 600, color: k.color, marginTop: 4 }}>{k.pct}</div>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>{k.label}</div>
+            </div>
+          ))}
         </div>
       )}
 
-      <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:4 }}>
-        <InfoPanel titulo="Como usar Reportes" color="#7c3aed" bg="#f5f3ff" border="#ddd6fe" items={[
-          { icon: "📊", titulo: "Tipos de reporte", desc: "Selecciona entre Asistencia, Horas extra, Vacaciones o Incidencias." },
-          { icon: "📅", titulo: "Rango de fechas", desc: "Filtra por semana, mes o año." },
-          { icon: "🏢", titulo: "Filtro por sede", desc: "Ver datos de cada sede por separado." },
-          { icon: "📤", titulo: "Exportar", desc: "Exporta en CSV o PDF." },
-          { icon: "📈", titulo: "Graficos", desc: "Identifica tendencias rapidamente." },
-        ]} />
-      </div>
-
-      <Card hoverable={false} style={{ padding:16 }}>
-        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-          <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-            {(Object.keys(reportes) as (keyof typeof reportes)[]).map(t => (
-              <button key={t} onClick={() => setTipo(t)}
-                style={{ padding:'6px 16px', fontSize:12, fontWeight:600, borderRadius:4, transition:'all .15s', background: tipo===t ? 'var(--accent)' : 'var(--surface-2)', color: tipo===t ? '#fff' : 'var(--text-secondary)', border: `1px solid ${tipo===t ? 'var(--accent)' : 'var(--border-strong)'}` }}>
-                {reportes[t].label}
-              </button>
-            ))}
-          </div>
-          <div style={{ display:'flex', gap:8 }}>
-            <select className="input-base text-xs py-1.5 px-2 w-auto" value={rango} onChange={e => setRango(e.target.value)}>
-              {rangos.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
-            </select>
-            <select className="input-base text-xs py-1.5 px-2 w-auto" value={sede} onChange={e => setSede(e.target.value)}>
-              {sedes.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <button className="btn-primary text-xs px-4 py-1.5">Exportar PDF</button>
-          </div>
+      {/* TAB: Vacaciones */}
+      {tab === "vacaciones" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+          {[
+            { label: "Solicitudes aprobadas", valor: datos.vacaciones.aprobadas, color: "#16a34a", bg: "#f0fdf4" },
+            { label: "Solicitudes pendientes", valor: datos.vacaciones.pendientes, color: "#d97706", bg: "#fef9c3" },
+            { label: "Solicitudes rechazadas", valor: datos.vacaciones.rechazadas, color: "#dc2626", bg: "#fef2f2" },
+            { label: "Dias aprobados", valor: datos.vacaciones.diasAprobados, color: "#6366f1", bg: "#f5f3ff" },
+          ].map(k => (
+            <div key={k.label} style={{ background: k.bg, borderRadius: 14, padding: "24px 20px", border: `1px solid ${k.color}33`, textAlign: "center" }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: k.color }}>{k.valor}</div>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>{k.label}</div>
+            </div>
+          ))}
         </div>
-      </Card>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {reporte.metricas.map((m, i) => <MetricaCard key={i} m={m} />)}
-      </div>
+      {/* TAB: Horas */}
+      {tab === "horas" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+          {[
+            { label: "Horas trabajadas", valor: datos.horas.totales + "h", color: "#16a34a", bg: "#f0fdf4" },
+            { label: "Horas esperadas", valor: datos.horas.esperadas + "h", color: "#6366f1", bg: "#f5f3ff" },
+            { label: "Promedio por empleado", valor: datos.horas.promedioPorEmpleado + "h", color: "#0891b2", bg: "#f0f9ff" },
+            { label: "Cumplimiento", valor: datos.horas.pctCumplimiento + "%", color: "#d97706", bg: "#fef9c3" },
+          ].map(k => (
+            <div key={k.label} style={{ background: k.bg, borderRadius: 14, padding: "24px 20px", border: `1px solid ${k.color}33`, textAlign: "center" }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: k.color }}>{k.valor}</div>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>{k.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card style={{ padding:20 }}>
-          <div style={{ marginBottom:16 }}>
-            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Asistencia semanal</p>
-            <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Porcentaje por dia</p>
-          </div>
-          <div style={{ display:'flex', alignItems:'flex-end', gap:6, height:160 }}>
-            {barras.map((d, i) => (
-              <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4, height:'100%', justifyContent:'flex-end' }}
-                onMouseEnter={() => setBarHov(i)} onMouseLeave={() => setBarHov(null)}>
-                {barHov===i && (
-                  <div style={{ fontSize:10, fontWeight:600, padding:'2px 5px', borderRadius:3, background:'var(--surface-2)', border:'1px solid var(--border)', color:'var(--text-secondary)', whiteSpace:'nowrap' }}>
-                    {d.emp}
-                  </div>
-                )}
-                <div style={{ width:'100%', borderRadius:'3px 3px 0 0', background: d.danger?'#ef4444':barHov===i?'#4f46e5':'#6366f1', height:`${d.pct}%`, opacity: barHov!==null&&barHov!==i?0.5:1, transition:'all .15s' }} />
-                <span style={{ fontSize:10, color:'var(--text-muted)' }}>{d.dia}</span>
+      {/* TAB: Bajas */}
+      {tab === "bajas" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {[
+            { label: "Bajas en el mes", valor: datos.bajas.total, color: "#dc2626", bg: "#fef2f2" },
+            { label: "Bajas activas actualmente", valor: datos.bajas.enCurso, color: "#d97706", bg: "#fef9c3" },
+          ].map(k => (
+            <div key={k.label} style={{ background: k.bg, borderRadius: 14, padding: "24px 20px", border: `1px solid ${k.color}33`, textAlign: "center" }}>
+              <div style={{ fontSize: 48, fontWeight: 800, color: k.color }}>{k.valor}</div>
+              <div style={{ fontSize: 14, color: "#64748b", marginTop: 8 }}>{k.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* TAB: Cambios turno */}
+      {tab === "cambios" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          {[
+            { label: "Total solicitudes", valor: datos.cambiosTurno.total, color: "#6366f1", bg: "#f5f3ff" },
+            { label: "Aprobados", valor: datos.cambiosTurno.aprobados, color: "#16a34a", bg: "#f0fdf4" },
+            { label: "Pendientes", valor: datos.cambiosTurno.pendientes, color: "#d97706", bg: "#fef9c3" },
+          ].map(k => (
+            <div key={k.label} style={{ background: k.bg, borderRadius: 14, padding: "24px 20px", border: `1px solid ${k.color}33`, textAlign: "center" }}>
+              <div style={{ fontSize: 48, fontWeight: 800, color: k.color }}>{k.valor}</div>
+              <div style={{ fontSize: 14, color: "#64748b", marginTop: 8 }}>{k.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* TAB: Grupos */}
+      {tab === "grupos" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {datos.grupos.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>No hay grupos configurados</div>
+          ) : datos.grupos.map((g: any) => (
+            <div key={g.nombre} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 14, height: 14, borderRadius: "50%", background: g.color, flexShrink: 0 }} />
+              <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{g.nombre}</div>
+              <div style={{ fontSize: 13, color: "#64748b" }}>{g.empleados} empleados</div>
+              <div style={{ background: g.color + "22", color: g.color, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: `1px solid ${g.color}44` }}>
+                {g.empleados > 0 ? Math.round(g.empleados / (datos.totalEmpleados || 1) * 100) + "%" : "0%"}
               </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card style={{ padding:20 }}>
-          <div style={{ marginBottom:16 }}>
-            <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Distribucion por grupo</p>
-            <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Empleados activos</p>
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            {grupos.map((g, i) => (
-              <div key={i}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <div style={{ width:8, height:8, background:g.color, borderRadius:2 }} />
-                    <span style={{ fontSize:12, fontWeight:600, color:'var(--text-primary)' }}>{g.nombre}</span>
-                  </div>
-                  <span style={{ fontSize:11, color:'var(--text-muted)' }}>{g.empleados}/12</span>
-                </div>
-                <div style={{ height:5, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
-                  <div style={{ height:'100%', width:`${(g.empleados/12)*100}%`, background:g.color, borderRadius:3 }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      <Card hoverable={false} style={{ overflow:'hidden' }}>
-        <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--border)' }}>
-          <p style={{ fontSize:13, fontWeight:600, color:'var(--text-primary)' }}>Detalle por empleado</p>
-          <p style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Rendimiento del periodo seleccionado</p>
+            </div>
+          ))}
         </div>
-        <div style={{ overflowX:'auto' }}>
-          <table style={{ width:'100%', borderCollapse:'collapse' }}>
-            <thead>
-              <tr style={{ background:'var(--surface-2)' }}>
-                {['Empleado','Grupo','Asistencia','Horas','Estado'].map(h => (
-                  <th key={h} style={{ padding:'10px 16px', textAlign:'left', fontSize:11, fontWeight:600, color:'var(--text-muted)', borderBottom:'1px solid var(--border)' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {empleadosData.map((e, i) => <FilaEmpleado key={i} e={e} />)}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      )}
     </div>
   )
 }
