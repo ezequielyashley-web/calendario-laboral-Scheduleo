@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { enviarEmailAccesoTemporal } from "@/lib/email"
 
 export async function GET() {
   try {
@@ -77,7 +78,17 @@ export async function PATCH(req: NextRequest) {
       const realizadoPor = "Super Admin"
       const motivoStr = ""
       await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
-      return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email })
+
+      const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
+      const emailResult = await enviarEmailAccesoTemporal({
+        nombre: sol.nombre,
+        email: sol.email,
+        contrasenaTemporal: rawPassword,
+        empresaNombre: empresa?.nombre || "Tu empresa",
+        loginUrl: process.env.NEXTAUTH_URL || "http://localhost:3000",
+      })
+
+      return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email, emailEnviado: emailResult.ok })
     }
 
     if (accion === "rechazar") {
