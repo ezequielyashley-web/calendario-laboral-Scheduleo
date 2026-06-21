@@ -8,13 +8,16 @@ type Empleado = { id: string; nombre: string; apellidos: string; grupoNombre?: s
 const COLORS = ["#7c3aed","#0891b2","#059669","#d97706","#db2777","#dc2626","#0284c7"]
 function getColor(s: string) { return COLORS[(s||"A").charCodeAt(0) % COLORS.length] }
 
-function Avatar({ nombre, size = 40, badge = false }: { nombre: string; size?: number; badge?: boolean }) {
+function Avatar({ nombre, size = 40, badge = false, count = 0 }: { nombre: string; size?: number; badge?: boolean; count?: number }) {
   const initials = nombre.split(" ").slice(0,2).map(n=>n[0]).join("").toUpperCase()
   return (
     <div style={{ position:"relative", flexShrink:0 }}>
       <div style={{ width:size, height:size, borderRadius:"50%", background:getColor(nombre), color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:size*0.33, fontWeight:600 }}>{initials}</div>
-      {badge && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, borderRadius:"50%", background:"#ef4444", border:"2px solid #f0f4f8", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      {badge && count === 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, borderRadius:"50%", background:"#ef4444", border:"2px solid #f0f4f8", display:"flex", alignItems:"center", justifyContent:"center" }}>
         <div style={{ width:5, height:5, borderRadius:"50%", background:"#fff" }} />
+      </div>}
+      {count > 0 && <div style={{ position:"absolute", top:-4, right:-4, minWidth:16, height:16, borderRadius:8, background:"#ef4444", border:"2px solid #f0f4f8", display:"flex", alignItems:"center", justifyContent:"center", padding:"0 3px" }}>
+        <span style={{ fontSize:9, fontWeight:700, color:"#fff" }}>{count > 9 ? "9+" : count}</span>
       </div>}
     </div>
   )
@@ -48,6 +51,7 @@ export default function ChatDesktop() {
   const [formCom, setFormCom] = useState({ titulo:"", contenido:"", urgente:false })
   const [modalCerrar, setModalCerrar] = useState(false)
   const [filtroFecha, setFiltroFecha] = useState("")
+  const [noLeidos, setNoLeidos] = useState<Record<string, number>>({})
   const [sidebarWidth, setSidebarWidth] = useState(290)
   const isResizing = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -68,6 +72,12 @@ export default function ChatDesktop() {
     if (r) { const d = await r.json(); if (Array.isArray(d)) setConversaciones(d) }
     const r2 = await fetch(`/api/conversaciones?userId=${usuario.id}&tipo=solicitudes`).catch(()=>null)
     if (r2) { const d2 = await r2.json(); if (Array.isArray(d2)) setSolicitudes(d2) }
+    const r3 = await fetch(`/api/mensajes?noLeidos=true&userId=${usuario.id}`).catch(()=>null)
+    if (r3) { const d3 = await r3.json(); if (Array.isArray(d3)) {
+      const map: Record<string, number> = {}
+      d3.forEach((row: any) => { map[row.conversacionId] = row.count })
+      setNoLeidos(map)
+    }}
   }
   const cargarMsgs = async (id: string) => {
     const r = await fetch(`/api/mensajes?conversacionId=${id}`).catch(()=>null)
@@ -82,10 +92,16 @@ export default function ChatDesktop() {
     if (r) { const d = await r.json(); if (Array.isArray(d)) setEmpleados(d) }
   }
 
-  useEffect(() => { cargarConvs(); cargarComs(); cargarEmpleados() }, [])
+  useEffect(() => {
+    cargarConvs(); cargarComs(); cargarEmpleados()
+    const t = setInterval(cargarConvs, 6000)
+    return () => clearInterval(t)
+  }, [])
   useEffect(() => {
     if (!convActiva) return
     cargarMsgs(convActiva.id)
+    fetch("/api/mensajes", { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ conversacionId:convActiva.id, userId:usuario.id }) })
+      .then(() => setNoLeidos(p => ({ ...p, [convActiva.id]: 0 })))
     const t = setInterval(() => cargarMsgs(convActiva.id), 5000)
     return () => clearInterval(t)
   }, [convActiva])
@@ -130,8 +146,17 @@ export default function ChatDesktop() {
     await cargarComs(); setNuevaCom(false); setFormCom({ titulo:"", contenido:"", urgente:false })
   }
 
-  const empsFiltrados = empleados.filter(e => `${e.nombre} ${e.apellidos}`.toLowerCase().includes(busqueda.toLowerCase()))
-  const convsFiltradas = conversaciones.filter(c => c.nombre?.toLowerCase().includes(busqueda.toLowerCase()))
+  const getCntEmp = (e: Empleado) => {
+    const c = conversaciones.find(c => c.receptor_id===(e.userId||e.id) || c.solicitante_id===(e.userId||e.id))
+    return c ? (noLeidos[c.id] || 0) : 0
+  }
+  const empsFiltrados = empleados
+    .filter(e => `${e.nombre} ${e.apellidos}`.toLowerCase().includes(busqueda.toLowerCase()))
+    .sort((a, b) => getCntEmp(b) - getCntEmp(a))
+  const convsFiltradas = conversaciones
+    .filter(c => c.nombre?.toLowerCase().includes(busqueda.toLowerCase()))
+    .sort((a, b) => (noLeidos[b.id]||0) - (noLeidos[a.id]||0))
+  const totalNoLeidos = Object.values(noLeidos).reduce((s, n) => s + n, 0)
   const comsFiltrados = filtroFecha ? comunicados.filter(c => new Date(c.creadoEn).toISOString().startsWith(filtroFecha)) : comunicados
   const empConSolicitud = (emp: Empleado) => solicitudes.some(s => s.solicitante_id === (emp.userId||emp.id))
 
@@ -152,7 +177,10 @@ export default function ChatDesktop() {
         </div>
         <div style={{ display:"flex", borderBottom:"1px solid #dde3ea" }}>
           {[{k:"empleados",l:"Empleados"},{k:"chats",l:"Chats"},{k:"historial",l:"Historial"}].map(t => (
-            <button key={t.k} onClick={()=>setTab(t.k as any)} style={{ flex:1, padding:"8px 0", fontSize:11, border:"none", background:"none", cursor:"pointer", color:tab===t.k?"#3b82f6":"#6b7280", borderBottom:tab===t.k?"2px solid #3b82f6":"2px solid transparent", fontWeight:tab===t.k?600:400 }}>{t.l}</button>
+            <button key={t.k} onClick={()=>setTab(t.k as any)} style={{ flex:1, padding:"8px 0", fontSize:11, border:"none", background:"none", cursor:"pointer", color:tab===t.k?"#3b82f6":"#6b7280", borderBottom:tab===t.k?"2px solid #3b82f6":"2px solid transparent", fontWeight:tab===t.k?600:400, display:"flex", alignItems:"center", justifyContent:"center", gap:4 }}>
+              {t.l}
+              {t.k==="chats" && totalNoLeidos>0 && <span style={{ background:"#ef4444", color:"#fff", fontSize:9, fontWeight:700, minWidth:14, height:14, borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", padding:"0 3px" }}>{totalNoLeidos>9?"9+":totalNoLeidos}</span>}
+            </button>
           ))}
         </div>
 
@@ -164,18 +192,20 @@ export default function ChatDesktop() {
               {empsFiltrados.length === 0 ? (
                 <div style={{ padding:20, textAlign:"center", color:"#9ca3af", fontSize:12 }}><div style={{ fontSize:28, marginBottom:6 }}>👥</div>Cargando empleados...</div>
               ) : empsFiltrados.map(emp => {
-                const tieneChat = conversaciones.some(c => c.receptor_id===(emp.userId||emp.id) || c.solicitante_id===(emp.userId||emp.id))
+                const convEmp = conversaciones.find(c => c.receptor_id===(emp.userId||emp.id) || c.solicitante_id===(emp.userId||emp.id))
+                const tieneChat = !!convEmp
                 const tieneSolicitud = empConSolicitud(emp)
+                const cnt = convEmp ? (noLeidos[convEmp.id] || 0) : 0
                 return (
-                  <div key={emp.id} onClick={()=>iniciarChat(emp)}
-                    style={{ padding:"9px 12px", display:"flex", gap:9, alignItems:"center", borderBottom:"1px solid #eaeff4", cursor:"pointer", background:tieneSolicitud?"#fef9f9":"transparent" }}
+                  <div key={emp.id} onClick={()=>{ if (convEmp) { setConvActiva(convEmp); setTab("chats") } else { iniciarChat(emp) } }}
+                    style={{ padding:"9px 12px", display:"flex", gap:9, alignItems:"center", borderBottom:"1px solid #eaeff4", cursor:"pointer", background:cnt>0?"#fef9f9":tieneSolicitud?"#fef9f9":"transparent" }}
                     onMouseEnter={e=>e.currentTarget.style.background="#e8edf2"}
-                    onMouseLeave={e=>e.currentTarget.style.background=tieneSolicitud?"#fef9f9":"transparent"}>
-                    <Avatar nombre={`${emp.nombre} ${emp.apellidos}`} size={36} badge={tieneSolicitud} />
+                    onMouseLeave={e=>e.currentTarget.style.background=cnt>0||tieneSolicitud?"#fef9f9":"transparent"}>
+                    <Avatar nombre={`${emp.nombre} ${emp.apellidos}`} size={36} badge={tieneSolicitud} count={cnt} />
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:12, fontWeight:500, color:"#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{emp.nombre} {emp.apellidos}</div>
-                      <div style={{ fontSize:10, color:tieneChat?"#10b981":tieneSolicitud?"#ef4444":"#9ca3af", marginTop:1 }}>
-                        {tieneChat?"Chat activo":tieneSolicitud?"Solicitud pendiente":emp.grupoNombre||"Sin grupo"}
+                      <div style={{ fontSize:12, fontWeight:cnt>0?700:500, color:"#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{emp.nombre} {emp.apellidos}</div>
+                      <div style={{ fontSize:10, color:cnt>0?"#ef4444":tieneChat?"#10b981":tieneSolicitud?"#ef4444":"#9ca3af", fontWeight:cnt>0?600:400, marginTop:1 }}>
+                        {cnt>0?`${cnt} mensaje${cnt>1?"s":""} nuevo${cnt>1?"s":""}`:tieneChat?"Chat activo":tieneSolicitud?"Solicitud pendiente":emp.grupoNombre||"Sin grupo"}
                       </div>
                     </div>
                     <span style={{ fontSize:10, background:tieneChat?"#f0fdf4":"#eff6ff", color:tieneChat?"#10b981":"#3b82f6", padding:"2px 8px", borderRadius:10, border:`1px solid ${tieneChat?"#bbf7d0":"#bfdbfe"}`, flexShrink:0 }}>
@@ -212,17 +242,19 @@ export default function ChatDesktop() {
               <div style={{ padding:"5px 12px", fontSize:10, fontWeight:700, color:"#6b7280", letterSpacing:"0.07em", background:"#e8edf2", borderBottom:"1px solid #dde3ea" }}>CONVERSACIONES ACTIVAS</div>
               {convsFiltradas.length === 0 ? (
                 <div style={{ padding:20, textAlign:"center", color:"#9ca3af", fontSize:12 }}><div style={{ fontSize:28, marginBottom:6 }}>💬</div>Ve a Empleados para iniciar un chat</div>
-              ) : convsFiltradas.map(conv => (
+              ) : convsFiltradas.map(conv => {
+                const cnt = noLeidos[conv.id] || 0
+                return (
                 <div key={conv.id} onClick={()=>setConvActiva(conv)}
-                  style={{ padding:"9px 12px", display:"flex", gap:9, alignItems:"center", borderBottom:"1px solid #eaeff4", cursor:"pointer", background:convActiva?.id===conv.id?"#e3edf7":"transparent" }}>
-                  <Avatar nombre={conv.nombre||"?"} size={36} />
+                  style={{ padding:"9px 12px", display:"flex", gap:9, alignItems:"center", borderBottom:"1px solid #eaeff4", cursor:"pointer", background:convActiva?.id===conv.id?"#e3edf7":cnt>0?"#fef9f9":"transparent" }}>
+                  <Avatar nombre={conv.nombre||"?"} size={36} count={cnt} />
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:12, fontWeight:500, color:"#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{conv.nombre}</div>
-                    <div style={{ fontSize:11, color:"#6b7280", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", marginTop:1 }}>{conv.ultimoMensaje||"Sin mensajes"}</div>
+                    <div style={{ fontSize:12, fontWeight:cnt>0?700:500, color:"#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{conv.nombre}</div>
+                    <div style={{ fontSize:11, color:cnt>0?"#374151":"#6b7280", fontWeight:cnt>0?600:400, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", marginTop:1 }}>{conv.ultimoMensaje||"Sin mensajes"}</div>
                   </div>
                   {conv.ultimoMensajeEn && <div style={{ fontSize:10, color:"#3b82f6", flexShrink:0 }}>{new Date(conv.ultimoMensajeEn).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})}</div>}
                 </div>
-              ))}
+              )})}
             </>
           )}
 
