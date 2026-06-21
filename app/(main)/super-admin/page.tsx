@@ -112,8 +112,10 @@ export default function SuperAdminPage() {
       })
     }
     if (data.superAdmins) setSuperAdmins(data.superAdmins)
-    const sol = await fetch("/api/solicitudes-gerenciales").then(r => r.json())
-    if (Array.isArray(sol)) setSolicitudes(sol)
+    const solicitudesData = await fetch("/api/solicitudes-gerenciales").then(r => r.json())
+    if (Array.isArray(solicitudesData)) setSolicitudes(solicitudesData)
+    const histData = await fetch("/api/historial-gerencial").then(r => r.json()).catch(() => [])
+    if (Array.isArray(histData)) setHistorial(histData)
   }
 
   const guardarPerfil = async () => {
