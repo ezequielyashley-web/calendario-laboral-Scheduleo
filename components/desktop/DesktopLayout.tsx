@@ -173,6 +173,7 @@ const pageTitles: Record<string, string> = {
   '/deudas':            'Deudas y Anticipos',
   '/cobertura':         'Minimos por puesto de trabajo',
   '/configuracion':     'Configuración',
+  '/panel-ejecutivo':   'Panel Ejecutivo',
 }
 
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
@@ -238,6 +239,37 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </span>
           )}
         </div>
+
+        {/* Panel Ejecutivo - acceso destacado */}
+        {open && (
+          <div style={{ padding: "8px 8px 4px" }}>
+            <Link href="/panel-ejecutivo" style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "10px",
+              borderRadius: 8, textDecoration: "none",
+              background: pathname === "/panel-ejecutivo" ? "linear-gradient(90deg, rgba(201,161,77,0.28), rgba(201,161,77,0.08))" : "linear-gradient(90deg, rgba(201,161,77,0.14), rgba(201,161,77,0.03))",
+              border: pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)"
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
+              </svg>
+              <span style={{ fontSize: 13, color: "#e8d9b5", fontWeight: 600, letterSpacing: "0.015em" }}>Panel ejecutivo</span>
+            </Link>
+          </div>
+        )}
+        {!open && (
+          <div style={{ padding: "8px 8px 4px", display: "flex", justifyContent: "center" }}>
+            <Link href="/panel-ejecutivo" title="Panel ejecutivo" style={{
+              width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8,
+              background: pathname === "/panel-ejecutivo" ? "rgba(201,161,77,0.28)" : "rgba(201,161,77,0.12)",
+              border: pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)"
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
+              </svg>
+            </Link>
+          </div>
+        )}
+
 
         {/* Nav */}
         <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'0 8px 8px', scrollbarWidth:'none', paddingBottom:'0' }}>
@@ -375,8 +407,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <header className="flex items-center justify-between h-14 px-6 flex-shrink-0"
-          style={{ background:'var(--surface)', borderBottom:'1px solid var(--border)', boxShadow:'var(--shadow-sm)' }}>
-          <h1 className="text-base font-semibold tracking-tight" style={{ color:'var(--text-primary)' }}>
+          style={{ background: pathname === '/panel-ejecutivo' ? '#0b0e1a' : 'var(--surface)', borderBottom: pathname === '/panel-ejecutivo' ? '1px solid #2a2f45' : '1px solid var(--border)', boxShadow:'var(--shadow-sm)' }}>
+          <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === '/panel-ejecutivo' ? '#f1ecdd' : 'var(--text-primary)' }}>
             {pageTitles[pathname] ?? empresaNombre}
           </h1>
           <div className="flex items-center gap-2">
@@ -409,7 +441,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
         </header>
-        <main className="flex-1" style={{ background:"var(--bg)", padding: pathname === "/chat" ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+        <main className="flex-1" style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo") ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           {children}
         </main>
       </div>
