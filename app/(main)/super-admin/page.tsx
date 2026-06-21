@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react"
 function HistorialUsuario({ email }: { email: string }) {
   const [historial, setHistorial] = useState<any[]>([])
+  const [eliminarRegistro, setEliminarRegistro] = useState<string|null>(null)
+  const [pinEliminarRegistro, setPinEliminarRegistro] = useState("")
   const [cargando, setCargando] = useState(true)
   useEffect(() => {
     if (!email) return
@@ -58,6 +60,8 @@ export default function SuperAdminPage() {
   const [pinEliminar, setPinEliminar] = useState("")
   const [motivoEliminar, setMotivoEliminar] = useState("")
   const [historial, setHistorial] = useState<any[]>([])
+  const [eliminarRegistro, setEliminarRegistro] = useState<string|null>(null)
+  const [pinEliminarRegistro, setPinEliminarRegistro] = useState("")
   const [pinLimpiar, setPinLimpiar] = useState("")
   const [showLimpiar, setShowLimpiar] = useState(false)
   const [ultimoCreado, setUltimoCreado] = useState<any>(null)
@@ -639,6 +643,44 @@ export default function SuperAdminPage() {
                     cargar()
                   }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                     Limpiar todo
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {/* Modal eliminar registro individual */}
+          {eliminarRegistro && (
+            <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+              <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 400, maxWidth: "95vw" }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Eliminar registro</div>
+                <div style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>Esta accion eliminara este registro del historial permanentemente.</div>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>CONTRASEÑA MASTER</label>
+                  <input type="password" value={pinEliminarRegistro} onChange={e => setPinEliminarRegistro(e.target.value)}
+                    placeholder="Contraseña master" autoComplete="off"
+                    style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as const }} />
+                </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                  <button onClick={() => { setEliminarRegistro(null); setPinEliminarRegistro("") }}
+                    style={{ background: "#f8fafc", color: "#374151", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer" }}>
+                    Cancelar
+                  </button>
+                  <button onClick={async () => {
+                    const res = await fetch("/api/historial-gerencial", {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ id: eliminarRegistro, masterPassword: pinEliminarRegistro })
+                    })
+                    const data = await res.json()
+                    if (data.error) { mostrarMensaje(data.error, "error"); return }
+                    mostrarMensaje("Registro eliminado correctamente")
+                    setEliminarRegistro(null)
+                    setPinEliminarRegistro("")
+                    cargar()
+                  }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                    Eliminar registro
                   </button>
                 </div>
               </div>

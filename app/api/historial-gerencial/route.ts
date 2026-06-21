@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import bcrypt from "bcryptjs"
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,5 +21,27 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al obtener historial" }, { status: 500 })
+  }
+}
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}))
+    const { id, masterPassword } = body
+
+    const master = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
+    if (!master) return NextResponse.json({ error: "No hay SUPER_ADMIN" }, { status: 403 })
+    const valid = await bcrypt.compare(masterPassword || "", master.password)
+    if (!valid) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 403 })
+
+    if (id) {
+      await prisma.$executeRaw`DELETE FROM "HistorialGerencial" WHERE id = ${id}`
+      return NextResponse.json({ ok: true, eliminado: "individual" })
+    }
+
+    await prisma.$executeRaw`DELETE FROM "HistorialGerencial"`
+    return NextResponse.json({ ok: true, eliminado: "todo" })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: "Error al eliminar historial" }, { status: 500 })
   }
 }
