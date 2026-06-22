@@ -318,19 +318,23 @@ export default function FichaEjecutivoPage() {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
 
           {/* Tabs */}
-          <div style={{ background: '#fff', borderBottom: '0.5px solid #E5E7EB', display: 'flex', overflowX: 'auto', padding: '0 8px' }}>
-            {visibleTabs.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                style={{ padding: '11px 16px', border: 'none', background: 'transparent', cursor: 'pointer',
-                  borderBottom: tab === t.id ? '2px solid #6366F1' : '2px solid transparent',
-                  color: tab === t.id ? '#6366F1' : '#6B7280',
-                  fontWeight: tab === t.id ? 500 : 400, fontSize: '13px', whiteSpace: 'nowrap',
-                  display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <i className={`ti ${t.icon}`} style={{ fontSize: '14px' }} aria-hidden="true" />
-                {t.label}
-              </button>
+          <div style={{ background: '#fff', borderBottom: '0.5px solid #E5E7EB', display: 'flex', alignItems: 'center', overflowX: 'auto', padding: '0 8px' }}>
+            {visibleTabs.map((t, i) => (
+              <div key={t.id} style={{ display: 'flex', alignItems: 'center' }}>
+                {i > 0 && <span style={{ color: '#D1D5DB', fontSize: '16px', padding: '0 2px', userSelect: 'none' as const }}>/</span>}
+                <button onClick={() => setTab(t.id)}
+                  style={{ padding: '11px 14px', border: 'none', background: 'transparent', cursor: 'pointer',
+                    borderBottom: tab === t.id ? '2px solid #6366F1' : '2px solid transparent',
+                    color: tab === t.id ? '#6366F1' : '#6B7280',
+                    fontWeight: tab === t.id ? 500 : 400, fontSize: '13px', whiteSpace: 'nowrap' as const,
+                    display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <i className={`ti ${t.icon}`} style={{ fontSize: '14px' }} aria-hidden="true" />
+                  {t.label}
+                </button>
+              </div>
             ))}
           </div>
+
 
           {/* Tab content */}
           <div style={{ padding: '24px', flex: 1 }}>
