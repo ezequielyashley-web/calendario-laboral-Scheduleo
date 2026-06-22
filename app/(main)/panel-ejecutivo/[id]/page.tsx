@@ -3,70 +3,74 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
-const C = {
-  bg: '#0b0e1a', bgSec: '#161a2c', border: '#2a2f45', text: '#f1ecdd',
-  textSec: '#8d92ab', gold: '#c9a14d', online: '#1D9E75', red: '#ef4444', blue: '#3b82f6',
-}
-
 type Tab = 'general' | 'calendario' | 'vacaciones' | 'permisos' | 'actividad' | 'sesiones' | 'notas' | 'seguridad'
 
 const TABS: { id: Tab; label: string; icon: string; soloAdmin?: boolean }[] = [
-  { id: 'general',    label: 'General',       icon: '👤' },
-  { id: 'calendario', label: 'Calendario',    icon: '📅' },
-  { id: 'vacaciones', label: 'Vacaciones',    icon: '🏖️' },
-  { id: 'permisos',   label: 'Permisos',      icon: '🔐' },
-  { id: 'actividad',  label: 'Actividad',     icon: '📋' },
-  { id: 'sesiones',   label: 'Sesiones',      icon: '🖥️' },
-  { id: 'notas',      label: 'Notas privadas',icon: '📝', soloAdmin: true },
-  { id: 'seguridad',  label: 'Seguridad',     icon: '🛡️' },
+  { id: 'general',    label: 'General',       icon: 'ti-user' },
+  { id: 'calendario', label: 'Calendario',    icon: 'ti-calendar' },
+  { id: 'vacaciones', label: 'Vacaciones',    icon: 'ti-beach' },
+  { id: 'permisos',   label: 'Permisos',      icon: 'ti-lock' },
+  { id: 'actividad',  label: 'Actividad',     icon: 'ti-list' },
+  { id: 'sesiones',   label: 'Sesiones',      icon: 'ti-device-desktop' },
+  { id: 'notas',      label: 'Notas',         icon: 'ti-notes', soloAdmin: true },
+  { id: 'seguridad',  label: 'Seguridad',     icon: 'ti-shield' },
 ]
 
 const MODULOS = [
   { id: 'empleados',     label: 'Empleados' },
   { id: 'vacaciones',    label: 'Vacaciones' },
   { id: 'turnos',        label: 'Turnos' },
-  { id: 'bajas',         label: 'Bajas medicas' },
+  { id: 'bajas',         label: 'Bajas médicas' },
   { id: 'cambios',       label: 'Cambios de turno' },
   { id: 'cobertura',     label: 'Cobertura' },
   { id: 'reportes',      label: 'Reportes' },
   { id: 'fichajes',      label: 'Fichajes' },
   { id: 'chat',          label: 'Chat' },
-  { id: 'hacienda',      label: 'Inspeccion Hacienda' },
-  { id: 'configuracion', label: 'Configuracion' },
+  { id: 'hacienda',      label: 'Inspección Hacienda' },
+  { id: 'configuracion', label: 'Configuración' },
 ]
 
 interface Usuario {
-  id: string; nombre: string; email: string; rol: string
-  genero: string | null; telefono: string | null; creadoEn: string
+  id: string; nombre: string; name: string; email: string; rol: string; role: string
+  genero: string | null; createdAt: string
   ultimaActividad: string | null; esFundador: boolean
   ordenSuperAdmin: number | null; asignadoPor: string | null
+  cargo: string | null; departamento: string | null
+}
+
+function FieldCard({ label, value, icon }: { label: string; value: string; icon: string }) {
+  return (
+    <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div>
+        <p style={{ fontSize: '11px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px' }}>{label}</p>
+        <p style={{ fontSize: '13px', color: '#111827', margin: 0 }}>{value || '—'}</p>
+      </div>
+      <i className={`ti ${icon}`} style={{ fontSize: '18px', color: '#D1D5DB' }} aria-hidden="true" />
+    </div>
+  )
 }
 
 function CalendarioAnual() {
   const anio = new Date().getFullYear()
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-  const dias  = ['L','M','X','J','V','S','D']
+  const dias = ['L','M','X','J','V','S','D']
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
       {meses.map((mes, mi) => {
         const primero   = new Date(anio, mi, 1)
         const totalDias = new Date(anio, mi + 1, 0).getDate()
         const inicioDia = (primero.getDay() + 6) % 7
         return (
-          <div key={mes} style={{ background: '#161a2c', border: '1px solid #2a2f45', borderRadius: '6px', padding: '12px' }}>
-            <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '12px', color: '#c9a14d', marginBottom: '8px' }}>{mes}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px' }}>
-              {dias.map(d => <div key={d} style={{ textAlign: 'center', fontSize: '10px', color: '#8d92ab', paddingBottom: '3px' }}>{d}</div>)}
+          <div key={mes} style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '16px', boxShadow: '0 4px 16px rgba(99,102,241,0.18), 0 1px 4px rgba(0,0,0,0.08)' }}>
+            <div style={{ textAlign: 'center', fontWeight: 500, fontSize: '13px', color: '#6366F1', marginBottom: '10px' }}>{mes}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
+              {dias.map(d => <div key={d} style={{ textAlign: 'center', fontSize: '10px', color: '#6366F1', fontWeight: 500, padding: '4px 0', background: '#EDE9FE', borderRadius: '4px', marginBottom: '2px' }}>{d}</div>)}
               {Array.from({ length: inicioDia }).map((_, i) => <div key={`e${i}`} />)}
               {Array.from({ length: totalDias }, (_, i) => {
                 const dia = i + 1
                 const dow = new Date(anio, mi, dia).getDay()
-                const col = dow === 0 ? '#f87171' : dow === 6 ? '#fb923c' : '#f1ecdd'
-                return (
-                  <div key={dia} style={{ textAlign: 'center', fontSize: '11px', color: col, padding: '2px', borderRadius: '2px', cursor: 'pointer' }}>
-                    {dia}
-                  </div>
-                )
+                const col = dow === 0 ? '#EF4444' : dow === 6 ? '#F97316' : '#374151'
+                return <div key={dia} style={{ textAlign: 'center', fontSize: '12px', color: col, padding: '4px 2px', borderRadius: '4px', cursor: 'pointer' }}>{dia}</div>
               })}
             </div>
           </div>
@@ -81,44 +85,37 @@ export default function FichaEjecutivoPage() {
   const router = useRouter()
   const id = params.id as string
 
-  const [sessionUser, setSessionUser] = useState<any>(null)
-  const [tab, setTab]                 = useState<Tab>('general')
-  const [usuario, setUsuario]         = useState<Usuario | null>(null)
-  const [cargando, setCargando]       = useState(true)
-  const [error, setError]             = useState<string | null>(null)
-  const [notas, setNotas]             = useState<any[]>([])
-  const [actividad, setActividad]     = useState<any[]>([])
-  const [sesiones, setSesiones]       = useState<any[]>([])
-  const [vacaciones, setVacaciones]   = useState<any[]>([])
-  const [permisos, setPermisos]       = useState<Record<string, { ver: boolean; modificar: boolean }>>({})
-  const [editando, setEditando]       = useState(false)
-  const [form, setForm]               = useState({ nombre: '', telefono: '', genero: '' })
-  const [nuevaNota, setNuevaNota]     = useState('')
-  const [nuevaPass, setNuevaPass]     = useState('')
+  const [sessionUser, setSessionUser]   = useState<any>(null)
+  const [tab, setTab]                   = useState<Tab>('general')
+  const [usuario, setUsuario]           = useState<Usuario | null>(null)
+  const [cargando, setCargando]         = useState(true)
+  const [error, setError]               = useState<string | null>(null)
+  const [notas, setNotas]               = useState<any[]>([])
+  const [actividad, setActividad]       = useState<any[]>([])
+  const [sesiones, setSesiones]         = useState<any[]>([])
+  const [vacaciones, setVacaciones]     = useState<any[]>([])
+  const [permisos, setPermisos]         = useState<Record<string, { ver: boolean; modificar: boolean }>>({})
+  const [editando, setEditando]         = useState(false)
+  const [form, setForm]                 = useState({ nombre: '', genero: '' })
+  const [nuevaNota, setNuevaNota]       = useState('')
+  const [nuevaPass, setNuevaPass]       = useState('')
   const [confirmRevoke, setConfirmRevoke] = useState(false)
-  const [guardando, setGuardando]     = useState(false)
-  const [msg, setMsg]                 = useState<{ texto: string; tipo: 'ok' | 'err' } | null>(null)
+  const [guardando, setGuardando]       = useState(false)
+  const [msg, setMsg]                   = useState<{ texto: string; tipo: 'ok' | 'err' } | null>(null)
 
-  // Leer sesion desde sessionStorage (igual que panel-ejecutivo padre)
   useEffect(() => {
-    const stored = sessionStorage.getItem('panel_ejecutivo_user')
-    if (!stored) {
-      router.push('/panel-ejecutivo')
-      return
-    }
-    try { setSessionUser(JSON.parse(stored)) }
-    catch { router.push('/panel-ejecutivo') }
+    const stored = sessionStorage.getItem('panelEjecutivoAuth')
+    if (!stored) { router.push('/panel-ejecutivo'); return }
+    try { setSessionUser(JSON.parse(stored)) } catch { router.push('/panel-ejecutivo') }
   }, [router])
 
-  const esSuperAdmin = sessionUser?.rol === 'SUPER_ADMIN'
+  const esSuperAdmin = sessionUser?.role === 'SUPER_ADMIN'
   const esPropio     = sessionUser?.id === id
   const isOnline     = usuario?.ultimaActividad
-    ? (Date.now() - new Date(usuario.ultimaActividad).getTime()) < 60000
-    : false
+    ? (Date.now() - new Date(usuario.ultimaActividad).getTime()) < 60000 : false
 
   const showMsg = (texto: string, tipo: 'ok' | 'err' = 'ok') => {
-    setMsg({ texto, tipo })
-    setTimeout(() => setMsg(null), 3000)
+    setMsg({ texto, tipo }); setTimeout(() => setMsg(null), 3000)
   }
 
   const fetchUsuario = useCallback(async () => {
@@ -127,7 +124,7 @@ export default function FichaEjecutivoPage() {
       if (!res.ok) throw new Error()
       const data = await res.json()
       setUsuario(data.usuario)
-      setForm({ nombre: data.usuario.nombre || '', telefono: data.usuario.telefono || '', genero: data.usuario.genero || '' })
+      setForm({ nombre: data.usuario.nombre || data.usuario.name || '', genero: data.usuario.genero || '' })
     } catch { setError('No se pudo cargar el perfil') }
     finally  { setCargando(false) }
   }, [id])
@@ -150,9 +147,7 @@ export default function FichaEjecutivoPage() {
       if (res.ok) {
         const { permisos: p } = await res.json()
         const obj: Record<string, { ver: boolean; modificar: boolean }> = {}
-        MODULOS.forEach(m => {
-          obj[m.id] = { ver: p?.[`${m.id}_ver`] ?? false, modificar: p?.[`${m.id}_modificar`] ?? false }
-        })
+        MODULOS.forEach(m => { obj[m.id] = { ver: p?.[`${m.id}_ver`] ?? false, modificar: p?.[`${m.id}_modificar`] ?? false } })
         setPermisos(obj)
       }
     }
@@ -164,9 +159,8 @@ export default function FichaEjecutivoPage() {
   const guardarGeneral = async () => {
     setGuardando(true)
     const res = await fetch(`/api/panel-ejecutivo/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accion: 'actualizar_datos', ...form }),
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accion: 'actualizar_datos', nombre: form.nombre, genero: form.genero }),
     })
     setGuardando(false)
     if (res.ok) { setEditando(false); fetchUsuario(); showMsg('Datos actualizados') }
@@ -175,18 +169,16 @@ export default function FichaEjecutivoPage() {
 
   const agregarNota = async () => {
     if (!nuevaNota.trim()) return
-    const res = await fetch(`/api/panel-ejecutivo/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accion: 'agregar_nota', contenido: nuevaNota }),
+    await fetch(`/api/panel-ejecutivo/${id}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accion: 'agregar_nota', contenido: nuevaNota, autorId: sessionUser?.id }),
     })
-    if (res.ok) { setNuevaNota(''); fetchTab('notas') }
+    setNuevaNota(''); fetchTab('notas')
   }
 
   const eliminarNota = async (notaId: string) => {
     await fetch(`/api/panel-ejecutivo/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accion: 'eliminar_nota', notaId }),
     })
     fetchTab('notas')
@@ -195,8 +187,7 @@ export default function FichaEjecutivoPage() {
   const resetearPassword = async () => {
     if (!nuevaPass.trim()) return
     const res = await fetch(`/api/panel-ejecutivo/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accion: 'resetear_password', nuevaPassword: nuevaPass }),
     })
     if (res.ok) { setNuevaPass(''); showMsg('Contrasena actualizada') }
@@ -205,387 +196,413 @@ export default function FichaEjecutivoPage() {
 
   const revocarAcceso = async () => {
     const res = await fetch(`/api/panel-ejecutivo/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accion: 'revocar_acceso' }),
     })
     if (res.ok) router.push('/panel-ejecutivo')
   }
 
-  const iniciales = usuario?.nombre?.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || '??'
+  const nombre    = usuario?.name || usuario?.nombre || '?'
+  const iniciales = nombre.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
+  const rol       = usuario?.role || usuario?.rol || ''
   const visibleTabs = TABS.filter(t => !t.soloAdmin || esSuperAdmin)
 
+  const diasEnSistema = usuario?.createdAt
+    ? Math.floor((Date.now() - new Date(usuario.createdAt).getTime()) / 86400000) : 0
+
   if (!sessionUser) return (
-    <div style={{ background: C.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: C.textSec, fontSize: '14px' }}>Verificando acceso...</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ECEAF8' }}>
+      <span style={{ color: '#9CA3AF', fontSize: '14px' }}>Verificando acceso...</span>
     </div>
   )
-
   if (cargando) return (
-    <div style={{ background: C.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: C.textSec, fontSize: '14px' }}>Cargando perfil...</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ECEAF8' }}>
+      <span style={{ color: '#9CA3AF', fontSize: '14px' }}>Cargando perfil...</span>
     </div>
   )
-
   if (error || !usuario) return (
-    <div style={{ background: C.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: C.red }}>{error || 'Usuario no encontrado'}</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ECEAF8' }}>
+      <span style={{ color: '#EF4444' }}>{error || 'Usuario no encontrado'}</span>
     </div>
   )
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh', color: C.text }}>
+    <div style={{ minHeight: '100vh', background: '#ECEAF8', fontFamily: 'var(--font-sans)' }}>
 
+      {/* Toast */}
       {msg && (
         <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999,
-          background: msg.tipo === 'ok' ? '#14532d' : '#450a0a',
-          border: `1px solid ${msg.tipo === 'ok' ? C.online : C.red}`,
-          color: msg.tipo === 'ok' ? '#4ade80' : '#f87171',
-          padding: '10px 20px', borderRadius: '6px', fontSize: '13px', fontWeight: 600 }}>
+          background: msg.tipo === 'ok' ? '#F0FDF4' : '#FEF2F2',
+          border: `0.5px solid ${msg.tipo === 'ok' ? '#BBF7D0' : '#FECACA'}`,
+          color: msg.tipo === 'ok' ? '#15803D' : '#B91C1C',
+          padding: '10px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
           {msg.texto}
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ background: C.bgSec, borderBottom: `1px solid ${C.border}`, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+      {/* Top bar */}
+      <div style={{ background: '#fff', borderBottom: '0.5px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button onClick={() => router.push('/panel-ejecutivo')}
-          style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.textSec, padding: '6px 14px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '0.5px solid #E5E7EB', color: '#6B7280', padding: '6px 14px', cursor: 'pointer', borderRadius: '8px', fontSize: '13px' }}>
+          <i className="ti ti-arrow-left" style={{ fontSize: '14px' }} aria-hidden="true" />
           Volver
         </button>
-        <div style={{ position: 'relative', width: '50px', height: '50px', flexShrink: 0 }}>
-          <div style={{ width: '50px', height: '50px', borderRadius: '50%',
-            background: usuario.esFundador ? `linear-gradient(135deg, ${C.gold}, #8a5c1a)` : '#1e293b',
+        <span style={{ color: '#D1D5DB', fontSize: '16px' }}>/</span>
+        <span style={{ fontSize: '13px', color: '#6B7280' }}>Panel ejecutivo</span>
+        <span style={{ color: '#D1D5DB', fontSize: '16px' }}>/</span>
+        <span style={{ fontSize: '13px', color: '#111827', fontWeight: 500 }}>{nombre}</span>
+      </div>
+
+      {/* Main layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: 'calc(100vh - 57px)' }}>
+
+        {/* SIDEBAR */}
+        <div style={{ background: '#fff', borderRight: '0.5px solid #E5E7EB', padding: '28px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: '72px', height: '72px', borderRadius: '50%',
+            background: usuario.esFundador ? 'linear-gradient(135deg, #FCD34D, #F59E0B)' : 'linear-gradient(135deg, #A5B4FC, #6366F1)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '18px', fontWeight: 700,
-            color: usuario.esFundador ? '#0b0e1a' : C.text,
-            border: `2px solid ${usuario.esFundador ? C.gold : C.border}` }}>
+            fontSize: '26px', fontWeight: 500, color: '#fff', marginBottom: '12px', flexShrink: 0 }}>
             {iniciales}
           </div>
-          {isOnline && (
-            <div style={{ position: 'absolute', bottom: 1, right: 1, width: '13px', height: '13px', borderRadius: '50%', background: C.online, border: `2px solid ${C.bgSec}` }} />
+
+          <div style={{ fontSize: '14px', fontWeight: 500, color: '#111827', textAlign: 'center' }}>{nombre}</div>
+          <div style={{ fontSize: '11px', color: '#6366F1', marginTop: '3px', textAlign: 'center' }}>{rol}</div>
+
+          <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+            {usuario.esFundador && (
+              <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: '10px', fontWeight: 500, padding: '3px 10px', borderRadius: '20px' }}>👑 Fundador</span>
+            )}
+            <span style={{ background: isOnline ? '#D1FAE5' : '#F3F4F6', color: isOnline ? '#065F46' : '#6B7280', fontSize: '10px', fontWeight: 500, padding: '3px 10px', borderRadius: '20px' }}>
+              {isOnline ? '● En línea' : '○ Desconectado'}
+            </span>
+          </div>
+
+          <div style={{ width: '100%', height: '0.5px', background: '#E5E7EB', margin: '18px 0' }} />
+
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <i className="ti ti-mail" style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '1px', flexShrink: 0 }} aria-hidden="true" />
+              <span style={{ fontSize: '11px', color: '#6B7280', lineHeight: '1.4', wordBreak: 'break-all' }}>{usuario.email}</span>
+            </div>
+            {usuario.createdAt && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="ti ti-calendar" style={{ fontSize: '14px', color: '#9CA3AF' }} aria-hidden="true" />
+                <span style={{ fontSize: '11px', color: '#6B7280' }}>{new Date(usuario.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+              </div>
+            )}
+            {usuario.cargo && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="ti ti-briefcase" style={{ fontSize: '14px', color: '#9CA3AF' }} aria-hidden="true" />
+                <span style={{ fontSize: '11px', color: '#6B7280' }}>{usuario.cargo}</span>
+              </div>
+            )}
+          </div>
+
+          <div style={{ width: '100%', height: '0.5px', background: '#E5E7EB', margin: '18px 0' }} />
+
+          <div style={{ width: '100%', background: '#F5F3FF', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 500, color: '#6366F1' }}>{diasEnSistema}d</div>
+            <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '2px' }}>en el sistema</div>
+          </div>
+
+          {(esSuperAdmin || esPropio) && !editando && tab === 'general' && (
+            <button onClick={() => setEditando(true)}
+              style={{ marginTop: '16px', width: '100%', padding: '8px', border: '0.5px solid #E5E7EB', borderRadius: '8px', background: 'transparent', fontSize: '12px', color: '#6366F1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <i className="ti ti-edit" style={{ fontSize: '14px' }} aria-hidden="true" /> Editar datos
+            </button>
           )}
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '18px', fontWeight: 700 }}>{usuario.nombre}</span>
-            {usuario.esFundador && (
-              <span style={{ background: `linear-gradient(135deg, ${C.gold}, #8a5c1a)`, color: '#0b0e1a', fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '3px' }}>FUNDADOR</span>
-            )}
-            {usuario.rol === 'SUPER_ADMIN' && !usuario.esFundador && (
-              <span style={{ background: '#1e3a5f', color: '#60a5fa', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '3px' }}>SUPER ADMIN</span>
-            )}
-            {usuario.rol === 'GERENCIAL' && (
-              <span style={{ background: '#14532d', color: '#4ade80', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '3px' }}>GERENCIAL</span>
-            )}
-          </div>
-          <div style={{ color: C.textSec, fontSize: '13px', marginTop: '2px' }}>{usuario.email}</div>
-        </div>
-      </div>
 
-      {/* Tabs nav */}
-      <div style={{ background: C.bgSec, borderBottom: `1px solid ${C.border}`, display: 'flex', overflowX: 'auto' }}>
-        {visibleTabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            style={{ padding: '13px 20px', background: 'transparent', border: 'none', cursor: 'pointer',
-              borderBottom: tab === t.id ? `2px solid ${C.gold}` : '2px solid transparent',
-              color: tab === t.id ? C.gold : C.textSec,
-              fontWeight: tab === t.id ? 700 : 400,
-              fontSize: '13px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '15px' }}>{t.icon}</span>
-            <span>{t.label}</span>
-          </button>
-        ))}
-      </div>
+        {/* CONTENT */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
 
-      {/* Content */}
-      <div style={{ padding: '28px 24px', maxWidth: '860px', margin: '0 auto' }}>
-
-        {tab === 'general' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 700, margin: 0 }}>Datos personales</h2>
-              {(esSuperAdmin || esPropio) && !editando && (
-                <button onClick={() => setEditando(true)}
-                  style={{ background: 'transparent', border: `1px solid ${C.gold}`, color: C.gold, padding: '7px 16px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', fontWeight: 600 }}>
-                  Editar
-                </button>
-              )}
-              {editando && (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={guardarGeneral} disabled={guardando}
-                    style={{ background: C.gold, border: 'none', color: '#0b0e1a', padding: '7px 16px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', fontWeight: 700 }}>
-                    {guardando ? 'Guardando...' : 'Guardar'}
-                  </button>
-                  <button onClick={() => { setEditando(false); setForm({ nombre: usuario.nombre, telefono: usuario.telefono || '', genero: usuario.genero || '' }) }}
-                    style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.textSec, padding: '7px 14px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px' }}>
-                    Cancelar
-                  </button>
-                </div>
-              )}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              {[
-                { label: 'Nombre completo', campo: 'nombre' },
-                { label: 'Telefono', campo: 'telefono' },
-              ].map(({ label, campo }) => (
-                <div key={campo} style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px' }}>
-                  <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>{label}</div>
-                  {editando ? (
-                    <input value={form[campo as keyof typeof form]}
-                      onChange={e => setForm(p => ({ ...p, [campo]: e.target.value }))}
-                      style={{ background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '6px 10px', width: '100%', borderRadius: '4px', fontSize: '14px', boxSizing: 'border-box' as const }} />
-                  ) : (
-                    <div style={{ fontSize: '14px', color: (usuario as any)[campo] ? C.text : C.textSec }}>{(usuario as any)[campo] || '—'}</div>
-                  )}
-                </div>
-              ))}
-              <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px' }}>
-                <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>Genero</div>
-                {editando ? (
-                  <select value={form.genero} onChange={e => setForm(p => ({ ...p, genero: e.target.value }))}
-                    style={{ background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '6px 10px', width: '100%', borderRadius: '4px', fontSize: '14px' }}>
-                    <option value="">no especificado</option>
-                    <option value="masculino">Masculino</option>
-                    <option value="femenino">Femenino</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                ) : (
-                  <div style={{ fontSize: '14px', color: usuario.genero ? C.text : C.textSec }}>{usuario.genero || '—'}</div>
-                )}
-              </div>
-              <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px' }}>
-                <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>Email</div>
-                <div style={{ fontSize: '14px' }}>{usuario.email}</div>
-              </div>
-              <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px' }}>
-                <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>Rol</div>
-                <div style={{ fontSize: '14px' }}>{usuario.rol}</div>
-              </div>
-              <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px' }}>
-                <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>Fecha de ingreso</div>
-                <div style={{ fontSize: '14px' }}>{new Date(usuario.creadoEn).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-              </div>
-              <div style={{ background: C.bgSec, border: `1px solid ${isOnline ? C.online : C.border}`, borderRadius: '6px', padding: '16px' }}>
-                <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>Estado</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                  <div style={{ width: '9px', height: '9px', borderRadius: '50%', background: isOnline ? C.online : C.textSec, flexShrink: 0 }} />
-                  <span style={{ fontSize: '13px', color: isOnline ? C.online : C.textSec }}>
-                    {isOnline ? 'En linea ahora' : usuario.ultimaActividad
-                      ? `Ultima vez: ${new Date(usuario.ultimaActividad).toLocaleString('es-ES')}`
-                      : 'Sin actividad registrada'}
-                  </span>
-                </div>
-              </div>
-              {usuario.asignadoPor && (
-                <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px' }}>
-                  <div style={{ color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '6px' }}>Asignado por</div>
-                  <div style={{ fontSize: '14px' }}>{usuario.asignadoPor}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {tab === 'calendario' && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '22px' }}>Calendario {new Date().getFullYear()}</h2>
-            <CalendarioAnual />
-          </div>
-        )}
-
-        {tab === 'vacaciones' && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '22px' }}>Historial de vacaciones</h2>
-            {vacaciones.length === 0 ? (
-              <div style={{ textAlign: 'center', color: C.textSec, padding: '60px 0', fontSize: '14px' }}>Sin solicitudes registradas</div>
-            ) : vacaciones.map((v: any) => (
-              <div key={v.id} style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '14px' }}>
-                    {new Date(v.fechaInicio).toLocaleDateString('es-ES')} a {new Date(v.fechaFin).toLocaleDateString('es-ES')}
-                  </div>
-                  {v.motivo && <div style={{ color: C.textSec, fontSize: '13px', marginTop: '3px' }}>{v.motivo}</div>}
-                </div>
-                <span style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 700,
-                  background: v.estado === 'APROBADA' ? '#14532d' : v.estado === 'RECHAZADA' ? '#450a0a' : '#292524',
-                  color: v.estado === 'APROBADA' ? '#4ade80' : v.estado === 'RECHAZADA' ? '#f87171' : '#d6d3d1' }}>
-                  {v.estado}
-                </span>
-              </div>
+          {/* Tabs */}
+          <div style={{ background: '#fff', borderBottom: '0.5px solid #E5E7EB', display: 'flex', overflowX: 'auto', padding: '0 8px' }}>
+            {visibleTabs.map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                style={{ padding: '11px 16px', border: 'none', background: 'transparent', cursor: 'pointer',
+                  borderBottom: tab === t.id ? '2px solid #6366F1' : '2px solid transparent',
+                  color: tab === t.id ? '#6366F1' : '#6B7280',
+                  fontWeight: tab === t.id ? 500 : 400, fontSize: '13px', whiteSpace: 'nowrap',
+                  display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <i className={`ti ${t.icon}`} style={{ fontSize: '14px' }} aria-hidden="true" />
+                {t.label}
+              </button>
             ))}
           </div>
-        )}
 
-        {tab === 'permisos' && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '22px' }}>Permisos por modulo</h2>
-            {usuario.rol === 'SUPER_ADMIN' ? (
-              <div style={{ background: C.bgSec, border: `1px solid ${C.gold}`, borderRadius: '8px', padding: '32px', textAlign: 'center' }}>
-                <div style={{ fontSize: '36px', marginBottom: '10px' }}>👑</div>
-                <div style={{ color: C.gold, fontWeight: 700, fontSize: '16px' }}>Acceso total</div>
-                <div style={{ color: C.textSec, fontSize: '13px', marginTop: '6px' }}>Super Admin tiene acceso completo a todos los modulos</div>
-              </div>
-            ) : (
-              <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px', padding: '6px 16px', color: C.textSec, fontSize: '11px', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '4px' }}>
-                  <span>Modulo</span><span style={{ textAlign: 'center' }}>Ver</span><span style={{ textAlign: 'center' }}>Modificar</span>
+          {/* Tab content */}
+          <div style={{ padding: '24px', flex: 1 }}>
+
+            {/* ── GENERAL ── */}
+            {tab === 'general' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>Datos personales</span>
+                  {editando && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={guardarGeneral} disabled={guardando}
+                        style={{ background: '#6366F1', border: 'none', color: '#fff', padding: '7px 16px', cursor: 'pointer', borderRadius: '8px', fontSize: '13px', fontWeight: 500 }}>
+                        {guardando ? 'Guardando...' : 'Guardar'}
+                      </button>
+                      <button onClick={() => { setEditando(false); setForm({ nombre: nombre, genero: usuario.genero || '' }) }}
+                        style={{ background: 'transparent', border: '0.5px solid #E5E7EB', color: '#6B7280', padding: '7px 14px', cursor: 'pointer', borderRadius: '8px', fontSize: '13px' }}>
+                        Cancelar
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {MODULOS.map(m => (
-                  <div key={m.id} style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '13px 16px', marginBottom: '6px', display: 'grid', gridTemplateColumns: '1fr 90px 90px', alignItems: 'center' }}>
-                    <span style={{ fontSize: '14px' }}>{m.label}</span>
-                    {(['ver', 'modificar'] as const).map((key) => {
-                      const color = key === 'ver' ? C.online : C.blue
-                      const activo = permisos[m.id]?.[key] ?? false
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  {editando ? (
+                    <>
+                      <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '14px 16px' }}>
+                        <p style={{ fontSize: '11px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 6px' }}>Nombre completo</p>
+                        <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))}
+                          style={{ width: '100%', background: '#F9FAFB', border: '0.5px solid #E5E7EB', color: '#111827', padding: '7px 10px', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '14px 16px' }}>
+                        <p style={{ fontSize: '11px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 6px' }}>Género</p>
+                        <select value={form.genero} onChange={e => setForm(p => ({ ...p, genero: e.target.value }))}
+                          style={{ width: '100%', background: '#F9FAFB', border: '0.5px solid #E5E7EB', color: '#111827', padding: '7px 10px', borderRadius: '6px', fontSize: '13px' }}>
+                          <option value="">no especificado</option>
+                          <option value="masculino">Masculino</option>
+                          <option value="femenino">Femenino</option>
+                          <option value="otro">Otro</option>
+                        </select>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <FieldCard label="Nombre completo" value={nombre} icon="ti-user" />
+                      <FieldCard label="Género" value={usuario.genero || '—'} icon="ti-gender-male" />
+                    </>
+                  )}
+                  <FieldCard label="Email" value={usuario.email} icon="ti-mail" />
+                  <FieldCard label="Rol" value={rol} icon="ti-shield" />
+                  {usuario.createdAt && <FieldCard label="Fecha de ingreso" value={new Date(usuario.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })} icon="ti-calendar" />}
+                  {usuario.asignadoPor && <FieldCard label="Asignado por" value={usuario.asignadoPor} icon="ti-user-check" />}
+                </div>
+
+                <div style={{ background: isOnline ? '#F0FDF4' : '#F9FAFB', border: `0.5px solid ${isOnline ? '#BBF7D0' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: isOnline ? '#22C55E' : '#D1D5DB', flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 500, color: isOnline ? '#15803D' : '#6B7280' }}>
+                      {isOnline ? 'En línea ahora mismo' : 'Desconectado'}
+                    </div>
+                    {usuario.ultimaActividad && (
+                      <div style={{ fontSize: '11px', color: isOnline ? '#16A34A' : '#9CA3AF', marginTop: '2px' }}>
+                        Última actividad: {new Date(usuario.ultimaActividad).toLocaleString('es-ES')}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── CALENDARIO ── */}
+            {tab === 'calendario' && (
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '16px' }}>Calendario {new Date().getFullYear()}</div>
+                <CalendarioAnual />
+              </div>
+            )}
+
+            {/* ── VACACIONES ── */}
+            {tab === 'vacaciones' && (
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '16px' }}>Historial de vacaciones</div>
+                {vacaciones.length === 0 ? (
+                  <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '48px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>Sin solicitudes registradas</div>
+                ) : vacaciones.map((v: any) => (
+                  <div key={v.id} style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '14px 16px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 500, fontSize: '13px', color: '#111827' }}>{new Date(v.fechaInicio).toLocaleDateString('es-ES')} → {new Date(v.fechaFin).toLocaleDateString('es-ES')}</div>
+                      {v.motivo && <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '3px' }}>{v.motivo}</div>}
+                    </div>
+                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 500,
+                      background: v.estado === 'APROBADA' ? '#D1FAE5' : v.estado === 'RECHAZADA' ? '#FEE2E2' : '#F3F4F6',
+                      color: v.estado === 'APROBADA' ? '#065F46' : v.estado === 'RECHAZADA' ? '#B91C1C' : '#6B7280' }}>
+                      {v.estado}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── PERMISOS ── */}
+            {tab === 'permisos' && (
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '16px' }}>Permisos por módulo</div>
+                {rol === 'SUPER_ADMIN' ? (
+                  <div style={{ background: '#F5F3FF', border: '0.5px solid #DDD6FE', borderRadius: '10px', padding: '32px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>👑</div>
+                    <div style={{ color: '#6366F1', fontWeight: 500, fontSize: '15px' }}>Acceso total al sistema</div>
+                    <div style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>Super Admin tiene acceso completo a todos los módulos</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px', padding: '6px 16px', color: '#9CA3AF', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>
+                      <span>Módulo</span><span style={{ textAlign: 'center' }}>Ver</span><span style={{ textAlign: 'center' }}>Modificar</span>
+                    </div>
+                    {MODULOS.map(m => (
+                      <div key={m.id} style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '12px 16px', marginBottom: '6px', display: 'grid', gridTemplateColumns: '1fr 80px 80px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '13px', color: '#374151' }}>{m.label}</span>
+                        {(['ver', 'modificar'] as const).map(key => {
+                          const activo = permisos[m.id]?.[key] ?? false
+                          const color = key === 'ver' ? '#059669' : '#6366F1'
+                          return (
+                            <div key={key} style={{ display: 'flex', justifyContent: 'center' }}>
+                              <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: `1.5px solid ${activo ? color : '#E5E7EB'}`, background: activo ? color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {activo && <i className="ti ti-check" style={{ fontSize: '11px', color: '#fff' }} aria-hidden="true" />}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* ── ACTIVIDAD ── */}
+            {tab === 'actividad' && (
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '16px' }}>Historial de actividad</div>
+                {actividad.length === 0 ? (
+                  <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '48px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>Sin actividad registrada</div>
+                ) : (
+                  <div style={{ position: 'relative', paddingLeft: '24px' }}>
+                    <div style={{ position: 'absolute', left: '6px', top: 0, bottom: 0, width: '1px', background: '#E5E7EB' }} />
+                    {actividad.map((a: any) => {
+                      const col = a.accion?.includes('eliminad') ? '#EF4444' : a.accion?.includes('aproba') ? '#059669' : a.accion?.includes('rechaza') ? '#F59E0B' : '#6366F1'
                       return (
-                        <div key={key} style={{ display: 'flex', justifyContent: 'center' }}>
-                          <div style={{ width: '18px', height: '18px', borderRadius: '3px', border: `2px solid ${activo ? color : C.border}`, background: activo ? color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {activo && <span style={{ color: '#fff', fontSize: '11px', fontWeight: 700 }}>v</span>}
+                        <div key={a.id} style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                          <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: col, flexShrink: 0, marginTop: '4px', marginLeft: '-18px', border: '2px solid #fff' }} />
+                          <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '12px 16px', flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                              <span style={{ fontWeight: 500, fontSize: '13px', color: col }}>{a.accion}</span>
+                              <span style={{ color: '#9CA3AF', fontSize: '12px', whiteSpace: 'nowrap' }}>{new Date(a.creadoEn).toLocaleString('es-ES')}</span>
+                            </div>
+                            {a.motivo && <div style={{ color: '#6B7280', fontSize: '12px', marginTop: '4px' }}>{a.motivo}</div>}
                           </div>
                         </div>
                       )
                     })}
                   </div>
-                ))}
-              </>
-            )}
-          </div>
-        )}
-
-        {tab === 'actividad' && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '22px' }}>Historial de actividad</h2>
-            {actividad.length === 0 ? (
-              <div style={{ textAlign: 'center', color: C.textSec, padding: '60px 0', fontSize: '14px' }}>Sin actividad registrada</div>
-            ) : (
-              <div style={{ position: 'relative', paddingLeft: '28px' }}>
-                <div style={{ position: 'absolute', left: '8px', top: 0, bottom: 0, width: '2px', background: C.border }} />
-                {actividad.map((a: any) => {
-                  const col = a.accion?.includes('eliminad') ? C.red : a.accion?.includes('aproba') ? C.online : a.accion?.includes('rechaza') ? '#f59e0b' : C.blue
-                  return (
-                    <div key={a.id} style={{ display: 'flex', gap: '14px', marginBottom: '16px', alignItems: 'flex-start' }}>
-                      <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: col, flexShrink: 0, border: `2px solid ${C.bg}`, marginTop: '3px', marginLeft: '-20px' }} />
-                      <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '12px 16px', flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                          <span style={{ fontWeight: 600, fontSize: '14px', color: col }}>{a.accion}</span>
-                          <span style={{ color: C.textSec, fontSize: '12px', whiteSpace: 'nowrap' as const }}>{new Date(a.creadoEn).toLocaleString('es-ES')}</span>
-                        </div>
-                        {a.motivo && <div style={{ color: C.textSec, fontSize: '13px', marginTop: '4px' }}>{a.motivo}</div>}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {tab === 'sesiones' && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '22px' }}>Ultimas conexiones</h2>
-            <div style={{ background: C.bgSec, border: `1px solid ${isOnline ? C.online : C.border}`, borderRadius: '6px', padding: '16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: isOnline ? C.online : C.textSec, flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 600, color: isOnline ? C.online : C.textSec, fontSize: '14px' }}>{isOnline ? 'En linea ahora' : 'Desconectado'}</div>
-                {usuario.ultimaActividad && (
-                  <div style={{ color: C.textSec, fontSize: '13px', marginTop: '2px' }}>Ultima actividad: {new Date(usuario.ultimaActividad).toLocaleString('es-ES')}</div>
                 )}
               </div>
-            </div>
-            {sesiones.length === 0 ? (
-              <div style={{ textAlign: 'center', color: C.textSec, padding: '40px 0', fontSize: '14px' }}>Sin historial detallado de sesiones</div>
-            ) : sesiones.map((s: any) => (
-              <div key={s.id} style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '13px 16px', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '14px' }}>{s.dispositivo || 'Dispositivo desconocido'}</div>
-                  {s.ip && <div style={{ color: C.textSec, fontSize: '12px', marginTop: '2px' }}>IP: {s.ip}</div>}
-                </div>
-                <div style={{ color: C.textSec, fontSize: '13px' }}>{new Date(s.creadoEn).toLocaleString('es-ES')}</div>
-              </div>
-            ))}
-          </div>
-        )}
+            )}
 
-        {tab === 'notas' && esSuperAdmin && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '8px' }}>Notas privadas</h2>
-            <div style={{ color: C.textSec, fontSize: '12px', marginBottom: '22px' }}>Solo visible para Super Admins</div>
-            <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px', marginBottom: '20px' }}>
-              <textarea value={nuevaNota} onChange={e => setNuevaNota(e.target.value)}
-                placeholder="Escribe una nota privada..." rows={3}
-                style={{ width: '100%', background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '10px 12px', borderRadius: '4px', fontSize: '14px', resize: 'vertical' as const, fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-              <button onClick={agregarNota} disabled={!nuevaNota.trim()}
-                style={{ marginTop: '10px', background: nuevaNota.trim() ? C.gold : C.border, border: 'none', color: nuevaNota.trim() ? '#0b0e1a' : C.textSec, padding: '8px 18px', cursor: nuevaNota.trim() ? 'pointer' : 'default', borderRadius: '4px', fontSize: '13px', fontWeight: 700 }}>
-                Añadir nota
-              </button>
-            </div>
-            {notas.length === 0 ? (
-              <div style={{ textAlign: 'center', color: C.textSec, padding: '32px 0', fontSize: '14px' }}>Sin notas privadas</div>
-            ) : notas.map((n: any) => (
-              <div key={n.id} style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '16px', marginBottom: '8px', display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '14px', lineHeight: '1.5', whiteSpace: 'pre-wrap' as const }}>{n.contenido}</div>
-                  <div style={{ color: C.textSec, fontSize: '12px', marginTop: '8px' }}>Por {n.autorNombre} · {new Date(n.creadoEn).toLocaleString('es-ES')}</div>
+            {/* ── SESIONES ── */}
+            {tab === 'sesiones' && (
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '16px' }}>Últimas conexiones</div>
+                <div style={{ background: isOnline ? '#F0FDF4' : '#F9FAFB', border: `0.5px solid ${isOnline ? '#BBF7D0' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: isOnline ? '#22C55E' : '#D1D5DB' }} />
+                  <span style={{ fontSize: '13px', fontWeight: 500, color: isOnline ? '#15803D' : '#6B7280' }}>{isOnline ? 'En línea ahora' : 'Desconectado'}</span>
+                  {usuario.ultimaActividad && <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: 'auto' }}>Última actividad: {new Date(usuario.ultimaActividad).toLocaleString('es-ES')}</span>}
                 </div>
-                <button onClick={() => eliminarNota(n.id)}
-                  style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.red, cursor: 'pointer', padding: '4px 9px', borderRadius: '4px', fontSize: '13px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {tab === 'seguridad' && (
-          <div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '22px' }}>Seguridad</h2>
-            {(esSuperAdmin || esPropio) && (
-              <div style={{ background: C.bgSec, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '20px', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', marginTop: 0 }}>
-                  {esSuperAdmin && !esPropio ? 'Resetear contrasena' : 'Cambiar mi contrasena'}
-                </h3>
-                <p style={{ color: C.textSec, fontSize: '13px', marginBottom: '14px' }}>
-                  {esSuperAdmin && !esPropio ? 'Establece una nueva contrasena para este usuario.' : 'Actualiza tu contrasena de acceso.'}
-                </p>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input type="password" value={nuevaPass} onChange={e => setNuevaPass(e.target.value)}
-                    placeholder="Nueva contrasena..."
-                    style={{ flex: 1, background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '8px 12px', borderRadius: '4px', fontSize: '14px' }} />
-                  <button onClick={resetearPassword} disabled={!nuevaPass.trim()}
-                    style={{ background: nuevaPass.trim() ? C.gold : C.border, border: 'none', color: nuevaPass.trim() ? '#0b0e1a' : C.textSec, padding: '8px 18px', cursor: nuevaPass.trim() ? 'pointer' : 'default', borderRadius: '4px', fontSize: '13px', fontWeight: 700 }}>
-                    Guardar
-                  </button>
-                </div>
+                {sesiones.length === 0 ? (
+                  <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '32px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>Sin historial detallado de sesiones</div>
+                ) : sesiones.map((s: any) => (
+                  <div key={s.id} style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '12px 16px', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', color: '#374151' }}>{s.dispositivo || 'Dispositivo desconocido'}</div>
+                      {s.ip && <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '2px' }}>IP: {s.ip}</div>}
+                    </div>
+                    <div style={{ color: '#9CA3AF', fontSize: '12px' }}>{new Date(s.creadoEn).toLocaleString('es-ES')}</div>
+                  </div>
+                ))}
               </div>
             )}
-            {esSuperAdmin && !esPropio && (
-              <div style={{ background: '#150a0a', border: `1px solid ${C.red}`, borderRadius: '6px', padding: '20px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 700, color: C.red, marginBottom: '6px', marginTop: 0 }}>Revocar acceso</h3>
-                <p style={{ color: C.textSec, fontSize: '13px', marginBottom: '14px' }}>Desactiva esta cuenta. El usuario no podra iniciar sesion.</p>
-                {!confirmRevoke ? (
-                  <button onClick={() => setConfirmRevoke(true)}
-                    style={{ background: 'transparent', border: `1px solid ${C.red}`, color: C.red, padding: '8px 18px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', fontWeight: 700 }}>
-                    Revocar acceso
+
+            {/* ── NOTAS ── */}
+            {tab === 'notas' && esSuperAdmin && (
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '4px' }}>Notas privadas</div>
+                <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>Solo visible para Super Admins</div>
+                <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '16px', boxShadow: '0 4px 16px rgba(99,102,241,0.18), 0 1px 4px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
+                  <textarea value={nuevaNota} onChange={e => setNuevaNota(e.target.value)}
+                    placeholder="Escribe una nota privada..." rows={3}
+                    style={{ width: '100%', background: '#F9FAFB', border: '0.5px solid #E5E7EB', color: '#111827', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <button onClick={agregarNota} disabled={!nuevaNota.trim()}
+                    style={{ marginTop: '10px', background: nuevaNota.trim() ? '#6366F1' : '#F3F4F6', border: 'none', color: nuevaNota.trim() ? '#fff' : '#9CA3AF', padding: '8px 18px', cursor: nuevaNota.trim() ? 'pointer' : 'default', borderRadius: '8px', fontSize: '13px', fontWeight: 500 }}>
+                    Añadir nota
                   </button>
-                ) : (
-                  <div>
-                    <div style={{ color: '#fbbf24', fontSize: '13px', marginBottom: '10px', fontWeight: 600 }}>Seguro? Esta accion desactivara la cuenta de {usuario.nombre}.</div>
+                </div>
+                {notas.length === 0 ? (
+                  <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '32px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>Sin notas privadas</div>
+                ) : notas.map((n: any) => (
+                  <div key={n.id} style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '14px 16px', marginBottom: '8px', display: 'flex', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '13px', lineHeight: '1.5', color: '#374151', whiteSpace: 'pre-wrap' }}>{n.contenido}</div>
+                      <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '8px' }}>Por {n.autorNombre} · {new Date(n.creadoEn).toLocaleString('es-ES')}</div>
+                    </div>
+                    <button onClick={() => eliminarNota(n.id)}
+                      style={{ background: 'transparent', border: '0.5px solid #FECACA', color: '#EF4444', cursor: 'pointer', padding: '4px 9px', borderRadius: '6px', fontSize: '12px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                      <i className="ti ti-x" style={{ fontSize: '12px' }} aria-hidden="true" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── SEGURIDAD ── */}
+            {tab === 'seguridad' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '4px' }}>Seguridad</div>
+                {(esSuperAdmin || esPropio) && (
+                  <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '20px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '4px' }}>
+                      {esSuperAdmin && !esPropio ? 'Resetear contraseña' : 'Cambiar mi contraseña'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '14px' }}>
+                      {esSuperAdmin && !esPropio ? 'Establece una nueva contraseña para este usuario.' : 'Actualiza tu contraseña de acceso.'}
+                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={revocarAcceso}
-                        style={{ background: C.red, border: 'none', color: '#fff', padding: '8px 18px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', fontWeight: 700 }}>
-                        Si, revocar
-                      </button>
-                      <button onClick={() => setConfirmRevoke(false)}
-                        style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.textSec, padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px' }}>
-                        Cancelar
+                      <input type="password" value={nuevaPass} onChange={e => setNuevaPass(e.target.value)} placeholder="Nueva contraseña..."
+                        style={{ flex: 1, background: '#F9FAFB', border: '0.5px solid #E5E7EB', color: '#111827', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }} />
+                      <button onClick={resetearPassword} disabled={!nuevaPass.trim()}
+                        style={{ background: nuevaPass.trim() ? '#6366F1' : '#F3F4F6', border: 'none', color: nuevaPass.trim() ? '#fff' : '#9CA3AF', padding: '8px 18px', cursor: nuevaPass.trim() ? 'pointer' : 'default', borderRadius: '8px', fontSize: '13px', fontWeight: 500 }}>
+                        Guardar
                       </button>
                     </div>
                   </div>
                 )}
+                {esSuperAdmin && !esPropio && (
+                  <div style={{ background: '#FFF5F5', border: '0.5px solid #FECACA', borderRadius: '10px', padding: '20px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#B91C1C', marginBottom: '4px' }}>Revocar acceso</div>
+                    <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '14px' }}>Desactiva esta cuenta. El usuario no podrá iniciar sesión.</div>
+                    {!confirmRevoke ? (
+                      <button onClick={() => setConfirmRevoke(true)}
+                        style={{ background: 'transparent', border: '0.5px solid #FECACA', color: '#EF4444', padding: '8px 18px', cursor: 'pointer', borderRadius: '8px', fontSize: '13px', fontWeight: 500 }}>
+                        Revocar acceso
+                      </button>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize: '13px', color: '#92400E', marginBottom: '10px', fontWeight: 500 }}>¿Seguro? Desactivará la cuenta de {nombre}.</div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={revocarAcceso}
+                            style={{ background: '#EF4444', border: 'none', color: '#fff', padding: '8px 18px', cursor: 'pointer', borderRadius: '8px', fontSize: '13px', fontWeight: 500 }}>
+                            Sí, revocar
+                          </button>
+                          <button onClick={() => setConfirmRevoke(false)}
+                            style={{ background: 'transparent', border: '0.5px solid #E5E7EB', color: '#6B7280', padding: '8px 16px', cursor: 'pointer', borderRadius: '8px', fontSize: '13px' }}>
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
 
+          </div>
+        </div>
       </div>
     </div>
   )
