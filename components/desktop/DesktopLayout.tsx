@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import { usePushNotifications } from "@/hooks/usePushNotifications"
 import { useNotifications } from "@/components/providers/NotificationProvider"
+import { useNotificaciones } from "@/hooks/useNotificaciones"
 
 const Icons = {
   dashboard:      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
@@ -193,6 +194,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
   const { noLeidas } = useNotifications()
+  const chatNotifs = useNotificaciones(10000)
   const { suscrito, soportado, suscribirse } = usePushNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
   const [cerrandoSesion, setCerrandoSesion] = useState(false)
@@ -306,6 +308,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                     {item.href === '/notificaciones' && noLeidas > 0 && (
                       <span style={{ marginLeft:'auto', background:'#dc2626', color:'#fff', borderRadius:'50%', fontSize:10, fontWeight:700, minWidth:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>
                         {noLeidas > 9 ? '9+' : noLeidas}
+                      </span>
+                    )}
+                    {item.href === '/chat' && chatNotifs.total > 0 && (
+                      <span style={{ position: 'relative', marginLeft: 'auto' }}>
+                        <span style={{ display: 'block', width: 8, height: 8, borderRadius: '50%', background: '#EF4444', border: '2px solid var(--sidebar-bg)' }} />
                       </span>
                     )}
                     {item.href === '/configuracion' && solicitudesBadge > 0 && open && (

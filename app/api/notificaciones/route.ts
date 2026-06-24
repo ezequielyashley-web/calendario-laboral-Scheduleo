@@ -1,31 +1,38 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const notifs = await prisma.$queryRaw`
-      SELECT * FROM "Notificacion"
-      WHERE "empresaId" = 'empresa-001'
-      ORDER BY "creadoEn" DESC
-      LIMIT 50
+    const session = await auth()
+    if (!session?.user) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
+
+    const userId = (session.user as any).id
+    if (!userId) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
+
+    const mensajes = await prisma.$queryRaw`
+      SELECT COUNT(*) as total
+      FROM "Mensaje" m
+      INNER JOIN "Conversacion" c ON c.id = m."conversacionId"
+      WHERE m."leido" = false
+        AND m."autorId" != ${userId}
+        AND (c."solicitante_id" = ${userId} OR c."receptor_id" = ${userId})
+        AND c."estado" = 'aceptada'
     ` as any[]
-    return NextResponse.json(notifs)
-  } catch (error) {
-    return NextResponse.json([])
-  }
-}
 
-export async function PATCH(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url)
-    const id = searchParams.get("id")
-    if (id) {
-      await prisma.$executeRaw`UPDATE "Notificacion" SET leida = true WHERE id = ${id}`
-    } else {
-      await prisma.$executeRaw`UPDATE "Notificacion" SET leida = true WHERE "empresaId" = 'empresa-001'`
-    }
-    return NextResponse.json({ ok: true })
+    const solicitudes = await prisma.$queryRaw`
+      SELECT COUNT(*) as total
+      FROM "Conversacion"
+      WHERE "receptor_id" = ${userId}
+        AND "estado" = 'pendiente'
+    ` as any[]
+
+    const mensajesNoLeidos = Number(mensajes[0]?.total || 0)
+    const solicitudesPendientes = Number(solicitudes[0]?.total || 0)
+
+    return NextResponse.json({ mensajesNoLeidos, solicitudesPendientes, total: mensajesNoLeidos + solicitudesPendientes })
   } catch (error) {
-    return NextResponse.json({ error: "Error" }, { status: 500 })
+    console.error('Error notificaciones:', error)
+    return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
   }
 }

@@ -55,7 +55,12 @@ export default function ChatDesktop() {
   const [sidebarWidth, setSidebarWidth] = useState(290)
   const isResizing = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const usuario = { id:"admin-001", nombre:"Administrador", rol:"SUPER_ADMIN" }
+  const [usuario, setUsuario] = useState({ id: "", nombre: "Administrador", rol: "SUPER_ADMIN" })
+  useEffect(() => {
+    fetch("/api/session-info").then(r => r.json()).then(d => {
+      if (d?.id) setUsuario({ id: d.id, nombre: d.name || "Administrador", rol: d.role || "SUPER_ADMIN" })
+    }).catch(() => {})
+  }, [])
 
   const iniciarResize = (e: React.MouseEvent) => {
     isResizing.current = true
@@ -92,11 +97,14 @@ export default function ChatDesktop() {
     if (r) { const d = await r.json(); if (Array.isArray(d)) setEmpleados(d) }
   }
 
+  const usuarioIdRef = useRef("")
   useEffect(() => {
+    if (!usuario.id || usuarioIdRef.current === usuario.id) return
+    usuarioIdRef.current = usuario.id
     cargarConvs(); cargarComs(); cargarEmpleados()
     const t = setInterval(cargarConvs, 6000)
     return () => clearInterval(t)
-  }, [])
+  })
   useEffect(() => {
     if (!convActiva) return
     cargarMsgs(convActiva.id)
@@ -180,6 +188,7 @@ export default function ChatDesktop() {
             <button key={t.k} onClick={()=>setTab(t.k as any)} style={{ flex:1, padding:"8px 0", fontSize:11, border:"none", background:"none", cursor:"pointer", color:tab===t.k?"#3b82f6":"#6b7280", borderBottom:tab===t.k?"2px solid #3b82f6":"2px solid transparent", fontWeight:tab===t.k?600:400, display:"flex", alignItems:"center", justifyContent:"center", gap:4 }}>
               {t.l}
               {t.k==="chats" && totalNoLeidos>0 && <span style={{ background:"#ef4444", color:"#fff", fontSize:9, fontWeight:700, minWidth:14, height:14, borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", padding:"0 3px" }}>{totalNoLeidos>9?"9+":totalNoLeidos}</span>}
+              {t.k==="empleados" && solicitudes.length>0 && <span style={{ width:7, height:7, borderRadius:"50%", background:"#ef4444", display:"inline-block", marginTop:-6 }} />}
             </button>
           ))}
         </div>
