@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getToken } from 'next-auth/jwt'
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    if (!token?.id) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
 
-    const userId = (session.user as any).id
-    if (!userId) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
+    const userId = token.id as string
 
     const mensajes = await prisma.$queryRaw`
       SELECT COUNT(*) as total

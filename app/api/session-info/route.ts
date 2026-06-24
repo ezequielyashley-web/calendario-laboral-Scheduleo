@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
-export async function GET() {
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { getToken } from 'next-auth/jwt'
+
+export async function GET(req: NextRequest) {
   try {
-    const session = await auth() as any
-    if (!session?.user?.email) return NextResponse.json({ role: "EMPLEADO", permisos: {} })
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    if (!token?.email) return NextResponse.json({ role: "EMPLEADO", permisos: {} })
     const usuario = await prisma.user.findFirst({
-      where: { email: session.user.email.toLowerCase() }
+      where: { email: (token.email as string).toLowerCase() }
     }) as any
     if (!usuario) return NextResponse.json({ role: "EMPLEADO", permisos: {} })
     return NextResponse.json({
