@@ -4,7 +4,11 @@ import { getToken } from 'next-auth/jwt'
 
 export async function GET(req: NextRequest) {
   try {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getToken({ 
+      req, 
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: "authjs.session-token"
+    })
     if (!token?.id) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
 
     const userId = token.id as string
@@ -16,7 +20,7 @@ export async function GET(req: NextRequest) {
       WHERE m."leido" = false
         AND m."autorId" != ${userId}
         AND (c."solicitante_id" = ${userId} OR c."receptor_id" = ${userId})
-        AND c."estado" = 'aceptada'
+        AND c."estado" = 'activa'
     ` as any[]
 
     const solicitudes = await prisma.$queryRaw`
@@ -31,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ mensajesNoLeidos, solicitudesPendientes, total: mensajesNoLeidos + solicitudesPendientes })
   } catch (error) {
-    console.error('Error notificaciones:', error)
+    console.error(error)
     return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
   }
 }

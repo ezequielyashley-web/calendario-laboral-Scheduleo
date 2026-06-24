@@ -4,7 +4,11 @@ import { getToken } from 'next-auth/jwt'
 
 export async function GET(req: NextRequest) {
   try {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getToken({ 
+      req, 
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: "authjs.session-token"
+    })
     if (!token?.email) return NextResponse.json({ role: "EMPLEADO", permisos: {} })
     const usuario = await prisma.user.findFirst({
       where: { email: (token.email as string).toLowerCase() }
@@ -17,7 +21,8 @@ export async function GET(req: NextRequest) {
       name: usuario.name,
       email: usuario.email
     })
-  } catch {
+  } catch(e) {
+    console.error(e)
     return NextResponse.json({ role: "EMPLEADO", permisos: {} })
   }
 }
