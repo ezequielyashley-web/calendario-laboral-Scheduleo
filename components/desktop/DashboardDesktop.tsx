@@ -72,7 +72,7 @@ export default function DashboardDesktop() {
   ]
 
   return (
-    <div style={{ padding:24, maxWidth:1200, margin:"0 auto" }}>
+    <div style={{ padding:"28px 32px" }}>
       <InspectorBanner />
 
       <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:16 }}>
@@ -85,18 +85,18 @@ export default function DashboardDesktop() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:20, marginBottom:28 }}>
         {kpisReales.map((k, i) => (
-          <div key={i} style={{ background:k.gradient?k.bg:"#fff", borderRadius:16, padding:20, border:k.gradient?"none":"0.5px solid #e8eaf0", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
+          <div key={i} style={{ background:k.gradient?k.bg:"#fff", borderRadius:16, padding:28, border:k.gradient?"none":"0.5px solid #e8eaf0", boxShadow:"0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <div style={{ width:45, height:45, background:k.gradient?"rgba(255,255,255,0.2)":k.bg, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={k.gradient?"#fff":k.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ width:54, height:54, background:k.gradient?"rgba(255,255,255,0.2)":k.bg, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.08)" }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={k.gradient?"#fff":k.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d={k.icon}/>
                 </svg>
               </div>
             </div>
-            <div style={{ fontSize:26, fontWeight:500, color:k.gradient?"#fff":"#1e1b4b", marginBottom:4 }}>{k.valor}</div>
-            <div style={{ fontSize:12, color:k.gradient?"rgba(255,255,255,0.7)":"#a0aec0" }}>{k.label}</div>
+            <div style={{ fontSize:32, fontWeight:700, color:k.gradient?"#fff":"#111827", marginBottom:6, letterSpacing:"-0.5px" }}>{k.valor}</div>
+            <div style={{ fontSize:13, fontWeight:500, color:k.gradient?"rgba(255,255,255,0.8)":"#6B7280" }}>{k.label}</div>
           </div>
         ))}
       </div>

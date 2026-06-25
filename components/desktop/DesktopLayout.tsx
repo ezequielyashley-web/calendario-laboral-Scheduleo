@@ -201,7 +201,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     return () => window.removeEventListener('resize', check)
   }, [])
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, effectiveTheme } = useTheme()
+  const isLight = effectiveTheme === "light"
   const { noLeidas } = useNotifications()
   const chatNotifs = useNotificaciones(10000)
   const { suscrito, soportado, suscribirse } = usePushNotifications()
@@ -218,15 +219,20 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     await signOut({ callbackUrl: '/login' })
   }
 
-  const sidebarBg = empresa?.colorSidebar || '#2d2b55'
+  const sidebarBgDark = empresa?.colorSidebar || '#2d2b55'
+  const sidebarBg = isLight ? '#ffffff' : sidebarBgDark
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
+    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
+        .light-mode .nav-item { color: #374151 !important; }
+        .light-mode .nav-item:hover { background: #F3F4F6 !important; color: #111827 !important; }
+        .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
+        .light-mode .nav-section-label { color: #9CA3AF !important; }
         .nav-item { display:flex; align-items:center; gap:10px; padding:7px 10px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:400; color:var(--sidebar-text); transition:background 0.15s; cursor:pointer; }
         .nav-item:hover { background:var(--sidebar-hover); }
         .nav-item.active { background:var(--sidebar-active); font-weight:500; }
@@ -236,7 +242,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       {isMobile && mobileOpen && (
         <div onClick={() => setMobileOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:40 }} />
       )}
-      <aside style={{ width: isMobile ? 220 : (open ? 200 : 52), background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight:'1px solid rgba(255,255,255,0.06)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}>
+      <aside style={{ width: isMobile ? 240 : (open ? (isLight ? 240 : 200) : 52), background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight: isLight ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.06)',
+          boxShadow: isLight ? '2px 0 8px rgba(0,0,0,0.04), 4px 0 24px rgba(103,61,230,0.05)' : 'none', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
+          className={isLight ? 'light-mode' : ''}>
 
         {/* Nombre empresa */}
         <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
@@ -248,7 +256,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           )}
           {open && (
-            <span style={{ color:'#fff', fontWeight:600, fontSize:14, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+            <span style={{ color: isLight ? '#111827' : '#fff', fontWeight: isLight ? 700 : 600, fontSize:14, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
               {empresaNombre}
             </span>
           )}
@@ -266,7 +274,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
               </svg>
-              <span style={{ fontSize: 13, color: "#e8d9b5", fontWeight: 600, letterSpacing: "0.015em" }}>Panel ejecutivo</span>
+              <span style={{ fontSize: 13, color: isLight ? "#5B21B6" : "#e8d9b5", fontWeight: 600, letterSpacing: "0.015em" }}>Panel ejecutivo</span>
             </Link>
           </div>
         )}
@@ -302,7 +310,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           })).filter(section => section.items.length > 0).map(section => (
             <div key={section.label} style={{ marginBottom:10 }}>
               {open && (
-                <div style={{ fontSize:10, fontWeight:600, color:'var(--sidebar-text-muted)', letterSpacing:'0.08em', padding:'0 6px', marginBottom:4, textTransform:'uppercase' }}>
+                <div style={{ fontSize:11, fontWeight:700, color: isLight ? '#6B7280' : 'var(--sidebar-text-muted)', letterSpacing:'0.08em', padding:'0 6px', marginBottom:4, textTransform:'uppercase' as const }}>
                   {section.label}
                 </div>
               )}
@@ -311,11 +319,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 return (
                   <Link key={item.href} href={item.href}
                     className={`nav-item${isActive ? ' active' : ''}`}
-                    style={{ justifyContent: open ? 'flex-start' : 'center', color: 'var(--sidebar-text)' }}
+                    style={{ justifyContent: open ? 'flex-start' : 'center', color: isLight ? '#111827' : 'var(--sidebar-text)', fontWeight: isLight ? 600 : 400, fontSize: isLight ? '14px' : '13px' }}
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
                   >
-                    <span style={{ flexShrink:0, opacity: isActive ? 1 : 0.75 }}>{item.icon}</span>
+                    <span style={{ flexShrink:0, opacity: isActive ? 1 : (isLight ? 0.6 : 0.75), fontSize: isLight ? '18px' : 'inherit' }}>{item.icon}</span>
                     {open && <span className="nav-label">{item.label}</span>}
                     {item.href === '/notificaciones' && noLeidas > 0 && (
                       <span style={{ marginLeft:'auto', background:'#dc2626', color:'#fff', borderRadius:'50%', fontSize:10, fontWeight:700, minWidth:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>
@@ -350,18 +358,18 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
         {/* LOGO FULL — logo Scheduleo + nombre + version */}
         {open && (
-          <div style={{ padding:'16px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ padding:'16px 14px', borderTop: isLight ? '1px solid #F3F4F6' : '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:12 }}>
               <LogoAnimado accentColor={accentColor} />
               <div>
-                <div style={{ color:'#fff', fontWeight:700, fontSize:17, letterSpacing:'-0.3px', lineHeight:1.1 }}>Scheduleo</div>
-                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, marginTop:3 }}>v2.0</div>
+                <div style={{ color: isLight ? '#111827' : '#fff', fontWeight:700, fontSize:17, letterSpacing:'-0.3px', lineHeight:1.1 }}>Scheduleo</div>
+                <div style={{ color: isLight ? '#9CA3AF' : 'rgba(255,255,255,0.35)', fontSize:11, marginTop:3 }}>v2.0</div>
               </div>
             </div>
           </div>
         )}
         {!open && (
-          <div style={{ padding:'12px 0', borderTop:'1px solid rgba(255,255,255,0.06)', display:'flex', justifyContent:'center' }}>
+          <div style={{ padding:'12px 0', borderTop: isLight ? '1px solid #F3F4F6' : '1px solid rgba(255,255,255,0.06)', display:'flex', justifyContent:'center' }}>
             <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
               <rect width="48" height="48" rx="12" fill={accentColor}/>
               <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
@@ -375,26 +383,23 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
         {/* BOTON CERRAR SESION */}
         {open && (
-          <div style={{ padding:'0 10px 10px' }}>
-            <button onClick={handleSignOut}
-              style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.18)', color:'rgba(255,180,180,0.85)', fontSize:13, fontWeight:500, cursor:'pointer', transition:'all 0.25s', letterSpacing:'0.01em' }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background='rgba(239,68,68,0.18)'
-                e.currentTarget.style.color='rgba(255,200,200,1)'
-                e.currentTarget.style.borderColor='rgba(239,68,68,0.35)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background='rgba(239,68,68,0.08)'
-                e.currentTarget.style.color='rgba(255,180,180,0.85)'
-                e.currentTarget.style.borderColor='rgba(239,68,68,0.18)'
-              }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:0.7 }}>
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
-              <span>Cerrar sesion</span>
-            </button>
+          <div style={{ padding:"0 10px 10px" }}>
+            <div style={{ borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)", paddingTop:10, display:"flex", justifyContent:"space-between", alignItems:"center", paddingLeft:4, paddingRight:4 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <div style={{ width:28, height:28, borderRadius:"50%", background: isLight ? "#EDE9FE" : "rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color: isLight ? "#673DE6" : "#fff" }}>
+                  {empresaNombre[0]?.toUpperCase()}
+                </div>
+                <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{empresaNombre}</span>
+              </div>
+              <button onClick={handleSignOut}
+                style={{ width:32, height:32, borderRadius:8, border: isLight ? "1px solid #E5E7EB" : "1px solid rgba(255,255,255,0.1)", background: isLight ? "#F9FAFB" : "rgba(255,255,255,0.05)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#6B7280" : "rgba(255,255,255,0.5)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+              </button>
+            </div>
           </div>
         )}
         {!open && (
@@ -432,7 +437,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </svg>
         </button>
       )}
-        <header className="flex items-center justify-between h-14 px-6 flex-shrink-0"
+        <header className={`flex items-center justify-between h-14 px-6 flex-shrink-0${isLight ? " bg-white border-b border-gray-200 shadow-sm" : ""}`}
           style={{ background: pathname === '/panel-ejecutivo' ? '#0b0e1a' : 'var(--surface)', borderBottom: pathname === '/panel-ejecutivo' ? '1px solid #2a2f45' : '1px solid var(--border)', boxShadow:'var(--shadow-sm)' }}>
           <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === '/panel-ejecutivo' ? '#f1ecdd' : 'var(--text-primary)' }}>
             {pageTitles[pathname] ?? empresaNombre}

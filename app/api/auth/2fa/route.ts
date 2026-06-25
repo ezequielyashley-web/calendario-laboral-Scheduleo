@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       // Enviar email
       await resend.emails.send({
         from: "Scheduleo <onboarding@resend.dev>",
-        to: email,
+        to: process.env.RESEND_TEST_EMAIL || email,
         subject: "Codigo de verificacion — Scheduleo",
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
