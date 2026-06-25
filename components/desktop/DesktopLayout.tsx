@@ -191,6 +191,15 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }, [])
   const pathname = usePathname()
   const [open, setOpen] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
   const { noLeidas } = useNotifications()
@@ -224,7 +233,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         .nav-label { white-space:nowrap; overflow:hidden; transition:opacity 0.2s, width 0.2s; }
       `}</style>
 
-      <aside style={{ width: open ? 200 : 52, background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'width 0.2s', overflow:'hidden', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
+      {isMobile && mobileOpen && (
+        <div onClick={() => setMobileOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:40 }} />
+      )}
+      <aside style={{ width: isMobile ? 220 : (open ? 200 : 52), background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight:'1px solid rgba(255,255,255,0.06)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}>
 
         {/* Nombre empresa */}
         <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
@@ -413,6 +425,13 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       </aside>
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      {isMobile && (
+        <button onClick={() => setMobileOpen(!mobileOpen)} style={{ position:'fixed', top:12, left:12, zIndex:60, background: sidebarBg, border:'none', borderRadius:8, width:38, height:38, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.3)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+            {mobileOpen ? <path d="M18 6L6 18M6 6l12 12"/> : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+          </svg>
+        </button>
+      )}
         <header className="flex items-center justify-between h-14 px-6 flex-shrink-0"
           style={{ background: pathname === '/panel-ejecutivo' ? '#0b0e1a' : 'var(--surface)', borderBottom: pathname === '/panel-ejecutivo' ? '1px solid #2a2f45' : '1px solid var(--border)', boxShadow:'var(--shadow-sm)' }}>
           <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === '/panel-ejecutivo' ? '#f1ecdd' : 'var(--text-primary)' }}>
