@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { searchParams } = new URL(req.url)
     const conversacionId = searchParams.get("conversacionId")
     const noLeidos = searchParams.get("noLeidos")
@@ -46,6 +49,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { conversacionId, autorId, autorNombre, autorRol, contenido, tipo } = await req.json()
     if (!conversacionId || !autorId || !contenido) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
@@ -70,6 +75,8 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { conversacionId, userId } = await req.json()
     if (!conversacionId || !userId) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
 

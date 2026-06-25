@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { solicitudId, emailOriginal, nombre, email, telefono, dni, cargo, departamento, sueldoBase, tipoContrato, jornada, horario, genero, permisos, masterPassword } = body
 

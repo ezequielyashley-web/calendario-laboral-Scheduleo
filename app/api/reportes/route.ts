@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { searchParams } = new URL(req.url)
     const mes = parseInt(searchParams.get("mes") || String(new Date().getMonth() + 1))
     const anio = parseInt(searchParams.get("anio") || String(new Date().getFullYear()))

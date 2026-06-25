@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { searchParams } = new URL(req.url)
     const empleadoId = searchParams.get("empleadoId")
 
@@ -56,6 +59,8 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { id, horaEntrada, horaSalida, motivoCambio, modificadoPor, ip } = body
     const anterior = await prisma.$queryRaw`

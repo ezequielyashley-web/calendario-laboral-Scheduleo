@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import { getEmpleadoData, prepararCamposCifrados } from "@/lib/empleadoData"
 import { validarDatosEmpleado, sanitizeText, sanitizeEmail, sanitizePhone } from "@/lib/validation"
@@ -7,6 +8,8 @@ import { getClientIP } from "@/lib/security-middleware"
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const config = await prisma.$queryRaw`
       SELECT "modoDemo" FROM "Configuracion" WHERE id = 'config-001'
     ` as any[]
@@ -47,6 +50,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     // Rate limiting: max 10 creaciones por IP por hora
     const ip = getClientIP(req)
     const rl = checkRateLimit(`empleados-post-${ip}`, 10, 60 * 60 * 1000)

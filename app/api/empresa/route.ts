@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 
@@ -16,6 +17,8 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { masterPassword, ...datos } = body
 
@@ -66,6 +69,8 @@ export async function PATCH(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { masterPassword } = body
     if (!masterPassword) return NextResponse.json({ error: "Contrasena master requerida" }, { status: 401 })

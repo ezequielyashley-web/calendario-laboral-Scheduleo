@@ -1,4 +1,5 @@
-﻿import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
 export async function GET() {
@@ -23,6 +24,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { nombre, color, tipo, descripcion } = body
     const grupo = await prisma.grupoLibranza.create({

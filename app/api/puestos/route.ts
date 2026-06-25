@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId") || "empresa-001"
 
@@ -37,6 +40,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { nombre, descripcion, empresaId, masterPassword } = await req.json()
     if (!nombre) return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 })
 
@@ -61,6 +66,8 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { id, nombre, descripcion, empleadoId, accion, masterPassword } = await req.json()
 
     const empresa = await prisma.$queryRaw`
@@ -107,6 +114,8 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")
     const masterPassword = searchParams.get("masterPassword")

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
 export async function GET() {
@@ -17,6 +18,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { titulo, contenido, urgente, destinatarios, autorId, autorNombre } = await req.json()
     if (!titulo || !contenido || !autorId) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })

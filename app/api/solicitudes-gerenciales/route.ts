@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { enviarEmailAccesoTemporal } from "@/lib/email"
@@ -28,6 +29,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje } = body
     const sueldoBase = body.sueldoBase ? parseFloat(body.sueldoBase) : null
@@ -46,6 +49,8 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const body = await req.json()
     const { id, accion, masterPassword, motivo } = body
 
@@ -121,6 +126,8 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")
     if (!id) return NextResponse.json({ error: "ID requerido" }, { status: 400 })
