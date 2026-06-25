@@ -3,6 +3,7 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit"
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ log: ["error", "warn"] })
@@ -22,12 +23,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials, request) {
         console.log("🔐 AUTHORIZE llamado con:", credentials?.email)
         if (!credentials?.email || !credentials?.password) return null
+
+        // Rate limiting por email
+        const identifier = String(credentials.email).toLowerCase()
+        const rateLimit = checkRateLimit(identifier, 5, 15 * 60 * 1000)
+        if (!rateLimit.success) {
+          const minutosRestantes = Math.ceil((rateLimit.resetTime - Date.now()) / 60000)
+          console.warn(`🚫 Rate limit alcanzado para: ${identifier}`)
+          throw new Error(`Demasiados intentos. Espera ${minutosRestantes} minutos.`)
+        }
         const email = String(credentials.email).toLowerCase()
         try {
           const user = await prisma.user.findUnique({ where: { email } })
           if (!user || !user.password) return null
           const isValid = await bcrypt.compare(String(credentials.password), user.password)
           if (!isValid) return null
+          resetRateLimit(identifier) // Reset al login exitoso
           return { id: user.id, email: user.email, name: user.name, role: (user as any).role } as any
         } catch (error) {
           console.error("❌ ERROR:", error)
