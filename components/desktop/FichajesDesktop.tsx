@@ -102,7 +102,7 @@ export default function FichajesDesktop() {
   const ausentes  = lista.filter(f => !f.horaEntrada && !f.horaentrada).length
 
   return (
-      </div>
+    <div className="space-y-4">
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
