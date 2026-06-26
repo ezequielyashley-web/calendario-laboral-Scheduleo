@@ -210,6 +210,20 @@ function ClimaHeaderPill() {
     </div>
   )
 }
+const pageInfo: Record<string, { desc: string; tips: string[] }> = {
+  "/dashboard": { desc: "Resumen general de la actividad laboral de tu empresa.", tips: ["Revisa los KPIs diarios: empleados activos, vacaciones y solicitudes pendientes.", "La seccion Actividad reciente muestra los ultimos cambios en tiempo real.", "Usa los accesos rapidos para aprobar solicitudes o gestionar turnos."] },
+  "/empleados": { desc: "Gestion completa del equipo de trabajo.", tips: ["Haz clic en un empleado para ver su perfil completo.", "Usa los filtros por grupo o estado para encontrar empleados rapidamente.", "Desde el perfil puedes editar datos, ver historial y gestionar accesos."] },
+  "/calendario": { desc: "Vista anual del calendario laboral.", tips: ["Haz clic en un mes para ver la vista mensual detallada.", "Los dias en rojo son domingos, en morado festivos.", "Desde la vista mensual puedes ver y gestionar los turnos del equipo."] },
+  "/fichajes": { desc: "Control de entradas y salidas del personal.", tips: ["Filtra por fecha, grupo o estado para localizar fichajes concretos.", "Los fichajes tardios aparecen marcados en naranja.", "Puedes exportar el historial completo en CSV desde el boton de exportar."] },
+  "/vacaciones": { desc: "Gestion de solicitudes de vacaciones.", tips: ["Las solicitudes pendientes aparecen destacadas en amarillo.", "Aprueba o rechaza solicitudes con un solo clic desde la tabla.", "Cada empleado tiene un contador de dias disponibles segun convenio."] },
+  "/cambios-turno": { desc: "Control de cambios de turno entre empleados.", tips: ["Revisa los cambios pendientes de aprobacion en la parte superior.", "Los cambios requieren que ambos empleados sean del mismo puesto.", "Un cambio aprobado actualiza automaticamente el calendario de ambos."] },
+  "/bajas": { desc: "Seguimiento de bajas medicas del personal.", tips: ["Las bajas activas se sincronizan con el sistema de la Seguridad Social.", "Puedes marcar una baja como resuelta cuando el empleado se reincorpore.", "El modulo genera alertas automaticas si la baja supera los plazos legales."] },
+  "/grupos": { desc: "Organizacion del personal por grupos de trabajo.", tips: ["Arrastra empleados entre grupos para reorganizar el equipo.", "Cada grupo tiene su propio color para identificarlo en el calendario.", "Los grupos determinan los turnos y libranzas de cada empleado."] },
+  "/deudas": { desc: "Control de anticipos y deudas del personal.", tips: ["Registra anticipos salariales o compras que se descontaran de nomina.", "El saldo se actualiza automaticamente con cada pago parcial.", "Haz clic en un empleado para ver su historial completo de transacciones."] },
+  "/reportes": { desc: "Informes y estadisticas de la empresa.", tips: ["Selecciona el mes y ano para filtrar los datos del informe.", "Navega entre las pestanas para ver fichajes, vacaciones, bajas y grupos.", "Los datos se exportan en PDF o CSV desde el boton de exportar."] },
+  "/configuracion": { desc: "Ajustes generales del sistema.", tips: ["Configura los datos legales de la empresa en Identidad.", "Personaliza los colores de la app en Apariencia.", "Gestiona usuarios y roles desde la seccion Usuarios."] },
+}
+
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
   const [solicitudesBadge, setSolicitudesBadge] = useState(0)
   const [userPermisos, setUserPermisos] = useState<Record<string,boolean> | null>(null)
@@ -473,9 +487,18 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           style={{ background: pathname === "/panel-ejecutivo" ? "#0b0e1a" : "var(--surface)", borderBottom: pathname === "/panel-ejecutivo" ? "1px solid #2a2f45" : "1px solid var(--border)", boxShadow:"var(--shadow-sm)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === "/panel-ejecutivo" ? "#f1ecdd" : "var(--text-primary)", margin:0 }}>{pageTitles[pathname] ?? empresaNombre}</h1>
-            <button onClick={() => setShowInfo(!showInfo)} style={{ width:28, height:28, borderRadius:"50%", background: showInfo ? "rgba(217,70,239,0.15)" : "transparent", border:"2px solid #d946ef", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
-              <span style={{ fontSize:14, fontWeight:700, color:"#d946ef", lineHeight:1 }}>?</span>
-            </button>
+            <div style={{ position:"relative" }}>
+              <button onClick={() => setShowInfo(!showInfo)} style={{ width:28, height:28, borderRadius:"50%", background: showInfo ? "rgba(217,70,239,0.15)" : "transparent", border:"2px solid #d946ef", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                <span style={{ fontSize:14, fontWeight:700, color:"#d946ef", lineHeight:1 }}>?</span>
+              </button>
+              {showInfo && (
+                <div onClick={() => setShowInfo(false)} style={{ position:"absolute", top:36, left:0, zIndex:200, background:"var(--surface)", border:"1px solid var(--border)", borderRadius:10, padding:16, width:260, boxShadow:"0 8px 24px rgba(0,0,0,0.15)" }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:"var(--text-primary)", marginBottom:8 }}>Informacion de esta seccion</div>
+                  <div style={{ fontSize:12, color:"var(--text-muted)", lineHeight:1.6 }}>Esta pagina muestra un resumen de la actividad laboral: empleados activos, vacaciones, solicitudes pendientes y asistencia semanal.</div>
+                  <button onClick={() => setShowInfo(false)} style={{ marginTop:10, fontSize:11, color:"#d946ef", background:"none", border:"none", cursor:"pointer", padding:0, fontWeight:600 }}>Cerrar</button>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5 p-0.5" style={{ background:"var(--surface-2)", border:"1px solid var(--border)", borderRadius:4 }}>
