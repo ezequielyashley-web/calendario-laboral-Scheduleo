@@ -1,5 +1,5 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
+
 
 import { useState, useEffect, Fragment } from "react"
 
@@ -796,13 +796,6 @@ export default function ConfiguracionPage() {
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Configuración del sistema</h1>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>Gestión completa de la empresa y accesos</p>
-        </div>
-          <InfoPanel titulo="Como usar Configuracion" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
-            { icon: "🏢", titulo: "Identidad legal", desc: "Configura los datos fiscales de la empresa: razon social, CIF, direccion y contacto." },
-            { icon: "🎨", titulo: "Apariencia", desc: "Personaliza los colores de la aplicacion para adaptarlos a tu marca." },
-            { icon: "👥", titulo: "Usuarios", desc: "Gestiona los accesos al sistema: crea, edita o desactiva usuarios y sus roles." },
-            { icon: "🔍", titulo: "Inspeccion laboral", desc: "Genera tokens de acceso temporal para inspectores de trabajo con acceso de solo lectura." },
-            { icon: "📧", titulo: "Email IMAP", desc: "Configura el buzon de correo para recibir automaticamente los partes de baja del INSS." },
           ]} />
         {seccion !== "usuarios" && seccion !== "inspeccion" && (
           <button onClick={guardar} disabled={guardando}

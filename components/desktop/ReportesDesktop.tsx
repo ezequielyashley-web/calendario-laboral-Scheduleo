@@ -19,7 +19,7 @@ export default function ReportesDesktop() {
   }, [mes, anio])
 
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando reportes...</div>
-  if (!datos) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Error al cargar datos</div>
+  if (!datos || !datos.fichajes || !datos.vacaciones || !datos.bajas) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Inicia sesion para ver los reportes</div>
 
   const tabs = [
     { key: "fichajes", label: "Fichajes" },
