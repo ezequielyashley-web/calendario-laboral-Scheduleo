@@ -1,5 +1,5 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
+
 import InspectorBanner from "@/components/desktop/InspectorBanner"
 import { useState, useEffect } from "react"
 
@@ -74,15 +74,6 @@ export default function DashboardDesktop() {
   return (
     <div style={{ padding:"28px 32px" }}>
       <InspectorBanner />
-
-      <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:16 }}>
-        <InfoPanel titulo="Como usar el Dashboard" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
-          { icon:"📊", titulo:"KPIs en tiempo real", desc:"Empleados activos, horas del mes, solicitudes pendientes." },
-          { icon:"📅", titulo:"Asistencia semanal", desc:"Barras de asistencia de la semana actual por dia." },
-          { icon:"🔔", titulo:"Actividad reciente", desc:"Ultimas acciones: vacaciones, cambios de turno, bajas." },
-          { icon:"🔍", titulo:"Inspeccion laboral", desc:"Si hay inspeccion activa aparece el banner naranja." },
-        ]} />
-      </div>
 
       {/* KPIs */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:20, marginBottom:28 }}>

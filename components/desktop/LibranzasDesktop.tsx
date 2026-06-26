@@ -1,5 +1,4 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
 import { useState, useEffect, useCallback } from "react"
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
@@ -222,13 +221,6 @@ export default function LibranzasDesktop() {
             style={{ background: "#ede9fe", color: "#6d28d9", border: "1px solid #c4b5fd", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
             ⚡ Distribución automática
           </button>
-          <InfoPanel color="#15803d" bg="#f0fdf4" border="#bbf7d0" items={[
-            { icon: "📅", titulo: "Asignar dias manualmente", desc: "Selecciona un grupo y haz click en los dias del calendario para marcarlos como libres. Los festivos y domingos no se pueden modificar." },
-            { icon: "⚡", titulo: "Distribucion automatica", desc: "El sistema reparte los dias libres equitativamente entre todos los grupos. Usalo como punto de partida y ajusta manualmente." },
-            { icon: "💾", titulo: "Guardar y aplicar", desc: "Al guardar con clave master los dias libres se aplican automaticamente al calendario de todos los empleados del grupo." },
-            { icon: "🗓️", titulo: "Renovacion anual", desc: "Cambia el año con las flechas y asigna el nuevo calendario cada enero. Los festivos nacionales se cargan automaticamente." },
-            { icon: "🟣", titulo: "Festivos", desc: "Los dias en morado son festivos nacionales y de la Comunidad de Madrid. No se pueden marcar como libranza." },
-          ]} />
         </div>
       </div>
 

@@ -242,6 +242,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
   const [cerrandoSesion, setCerrandoSesion] = useState(false)
   const [usuarioActual, setUsuarioActual] = useState<{name:string}|null>(null)
+  const [showInfo, setShowInfo] = useState(false)
   useEffect(() => {
     fetch("/api/session-info").then(r=>r.json()).then(d=>{
       if(d?.name) setUsuarioActual({name:d.name})
@@ -263,9 +264,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
-
   return (
-    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
+    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
         .light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }
@@ -313,10 +313,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               background: pathname === "/panel-ejecutivo" ? "linear-gradient(90deg, rgba(201,161,77,0.28), rgba(201,161,77,0.08))" : "linear-gradient(90deg, rgba(201,161,77,0.14), rgba(201,161,77,0.03))",
               border: isLight ? "1px solid #DDD6FE" : (pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)")
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#673DE6" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
               </svg>
-              <span style={{ fontSize: 13, color: isLight ? "#5B21B6" : "#e8d9b5", fontWeight: 600, letterSpacing: "0.015em" }}>Panel ejecutivo</span>
+              <span style={{ fontSize: 13, color: isLight ? "#5B21B6" : "rgba(255,255,255,0.7)", fontWeight: 500 }}>Panel ejecutivo</span>
             </Link>
           </div>
         )}
@@ -327,7 +327,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               background: pathname === "/panel-ejecutivo" ? "rgba(201,161,77,0.28)" : "rgba(201,161,77,0.12)",
               border: isLight ? "1px solid #DDD6FE" : (pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)")
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#673DE6" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
               </svg>
             </Link>
@@ -388,24 +388,14 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           ))}
         </nav>
-
-        {/* CLIMA WIDGET */}
+        {/* LOGO FULL */}
         {open && (
-          <div style={{ display:'flex', justifyContent:'center', padding:'0 6px', marginTop:'-8px' }}>
-            <div style={{ width:'100%' }}>
-              <ClimaWidget />
-            </div>
-          </div>
           <div style={{ padding:"16px 14px", borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)" }}>
-
-        {/* LOGO FULL — logo Scheduleo + nombre + version */}
-                <div style={{ color: isLight ? "#111827" : "#fff", fontWeight:700, fontSize:17, letterSpacing:"-0.3px", lineHeight:1.1 }}>Scheduleo</div>
-                <div style={{ color: isLight ? "#9CA3AF" : "rgba(255,255,255,0.35)", fontSize:11, marginTop:3 }}>v2.0</div>
-            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <LogoAnimado accentColor={accentColor} />
               <div>
-                <div style={{ color: isLight ? '#111827' : '#fff', fontWeight:700, fontSize:17, letterSpacing:'-0.3px', lineHeight:1.1 }}>Scheduleo</div>
-                <div style={{ color: isLight ? '#9CA3AF' : 'rgba(255,255,255,0.35)', fontSize:11, marginTop:3 }}>v2.0</div>
+                <div style={{ color: isLight ? "#111827" : "#fff", fontWeight:700, fontSize:17, letterSpacing:"-0.3px", lineHeight:1.1 }}>Scheduleo</div>
+                <div style={{ color: isLight ? "#9CA3AF" : "rgba(255,255,255,0.35)", fontSize:11, marginTop:3 }}>v2.0</div>
               </div>
             </div>
           </div>
@@ -428,10 +418,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           <div style={{ padding:"0 10px 10px" }}>
             <div style={{ borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)", paddingTop:10, display:"flex", justifyContent:"space-between", alignItems:"center", paddingLeft:4, paddingRight:4 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                  {(usuarioActual?.name || empresaNombre)[0]?.toUpperCase()}
-                  {empresaNombre[0]?.toUpperCase()}
-                <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{usuarioActual?.name?.split(" ")[0] || empresaNombre}</span>
-                <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{empresaNombre}</span>
+                <div style={{ width:28, height:28, borderRadius:"50%", background: isLight ? "#EDE9FE" : "rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color: isLight ? "#673DE6" : "#fff" }}>
+                  {(usuarioActual?.name || "U")[0]?.toUpperCase()}
+                </div>
+                <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:80, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>
+                  {usuarioActual?.name?.split(" ")[0] || "Usuario"}
+                </span>
               </div>
               <button onClick={handleSignOut}
                 style={{ width:32, height:32, borderRadius:8, border: isLight ? "1px solid #E5E7EB" : "1px solid rgba(255,255,255,0.1)", background: isLight ? "#F9FAFB" : "rgba(255,255,255,0.05)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -445,11 +437,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </div>
         )}
         {!open && (
-          <div style={{ padding:'0 8px 10px', display:'flex', justifyContent:'center' }}>
-            <button onClick={handleSignOut} title="Cerrar sesion"
-              style={{ width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.5)', cursor:'pointer', transition:'all 0.25s' }}
-              onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.12)'; e.currentTarget.style.color='rgba(255,255,255,0.9)' }}
-              onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.05)'; e.currentTarget.style.color='rgba(255,255,255,0.5)' }}>
+          <div style={{ padding:"0 8px 10px", display:"flex", justifyContent:"center" }}>
+            <button onClick={handleSignOut}
+              style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:8, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.5)", cursor:"pointer" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
@@ -480,17 +470,19 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </button>
       )}
         <header className={`flex items-center justify-between h-14 px-6 flex-shrink-0${isLight ? " bg-white border-b border-gray-200 shadow-sm" : ""}`}
-          style={{ background: pathname === '/panel-ejecutivo' ? '#0b0e1a' : 'var(--surface)', borderBottom: pathname === '/panel-ejecutivo' ? '1px solid #2a2f45' : '1px solid var(--border)', boxShadow:'var(--shadow-sm)' }}>
-          <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === '/panel-ejecutivo' ? '#f1ecdd' : 'var(--text-primary)' }}>
-            {pageTitles[pathname] ?? empresaNombre}
-          </h1>
+          style={{ background: pathname === "/panel-ejecutivo" ? "#0b0e1a" : "var(--surface)", borderBottom: pathname === "/panel-ejecutivo" ? "1px solid #2a2f45" : "1px solid var(--border)", boxShadow:"var(--shadow-sm)" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === "/panel-ejecutivo" ? "#f1ecdd" : "var(--text-primary)", margin:0 }}>{pageTitles[pathname] ?? empresaNombre}</h1>
+            <div title="Informacion" style={{ width:16, height:16, borderRadius:"50%", background:"rgba(128,128,128,0.2)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+              <span style={{ fontSize:9, fontWeight:700, color:"rgba(128,128,128,0.7)", lineHeight:1 }}>?</span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
-            <ClimaHeaderPill />
-            <div className="flex items-center gap-0.5 p-0.5" style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:4 }}>
-              {([{ value:'light' as const, icon:Icons.sun, title:'Claro' },{ value:'auto' as const, icon:Icons.auto, title:'Auto' },{ value:'dark' as const, icon:Icons.moon, title:'Oscuro' }]).map(m => (
+            <div className="flex items-center gap-0.5 p-0.5" style={{ background:"var(--surface-2)", border:"1px solid var(--border)", borderRadius:4 }}>
+              {([{ value:"light" as const, icon:Icons.sun, title:"Claro" },{ value:"auto" as const, icon:Icons.auto, title:"Auto" },{ value:"dark" as const, icon:Icons.moon, title:"Oscuro" }]).map(m => (
                 <button key={m.value} onClick={() => setTheme(m.value)} title={m.title}
                   className="flex items-center justify-center w-7 h-6 transition-colors duration-150"
-                  style={{ borderRadius:3, background:theme === m.value ? accentColor : 'transparent', color:theme === m.value ? '#fff' : 'var(--text-muted)' }}>
+                  style={{ borderRadius:3, background:theme === m.value ? accentColor : "transparent", color:theme === m.value ? "#fff" : "var(--text-muted)" }}>
                   {m.icon}
                 </button>
               ))}
@@ -498,14 +490,14 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             {soportado && !suscrito && (
               <button onClick={suscribirse} title="Activar notificaciones push"
                 className="flex items-center justify-center w-8 h-8 transition-colors duration-150"
-                style={{ borderRadius:4, background:'var(--surface-2)', border:'1px solid var(--border)', color:'var(--text-muted)', cursor:'pointer' }}>
+                style={{ borderRadius:4, background:"var(--surface-2)", border:"1px solid var(--border)", color:"var(--text-muted)", cursor:"pointer" }}>
                 🔔
               </button>
             )}
             {suscrito && (
               <div title="Notificaciones activadas"
                 className="flex items-center justify-center w-8 h-8"
-                style={{ borderRadius:4, background:'#dcfce7', border:'1px solid #86efac', fontSize:14 }}>
+                style={{ borderRadius:4, background:"#dcfce7", border:"1px solid #86efac", fontSize:14 }}>
                 🔔
               </div>
             )}

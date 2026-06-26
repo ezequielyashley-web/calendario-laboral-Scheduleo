@@ -1,5 +1,4 @@
-﻿"use client"
-import InfoPanel from "@/components/InfoPanel"
+"use client"
 import { useState, useEffect, useCallback } from "react"
 
 type CambioTurno = {
@@ -207,13 +206,6 @@ export default function CambiosTurnoDesktop() {
           {Object.entries(tipoStyle).map(([k, v]) => <option key={k} value={k}>{v.emoji} {v.label}</option>)}
         </select>
         <button onClick={cargar} className="btn-secondary text-xs px-3 py-1.5">🔄</button>
-        <InfoPanel color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
-          { icon: "🔄", titulo: "Cambio entre empleados", desc: "Empleado A cede su dia a empleado B y viceversa. Ambos deben tener el mismo puesto de trabajo." },
-          { icon: "📅", titulo: "Cambio de dia", desc: "Un empleado cambia un dia de trabajo por otro dia. Solo necesita aprobacion del admin." },
-          { icon: "⚠️", titulo: "Grupos distintos", desc: "Si los empleados pertenecen a grupos de libranza distintos el admin debe aprobar con clave master." },
-          { icon: "✅", titulo: "Aprobar cambios", desc: "Pulsa el check para aprobar o la X para rechazar. Queda registrado en el calendario de ambos empleados." },
-          { icon: "🔐", titulo: "Clave master", desc: "Los cambios entre empleados de grupos distintos requieren clave master por las implicaciones en las libranzas." },
-        ]} />
         <button onClick={() => setShowNuevo(true)} className="btn-primary text-xs px-4 py-2 ml-auto">+ Nueva solicitud</button>
       </div>
 

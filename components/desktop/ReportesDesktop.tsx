@@ -1,5 +1,4 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
 import { useState, useEffect } from "react"
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
@@ -33,11 +32,6 @@ export default function ReportesDesktop() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      <InfoPanel titulo="Reportes del sistema" color="#6366f1" bg="#f5f3ff" border="#ddd6fe" items={[
-        { icon: "📊", titulo: "Fichajes", desc: "Analiza la asistencia y puntualidad de tus empleados." },
-        { icon: "🏖️", titulo: "Vacaciones", desc: "Revisa el estado de las solicitudes de vacaciones." },
-        { icon: "⏱️", titulo: "Horas", desc: "Controla las horas trabajadas y el cumplimiento horario." },
-      ]} />
 
       {/* Selector mes/año */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>

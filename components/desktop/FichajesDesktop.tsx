@@ -1,5 +1,4 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
 import { useState, useEffect } from "react"
 
 const grupoColor: Record<string,string> = {
@@ -103,14 +102,6 @@ export default function FichajesDesktop() {
   const ausentes  = lista.filter(f => !f.horaEntrada && !f.horaentrada).length
 
   return (
-    <div className="space-y-4">
-      <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:8 }}>
-        <InfoPanel titulo="Como usar Fichajes" color="#16a34a" bg="#f0fdf4" border="#bbf7d0" items={[
-          { icon:"⏰", titulo:"Registro horario", desc:"Todos los fichajes aparecen aqui. Cumple con el RDL 8/2019." },
-          { icon:"✅", titulo:"Estados", desc:"Verde: correcto. Amarillo: tardio. Rojo: sin salida o ausente." },
-          { icon:"📊", titulo:"KPIs", desc:"Resumen de correctos, tardios, sin salida y ausentes." },
-          { icon:"🔍", titulo:"Filtros", desc:"Filtra por grupo, estado o busca por nombre." },
-        ]} />
       </div>
 
       {/* KPIs */}

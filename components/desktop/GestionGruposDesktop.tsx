@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from "react"
-import InfoPanel from "@/components/InfoPanel"
 
 type Empleado = { id: string; nombre: string; apellidos: string; numeroEmpleado: string }
 type Puesto = { id: string; nombre: string; descripcion: string; empleados: Empleado[]; total_empleados: number }
@@ -120,15 +119,6 @@ export default function CoberturaDesktop() {
           <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>Asigna y gestiona empleados por puesto arrastrando o usando el selector</p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <InfoPanel titulo="Como usar Puestos de trabajo" color="#0284c7" bg="#eff6ff" border="#bfdbfe" items={[
-            { icon: "🏷️", titulo: "Tarjetas por puesto", desc: "Cada tarjeta representa un puesto. Muestra los empleados asignados y el total." },
-            { icon: "🖱️", titulo: "Drag and drop", desc: "Arrastra un empleado de una tarjeta a otra para moverlo entre puestos." },
-            { icon: "➕", titulo: "Asignar desde lista", desc: "Usa el selector inferior de cada puesto para asignar un empleado sin puesto." },
-            { icon: "✕", titulo: "Quitar empleado", desc: "Pulsa la X junto a un empleado para quitarlo del puesto." },
-            { icon: "✏️", titulo: "Editar puesto", desc: "Pulsa Editar en cualquier tarjeta para cambiar nombre y descripcion." },
-            { icon: "🔒", titulo: "Validacion master", desc: "Todas las acciones requieren contrasena master para confirmar." },
-            { icon: "📱", titulo: "Notificacion movil", desc: "El empleado recibira un aviso en su app con el nuevo puesto asignado." },
-          ]} />
           <button onClick={() => { setModalPuesto({ id: null }); setFormPuesto({ nombre: "", descripcion: "" }) }}
             style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             + Nuevo puesto

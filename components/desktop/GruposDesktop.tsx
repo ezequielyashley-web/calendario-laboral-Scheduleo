@@ -1,5 +1,4 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
@@ -198,13 +197,6 @@ export default function GruposDesktop() {
             style={{ background: showHistorial ? "#ede9fe" : "var(--surface-2)", color: showHistorial ? "#6d28d9" : "var(--text-secondary)", border: `1px solid ${showHistorial ? "#c4b5fd" : "var(--border-strong)"}`, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
             📋 Historial {historial.length > 0 && `(${historial.length})`}
           </button>
-          <InfoPanel color="#0891b2" bg="#f0f9ff" border="#bae6fd" items={[
-            { icon: "🖱️", titulo: "Drag and Drop", desc: "Arrastra un empleado de un grupo a otro para reasignarlo. Se pedira clave master para confirmar el cambio." },
-            { icon: "📅", titulo: "Dos grupos por empleado", desc: "Cada empleado pertenece a un grupo entre semana (G1A-G3B) y un grupo de lunes (L1-L3). Usa las pestanas para gestionar cada tipo." },
-            { icon: "🔍", titulo: "Buscar en grupo", desc: "Cuando un grupo tiene mas de 4 empleados aparece un buscador interno para encontrar rapidamente por nombre." },
-            { icon: "↩️", titulo: "Deshacer", desc: "Puedes deshacer el ultimo cambio antes de confirmar con clave master." },
-            { icon: "→", titulo: "Ver perfil", desc: "Pulsa la flecha en cada empleado para acceder directamente a su perfil." },
-          ]} />
 
         </div>
       </div>

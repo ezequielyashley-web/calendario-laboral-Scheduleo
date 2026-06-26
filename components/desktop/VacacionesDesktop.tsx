@@ -1,5 +1,4 @@
 "use client"
-import InfoPanel from "@/components/InfoPanel"
 import CalendarioAsuntosPropios from "@/components/vacaciones/CalendarioAsuntosPropios"
 
 import { useState, useEffect } from "react"
@@ -219,13 +218,6 @@ export default function VacacionesDesktop() {
           {años.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
         <button onClick={()=>setShowModal(true)} className="btn-primary text-xs px-4 py-2 ml-auto">+ Nueva solicitud</button>
-        <InfoPanel titulo="Como usar Vacaciones" color="#d97706" bg="#fffbeb" border="#fde68a" items={[
-          { icon: "🏖️", titulo: "Tipos de vacaciones", desc: "Hay 5 tipos: Verano, Invierno, Mes completo, Libre eleccion y Asuntos propios." },
-          { icon: "✅", titulo: "Aprobar solicitudes", desc: "Los empleados solicitan desde la app movil. El admin aprueba o rechaza desde aqui." },
-          { icon: "📋", titulo: "Asuntos propios", desc: "Maximo 6 dias al año con 48h de antelacion. No se pueden pedir en fines de semana ni festivos (Art. 37.3 ET)." },
-          { icon: "📊", titulo: "Estadisticas", desc: "Consulta los dias consumidos y disponibles de cada empleado en tiempo real." },
-          { icon: "👤", titulo: "Ver perfil", desc: "Haz click en el nombre del empleado para ir a su perfil completo." },
-        ]} />
 
 
 
