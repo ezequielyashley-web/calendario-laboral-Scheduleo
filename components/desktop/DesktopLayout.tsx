@@ -177,6 +177,39 @@ const pageTitles: Record<string, string> = {
   '/panel-ejecutivo':   'Panel Ejecutivo',
 }
 
+function ClimaHeaderPill() {
+  const [temp, setTemp] = useState<number|null>(null)
+  const [icono, setIcono] = useState("")
+  const [hora, setHora] = useState("")
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      setHora(now.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }))
+    }
+    tick()
+    const iv = setInterval(tick, 1000)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + pos.coords.latitude + "&longitude=" + pos.coords.longitude + "&current=temperature_2m,weathercode&timezone=auto")
+          const d = await r.json()
+          setTemp(Math.round(d.current.temperature_2m))
+          const code = d.current.weathercode
+          setIcono(code===0?"Sol":code<=3?"Nublado":code<=48?"Niebla":code<=67?"Lluvia":code<=77?"Nieve":"Tormenta")
+        } catch {}
+      }, () => {})
+    }
+    return () => clearInterval(iv)
+  }, [])
+  if (!hora) return null
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:6, background:"#673DE6", borderRadius:8, padding:"6px 12px", flexShrink:0 }}>
+      {temp !== null && <span style={{ fontSize:13, fontWeight:700, color:"#fff" }}>{temp}C</span>}
+      {temp !== null && <div style={{ width:1, height:12, background:"rgba(255,255,255,0.3)" }} />}
+      <span style={{ fontSize:12, color:"rgba(255,255,255,0.9)", fontWeight:500 }}>{hora}</span>
+    </div>
+  )
+}
 export default function DesktopLayout({ children }: { children: React.ReactNode }) {
   const [solicitudesBadge, setSolicitudesBadge] = useState(0)
   const [userPermisos, setUserPermisos] = useState<Record<string,boolean> | null>(null)
@@ -208,6 +241,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const { suscrito, soportado, suscribirse } = usePushNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
   const [cerrandoSesion, setCerrandoSesion] = useState(false)
+  const [usuarioActual, setUsuarioActual] = useState<{name:string}|null>(null)
+  useEffect(() => {
+    fetch("/api/session-info").then(r=>r.json()).then(d=>{
+      if(d?.name) setUsuarioActual({name:d.name})
+    }).catch(()=>{})
+  }, [])
 
   useEffect(() => {
     fetch("/api/empresa").then(r => r.json()).then(data => setEmpresa(data)).catch(() => {})
@@ -229,6 +268,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
+        .light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }
+        .light-mode .nav-item:hover { background: #F3F4F6 !important; }
+        .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
         .light-mode .nav-item { color: #374151 !important; }
         .light-mode .nav-item:hover { background: #F3F4F6 !important; color: #111827 !important; }
         .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
@@ -269,7 +311,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               display: "flex", alignItems: "center", gap: 10, padding: "10px",
               borderRadius: 8, textDecoration: "none",
               background: pathname === "/panel-ejecutivo" ? "linear-gradient(90deg, rgba(201,161,77,0.28), rgba(201,161,77,0.08))" : "linear-gradient(90deg, rgba(201,161,77,0.14), rgba(201,161,77,0.03))",
-              border: pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)"
+              border: isLight ? "1px solid #DDD6FE" : (pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)")
             }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
@@ -283,7 +325,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             <Link href="/panel-ejecutivo" title="Panel ejecutivo" style={{
               width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8,
               background: pathname === "/panel-ejecutivo" ? "rgba(201,161,77,0.28)" : "rgba(201,161,77,0.12)",
-              border: pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)"
+              border: isLight ? "1px solid #DDD6FE" : (pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)")
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a14d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
@@ -354,11 +396,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               <ClimaWidget />
             </div>
           </div>
-        )}
+          <div style={{ padding:"16px 14px", borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)" }}>
 
         {/* LOGO FULL — logo Scheduleo + nombre + version */}
-        {open && (
-          <div style={{ padding:'16px 14px', borderTop: isLight ? '1px solid #F3F4F6' : '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ color: isLight ? "#111827" : "#fff", fontWeight:700, fontSize:17, letterSpacing:"-0.3px", lineHeight:1.1 }}>Scheduleo</div>
+                <div style={{ color: isLight ? "#9CA3AF" : "rgba(255,255,255,0.35)", fontSize:11, marginTop:3 }}>v2.0</div>
             <div style={{ display:'flex', alignItems:'center', gap:12 }}>
               <LogoAnimado accentColor={accentColor} />
               <div>
@@ -386,9 +428,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           <div style={{ padding:"0 10px 10px" }}>
             <div style={{ borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)", paddingTop:10, display:"flex", justifyContent:"space-between", alignItems:"center", paddingLeft:4, paddingRight:4 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <div style={{ width:28, height:28, borderRadius:"50%", background: isLight ? "#EDE9FE" : "rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color: isLight ? "#673DE6" : "#fff" }}>
+                  {(usuarioActual?.name || empresaNombre)[0]?.toUpperCase()}
                   {empresaNombre[0]?.toUpperCase()}
-                </div>
+                <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{usuarioActual?.name?.split(" ")[0] || empresaNombre}</span>
                 <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{empresaNombre}</span>
               </div>
               <button onClick={handleSignOut}
@@ -443,6 +485,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             {pageTitles[pathname] ?? empresaNombre}
           </h1>
           <div className="flex items-center gap-2">
+            <ClimaHeaderPill />
             <div className="flex items-center gap-0.5 p-0.5" style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:4 }}>
               {([{ value:'light' as const, icon:Icons.sun, title:'Claro' },{ value:'auto' as const, icon:Icons.auto, title:'Auto' },{ value:'dark' as const, icon:Icons.moon, title:'Oscuro' }]).map(m => (
                 <button key={m.value} onClick={() => setTheme(m.value)} title={m.title}
@@ -472,7 +515,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
         </header>
-        <main className="flex-1" style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo") ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+        <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo") ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           {children}
         </main>
       </div>
