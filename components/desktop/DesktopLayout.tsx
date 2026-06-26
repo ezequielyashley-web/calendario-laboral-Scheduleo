@@ -473,9 +473,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           style={{ background: pathname === "/panel-ejecutivo" ? "#0b0e1a" : "var(--surface)", borderBottom: pathname === "/panel-ejecutivo" ? "1px solid #2a2f45" : "1px solid var(--border)", boxShadow:"var(--shadow-sm)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === "/panel-ejecutivo" ? "#f1ecdd" : "var(--text-primary)", margin:0 }}>{pageTitles[pathname] ?? empresaNombre}</h1>
-            <div title="Informacion" style={{ width:16, height:16, borderRadius:"50%", background:"rgba(128,128,128,0.2)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
-              <span style={{ fontSize:9, fontWeight:700, color:"rgba(128,128,128,0.7)", lineHeight:1 }}>?</span>
-            </div>
+            <button onClick={() => setShowInfo(!showInfo)} style={{ width:28, height:28, borderRadius:"50%", background: showInfo ? "rgba(217,70,239,0.15)" : "transparent", border:"2px solid #d946ef", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+              <span style={{ fontSize:14, fontWeight:700, color:"#d946ef", lineHeight:1 }}>?</span>
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5 p-0.5" style={{ background:"var(--surface-2)", border:"1px solid var(--border)", borderRadius:4 }}>
