@@ -30,6 +30,8 @@ export default function ReportesDesktop() {
     { key: "grupos", label: "Grupos" },
   ]
 
+  if (!datos) return <div style={{ padding:40, textAlign:"center", color:"var(--text-muted)" }}>Cargando reportes...</div>
+
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
 
