@@ -213,12 +213,15 @@ function ClimaHeaderPill() {
 const pageInfo: Record<string, { desc: string; tips: string[] }> = {
   "/dashboard": { desc: "Resumen general de la actividad laboral de tu empresa.", tips: ["Revisa los KPIs diarios: empleados activos, vacaciones y solicitudes pendientes.", "La seccion Actividad reciente muestra los ultimos cambios en tiempo real.", "Usa los accesos rapidos para aprobar solicitudes o gestionar turnos."] },
   "/empleados": { desc: "Gestion completa del equipo de trabajo.", tips: ["Haz clic en un empleado para ver su perfil completo.", "Usa los filtros por grupo o estado para encontrar empleados rapidamente.", "Desde el perfil puedes editar datos, ver historial y gestionar accesos."] },
-  "/calendario": { desc: "Vista anual del calendario laboral.", tips: ["Haz clic en un mes para ver la vista mensual detallada.", "Los dias en rojo son domingos, en morado festivos.", "Desde la vista mensual puedes ver y gestionar los turnos del equipo."] },
+  "/calendario-global": { desc: "Vista anual del calendario laboral.", tips: ["Haz clic en un mes para ver la vista mensual detallada.", "Los dias en rojo son domingos, en morado festivos.", "Desde la vista mensual puedes ver y gestionar los turnos del equipo."] },
   "/fichajes": { desc: "Control de entradas y salidas del personal.", tips: ["Filtra por fecha, grupo o estado para localizar fichajes concretos.", "Los fichajes tardios aparecen marcados en naranja.", "Puedes exportar el historial completo en CSV desde el boton de exportar."] },
   "/vacaciones": { desc: "Gestion de solicitudes de vacaciones.", tips: ["Las solicitudes pendientes aparecen destacadas en amarillo.", "Aprueba o rechaza solicitudes con un solo clic desde la tabla.", "Cada empleado tiene un contador de dias disponibles segun convenio."] },
   "/cambios-turno": { desc: "Control de cambios de turno entre empleados.", tips: ["Revisa los cambios pendientes de aprobacion en la parte superior.", "Los cambios requieren que ambos empleados sean del mismo puesto.", "Un cambio aprobado actualiza automaticamente el calendario de ambos."] },
   "/bajas": { desc: "Seguimiento de bajas medicas del personal.", tips: ["Las bajas activas se sincronizan con el sistema de la Seguridad Social.", "Puedes marcar una baja como resuelta cuando el empleado se reincorpore.", "El modulo genera alertas automaticas si la baja supera los plazos legales."] },
   "/grupos": { desc: "Organizacion del personal por grupos de trabajo.", tips: ["Arrastra empleados entre grupos para reorganizar el equipo.", "Cada grupo tiene su propio color para identificarlo en el calendario.", "Los grupos determinan los turnos y libranzas de cada empleado."] },
+  "/gestion-grupos": { desc: "Gestion avanzada de puestos de trabajo.", tips: ["Asigna empleados a puestos arrastrando o usando el selector.", "Crea nuevos puestos con el boton Nuevo puesto.", "Los puestos definen las coberturas minimas requeridas por turno."] },
+  "/libranzas": { desc: "Gestion de dias libres y libranzas del personal.", tips: ["Consulta las libranzas asignadas por grupo y semana.", "Las libranzas se calculan segun el convenio colectivo.", "Puedes ajustar libranzas manualmente desde el panel de grupos."] },
+  "/cobertura": { desc: "Control de cobertura minima por puesto.", tips: ["Define el minimo de empleados requeridos por puesto y turno.", "El sistema alerta cuando la cobertura baja del minimo.", "Revisa el estado diario de cobertura en el dashboard."] },
   "/deudas": { desc: "Control de anticipos y deudas del personal.", tips: ["Registra anticipos salariales o compras que se descontaran de nomina.", "El saldo se actualiza automaticamente con cada pago parcial.", "Haz clic en un empleado para ver su historial completo de transacciones."] },
   "/reportes": { desc: "Informes y estadisticas de la empresa.", tips: ["Selecciona el mes y ano para filtrar los datos del informe.", "Navega entre las pestanas para ver fichajes, vacaciones, bajas y grupos.", "Los datos se exportan en PDF o CSV desde el boton de exportar."] },
   "/configuracion": { desc: "Ajustes generales del sistema.", tips: ["Configura los datos legales de la empresa en Identidad.", "Personaliza los colores de la app en Apariencia.", "Gestiona usuarios y roles desde la seccion Usuarios."] },
@@ -237,6 +240,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     return () => clearInterval(interval)
   }, [])
   const pathname = usePathname()
+  if (typeof window !== "undefined") console.log("PATHNAME:", pathname)
   const [open, setOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -503,7 +507,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                     </ul>
                   )}
                   <button onClick={() => setShowInfo(false)} style={{ marginTop:10, fontSize:11, color:"#d946ef", background:"none", border:"none", cursor:"pointer", padding:0, fontWeight:600 }}>Cerrar</button>
-                </div>
                 </div>
               )}
             </div>
