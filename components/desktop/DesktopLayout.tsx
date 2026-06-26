@@ -492,10 +492,18 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 <span style={{ fontSize:14, fontWeight:700, color:"#d946ef", lineHeight:1 }}>?</span>
               </button>
               {showInfo && (
-                <div onClick={() => setShowInfo(false)} style={{ position:"absolute", top:36, left:0, zIndex:200, background:"var(--surface)", border:"1px solid var(--border)", borderRadius:10, padding:16, width:260, boxShadow:"0 8px 24px rgba(0,0,0,0.15)" }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:"var(--text-primary)", marginBottom:8 }}>Informacion de esta seccion</div>
-                  <div style={{ fontSize:12, color:"var(--text-muted)", lineHeight:1.6 }}>Esta pagina muestra un resumen de la actividad laboral: empleados activos, vacaciones, solicitudes pendientes y asistencia semanal.</div>
+                <div onClick={() => setShowInfo(false)} style={{ position:"absolute", top:36, left:0, zIndex:200, background:"var(--surface)", border:"1px solid var(--border)", borderRadius:10, padding:16, width:280, boxShadow:"0 8px 24px rgba(0,0,0,0.15)" }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:"var(--text-primary)", marginBottom:6 }}>{pageTitles[pathname] ?? "Esta seccion"}</div>
+                  <div style={{ fontSize:12, color:"var(--text-muted)", lineHeight:1.6, marginBottom:10 }}>{pageInfo[pathname]?.desc ?? "Informacion no disponible."}</div>
+                  {(pageInfo[pathname]?.tips ?? []).length > 0 && (
+                    <ul style={{ margin:0, padding:"0 0 0 14px" }}>
+                      {(pageInfo[pathname]?.tips ?? []).map((tip: string, i: number) => (
+                        <li key={i} style={{ fontSize:11, color:"var(--text-muted)", lineHeight:1.6, marginBottom:4 }}>{tip}</li>
+                      ))}
+                    </ul>
+                  )}
                   <button onClick={() => setShowInfo(false)} style={{ marginTop:10, fontSize:11, color:"#d946ef", background:"none", border:"none", cursor:"pointer", padding:0, fontWeight:600 }}>Cerrar</button>
+                </div>
                 </div>
               )}
             </div>
