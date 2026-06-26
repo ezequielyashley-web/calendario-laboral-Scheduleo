@@ -796,7 +796,7 @@ export default function ConfiguracionPage() {
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Configuración del sistema</h1>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>Gestión completa de la empresa y accesos</p>
-          ]} />
+        </div>
         {seccion !== "usuarios" && seccion !== "inspeccion" && (
           <button onClick={guardar} disabled={guardando}
             style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
