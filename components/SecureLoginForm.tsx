@@ -50,7 +50,7 @@ export default function SecureLoginForm() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         redirect: 'manual',
         body: new URLSearchParams({ email, password, csrfToken, redirect: 'false', callbackUrl: '/dashboard', json: 'true' })
-      })
+
       setShowLoading(false)
       if (result.status === 302 || result.status === 200 || result.type === 'opaqueredirect') {
         // Verificar si necesita 2FA
