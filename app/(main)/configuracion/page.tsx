@@ -795,14 +795,14 @@ export default function ConfiguracionPage() {
 
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando configuración...</div>
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 56px)", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       {mensaje.texto && (
         <div style={{ padding: "10px 24px", background: mensaje.tipo === "error" ? "#fee2e2" : "#d1fae5", fontSize: 13, color: mensaje.tipo === "error" ? "#991b1b" : "#065f46", borderBottom: "1px solid #E5E7EB" }}>
           {mensaje.texto}
         </div>
       )}
       <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1, minHeight: 0 }}>
-        <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "calc(100vh - 56px)", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
+        <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
             
             <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Empresa</div>
@@ -842,7 +842,7 @@ export default function ConfiguracionPage() {
             <span style={{ fontSize: 10, color: "rgba(103,61,230,0.5)", fontWeight: 600 }}>Scheduleo v2.0.0</span>
           </div>
         </div>
-        <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", height: "calc(100vh - 56px)", overflow: "hidden" }}>
+        <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px" }}>
 
           {seccion === "identidad" && (
