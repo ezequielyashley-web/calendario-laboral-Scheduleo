@@ -2,6 +2,8 @@
 
 
 import { useState, useEffect, Fragment } from "react"
+import dynamicImport from "next/dynamic"
+const SelectorTema = dynamicImport(() => import("@/components/SelectorTema"), { ssr: false })
 
 const ROLES = ["SUPER_ADMIN", "ADMIN_SEDE", "EMPLEADO"]
 
@@ -575,6 +577,7 @@ function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any,
   )
 }
 export default function ConfiguracionPage() {
+  const [toggleTemaActivo, setToggleTemaActivo] = useState(true)
   const [acceso, setAcceso] = useState(false)
   const [pinAcceso, setPinAcceso] = useState("")
   const [errorAcceso, setErrorAcceso] = useState("")
@@ -942,6 +945,7 @@ export default function ConfiguracionPage() {
                 {["Dashboard", "Empleados", "Deudas"].map((item, i) => (
                   <div key={item} style={{ padding: "7px 10px", borderRadius: 7, color: i === 2 ? "#fff" : "rgba(255,255,255,0.75)", fontSize: 12, marginBottom: 3, background: i === 2 ? (empresa.colorAccent || "#6366f1") : "transparent", fontWeight: i === 2 ? 500 : 400 }}>{item}</div>
                 ))}
+              <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
               </div>
             </div>
           )}
