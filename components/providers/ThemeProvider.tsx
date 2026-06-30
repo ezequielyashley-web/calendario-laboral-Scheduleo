@@ -9,13 +9,13 @@ const ThemeContext = createContext<{
   setTheme: (theme: Theme) => void
   effectiveTheme: "light" | "dark"
 }>({
-  theme: "auto",
+  theme: "light",
   setTheme: () => {},
   effectiveTheme: "light",
 })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("auto")
+  const [theme, setThemeState] = useState<Theme>("light")
   const [effectiveTheme, setEffectiveTheme] = useState<"light" | "dark">("light")
 
   useEffect(() => {
