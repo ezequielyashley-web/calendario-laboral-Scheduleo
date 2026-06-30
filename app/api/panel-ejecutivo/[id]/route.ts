@@ -107,6 +107,11 @@ export async function PATCH(
 
     if (accion === 'resetear_password') {
       const { nuevaPassword } = body
+      const { validatePassword } = require('@/lib/validation')
+      const validacion = validatePassword(nuevaPassword)
+      if (!validacion.valid) {
+        return NextResponse.json({ error: validacion.errors.join('. ') }, { status: 400 })
+      }
       const bcrypt = require('bcryptjs')
       const hash = await bcrypt.hash(nuevaPassword, 10)
       await prisma.$executeRawUnsafe(
