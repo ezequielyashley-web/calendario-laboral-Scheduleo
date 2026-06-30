@@ -803,21 +803,8 @@ export default function ConfiguracionPage() {
       )}
       <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1 }}>
         <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "calc(100vh - 56px)", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
-          <div style={{ padding: "20px 16px", flex: 1, overflowY: "auto" }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#374151", marginBottom: 2 }}>Configuracion</div>
-            <div style={{ fontSize: 10, color: "#9CA3AF", marginBottom: 16 }}>{empresa.nombreComercial || empresa.nombre || "Mi Empresa S.L."}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: "#fff", borderRadius: 10, marginBottom: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{usuarioActual?.name || "Usuario"}</div>
-                <div style={{ fontSize: 10, color: "#9CA3AF", display: "flex", alignItems: "center", gap: 3 }}>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 4px #10B981" }} />
-                  En linea
-                </div>
-              </div>
-            </div>
+          <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
+            
             <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Empresa</div>
             {[
               { key: "identidad", label: "Identidad legal", p: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" },
@@ -831,7 +818,7 @@ export default function ConfiguracionPage() {
                 {s.label}
               </button>
             ))}
-            <div style={{ height: 1, background: "rgba(103,61,230,0.12)", margin: "12px 0" }} />
+            <div style={{ height: 1, background: "rgba(103,61,230,0.12)", margin: "10px 6px" }} />
             <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Sistema</div>
             {[
               { key: "licencia", label: "Licencia", p: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" },
@@ -848,7 +835,7 @@ export default function ConfiguracionPage() {
               </button>
             ))}
           </div>
-          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(103,61,230,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ padding: "10px 14px", borderTop: "1px solid rgba(103,61,230,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 18, height: 18, borderRadius: 5, background: "#673DE6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <span style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>S</span>
             </div>
