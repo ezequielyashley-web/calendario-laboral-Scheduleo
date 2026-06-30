@@ -508,19 +508,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                   )}
                   <button onClick={() => setShowInfo(false)} style={{ marginTop:10, fontSize:11, color:"#d946ef", background:"none", border:"none", cursor:"pointer", padding:0, fontWeight:600 }}>Cerrar</button>
                 </div>
-              )}
-            </div>
+                )}
+              </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-0.5 p-0.5" style={{ background:"var(--surface-2)", border:"1px solid var(--border)", borderRadius:4 }}>
-              {([{ value:"light" as const, icon:Icons.sun, title:"Claro" },{ value:"auto" as const, icon:Icons.auto, title:"Auto" },{ value:"dark" as const, icon:Icons.moon, title:"Oscuro" }]).map(m => (
-                <button key={m.value} onClick={() => setTheme(m.value)} title={m.title}
-                  className="flex items-center justify-center w-7 h-6 transition-colors duration-150"
-                  style={{ borderRadius:3, background:theme === m.value ? accentColor : "transparent", color:theme === m.value ? "#fff" : "var(--text-muted)" }}>
-                  {m.icon}
-                </button>
-              ))}
-            </div>
             {soportado && !suscrito && (
               <button onClick={suscribirse} title="Activar notificaciones push"
                 className="flex items-center justify-center w-8 h-8 transition-colors duration-150"
