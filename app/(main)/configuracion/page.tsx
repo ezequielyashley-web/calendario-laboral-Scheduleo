@@ -1324,6 +1324,15 @@ export default function ConfiguracionPage() {
           </div>
         </div>
       )}
+      <div style={{ marginTop: 40, paddingTop: 24, borderTop: "1px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: "#673DE6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>S</span>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>Scheduleo</div>
+          <div style={{ fontSize: 11, color: "#9CA3AF" }}>Version 2.0.0</div>
+        </div>
+      </div>
     </div>
   )
 }
