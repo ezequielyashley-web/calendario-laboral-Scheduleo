@@ -200,20 +200,36 @@ export default function SecureLoginForm() {
             <p style={{color:'#bfdbfe',fontSize:14,marginBottom:28}}>Hemos enviado un codigo de 6 digitos a tu email. Introducelo para continuar.</p>
             <div style={{display:'flex',gap:8,justifyContent:'center',marginBottom:20}}>
               {[0,1,2,3,4,5].map(i => (
-                <input key={i} type="text" maxLength={1}
-                  value={code2FA[i] || ''}
+                <input key={i} type="text" inputMode="numeric" maxLength={1}
+                  value={code2FA[i] || ""}
                   onChange={e => {
-                    const val = e.target.value.replace(/[^0-9]/g,'')
-                    const arr = code2FA.split('')
+                    const val = e.target.value.replace(/[^0-9]/g,"").slice(-1)
+                    const arr = code2FA.padEnd(6," ").split("")
                     arr[i] = val
-                    setCode2FA(arr.join(''))
+                    setCode2FA(arr.join("").trimEnd())
                     if (val && i < 5) {
-                      const next = document.getElementById('tfa'+i+1)
+                      const next = document.getElementById("tfa"+(i+1))
                       if (next) (next as HTMLInputElement).focus()
                     }
                   }}
-                  id={'tfa'+i}
-                  style={{width:44,height:54,borderRadius:10,border:'2px solid rgba(255,255,255,0.3)',background:'rgba(255,255,255,0.1)',color:'#fff',fontSize:24,fontWeight:700,textAlign:'center',outline:'none'}}
+                  onKeyDown={e => {
+                    if (e.key === "Backspace" && !code2FA[i] && i > 0) {
+                      const prev = document.getElementById("tfa"+(i-1))
+                      if (prev) (prev as HTMLInputElement).focus()
+                    }
+                  }}
+                  onPaste={e => {
+                    e.preventDefault()
+                    const pasted = e.clipboardData.getData("text").replace(/[^0-9]/g,"").slice(0,6)
+                    if (pasted) {
+                      setCode2FA(pasted)
+                      const lastIdx = Math.min(pasted.length, 6) - 1
+                      const target = document.getElementById("tfa"+lastIdx)
+                      if (target) (target as HTMLInputElement).focus()
+                    }
+                  }}
+                  id={"tfa"+i}
+                  style={{width:44,height:54,borderRadius:10,border:"2px solid rgba(255,255,255,0.3)",background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:24,fontWeight:700,textAlign:"center",outline:"none"}}
                 />
               ))}
             </div>
