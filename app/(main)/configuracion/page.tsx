@@ -906,46 +906,91 @@ export default function ConfiguracionPage() {
 
           {seccion === "apariencia" && (
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: "0 0 20px" }}>Apariencia de la aplicación</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
-                <div>
-                  <label style={labelStyle}>URL del logo</label>
-                  <input value={empresa.logo || ""} onChange={e => set("logo", e.target.value)} placeholder="https://..." style={inputStyle} />
-                  {empresa.logo && <img src={empresa.logo} alt="logo" style={{ marginTop: 8, height: 48, borderRadius: 8, border: "1px solid #e8eaf0" }} />}
-                </div>
-                <div>
-                  <label style={labelStyle}>Color barra lateral</label>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input type="color" value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)}
-                      style={{ width: 44, height: 36, padding: 2, border: "1px solid #e8eaf0", borderRadius: 8, cursor: "pointer" }} />
-                    <input value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-                  </div>
-                </div>
-                <div>
-                  <label style={labelStyle}>Color de acento</label>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input type="color" value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)}
-                      style={{ width: 44, height: 36, padding: 2, border: "1px solid #e8eaf0", borderRadius: 8, cursor: "pointer" }} />
-                    <input value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: 12, color: "#a0aec0", marginBottom: 10, fontWeight: 500 }}>Vista previa</div>
-              <div style={{ width: 200, background: empresa.colorSidebar || "#2d2b55", borderRadius: 14, padding: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                  {empresa.logo ? (
-                    <img src={empresa.logo} alt="" style={{ width: 26, height: 26, borderRadius: 6, objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ width: 26, height: 26, borderRadius: 6, background: empresa.colorAccent || "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>
-                      {(empresa.nombreComercial || empresa.nombre || "E")[0]?.toUpperCase()}
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827", margin: "0 0 4px" }}>Apariencia de la aplicacion</h2>
+              <p style={{ fontSize: 13, color: "#6B7280", margin: "0 0 24px" }}>Personaliza la identidad visual de Scheduleo para tu empresa</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                  <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Identidad de la empresa</div>
+                    <label style={labelStyle}>Nombre de la empresa</label>
+                    <input value={empresa.nombreComercial || empresa.nombre || ""} onChange={e => set("nombreComercial", e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} />
+                    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                      <div style={{ width: 64, height: 64, borderRadius: 14, background: empresa.colorAccent || "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
+                        {empresa.logo ? <img src={empresa.logo} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ color: "#fff", fontSize: 26, fontWeight: 700 }}>{(empresa.nombreComercial || empresa.nombre || "E")[0]?.toUpperCase()}</span>}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label htmlFor="logoUpload" style={{ display: "block", border: "2px dashed #D1D5DB", borderRadius: 10, padding: 14, textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
+                          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#4B5563" }}>Subir logo de la empresa</div>
+                          <div style={{ fontSize: 10.5, color: "#9CA3AF", marginTop: 2 }}>PNG o JPG - Max 2MB</div>
+                        </label>
+                        <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/jpg" style={{ display: "none" }}
+                          onChange={e => {
+                            const file = e.target.files?.[0]
+                            if (!file) return
+                            if (file.size > 2 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 2MB", "error"); return }
+                            const reader = new FileReader()
+                            reader.onload = () => set("logo", reader.result as string)
+                            reader.readAsDataURL(file)
+                          }} />
+                      </div>
                     </div>
-                  )}
-                  <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>{empresa.nombreComercial || empresa.nombre || "Empresa"}</span>
+                  </div>
+
+                  <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Paleta de colores</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <div>
+                        <label style={labelStyle}>Color barra lateral</label>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <input type="color" value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)}
+                            style={{ width: 44, height: 36, padding: 2, border: "1px solid #e8eaf0", borderRadius: 8, cursor: "pointer" }} />
+                          <input value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>Color de acento</label>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <input type="color" value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)}
+                            style={{ width: 44, height: 36, padding: 2, border: "1px solid #e8eaf0", borderRadius: 8, cursor: "pointer" }} />
+                          <input value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Tema del sistema</div>
+                    <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
+                  </div>
+
                 </div>
-                {["Dashboard", "Empleados", "Deudas"].map((item, i) => (
-                  <div key={item} style={{ padding: "7px 10px", borderRadius: 7, color: i === 2 ? "#fff" : "rgba(255,255,255,0.75)", fontSize: 12, marginBottom: 3, background: i === 2 ? (empresa.colorAccent || "#6366f1") : "transparent", fontWeight: i === 2 ? 500 : 400 }}>{item}</div>
-                ))}
-              <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
+
+                <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", height: "fit-content" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Vista previa</div>
+                  <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #E5E7EB", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+                    <div style={{ background: empresa.colorSidebar || "#2d2b55", padding: 14 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                        {empresa.logo ? (
+                          <img src={empresa.logo} alt="" style={{ width: 24, height: 24, borderRadius: 6, objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: 24, height: 24, borderRadius: 6, background: empresa.colorAccent || "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}>
+                            {(empresa.nombreComercial || empresa.nombre || "E")[0]?.toUpperCase()}
+                          </div>
+                        )}
+                        <span style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}>{empresa.nombreComercial || empresa.nombre || "Empresa"}</span>
+                      </div>
+                      {["Dashboard", "Empleados", "Deudas"].map((item, i) => (
+                        <div key={item} style={{ padding: "6px 8px", borderRadius: 6, color: i === 2 ? "#fff" : "rgba(255,255,255,0.7)", fontSize: 11, marginBottom: 2, background: i === 2 ? (empresa.colorAccent || "#6366f1") : "transparent", fontWeight: i === 2 ? 600 : 400 }}>{item}</div>
+                      ))}
+                    </div>
+                    <div style={{ background: "#F8F9FA", padding: 16, height: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 11, color: "#D1D5DB" }}>Contenido de la app</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#9CA3AF", textAlign: "center", marginTop: 10 }}>Asi se vera tu app con esta configuracion</div>
+                </div>
+
               </div>
             </div>
           )}
