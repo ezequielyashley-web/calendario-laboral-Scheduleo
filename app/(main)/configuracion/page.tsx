@@ -1088,7 +1088,7 @@ export default function ConfiguracionPage() {
           )}
           </div>
           {seccion !== "usuarios" && seccion !== "inspeccion" && (
-            <div style={{ background: "#fff", borderTop: "1px solid #E5E7EB", padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+            <div style={{ background: "#fff", borderTop: "1px solid #E5E7EB", padding: "14px 28px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#F59E0B" }} />
                 <span style={{ fontSize: 11, color: "#9CA3AF" }}>Cambios pendientes de guardar</span>
