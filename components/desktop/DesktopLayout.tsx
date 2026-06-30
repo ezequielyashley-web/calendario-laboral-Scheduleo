@@ -537,7 +537,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 {usuarioActual?.name ?? "Usuario"}
               </span>
             </div>
-            </div>
           </div>
         </header>
         <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo") ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
