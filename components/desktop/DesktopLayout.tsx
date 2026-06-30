@@ -526,9 +526,17 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 🔔
               </div>
             )}
-            <div className="flex items-center justify-center w-8 h-8 text-white font-bold text-xs cursor-pointer flex-shrink-0"
-              style={{ background:accentColor, borderRadius:4 }}>
-              A
+            <div style={{ display:"flex", alignItems:"center", gap:6, background:"var(--surface-2)", border:"1px solid var(--border)", borderRadius:8, padding:"5px 10px", cursor:"pointer", flexShrink:0 }}>
+              <div style={{ position:"relative" }}>
+                <div style={{ width:26, height:26, borderRadius:6, background:accentColor, display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:11, fontWeight:700 }}>
+                  {usuarioActual?.name?.[0]?.toUpperCase() ?? "U"}
+                </div>
+                <div style={{ position:"absolute", bottom:-1, right:-1, width:8, height:8, borderRadius:"50%", background:"#10B981", border:"2px solid var(--surface-2)", boxShadow:"0 0 4px #10B981" }} />
+              </div>
+              <span style={{ fontSize:12, fontWeight:600, color:"var(--text-primary)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                {usuarioActual?.name ?? "Usuario"}
+              </span>
+            </div>
             </div>
           </div>
         </header>

@@ -578,6 +578,8 @@ function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any,
 }
 export default function ConfiguracionPage() {
   const [toggleTemaActivo, setToggleTemaActivo] = useState(true)
+  const [usuarioActual, setUsuarioActual] = useState<{name:string}|null>(null)
+  useEffect(() => { fetch("/api/session-info").then(r=>r.json()).then(d=>{ if(d?.name) setUsuarioActual({name:d.name}) }).catch(()=>{}) }, [])
   const [acceso, setAcceso] = useState(false)
   const [pinAcceso, setPinAcceso] = useState("")
   const [errorAcceso, setErrorAcceso] = useState("")
@@ -800,11 +802,23 @@ export default function ConfiguracionPage() {
         </div>
       )}
       <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1 }}>
-        <div style={{ background: "linear-gradient(180deg,#1e1b4b 0%,#312e81 100%)", display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "calc(100vh - 56px)", overflow: "hidden" }}>
+        <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "calc(100vh - 56px)", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "20px 16px", flex: 1, overflowY: "auto" }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 2 }}>Configuracion</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>{empresa.nombreComercial || empresa.nombre || "Mi Empresa S.L."}</div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Empresa</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#374151", marginBottom: 2 }}>Configuracion</div>
+            <div style={{ fontSize: 10, color: "#9CA3AF", marginBottom: 16 }}>{empresa.nombreComercial || empresa.nombre || "Mi Empresa S.L."}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: "#fff", borderRadius: 10, marginBottom: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{usuarioActual?.name || "Usuario"}</div>
+                <div style={{ fontSize: 10, color: "#9CA3AF", display: "flex", alignItems: "center", gap: 3 }}>
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 4px #10B981" }} />
+                  En linea
+                </div>
+              </div>
+            </div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Empresa</div>
             {[
               { key: "identidad", label: "Identidad legal", p: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" },
               { key: "contacto", label: "Contacto", p: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.07 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.81.7A2 2 0 0 1 21 17z" },
@@ -812,13 +826,13 @@ export default function ConfiguracionPage() {
               { key: "apariencia", label: "Apariencia", p: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
             ].map(s => (
               <button key={s.key} onClick={() => setSeccion(s.key)}
-                style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#fff" : "rgba(255,255,255,0.55)", background: seccion === s.key ? "rgba(255,255,255,0.12)" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #C4B5FD" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8 }}>
+                style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8, boxShadow: seccion === s.key ? "0 1px 4px rgba(103,61,230,0.12)" : "none" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
                 {s.label}
               </button>
             ))}
-            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
-            <div style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Sistema</div>
+            <div style={{ height: 1, background: "rgba(103,61,230,0.12)", margin: "12px 0" }} />
+            <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Sistema</div>
             {[
               { key: "licencia", label: "Licencia", p: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" },
               { key: "inspeccion", label: "Inspeccion laboral", p: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" },
@@ -828,17 +842,17 @@ export default function ConfiguracionPage() {
               { key: "seguridad", label: "Seguridad", p: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
             ].map(s => (
               <button key={s.key} onClick={() => setSeccion(s.key)}
-                style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#fff" : "rgba(255,255,255,0.55)", background: seccion === s.key ? "rgba(255,255,255,0.12)" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #C4B5FD" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8 }}>
+                style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8, boxShadow: seccion === s.key ? "0 1px 4px rgba(103,61,230,0.12)" : "none" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
                 {s.label}
               </button>
             ))}
           </div>
-          <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 22, height: 22, borderRadius: 6, background: "#673DE6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(103,61,230,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 18, height: 18, borderRadius: 5, background: "#673DE6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <span style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>S</span>
             </div>
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>Scheduleo v2.0.0</span>
+            <span style={{ fontSize: 10, color: "rgba(103,61,230,0.5)", fontWeight: 600 }}>Scheduleo v2.0.0</span>
           </div>
         </div>
         <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column" }}>
