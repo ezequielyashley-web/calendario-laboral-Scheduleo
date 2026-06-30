@@ -816,18 +816,6 @@ export default function ConfiguracionPage() {
 
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ position: "relative" }}>
-            <SuperAdminSidebar
-              usuario={superAdmin}
-              onCambiarEmail={() => abrirModal("cambiarEmail", superAdmin)}
-              onResetPwd={() => abrirModal("reset", superAdmin)}
-            />
-            {solicitudesPendientes > 0 && (
-              <div style={{ position: "absolute", top: -6, right: -6, background: "#dc2626", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, border: "2px solid #fff", zIndex: 10 }}>
-                {solicitudesPendientes > 9 ? "9+" : solicitudesPendientes}
-              </div>
-            )}
-          </div>
           <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 12, height: "fit-content" }}>
           {SECCIONES.map(s => (
             <button key={s.key} onClick={() => setSeccion(s.key)}
