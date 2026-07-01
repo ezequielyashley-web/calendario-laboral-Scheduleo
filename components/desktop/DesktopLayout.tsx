@@ -430,41 +430,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </svg>
           </div>
         )}
-
-        {/* BOTON CERRAR SESION */}
-        {open && (
-          <div style={{ padding:"0 10px 10px" }}>
-            <div style={{ borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)", paddingTop:10, display:"flex", justifyContent:"space-between", alignItems:"center", paddingLeft:4, paddingRight:4 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <div style={{ width:28, height:28, borderRadius:"50%", background: isLight ? "#EDE9FE" : "rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color: isLight ? "#673DE6" : "#fff" }}>
-                  {(usuarioActual?.name || "U")[0]?.toUpperCase()}
-                </div>
-                <span style={{ fontSize:12, fontWeight:600, color: isLight ? "#111827" : "rgba(255,255,255,0.8)", maxWidth:80, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>
-                  {usuarioActual?.name?.split(" ")[0] || "Usuario"}
-                </span>
-              </div>
-              <button onClick={handleSignOut}
-                style={{ width:32, height:32, borderRadius:8, border: isLight ? "1px solid #E5E7EB" : "1px solid rgba(255,255,255,0.1)", background: isLight ? "#F9FAFB" : "rgba(255,255,255,0.05)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#6B7280" : "rgba(255,255,255,0.5)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                  <polyline points="16 17 21 12 16 7"/>
-                  <line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
-        {!open && (
-          <div style={{ padding:"0 8px 10px", display:"flex", justifyContent:"center" }}>
-            <button onClick={handleSignOut}
-              style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:8, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.5)", cursor:"pointer" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
-            </button>
-          </div>
         )}
 
         {/* Collapse btn */}
@@ -539,7 +504,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
         </header>
-        <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo") ? 0 : 24, overflow: pathname === "/chat" ? "hidden" : "auto", height: pathname === "/chat" ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+        <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           {children}
         </main>
       </div>
