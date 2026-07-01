@@ -332,9 +332,9 @@ function SeccionDemo() {
       setModoActual(demo.modoDemo ? "demo" : "real")
       setStats({
         reales: empleados.filter((e: any) => !e.esDemostracion).length,
-        demo: empleados.filter((e: any) => e.esDemostracion).length
+        demo: empleados.filter((e: any) => e.esDemostracion).length,
+        maxEmpleados: 100
       })
-      setCargando(false)
     }).catch(() => setCargando(false))
   }, [])
 
@@ -1093,7 +1093,7 @@ export default function ConfiguracionPage() {
                 {[
                   { label: "Estado licencia", valor: empresa.licenciaActiva ? "Activa" : "Inactiva", color: empresa.licenciaActiva ? "#059669" : "#dc2626", bg: empresa.licenciaActiva ? "#d1fae5" : "#fee2e2" },
                   { label: "Expira el", valor: empresa.licenciaExpira ? new Date(empresa.licenciaExpira).toLocaleDateString("es-ES") : "Sin fecha", color: "#6366f1", bg: "#ede9fe" },
-                  { label: "Máx. empleados", valor: stats.maxEmpleados, color: "#0284c7", bg: "#dbeafe" },
+                  { label: "Máx. empleados", valor: empresa.maxEmpleados || 100, color: "#0284c7", bg: "#dbeafe" },
                 ].map(k => (
                   <div key={k.label} style={{ background: k.bg, borderRadius: 12, padding: "16px 20px", textAlign: "center" }}>
                     <div style={{ fontSize: 11, color: k.color, fontWeight: 500, marginBottom: 6 }}>{k.label}</div>
