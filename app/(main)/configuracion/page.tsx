@@ -314,7 +314,7 @@ function SeccionDemo() {
   const [modoActual, setModoActual] = useState<"real"|"demo"|null>(null)
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
-  const [stats, setStats] = useState({ reales: 0, demo: 50 })
+  const [stats, setStats] = useState({ reales: 0, demo: 50, maxEmpleados: 100 })
   const [confirmacion, setConfirmacion] = useState<"activarDemo"|"activarReal"|null>(null)
   const [notificacion, setNotificacion] = useState({ texto: "", tipo: "" })
 
@@ -422,11 +422,11 @@ function SeccionDemo() {
             Muestra los empleados y datos reales de tu empresa. Los cambios se guardan permanentemente.
           <div style={{ background: "#F9FAFB", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: 12, color: "#374151" }}><span style={{ fontWeight: 700 }}>{stats.reales}</span> de <span style={{ fontWeight: 700 }}>{empresa.maxEmpleados || 100}</span> empleados</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: stats.reales / (empresa.maxEmpleados || 100) > 0.8 ? "#dc2626" : stats.reales / (empresa.maxEmpleados || 100) > 0.6 ? "#F59E0B" : "#10B981" }}>{Math.round(stats.reales / (empresa.maxEmpleados || 100) * 100)}%</span>
+              <span style={{ fontSize: 12, color: "#374151" }}><span style={{ fontWeight: 700 }}>{stats.reales}</span> de <span style={{ fontWeight: 700 }}>{stats.maxEmpleados}</span> empleados</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: stats.reales / (stats.maxEmpleados) > 0.8 ? "#dc2626" : stats.reales / (stats.maxEmpleados) > 0.6 ? "#F59E0B" : "#10B981" }}>{Math.round(stats.reales / (stats.maxEmpleados) * 100)}%</span>
             </div>
             <div style={{ height: 6, background: "#E5E7EB", borderRadius: 999 }}>
-              <div style={{ height: "100%", borderRadius: 999, width: `${Math.min(stats.reales / (empresa.maxEmpleados || 100) * 100, 100)}%`, background: stats.reales / (empresa.maxEmpleados || 100) > 0.8 ? "#dc2626" : stats.reales / (empresa.maxEmpleados || 100) > 0.6 ? "#F59E0B" : "#10B981", transition: "width 0.5s ease" }} />
+              <div style={{ height: "100%", borderRadius: 999, width: `${Math.min(stats.reales / (stats.maxEmpleados) * 100, 100)}%`, background: stats.reales / (stats.maxEmpleados) > 0.8 ? "#dc2626" : stats.reales / (stats.maxEmpleados) > 0.6 ? "#F59E0B" : "#10B981", transition: "width 0.5s ease" }} />
             </div>
           </div>
           </div>
@@ -1093,7 +1093,7 @@ export default function ConfiguracionPage() {
                 {[
                   { label: "Estado licencia", valor: empresa.licenciaActiva ? "Activa" : "Inactiva", color: empresa.licenciaActiva ? "#059669" : "#dc2626", bg: empresa.licenciaActiva ? "#d1fae5" : "#fee2e2" },
                   { label: "Expira el", valor: empresa.licenciaExpira ? new Date(empresa.licenciaExpira).toLocaleDateString("es-ES") : "Sin fecha", color: "#6366f1", bg: "#ede9fe" },
-                  { label: "Máx. empleados", valor: empresa.maxEmpleados || 100, color: "#0284c7", bg: "#dbeafe" },
+                  { label: "Máx. empleados", valor: stats.maxEmpleados, color: "#0284c7", bg: "#dbeafe" },
                 ].map(k => (
                   <div key={k.label} style={{ background: k.bg, borderRadius: 12, padding: "16px 20px", textAlign: "center" }}>
                     <div style={{ fontSize: 11, color: k.color, fontWeight: 500, marginBottom: 6 }}>{k.label}</div>
