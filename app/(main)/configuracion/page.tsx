@@ -15,7 +15,7 @@ const SECCIONES = [
   { key: "licencia", label: "Licencia" },
   { key: "inspeccion", label: "Inspección laboral" },
   { key: "usuarios", label: "Usuarios gerenciales" },
-  { key: "demo", label: "Base de datos demo" },
+  { key: "demo", label: "Gestion de datos" },
   { key: "imap", label: "Email IMAP (Bajas IT)" },
   { key: "seguridad", label: "Seguridad" },
 ]
@@ -425,8 +425,8 @@ function SeccionDemo() {
             <span style={{ fontWeight: 700 }}>{stats.reales}</span> empleados reales registrados
           </div>
           <button onClick={() => modoActual !== "real" && setConfirmacion("activarReal")} disabled={modoActual === "real" || guardando}
-            style={{ width: "100%", background: modoActual === "real" ? "#E5E7EB" : "#673DE6", color: modoActual === "real" ? "#9CA3AF" : "#fff", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "real" ? "default" : "pointer", transition: "all 0.2s" }}>
-            {modoActual === "real" ? "✓ En uso" : "Activar base de datos real"}
+            style={{ width: "100%", background: modoActual === "real" ? "#10B981" : "#6B7280", color: "#fff", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "real" ? "default" : "pointer", transition: "all 0.2s" }}>
+            {modoActual === "real" ? "✓ Activa" : "Activar base de datos real"}
           </button>
         </div>
 
@@ -444,8 +444,8 @@ function SeccionDemo() {
             <span style={{ fontWeight: 700 }}>{stats.demo}</span> empleados ficticios disponibles
           </div>
           <button onClick={() => modoActual !== "demo" && setConfirmacion("activarDemo")} disabled={modoActual === "demo" || guardando}
-            style={{ width: "100%", background: modoActual === "demo" ? "#FDE68A" : "#F59E0B", color: modoActual === "demo" ? "#92400E" : "#0b0e1a", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "demo" ? "default" : "pointer", transition: "all 0.2s" }}>
-            {modoActual === "demo" ? "✓ En uso" : "Activar modo demostración"}
+            style={{ width: "100%", background: modoActual === "demo" ? "#10B981" : "#6B7280", color: "#fff", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "demo" ? "default" : "pointer", transition: "all 0.2s" }}>
+            {modoActual === "demo" ? "✓ Activa" : "Activar modo demostración"}
           </button>
         </div>
 
@@ -905,7 +905,7 @@ export default function ConfiguracionPage() {
               { key: "inspeccion", label: "Inspeccion laboral", p: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" },
               { key: "usuarios", label: "Usuarios gerenciales", p: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8" },
               { key: "imap", label: "Email IMAP", p: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6" },
-              { key: "demo", label: "Base de datos demo", p: "M21 5c0 1.66-4 3-9 3S3 6.66 3 5m18 0c0-1.66-4-3-9-3S3 3.34 3 5m18 0v14c0 1.66-4 3-9 3s-9-1.34-9-3V5m0 7c0 1.66 4 3 9 3s9-1.34 9-3" },
+              { key: "demo", label: "Gestion de datos", p: "M21 5c0 1.66-4 3-9 3S3 6.66 3 5m18 0c0-1.66-4-3-9-3S3 3.34 3 5m18 0v14c0 1.66-4 3-9 3s-9-1.34-9-3V5m0 7c0 1.66 4 3 9 3s9-1.34 9-3" },
               { key: "seguridad", label: "Seguridad", p: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
             ].map(s => (
               <button key={s.key} onClick={() => setSeccion(s.key)}
