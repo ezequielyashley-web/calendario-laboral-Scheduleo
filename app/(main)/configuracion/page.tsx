@@ -420,9 +420,15 @@ function SeccionDemo() {
           <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 6 }}>Base de datos real</div>
           <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.6, marginBottom: 14 }}>
             Muestra los empleados y datos reales de tu empresa. Los cambios se guardan permanentemente.
+          <div style={{ background: "#F9FAFB", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 12, color: "#374151" }}><span style={{ fontWeight: 700 }}>{stats.reales}</span> de <span style={{ fontWeight: 700 }}>{empresa.maxEmpleados || 100}</span> empleados</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: stats.reales / (empresa.maxEmpleados || 100) > 0.8 ? "#dc2626" : stats.reales / (empresa.maxEmpleados || 100) > 0.6 ? "#F59E0B" : "#10B981" }}>{Math.round(stats.reales / (empresa.maxEmpleados || 100) * 100)}%</span>
+            </div>
+            <div style={{ height: 6, background: "#E5E7EB", borderRadius: 999 }}>
+              <div style={{ height: "100%", borderRadius: 999, width: `${Math.min(stats.reales / (empresa.maxEmpleados || 100) * 100, 100)}%`, background: stats.reales / (empresa.maxEmpleados || 100) > 0.8 ? "#dc2626" : stats.reales / (empresa.maxEmpleados || 100) > 0.6 ? "#F59E0B" : "#10B981", transition: "width 0.5s ease" }} />
+            </div>
           </div>
-          <div style={{ background: "#F9FAFB", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#374151" }}>
-            <span style={{ fontWeight: 700 }}>{stats.reales}</span> empleados reales registrados
           </div>
           <button onClick={() => modoActual !== "real" && setConfirmacion("activarReal")} disabled={modoActual === "real" || guardando}
             style={{ width: "100%", background: modoActual === "real" ? "#10B981" : "#6B7280", color: "#fff", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "real" ? "default" : "pointer", transition: "all 0.2s" }}>
