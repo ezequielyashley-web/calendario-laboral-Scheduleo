@@ -430,37 +430,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </svg>
           </div>
         )}
-        {/* USUARIO + CERRAR SESION */}
-        {open ? (
-          <div style={{ padding:"0 10px 10px" }}>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"6px 4px" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-                <div style={{ position:"relative" }}>
-                  <div style={{ width:30, height:30, borderRadius:8, background:accentColor, display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:12, fontWeight:700 }}>
-                    {(usuarioActual?.name || "U")[0]?.toUpperCase()}
-                  </div>
-                  <div style={{ position:"absolute", bottom:-1, right:-1, width:8, height:8, borderRadius:"50%", background:"#10B981", border:"2px solid #1e1b4b" }} />
-                </div>
-                <div>
-                  <div style={{ fontSize:12, fontWeight:600, color:"#fff", lineHeight:1.2, maxWidth:90, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{usuarioActual?.name || "Usuario"}</div>
-                  <div style={{ fontSize:10, color:"rgba(255,255,255,0.4)" }}>En linea</div>
-                </div>
-              </div>
-              <button onClick={handleSignOut} title="Cerrar sesion"
-                style={{ background:"#dc2626", border:"none", borderRadius:7, padding:"6px 10px", cursor:"pointer", display:"flex", alignItems:"center", gap:4 }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                <span style={{ fontSize:11, fontWeight:600, color:"#fff" }}>Salir</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div style={{ padding:"0 8px 10px", display:"flex", justifyContent:"center" }}>
-            <button onClick={handleSignOut} title="Cerrar sesion"
-              style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:8, background:"#dc2626", border:"none", cursor:"pointer" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </button>
-          </div>
-        )}
 
 
         {/* Collapse btn */}
