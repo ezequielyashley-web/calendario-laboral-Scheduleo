@@ -323,6 +323,7 @@ function SeccionDemo() {
     setTimeout(() => setNotificacion({ texto: "", tipo: "" }), 4000)
   }
 
+  useEffect(() => {
     Promise.allSettled([
       fetch('/api/config/modo-demo').then(r => r.json()).catch(() => ({ modoDemo: false })),
       fetch('/api/empresa').then(r => r.json()).catch(() => ({ maxEmpleados: 100 })),
@@ -332,13 +333,8 @@ function SeccionDemo() {
       const emp = empRes.status === "fulfilled" ? empRes.value : { maxEmpleados: 100 }
       const conteo = conteoRes.status === "fulfilled" ? conteoRes.value : { reales: 0, demo: 50 }
       setModoActual(demo.modoDemo ? "demo" : "real")
-      setStats({
-        reales: conteo.reales || 0,
-        demo: conteo.demo || 50,
-        maxEmpleados: emp?.maxEmpleados || 100
-      })
+      setStats({ reales: conteo.reales || 0, demo: conteo.demo || 50, maxEmpleados: emp?.maxEmpleados || 100 })
       setCargando(false)
-    }).catch(() => setCargando(false))
     }).catch(() => setCargando(false))
   }, [])
 
