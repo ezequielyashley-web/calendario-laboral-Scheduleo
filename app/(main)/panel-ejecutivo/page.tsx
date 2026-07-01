@@ -91,7 +91,7 @@ export default function PanelEjecutivoPage() {
   }, [autenticado, usuarioActual])
 
   const cargarMensajes = async (userId: string) => {
-    const res = await fetch(`/api/panel-ejecutivo/mensajes?con=${userId}`).catch(() => null)
+    const res = await fetch(`/api/panel-ejecutivo/mensajes?yo=${usuarioActual?.id}&con=${userId}`).catch(() => null)
     if (res?.ok) { const d = await res.json(); setMensajes(Array.isArray(d) ? d : []) }
     setTimeout(() => { if (mensajesRef.current) mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight }, 100)
   }
@@ -109,7 +109,7 @@ export default function PanelEjecutivoPage() {
     setEnviando(true)
     const res = await fetch("/api/panel-ejecutivo/mensajes", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paraId: usuarioSeleccionado.id, texto: nuevoMensaje.trim() })
+      body: JSON.stringify({ remitenteId: usuarioActual?.id, paraId: usuarioSeleccionado.id, texto: nuevoMensaje.trim() })
     }).catch(() => null)
     if (res?.ok) {
       setNuevoMensaje("")

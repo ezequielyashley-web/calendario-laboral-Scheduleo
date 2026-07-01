@@ -22,6 +22,8 @@ model User {
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
   passwordResetTokens PasswordResetToken[]
+  mensajesEnviados   MensajePanelEjecutivo[] @relation("MensajesEnviados")
+  mensajesRecibidos  MensajePanelEjecutivo[] @relation("MensajesRecibidos")
 
   @@index([empresaId])
 }
@@ -314,4 +316,17 @@ model EmpleadoGrupoLibranza {
 
   @@index([empleadoId])
   @@index([grupoLibranzaId])
+}
+
+model MensajePanelEjecutivo {
+  id             String   @id @default(cuid())
+  remitenteId    String
+  destinatarioId String
+  texto          String
+  createdAt      DateTime @default(now())
+  remitente      User     @relation("MensajesEnviados", fields: [remitenteId], references: [id], onDelete: Cascade)
+  destinatario   User     @relation("MensajesRecibidos", fields: [destinatarioId], references: [id], onDelete: Cascade)
+
+  @@index([remitenteId])
+  @@index([destinatarioId])
 }

@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.id) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   const { para, nombre, asunto, cuerpo } = await req.json()
   if (!para || !asunto || !cuerpo) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
   try {
@@ -28,7 +24,7 @@ export async function POST(req: NextRequest) {
       `
     })
     return NextResponse.json({ ok: true })
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Error al enviar email" }, { status: 500 })
   }
 }
