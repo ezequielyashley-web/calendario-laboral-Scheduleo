@@ -152,6 +152,7 @@ model ConfiguracionCobertura {
 }
 
 model Fichaje {
+  esDemo         Boolean  @default(false)
   id            String    @id @default(cuid())
   empleadoId    String
   empleado      Empleado  @relation(fields: [empleadoId], references: [id])
@@ -168,6 +169,7 @@ model Fichaje {
 }
 
 model Vacacion {
+  esDemo         Boolean  @default(false)
   id              String    @id @default(cuid())
   empleadoId      String
   empleado        Empleado  @relation(fields: [empleadoId], references: [id])
@@ -188,6 +190,7 @@ model Vacacion {
 }
 
 model BajaMedica {
+  esDemo         Boolean  @default(false)
   id                        String    @id @default(cuid())
   empleadoId                String
   empleado                  Empleado  @relation(fields: [empleadoId], references: [id])
@@ -221,6 +224,7 @@ model BajaMedica {
 }
 
 model Libranza {
+  esDemo         Boolean  @default(false)
   id             String       @id @default(cuid())
   grupoTrabajoId String
   grupoTrabajo   GrupoTrabajo @relation(fields: [grupoTrabajoId], references: [id])
@@ -236,6 +240,7 @@ model Libranza {
 }
 
 model CambioTurno {
+  esDemo         Boolean  @default(false)
   id                String    @id @default(cuid())
   empleadoOrigenId  String
   empleadoOrigen    Empleado  @relation("EmpleadoOrigen", fields: [empleadoOrigenId], references: [id])

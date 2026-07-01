@@ -311,86 +311,167 @@ function SeccionIMAP() {
 }
 
 function SeccionDemo() {
-  const [modoDemo, setModoDemo] = useState(false)
+  const [modoActual, setModoActual] = useState<"real"|"demo"|null>(null)
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
+  const [stats, setStats] = useState({ reales: 0, demo: 50 })
+  const [confirmacion, setConfirmacion] = useState<"activarDemo"|"activarReal"|null>(null)
+  const [notificacion, setNotificacion] = useState({ texto: "", tipo: "" })
+
+  const mostrarNotif = (texto: string, tipo = "ok") => {
+    setNotificacion({ texto, tipo })
+    setTimeout(() => setNotificacion({ texto: "", tipo: "" }), 4000)
+  }
 
   useEffect(() => {
-    fetch('/api/config/modo-demo').then(r => r.json()).then(d => {
-      setModoDemo(d.modoDemo)
+    Promise.all([
+      fetch('/api/config/modo-demo').then(r => r.json()),
+      fetch('/api/empleados?empresaId=empresa-001').then(r => r.json()).catch(() => [])
+    ]).then(([demo, emps]) => {
+      const empleados = Array.isArray(emps) ? emps : []
+      setModoActual(demo.modoDemo ? "demo" : "real")
+      setStats({
+        reales: empleados.filter((e: any) => !e.esDemostracion).length,
+        demo: empleados.filter((e: any) => e.esDemostracion).length
+      })
       setCargando(false)
-    })
+    }).catch(() => setCargando(false))
   }, [])
 
-  const toggleDemo = async () => {
+  const activarDemo = async () => {
     setGuardando(true)
-    const nuevo = !modoDemo
-    await fetch('/api/config/modo-demo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ modoDemo: nuevo })
-    })
-    setModoDemo(nuevo)
+    setConfirmacion(null)
+    await fetch('/api/config/modo-demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoDemo: true }) })
+    setModoActual("demo")
+    mostrarNotif("Modo demo activado — mostrando 50 empleados ficticios", "ok")
     setGuardando(false)
   }
 
-  if (cargando) return <div style={{ padding: 40, textAlign: 'center', color: '#a0aec0' }}>Cargando...</div>
+  const activarReal = async () => {
+    setGuardando(true)
+    setConfirmacion(null)
+    await fetch('/api/config/modo-demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoDemo: false }) })
+    await fetch('/api/demo/limpiar', { method: 'POST' }).catch(() => {})
+    setModoActual("real")
+    mostrarNotif("Modo real activado — los datos demo han sido ocultados", "ok")
+    setGuardando(false)
+  }
+
+  if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
 
   return (
-    <div>
-      <div style={{ background: modoDemo ? '#fef3c7' : '#f0f4ff', border: `1px solid ${modoDemo ? '#f59e0b' : '#c7d2fe'}`, borderRadius: 14, padding: 24, marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: modoDemo ? '#92400e' : '#1e1b4b', marginBottom: 4 }}>
-              {modoDemo ? '⚠️ Modo demostración ACTIVO' : '🔒 Modo demostración INACTIVO'}
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {notificacion.texto && (
+        <div style={{ padding: "12px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: notificacion.tipo === "ok" ? "#d1fae5" : "#fee2e2", color: notificacion.tipo === "ok" ? "#065f46" : "#991b1b", border: `1px solid ${notificacion.tipo === "ok" ? "#6ee7b7" : "#fca5a5"}`, display: "flex", alignItems: "center", gap: 8 }}>
+          <span>{notificacion.tipo === "ok" ? "✓" : "⚠"}</span>
+          {notificacion.texto}
+        </div>
+      )}
+
+      {/* Modal confirmacion */}
+      {confirmacion && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 440, boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+            <div style={{ fontSize: 20, marginBottom: 8 }}>{confirmacion === "activarDemo" ? "🎭" : "🏢"}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 8 }}>
+              {confirmacion === "activarDemo" ? "Activar modo demostración" : "Activar base de datos real"}
             </div>
-            <div style={{ fontSize: 13, color: modoDemo ? '#d97706' : '#718096' }}>
-              {modoDemo ? 'El sistema muestra 50 empleados ficticios. Los datos reales están ocultos.' : 'El sistema muestra los datos reales de la empresa.'}
+            <div style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.6, marginBottom: 20 }}>
+              {confirmacion === "activarDemo"
+                ? "Se mostraran los 50 empleados ficticios. Los datos reales quedaran ocultos pero NO se borraran. Podras volver al modo real en cualquier momento."
+                : "Se ocultaran los datos demo y se mostraran solo los datos reales. Los datos generados en modo demo se eliminaran permanentemente."}
+            </div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button onClick={() => setConfirmacion(null)} style={{ background: "#F3F4F6", color: "#374151", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, cursor: "pointer" }}>Cancelar</button>
+              <button onClick={confirmacion === "activarDemo" ? activarDemo : activarReal} disabled={guardando}
+                style={{ background: confirmacion === "activarDemo" ? "#F59E0B" : "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                {guardando ? "Procesando..." : "Confirmar"}
+              </button>
             </div>
           </div>
-          <button onClick={toggleDemo} disabled={guardando}
-            style={{ background: modoDemo ? '#f59e0b' : '#6366f1', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer', minWidth: 140 }}>
-            {guardando ? 'Guardando...' : modoDemo ? 'Desactivar demo' : 'Activar demo'}
+        </div>
+      )}
+
+      {/* Estado actual */}
+      <div style={{ background: modoActual === "demo" ? "#FEF9C3" : "#F0FDF4", border: `1px solid ${modoActual === "demo" ? "#FDE68A" : "#86EFAC"}`, borderRadius: 14, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: modoActual === "demo" ? "#F59E0B" : "#10B981", boxShadow: `0 0 6px ${modoActual === "demo" ? "#F59E0B" : "#10B981"}` }} />
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: modoActual === "demo" ? "#92400E" : "#065F46" }}>
+              {modoActual === "demo" ? "Modo demostración ACTIVO" : "Base de datos real ACTIVA"}
+            </div>
+            <div style={{ fontSize: 12, color: modoActual === "demo" ? "#D97706" : "#16A34A", marginTop: 2 }}>
+              {modoActual === "demo" ? "Mostrando 50 empleados ficticios · datos reales ocultos" : `${stats.reales} empleados reales · datos demo ocultos`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Dos opciones */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+
+        {/* BD Real */}
+        <div style={{ background: "#fff", border: modoActual === "real" ? "2px solid #673DE6" : "1px solid #E5E7EB", borderRadius: 14, padding: 20, position: "relative", transition: "all 0.2s" }}>
+          {modoActual === "real" && (
+            <div style={{ position: "absolute", top: 12, right: 12, background: "#673DE6", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>ACTIVA</div>
+          )}
+          <div style={{ fontSize: 24, marginBottom: 10 }}>🏢</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 6 }}>Base de datos real</div>
+          <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.6, marginBottom: 14 }}>
+            Muestra los empleados y datos reales de tu empresa. Los cambios se guardan permanentemente.
+          </div>
+          <div style={{ background: "#F9FAFB", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#374151" }}>
+            <span style={{ fontWeight: 700 }}>{stats.reales}</span> empleados reales registrados
+          </div>
+          <button onClick={() => modoActual !== "real" && setConfirmacion("activarReal")} disabled={modoActual === "real" || guardando}
+            style={{ width: "100%", background: modoActual === "real" ? "#E5E7EB" : "#673DE6", color: modoActual === "real" ? "#9CA3AF" : "#fff", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "real" ? "default" : "pointer", transition: "all 0.2s" }}>
+            {modoActual === "real" ? "✓ En uso" : "Activar base de datos real"}
           </button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+
+        {/* BD Demo */}
+        <div style={{ background: "#fff", border: modoActual === "demo" ? "2px solid #F59E0B" : "1px solid #E5E7EB", borderRadius: 14, padding: 20, position: "relative", transition: "all 0.2s" }}>
+          {modoActual === "demo" && (
+            <div style={{ position: "absolute", top: 12, right: 12, background: "#F59E0B", color: "#0b0e1a", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>ACTIVA</div>
+          )}
+          <div style={{ fontSize: 24, marginBottom: 10 }}>🎭</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 6 }}>Base de datos demo</div>
+          <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.6, marginBottom: 14 }}>
+            Muestra 50 empleados ficticios para demostrar el sistema. Los datos reales quedan ocultos y seguros.
+          </div>
+          <div style={{ background: "#FFFBEB", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#92400E" }}>
+            <span style={{ fontWeight: 700 }}>{stats.demo}</span> empleados ficticios disponibles
+          </div>
+          <button onClick={() => modoActual !== "demo" && setConfirmacion("activarDemo")} disabled={modoActual === "demo" || guardando}
+            style={{ width: "100%", background: modoActual === "demo" ? "#FDE68A" : "#F59E0B", color: modoActual === "demo" ? "#92400E" : "#0b0e1a", border: "none", borderRadius: 9, padding: "10px", fontSize: 13, fontWeight: 600, cursor: modoActual === "demo" ? "default" : "pointer", transition: "all 0.2s" }}>
+            {modoActual === "demo" ? "✓ En uso" : "Activar modo demostración"}
+          </button>
+        </div>
+
+      </div>
+
+      {/* Info */}
+      <div style={{ background: "#F8F9FA", border: "1px solid #E5E7EB", borderRadius: 12, padding: "14px 16px" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 8 }}>¿Como funciona?</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {[
-            { label: '50 empleados ficticios', icon: '👥', desc: 'Nombres, DNIs, fechas y sueldos realistas' },
-            { label: 'Datos separados', icon: '🔒', desc: 'Los datos demo nunca se mezclan con los reales' },
-            { label: 'Un click para limpiar', icon: '🧹', desc: 'Desactiva el modo demo para volver a datos reales' },
-          ].map(item => (
-            <div key={item.label} style={{ background: '#fff', borderRadius: 10, padding: '12px 16px', border: '0.5px solid #e8eaf0' }}>
-              <div style={{ fontSize: 20, marginBottom: 6 }}>{item.icon}</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 2 }}>{item.label}</div>
-              <div style={{ fontSize: 11, color: '#a0aec0' }}>{item.desc}</div>
+            "Los datos reales y demo nunca se mezclan entre si.",
+            "Al activar demo, los datos reales quedan ocultos pero NO se borran.",
+            "Al volver al modo real, los datos generados en demo se eliminan.",
+            "Solo una base de datos puede estar activa a la vez.",
+          ].map((txt, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: "#6B7280" }}>
+              <span style={{ color: "#673DE6", fontWeight: 700, flexShrink: 0 }}>✓</span>
+              {txt}
             </div>
           ))}
         </div>
       </div>
-      {modoDemo && (
-        <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>Datos de demostración incluidos</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
-            {[
-              '50 empleados con datos completos',
-              '6 grupos de trabajo con empleados asignados',
-              'DNIs, teléfonos y fechas ficticias',
-              'Sueldos base entre 1.700 y 2.200',
-              'Fechas de contratación entre 2017 y 2022',
-              'Distribución equitativa entre grupos',
-            ].map(item => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#718096' }}>
-                <span style={{ color: '#6366f1', fontWeight: 700 }}>✓</span> {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }
-
-
 function SeccionSeguridad() {
   const [expiracion, setExpiracion] = useState('90')
   const [guardando, setGuardando] = useState(false)

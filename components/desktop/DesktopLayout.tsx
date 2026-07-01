@@ -303,7 +303,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       {isMobile && mobileOpen && (
         <div onClick={() => setMobileOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:40 }} />
       )}
-      <aside style={{ width: isMobile ? 240 : (open ? (isLight ? 240 : 200) : 52), background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight: isLight ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.06)',
+      <aside style={{ width: isMobile ? 240 : (open ? 260 : 52), background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight: isLight ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.06)',
           boxShadow: isLight ? '2px 0 8px rgba(0,0,0,0.04), 4px 0 24px rgba(103,61,230,0.05)' : 'none', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={isLight ? 'light-mode' : ''}>
 
@@ -432,6 +432,32 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </div>
         )}
 
+        {/* CERRAR SESION */}
+        <div style={{ padding: open ? "10px 12px" : "10px 8px", flexShrink: 0, borderTop: isLight ? "1px solid #E5E7EB" : "1px solid rgba(255,255,255,0.06)" }}>
+          {open ? (
+            <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", background: isLight ? "#F9FAFB" : "rgba(255,255,255,0.04)", borderRadius:10, border: isLight ? "1px solid #E5E7EB" : "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ position:"relative", flexShrink:0 }}>
+                <div style={{ width:32, height:32, borderRadius:8, background:accentColor, display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:13, fontWeight:700 }}>
+                  {(usuarioActual?.name || "U")[0]?.toUpperCase()}
+                </div>
+                <div style={{ position:"absolute", bottom:-1, right:-1, width:8, height:8, borderRadius:"50%", background:"#10B981", border: isLight ? "2px solid #F9FAFB" : "2px solid #1e1b4b" }} />
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:12, fontWeight:700, color: isLight ? "#111827" : "#fff", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{usuarioActual?.name || "Usuario"}</div>
+                <div style={{ fontSize:10, color:"#10B981" }}>● En linea</div>
+              </div>
+              <button onClick={handleSignOut} title="Cerrar sesion"
+                style={{ width:30, height:30, background:"#dc2626", border:"none", borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            </div>
+          ) : (
+            <button onClick={handleSignOut} title="Cerrar sesion"
+              style={{ width:"100%", height:36, background:"#dc2626", border:"none", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+          )}
+        </div>
 
         {/* Collapse btn */}
         <div style={{ padding:'8px', flexShrink:0 }}>
