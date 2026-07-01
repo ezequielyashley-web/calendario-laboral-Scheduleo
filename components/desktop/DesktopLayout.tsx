@@ -1,5 +1,6 @@
 "use client"
 
+import BetaBanner from "@/components/BetaBanner"
 import { useState, useEffect } from "react"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
@@ -504,6 +505,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
         </header>
+        <BetaBanner />
         <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           {children}
         </main>

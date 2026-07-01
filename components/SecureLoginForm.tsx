@@ -1,4 +1,5 @@
 'use client'
+import SelloBeta from '@/components/SelloBeta'
 import { useState, useEffect } from 'react'
 
 import Link from 'next/link'
@@ -284,6 +285,7 @@ export default function SecureLoginForm() {
 
           {/* CARD */}
           <div style={{position:'relative',zIndex:10,width:'100%',maxWidth:400,padding:'0 20px'}}>
+              <SelloBeta />
             <div className="login-card" style={{backdropFilter:'blur(20px)',background:'rgba(255,255,255,0.13)',border:'1px solid rgba(255,255,255,0.25)',borderRadius:24,padding:'40px 36px 28px',boxShadow:'0 25px 50px rgba(0,0,0,0.08)'}}>
 
               {/* Header */}
