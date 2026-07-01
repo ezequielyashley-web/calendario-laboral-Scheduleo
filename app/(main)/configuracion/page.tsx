@@ -323,18 +323,22 @@ function SeccionDemo() {
     setTimeout(() => setNotificacion({ texto: "", tipo: "" }), 4000)
   }
 
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/config/modo-demo').then(r => r.json()),
-      fetch('/api/empleados?empresaId=empresa-001').then(r => r.json()).catch(() => [])
-    ]).then(([demo, emps]) => {
-      const empleados = Array.isArray(emps) ? emps : []
+    Promise.allSettled([
+      fetch('/api/config/modo-demo').then(r => r.json()).catch(() => ({ modoDemo: false })),
+      fetch('/api/empresa').then(r => r.json()).catch(() => ({ maxEmpleados: 100 })),
+      fetch('/api/empleados/conteo').then(r => r.json()).catch(() => ({ reales: 0, demo: 50 }))
+    ]).then(([demoRes, empRes, conteoRes]) => {
+      const demo = demoRes.status === "fulfilled" ? demoRes.value : { modoDemo: false }
+      const emp = empRes.status === "fulfilled" ? empRes.value : { maxEmpleados: 100 }
+      const conteo = conteoRes.status === "fulfilled" ? conteoRes.value : { reales: 0, demo: 50 }
       setModoActual(demo.modoDemo ? "demo" : "real")
       setStats({
-        reales: empleados.filter((e: any) => !e.esDemostracion).length,
-        demo: empleados.filter((e: any) => e.esDemostracion).length,
-        maxEmpleados: 100
+        reales: conteo.reales || 0,
+        demo: conteo.demo || 50,
+        maxEmpleados: emp?.maxEmpleados || 100
       })
+      setCargando(false)
+    }).catch(() => setCargando(false))
     }).catch(() => setCargando(false))
   }, [])
 
