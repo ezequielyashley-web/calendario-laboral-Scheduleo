@@ -430,7 +430,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </svg>
           </div>
         )}
-        )}
 
         {/* Collapse btn */}
         <div style={{ padding:'8px', flexShrink:0 }}>
