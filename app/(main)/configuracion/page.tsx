@@ -615,55 +615,6 @@ function SeccionSeguridad() {
       <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 2px 8px rgba(16,185,129,0.06)", maxWidth: 480, marginTop: 8 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
-      </div>
-    </div>
-  )
-}
-function SuperAdminSidebar({ usuario }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
-  if (!usuario) return null
-  return (
-    <a href="/super-admin" style={{ textDecoration: "none", display: "block" }}>
-      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s" }}
-        onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)")}
-        onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px" }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: "#1e1b4b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Super Admin</div>
-            <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 1 }}>Ver mi perfil completo</div>
-          </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
-      </div>
-    </a>
-  )
-}
-function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
-  const [verDatos, setVerDatos] = useState(false)
-  const [pinVer, setPinVer] = useState("")
-  const [errPin, setErrPin] = useState("")
-
-  const verificarPin = async () => {
-    const res = await fetch("/api/empresa", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ masterPassword: pinVer, _test: true }) })
-    const data = await res.json()
-    if (data.error === "Contraseña incorrecta") { setErrPin("Contrasena incorrecta"); return }
-    setVerDatos(true); setErrPin("")
-  }
-
-  return (
-    <div style={{ background: "linear-gradient(135deg,#1e1b4b,#312e81)", borderRadius: 16, padding: 24, color: "#fff" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👑</div>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 700 }}>Super Administrador</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>Acceso total al sistema</div>
-        </div>
-        <span style={{ marginLeft: "auto", background: "rgba(99,102,241,0.3)", border: "1px solid rgba(99,102,241,0.5)", color: "#a5b4fc", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20 }}>SUPER_ADMIN</span>
-      </div>
       {!verDatos ? (
         <div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
