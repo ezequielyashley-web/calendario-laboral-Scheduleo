@@ -564,7 +564,7 @@ function SeccionSeguridad() {
           ))}
         </div>
       {/* NIVEL DE SEGURIDAD */}
-      <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 14, padding: 24,  }}>
+      <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 2px 8px rgba(16,185,129,0.06)", maxWidth: 480, marginTop: 8 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Nivel de seguridad global</div>
