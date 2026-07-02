@@ -563,8 +563,8 @@ function SeccionSeguridad() {
         </div>
       </div>
 
-      {/* NIVEL DE SEGURIDAD */}
-      <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 14, padding: "20px 24px", boxShadow: "0 2px 12px rgba(16,185,129,0.08)", marginBottom: 8 }}>
+
+      {/* Expiracion contrasena */}
       <div style={{ background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
           <div>
