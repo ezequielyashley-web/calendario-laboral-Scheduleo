@@ -516,51 +516,50 @@ function SeccionSeguridad() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <h2 style={{ fontSize: 16, fontWeight: 500, color: '#1e1b4b', margin: 0 }}>Seguridad del sistema</h2>
-
-      {/* Panel nivel seguridad */}
-      <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 2px 8px rgba(16,185,129,0.06)", maxWidth: 480 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#D1FAE5,#A7F3D0)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1e1b4b" }}>Cifrado AES-256-GCM · Grado A</div>
-              <div style={{ fontSize: 10, color: "#6B7280" }}>Nivel equivalente a banca online</div>
-            </div>
+      {/* NIVEL DE SEGURIDAD */}
+      <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", border: "1px solid #2a2f45", borderRadius: 14, padding: 24, color: "#fff" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Nivel de seguridad global</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>Grado A · Alta seguridad</div>
+            <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Equivalente a sistemas bancarios y sanitarios europeos</div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.7)", border: "1px solid #6EE7B7", borderRadius: 20, padding: "3px 9px" }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 4px #10B981" }} />
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#059669" }}>RGPD Compliant</span>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg,#10B981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(16,185,129,0.4)" }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-            <span style={{ fontSize: 10, color: "#065F46", fontWeight: 600 }}>Proteccion global</span>
-            <span style={{ fontSize: 12, fontWeight: 800, color: "#059669" }}>95%</span>
-          </div>
-          <div style={{ height: 5, background: "rgba(255,255,255,0.5)", borderRadius: 999 }}>
-            <div style={{ width: "95%", height: "100%", background: "linear-gradient(90deg,#10B981,#34D399)", borderRadius: 999 }} />
-          </div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
           {[
-            { label: "Cifrado en transito", desc: "TLS 1.3" },
-            { label: "Cifrado en reposo", desc: "AES-256 Supabase" },
-            { label: "Cifrado por campo AES-256-GCM", desc: "DNI · IBAN · NAF · Salario", max: true },
-            { label: "Control de acceso por roles", desc: "RLS · NextAuth · 2FA" },
+            { label: "Capa 1 — Cifrado en transito", desc: "TLS 1.3 en toda la app via Vercel + SSL a Supabase", activo: true },
+            { label: "Capa 2 — Cifrado en reposo", desc: "AES-256 en disco automatico via Supabase + backups cifrados", activo: true },
+            { label: "Capa 3 — Cifrado por campo", desc: "AES-256-GCM en DNI, IBAN, NAF, telefono y salario", activo: true },
+            { label: "Control de acceso por roles", desc: "Row Level Security + autenticacion NextAuth v5", activo: true },
+            { label: "2FA en inicio de sesion", desc: "Codigo de verificacion por email en cada login", activo: true },
           ].map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", background: item.max ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.5)", borderRadius: 7, border: item.max ? "1px solid rgba(167,243,208,0.8)" : "none" }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-              <span style={{ fontSize: 11, fontWeight: item.max ? 700 : 600, color: "#1e1b4b", flex: 1 }}>{item.label}</span>
-              {item.max && <span style={{ fontSize: 9, background: "#D1FAE5", color: "#065F46", fontWeight: 800, padding: "1px 5px", borderRadius: 4 }}>MAX</span>}
-              <span style={{ fontSize: 10, color: "#6B7280" }}>{item.desc}</span>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "10px 14px" }}>
+              <div style={{ width: 24, height: 24, borderRadius: "50%", background: item.activo ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: item.activo ? "#10B981" : "#EF4444" }}>{item.activo ? "✓" : "✗"}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{item.label}</div>
+                <div style={{ fontSize: 11, color: "#64748B" }}>{item.desc}</div>
+              </div>
             </div>
           ))}
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid rgba(167,243,208,0.5)" }}>
-          <span style={{ fontSize: 10, color: "#065F46" }}>🇪🇺 Art. 32 RGPD · LOPDGDD 3/2018</span>
-          <span style={{ fontSize: 10, color: "#6B7280" }}>Datos cifrados · empleados protegidos</span>
+        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 16 }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 20 }}>🇪🇺</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>RGPD · Ley Organica 3/2018</div>
+              <div style={{ fontSize: 11, color: "#64748B" }}>Articulo 32 — Medidas tecnicas de seguridad</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 20, padding: "4px 12px" }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981" }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#10B981" }}>COMPLIANT</span>
+          </div>
         </div>
       </div>
 
@@ -611,10 +610,55 @@ function SeccionSeguridad() {
             </div>
           ))}
         </div>
-      {/* NIVEL DE SEGURIDAD */}
-      <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 2px 8px rgba(16,185,129,0.06)", maxWidth: 480, marginTop: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <div>
+      </div>
+    </div>
+  )
+}
+function SuperAdminSidebar({ usuario }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
+  if (!usuario) return null
+  return (
+    <a href="/super-admin" style={{ textDecoration: "none", display: "block" }}>
+      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s" }}
+        onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)")}
+        onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px" }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "#1e1b4b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Super Admin</div>
+            <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 1 }}>Ver mi perfil completo</div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+      </div>
+    </a>
+  )
+}
+function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
+  const [verDatos, setVerDatos] = useState(false)
+  const [pinVer, setPinVer] = useState("")
+  const [errPin, setErrPin] = useState("")
+
+  const verificarPin = async () => {
+    const res = await fetch("/api/empresa", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ masterPassword: pinVer, _test: true }) })
+    const data = await res.json()
+    if (data.error === "Contraseña incorrecta") { setErrPin("Contrasena incorrecta"); return }
+    setVerDatos(true); setErrPin("")
+  }
+
+  return (
+    <div style={{ background: "linear-gradient(135deg,#1e1b4b,#312e81)", borderRadius: 16, padding: 24, color: "#fff" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👑</div>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>Super Administrador</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>Acceso total al sistema</div>
+        </div>
+        <span style={{ marginLeft: "auto", background: "rgba(99,102,241,0.3)", border: "1px solid rgba(99,102,241,0.5)", color: "#a5b4fc", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20 }}>SUPER_ADMIN</span>
+      </div>
       {!verDatos ? (
         <div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
