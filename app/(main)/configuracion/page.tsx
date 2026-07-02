@@ -564,12 +564,12 @@ function SeccionSeguridad() {
           ))}
         </div>
       {/* NIVEL DE SEGURIDAD */}
-      <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", border: "1px solid #2a2f45", borderRadius: 14, padding: 24, color: "#fff" }}>
+      <div style={{ background: "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))", border: "1px solid #BBF7D0", borderRadius: 14, padding: 24,  }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Nivel de seguridad global</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>Grado A · Alta seguridad</div>
-            <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Equivalente a sistemas bancarios y sanitarios europeos</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Nivel de seguridad global</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#1e1b4b" }}>Grado A · Alta seguridad</div>
+            <div style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>Equivalente a sistemas bancarios y sanitarios europeos</div>
           </div>
           <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg,#10B981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(16,185,129,0.4)" }}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -583,24 +583,24 @@ function SeccionSeguridad() {
             { label: "Control de acceso por roles", desc: "Row Level Security + autenticacion NextAuth v5", activo: true },
             { label: "2FA en inicio de sesion", desc: "Codigo de verificacion por email en cada login", activo: true },
           ].map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "10px 14px" }}>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.5)", borderRadius: 8, padding: "10px 14px" }}>
               <div style={{ width: 24, height: 24, borderRadius: "50%", background: item.activo ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <span style={{ fontSize: 11, fontWeight: 800, color: item.activo ? "#10B981" : "#EF4444" }}>{item.activo ? "✓" : "✗"}</span>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{item.label}</div>
-                <div style={{ fontSize: 11, color: "#64748B" }}>{item.desc}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#1e1b4b" }}>{item.label}</div>
+                <div style={{ fontSize: 11, color: "#6B7280" }}>{item.desc}</div>
               </div>
             </div>
           ))}
         </div>
-        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 16 }} />
+        <div style={{ height: 1, background: "rgba(167,243,208,0.4)", marginBottom: 16 }} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 20 }}>🇪🇺</span>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>RGPD · Ley Organica 3/2018</div>
-              <div style={{ fontSize: 11, color: "#64748B" }}>Articulo 32 — Medidas tecnicas de seguridad</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#1e1b4b" }}>RGPD · Ley Organica 3/2018</div>
+              <div style={{ fontSize: 11, color: "#6B7280" }}>Articulo 32 — Medidas tecnicas de seguridad</div>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 20, padding: "4px 12px" }}>
