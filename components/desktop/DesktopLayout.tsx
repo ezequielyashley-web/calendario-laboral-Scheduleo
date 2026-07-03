@@ -282,7 +282,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     await new Promise(r => setTimeout(r, 5500))
     await signOut({ callbackUrl: '/login' })
   }
-  }
 
   const sidebarBgDark = empresa?.colorSidebar || '#2d2b55'
   const sidebarBg = isLight ? '#ffffff' : sidebarBgDark
