@@ -285,10 +285,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     fetch("/api/empresa").then(r => r.json()).then(data => setEmpresa(data)).catch(() => {})
   }, [])
 
+  const [showSignOutModal, setShowSignOutModal] = useState(false)
   const handleSignOut = async () => {
     sessionStorage.removeItem('2fa_verified')
     setCerrandoSesion(true)
-    await new Promise(r => setTimeout(r, 5500))
     await signOut({ callbackUrl: '/login' })
   }
 
@@ -460,13 +460,13 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 <div style={{ fontSize:12, fontWeight:700, color: isLight ? "#111827" : "#fff", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{usuarioActual?.name || "Usuario"}</div>
                 <div style={{ fontSize:10, color:"#10B981" }}>● En linea</div>
               </div>
-              <button onClick={handleSignOut} title="Cerrar sesion"
+              <button onClick={() => setShowSignOutModal(true)} title="Cerrar sesion"
                 style={{ width:30, height:30, background:"#dc2626", border:"none", borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </button>
             </div>
           ) : (
-            <button onClick={handleSignOut} title="Cerrar sesion"
+            <button onClick={() => setShowSignOutModal(true)} title="Cerrar sesion"
               style={{ width:"100%", height:36, background:"#dc2626", border:"none", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
@@ -549,6 +549,35 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           {children}
         </main>
+      {/* MODAL CERRAR SESION */}
+      {showSignOutModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999 }}>
+          <div style={{ background:"#fff", borderRadius:16, padding:28, width:400, boxShadow:"0 20px 60px rgba(0,0,0,0.15)" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
+              <div style={{ width:40, height:40, borderRadius:10, background:"#FEE2E2", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </div>
+              <div>
+                <div style={{ fontSize:15, fontWeight:700, color:"#111827" }}>Cerrar sesion</div>
+                <div style={{ fontSize:12, color:"#6B7280" }}>Tu sesion se cerrara inmediatamente</div>
+              </div>
+            </div>
+            <div style={{ background:"#FEF9C3", border:"1px solid #FDE68A", borderRadius:8, padding:"10px 14px", marginBottom:20, fontSize:12, color:"#92400E" }}>
+              ⚠ Asegurate de guardar cualquier cambio antes de salir. Los datos no guardados se perderan.
+            </div>
+            <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
+              <button onClick={() => setShowSignOutModal(false)}
+                style={{ background:"#F3F4F6", color:"#374151", border:"none", borderRadius:8, padding:"9px 20px", fontSize:13, fontWeight:600, cursor:"pointer" }}>
+                Cancelar
+              </button>
+              <button onClick={handleSignOut}
+                style={{ background:"#DC2626", color:"#fff", border:"none", borderRadius:8, padding:"9px 20px", fontSize:13, fontWeight:600, cursor:"pointer" }}>
+                Cerrar sesion
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   )
