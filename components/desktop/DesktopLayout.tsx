@@ -37,6 +37,15 @@ function ClimaWidget() {
   const [ciudad, setCiudad] = useState('')
   const [icono, setIcono] = useState('')
   useEffect(() => {
+    // Detectar restauracion desde bfcache (boton atras)
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted || !sessionStorage.getItem('2fa_verified')) {
+        window.location.replace('/login')
+      }
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    if (!sessionStorage.getItem('2fa_verified')) { window.location.replace('/login'); return }
+    return () => window.removeEventListener('pageshow', handlePageShow)
     if (typeof window !== "undefined" && !sessionStorage.getItem("2fa_verified")) {
       window.location.href = "/login"
       return
