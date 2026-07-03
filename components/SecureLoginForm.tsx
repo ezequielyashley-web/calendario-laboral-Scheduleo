@@ -71,6 +71,8 @@ export default function SecureLoginForm() {
           setUserId2FA(twoFAData.userId)
           setShowLoading(false)
           setShow2FA(true)
+          // Destruir sesion hasta que 2FA sea completado
+          fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
         }
       } else {
         const newAttempts = attemptsLeft - 1
