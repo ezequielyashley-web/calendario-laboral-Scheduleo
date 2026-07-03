@@ -660,7 +660,7 @@ function SeccionAI() {
           {PROVEEDORES.map(p => (
             <div key={p.id} onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))}
               style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 9, border: config?.proveedor === p.id ? "2px solid #673DE6" : "1px solid #E5E7EB", background: config?.proveedor === p.id ? "#F5F3FF" : "#fff", cursor: "pointer" }}>
-              <div style={{ width: 22, height: 22, borderRadius: 6, background: p.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 9, fontWeight: 800, flexShrink: 0 }}>{p.label[0]}</div>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: "#F9FAFB", border: "1px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><img src={p.logo} width={20} height={20} alt={p.label} onError={(e:any) => { e.target.style.display="none" }} /></div>
               <span style={{ fontSize: 12, fontWeight: config?.proveedor === p.id ? 700 : 500, color: config?.proveedor === p.id ? "#673DE6" : "#374151" }}>{p.label}</span>
             </div>
           ))}
