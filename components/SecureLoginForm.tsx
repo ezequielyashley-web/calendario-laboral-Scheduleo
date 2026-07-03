@@ -44,42 +44,43 @@ export default function SecureLoginForm() {
     setLoading(true)
     setShowLoading(true)
     try {
-      const csrfRes = await fetch('/api/auth/csrf')
-      const { csrfToken } = await csrfRes.json()
-      const result = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        redirect: 'manual',
-        body: new URLSearchParams({ email, password, csrfToken, redirect: 'false', callbackUrl: '/dashboard', json: 'true' })
+      const checkRes = await fetch('/api/auth/login-custom', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       })
-      if (result.status === 302 || result.status === 200 || result.type === 'opaqueredirect') {
-        // Verificar si necesita 2FA
+      const checkData = await checkRes.json()
+      if (!checkRes.ok) {
+        const newAttempts = attemptsLeft - 1
+        setAttemptsLeft(Math.max(0, newAttempts))
+        setError(checkData.error || 'Email o contrasena incorrectos')
+        if (newAttempts <= 0) setBlockedUntil(Date.now() + 15 * 60 * 1000)
+        setShowLoading(false)
+        return
+      }
+      if (checkData.needsTwoFA) {
         const twoFARes = await fetch('/api/verificacion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, action: 'send' })
         })
         const twoFAData = await twoFARes.json()
-        if (twoFAData.skip) {
-          // No es SUPER_ADMIN - acceso directo
-          setUserName(email.split('@')[0])
-          setSuccess(true)
-          sessionStorage.setItem('2fa_verified', 'true')
-          setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
-        } else {
-          // Es SUPER_ADMIN - mostrar 2FA
-          setUserId2FA(twoFAData.userId)
-          setShowLoading(false)
-          setShow2FA(true)
-          // Destruir sesion hasta que 2FA sea completado
-          fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
-        }
+        setUserId2FA(twoFAData.userId)
+        setShowLoading(false)
+        setShow2FA(true)
       } else {
-        const newAttempts = attemptsLeft - 1
-        setAttemptsLeft(Math.max(0, newAttempts))
-        setError('Email o contrasena incorrectos')
-        if (newAttempts <= 0) setBlockedUntil(Date.now() + 15 * 60 * 1000)
+        const csrfRes = await fetch('/api/auth/csrf')
+        const { csrfToken } = await csrfRes.json()
+        await fetch('/api/auth/callback/credentials', {
+          method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          redirect: 'manual',
+          body: new URLSearchParams({ email, password, csrfToken, redirect: 'false', callbackUrl: '/dashboard', json: 'true' })
+        })
+        sessionStorage.setItem('2fa_verified', 'true')
+        setUserName(checkData.name || email.split('@')[0])
+        setSuccess(true)
+        setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
       }
+      }
+    }
     } catch {
       setShowLoading(false)
       setError('Error de conexion')
