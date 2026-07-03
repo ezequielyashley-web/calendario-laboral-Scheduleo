@@ -19,6 +19,7 @@ const SECCIONES = [
   { key: "demo", label: "Gestion de datos" },
   { key: "imap", label: "Email IMAP (Bajas IT)" },
   { key: "seguridad", label: "Seguridad" },
+  { key: "ai", label: "ScheduleoAI" },
 ]
 
 function GenerarToken({ masterPassword }: { masterPassword: string }) {
@@ -577,6 +578,141 @@ function SeccionSeguridad() {
     </div>
   )
 }
+
+function SeccionAI() {
+  const [config, setConfig] = useState<any>(null)
+  const [cargando, setCargando] = useState(true)
+  const [apiKey, setApiKey] = useState("")
+  const [guardando, setGuardando] = useState(false)
+  const [msg, setMsg] = useState({ texto: "", tipo: "" })
+  const [uso, setUso] = useState({ consultas: 0, tokens: 0 })
+
+  const mostrarMsg = (texto: string, tipo = "ok") => {
+    setMsg({ texto, tipo })
+    setTimeout(() => setMsg({ texto: "", tipo: "" }), 3000)
+  }
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/ai/config").then(r => r.json()).catch(() => ({})),
+      fetch("/api/ai/uso").then(r => r.json()).catch(() => ({ consultas: 0, tokens: 0 }))
+    ]).then(([cfg, u]) => {
+      setConfig(cfg)
+      setUso(u)
+      setCargando(false)
+    })
+  }, [])
+
+  const guardar = async () => {
+    setGuardando(true)
+    const res = await fetch("/api/ai/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...config, apiKey: apiKey || undefined })
+    })
+    if (res.ok) mostrarMsg("Configuracion guardada correctamente")
+    else mostrarMsg("Error al guardar", "error")
+    setApiKey("")
+    setGuardando(false)
+  }
+
+  const PROVEEDORES = [
+    { id: "anthropic", label: "Anthropic Claude", color: "#000", modelos: ["claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-opus-4-6"] },
+    { id: "openai", label: "OpenAI GPT", color: "#10A37F", modelos: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"] },
+    { id: "google", label: "Google Gemini", color: "#4285F4", modelos: ["gemini-1.5-flash", "gemini-1.5-pro"] },
+    { id: "mistral", label: "Mistral", color: "#F55036", modelos: ["mistral-small", "mistral-medium", "mistral-large-latest"] },
+    { id: "groq", label: "Groq", color: "#F97316", modelos: ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768"] },
+  ]
+
+  if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
+
+  const proveedorActual = PROVEEDORES.find(p => p.id === config?.proveedor) || PROVEEDORES[0]
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {msg.texto && (
+        <div style={{ padding: "10px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: msg.tipo === "error" ? "#fee2e2" : "#d1fae5", color: msg.tipo === "error" ? "#991b1b" : "#065f46", border: `1px solid ${msg.tipo === "error" ? "#fca5a5" : "#6ee7b7"}` }}>
+          {msg.texto}
+        </div>
+      )}
+
+      {/* Estado */}
+      <div style={{ background: config?.activo ? "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))" : "#F9FAFB", border: `1px solid ${config?.activo ? "#BBF7D0" : "#E5E7EB"}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 9, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>ScheduleoAI</div>
+            <div style={{ fontSize: 11, color: config?.activo ? "#059669" : "#9CA3AF" }}>{config?.activo ? "● Activo · " + proveedorActual.label : "● Inactivo"}</div>
+          </div>
+        </div>
+        <div onClick={() => setConfig((c: any) => ({ ...c, activo: !c?.activo }))}
+          style={{ width: 44, height: 24, borderRadius: 12, background: config?.activo ? "#673DE6" : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+          <div style={{ position: "absolute", top: 3, left: config?.activo ? 22 : 3, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+        </div>
+      </div>
+
+      {/* Proveedor */}
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>Proveedor</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+          {PROVEEDORES.map(p => (
+            <div key={p.id} onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 9, border: config?.proveedor === p.id ? "2px solid #673DE6" : "1px solid #E5E7EB", background: config?.proveedor === p.id ? "#F5F3FF" : "#fff", cursor: "pointer" }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, background: p.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 9, fontWeight: 800, flexShrink: 0 }}>{p.label[0]}</div>
+              <span style={{ fontSize: 12, fontWeight: config?.proveedor === p.id ? 700 : 500, color: config?.proveedor === p.id ? "#673DE6" : "#374151" }}>{p.label}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", marginBottom: 6 }}>Modelo</div>
+          <select value={config?.modelo || ""} onChange={e => setConfig((c: any) => ({ ...c, modelo: e.target.value }))}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, color: "#374151", background: "#fff" }}>
+            {proveedorActual.modelos.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* API Key */}
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>API Key</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
+            placeholder={config?.apiKeyEnc ? "••••••••••••••••••• (cambiar)" : "Pega tu API key aqui"}
+            style={{ flex: 1, padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, color: "#374151" }} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span style={{ fontSize: 10, color: "#10B981", fontWeight: 600 }}>La key se cifra con AES-256-GCM antes de guardarse</span>
+        </div>
+      </div>
+
+      {/* Uso */}
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>Uso este mes</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div style={{ background: "#F5F3FF", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#673DE6" }}>{uso.consultas}</div>
+            <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>Consultas hoy</div>
+            <div style={{ fontSize: 10, color: "#A78BFA" }}>Max 20/dia</div>
+          </div>
+          <div style={{ background: "#F0FDF4", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#10B981" }}>{uso.tokens.toLocaleString()}</div>
+            <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>Tokens usados</div>
+            <div style={{ fontSize: 10, color: "#6EE7B7" }}>Este mes</div>
+          </div>
+        </div>
+      </div>
+
+      <button onClick={guardar} disabled={guardando}
+        style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer", opacity: guardando ? 0.7 : 1 }}>
+        {guardando ? "Guardando..." : "Guardar configuracion"}
+      </button>
+    </div>
+  )
+}
+
 function SuperAdminSidebar({ usuario }: { usuario: any, onCambiarEmail: () => void, onResetPwd: () => void }) {
   if (!usuario) return null
   return (
@@ -923,6 +1059,7 @@ export default function ConfiguracionPage() {
               { key: "imap", label: "Email IMAP", p: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6" },
               { key: "demo", label: "Gestion de datos", p: "M21 5c0 1.66-4 3-9 3S3 6.66 3 5m18 0c0-1.66-4-3-9-3S3 3.34 3 5m18 0v14c0 1.66-4 3-9 3s-9-1.34-9-3V5m0 7c0 1.66 4 3 9 3s9-1.34 9-3" },
               { key: "seguridad", label: "Seguridad", p: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
+              { key: "ai", label: "ScheduleoAI", p: "M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" },
             ].map(s => (
               <button key={s.key} onClick={() => setSeccion(s.key)}
                 style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8 }}>
@@ -1135,6 +1272,7 @@ export default function ConfiguracionPage() {
           {seccion === "demo" && <SeccionDemo />}
           {seccion === "imap" && <SeccionIMAP />}
           {seccion === "seguridad" && <SeccionSeguridad />}
+          {seccion === "ai" && <SeccionAI />}
           {seccion === "usuarios" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
