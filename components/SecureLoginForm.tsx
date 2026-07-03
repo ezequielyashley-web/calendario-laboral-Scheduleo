@@ -64,6 +64,7 @@ export default function SecureLoginForm() {
           // No es SUPER_ADMIN - acceso directo
           setUserName(email.split('@')[0])
           setSuccess(true)
+          sessionStorage.setItem('2fa_verified', 'true')
           setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
         } else {
           // Es SUPER_ADMIN - mostrar 2FA
@@ -252,6 +253,7 @@ export default function SecureLoginForm() {
                   setSuccess(true)
                   setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
                 } else {
+                  sessionStorage.setItem('2fa_verified', 'true')
                   setError2FA(data.error || 'Codigo incorrecto')
                   setCode2FA('')
                 }

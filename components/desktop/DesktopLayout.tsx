@@ -37,6 +37,10 @@ function ClimaWidget() {
   const [ciudad, setCiudad] = useState('')
   const [icono, setIcono] = useState('')
   useEffect(() => {
+    if (typeof window !== "undefined" && !sessionStorage.getItem("2fa_verified")) {
+      window.location.href = "/login"
+      return
+    }
     const tick = () => {
       const now = new Date()
       setHora(now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
