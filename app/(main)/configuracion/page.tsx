@@ -316,6 +316,7 @@ function SeccionDemo() {
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [stats, setStats] = useState({ reales: 0, demo: 50, maxEmpleados: 100 })
+  const [modoBeta, setModoBeta] = useState(false)
   const [confirmacion, setConfirmacion] = useState<"activarDemo"|"activarReal"|null>(null)
   const [notificacion, setNotificacion] = useState({ texto: "", tipo: "" })
 
@@ -334,6 +335,7 @@ function SeccionDemo() {
       const emp = empRes.status === "fulfilled" ? empRes.value : { maxEmpleados: 100 }
       const conteo = conteoRes.status === "fulfilled" ? conteoRes.value : { reales: 0, demo: 50 }
       setModoActual(demo.modoDemo ? "demo" : "real")
+      setModoBeta(demo.modoBeta ?? false)
       setStats({ reales: conteo.reales || 0, demo: conteo.demo || 50, maxEmpleados: emp?.maxEmpleados || 100 })
       setCargando(false)
     }).catch(() => setCargando(false))
@@ -473,6 +475,23 @@ function SeccionDemo() {
               {txt}
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Toggle BETA */}
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 2 }}>Banner modo Beta</div>
+          <div style={{ fontSize: 11, color: "#9CA3AF" }}>Muestra el aviso de version beta y el sello en el login</div>
+        </div>
+        <div onClick={async () => {
+          const nuevo = !modoBeta
+          await fetch("/api/config/modo-beta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modoBeta: nuevo }) })
+          setModoActual(modoActual)
+          mostrarNotif(nuevo ? "Banner beta activado" : "Banner beta desactivado", "ok")
+        }}
+          style={{ width: 44, height: 24, borderRadius: 12, background: modoBeta ? "#673DE6" : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }}>
+          <div style={{ position: "absolute", top: 3, left: modoBeta ? 22 : 3, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
         </div>
       </div>
 
