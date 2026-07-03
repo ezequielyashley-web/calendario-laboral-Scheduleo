@@ -345,6 +345,7 @@ function SeccionDemo() {
     setGuardando(true)
     setConfirmacion(null)
     await fetch('/api/config/modo-demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoDemo: true }) })
+    await fetch('/api/config/modo-beta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoBeta: true }) })
     setModoActual("demo")
     mostrarNotif("Modo demo activado — mostrando 50 empleados ficticios", "ok")
     setGuardando(false)
@@ -354,6 +355,7 @@ function SeccionDemo() {
     setGuardando(true)
     setConfirmacion(null)
     await fetch('/api/config/modo-demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoDemo: false }) })
+    await fetch('/api/config/modo-beta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoBeta: false }) })
     await fetch('/api/demo/limpiar', { method: 'POST' }).catch(() => {})
     setModoActual("real")
     mostrarNotif("Modo real activado — los datos demo han sido ocultados", "ok")
@@ -475,23 +477,6 @@ function SeccionDemo() {
               {txt}
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Toggle BETA */}
-      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 2 }}>Banner modo Beta</div>
-          <div style={{ fontSize: 11, color: "#9CA3AF" }}>Muestra el aviso de version beta y el sello en el login</div>
-        </div>
-        <div onClick={async () => {
-          const nuevo = !modoBeta
-          await fetch("/api/config/modo-beta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modoBeta: nuevo }) })
-          setModoActual(modoActual)
-          mostrarNotif(nuevo ? "Banner beta activado" : "Banner beta desactivado", "ok")
-        }}
-          style={{ width: 44, height: 24, borderRadius: 12, background: modoBeta ? "#673DE6" : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }}>
-          <div style={{ position: "absolute", top: 3, left: modoBeta ? 22 : 3, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
         </div>
       </div>
 
