@@ -3,22 +3,24 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET() {
   try {
-    const config = await (prisma as any).configuracion.findFirst()
-    return NextResponse.json({ modoBeta: config?.modosBeta ?? true })
+    const config = await prisma.$queryRaw`
+      SELECT "modosBeta" FROM "Configuracion" LIMIT 1
+    ` as any[]
+    return NextResponse.json({ modoBeta: config[0]?.modosBeta ?? false })
   } catch {
-    return NextResponse.json({ modoBeta: true })
+    return NextResponse.json({ modoBeta: false })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { modoBeta } = await req.json()
-    const config = await (prisma as any).configuracion.findFirst()
-    if (config) {
-      await (prisma as any).configuracion.update({ where: { id: config.id }, data: { modosBeta: modoBeta } })
-    }
-    return NextResponse.json({ ok: true })
-  } catch {
-    return NextResponse.json({ error: "Error" }, { status: 500 })
+    await prisma.$executeRaw`
+      UPDATE "Configuracion" SET "modosBeta" = ${modoBeta}
+    `
+    return NextResponse.json({ ok: true, modoBeta })
+  } catch (error) {
+    console.error("Error actualizando modosBeta:", error)
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
