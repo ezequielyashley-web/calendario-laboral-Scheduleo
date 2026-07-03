@@ -64,7 +64,7 @@ export default function SelloBeta() {
         {/* SELLO IMAGEN */}
         {fase === "sellado" && (
           <div className="sello-anim" style={{ position: "absolute", top: 10, right: 0, opacity: 0 }}>
-            <img src="/sello-beta.webp" alt="BETA" width={130} height={130}
+            <img src="/sello-beta.png" alt="BETA" width={130} height={130}
               style={{ transform: "rotate(12deg)", opacity: 0.88, mixBlendMode: "multiply" }} />
           </div>
         )}
