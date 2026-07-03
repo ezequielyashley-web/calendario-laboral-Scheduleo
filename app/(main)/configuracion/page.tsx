@@ -348,6 +348,7 @@ function SeccionDemo() {
     await fetch('/api/config/modo-beta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoBeta: true }) })
     setModoActual("demo")
     mostrarNotif("Modo demo activado — mostrando 50 empleados ficticios", "ok")
+    setTimeout(() => window.location.reload(), 1500)
     setGuardando(false)
   }
 
@@ -359,6 +360,7 @@ function SeccionDemo() {
     await fetch('/api/demo/limpiar', { method: 'POST' }).catch(() => {})
     setModoActual("real")
     mostrarNotif("Modo real activado — los datos demo han sido ocultados", "ok")
+    setTimeout(() => window.location.reload(), 1500)
     setGuardando(false)
   }
 
