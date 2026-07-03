@@ -16,10 +16,11 @@ export async function POST(req: NextRequest) {
   try {
     const { modoDemo } = await req.json()
     await prisma.$executeRaw`
-      UPDATE "Configuracion" SET "modoDemo" = ${modoDemo} WHERE id = 'config-001'
+      UPDATE "Configuracion" SET "modoDemo" = ${modoDemo}
     `
     return NextResponse.json({ ok: true, modoDemo })
   } catch (error) {
-    return NextResponse.json({ error: "Error" }, { status: 500 })
+    console.error("Error actualizando modoDemo:", error)
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
