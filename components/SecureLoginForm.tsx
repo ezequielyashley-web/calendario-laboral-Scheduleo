@@ -55,9 +55,7 @@ export default function SecureLoginForm() {
         setError(checkData.error || 'Email o contrasena incorrectos')
         if (newAttempts <= 0) setBlockedUntil(Date.now() + 15 * 60 * 1000)
         setShowLoading(false)
-        return
-      }
-      if (checkData.needsTwoFA) {
+      } else if (checkData.needsTwoFA) {
         const twoFARes = await fetch('/api/verificacion', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, action: 'send' })
@@ -79,8 +77,6 @@ export default function SecureLoginForm() {
         setSuccess(true)
         setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
       }
-      }
-    }
     } catch {
       setShowLoading(false)
       setError('Error de conexion')
