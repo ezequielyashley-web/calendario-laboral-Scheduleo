@@ -23,6 +23,19 @@ export function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next()
+
+  // Evitar cache en paginas protegidas
+  const isProtected = !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/_next") &&
+    !request.nextUrl.pathname.startsWith("/api/auth")
+
+  if (isProtected) {
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+    response.headers.set("Pragma", "no-cache")
+    response.headers.set("Expires", "0")
+  }
+
+  // Headers de seguridad
   response.headers.set("X-Frame-Options", "DENY")
   response.headers.set("X-Content-Type-Options", "nosniff")
   response.headers.set("X-XSS-Protection", "1; mode=block")
