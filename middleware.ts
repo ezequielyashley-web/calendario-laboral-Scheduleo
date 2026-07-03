@@ -1,9 +1,28 @@
 import { NextRequest, NextResponse } from "next/server"
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+const ipStore = new Map<string, { count: number; resetTime: number }>()
 
-  // Headers de seguridad
+function checkIP(ip: string): boolean {
+  const now = Date.now()
+  const record = ipStore.get(ip)
+  if (!record || now > record.resetTime) {
+    ipStore.set(ip, { count: 1, resetTime: now + 60000 })
+    return true
+  }
+  if (record.count >= 30) return false
+  record.count++
+  return true
+}
+
+export function middleware(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+  const isLoginRoute = request.nextUrl.pathname.startsWith("/api/auth/login-custom")
+
+  if (isLoginRoute && !checkIP(ip)) {
+    return NextResponse.json({ error: "Demasiadas solicitudes. Intenta mas tarde." }, { status: 429 })
+  }
+
+  const response = NextResponse.next()
   response.headers.set("X-Frame-Options", "DENY")
   response.headers.set("X-Content-Type-Options", "nosniff")
   response.headers.set("X-XSS-Protection", "1; mode=block")
@@ -14,7 +33,6 @@ export function middleware(request: NextRequest) {
     "Content-Security-Policy",
     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;"
   )
-
   return response
 }
 
