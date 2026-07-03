@@ -5,11 +5,17 @@ export default function BetaBanner() {
   const [modoBeta, setModoBeta] = useState(false)
   const [cargado, setCargado] = useState(false)
 
-  useEffect(() => {
+  const cargar = () => {
     fetch("/api/config/modo-beta")
       .then(r => r.json())
       .then(d => { setModoBeta(d.modoBeta ?? false); setCargado(true) })
       .catch(() => setCargado(true))
+  }
+
+  useEffect(() => {
+    cargar()
+    window.addEventListener("modoBetaChange", cargar)
+    return () => window.removeEventListener("modoBetaChange", cargar)
   }, [])
 
   if (!cargado || !modoBeta) return null
