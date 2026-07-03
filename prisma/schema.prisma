@@ -335,3 +335,23 @@ model MensajePanelEjecutivo {
   @@index([remitenteId])
   @@index([destinatarioId])
 }
+
+model ConfiguracionAI {
+  id         String   @id @default("ai-config-001")
+  proveedor  String   @default("anthropic")
+  modelo     String   @default("claude-sonnet-4-6")
+  apiKeyEnc  String?
+  activo     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ChatAI {
+  id         String   @id @default(cuid())
+  userId     String
+  rol        String
+  contenido  String
+  tokens     Int?     @default(0)
+  proveedor  String?
+  createdAt  DateTime @default(now())
+}
