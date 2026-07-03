@@ -255,7 +255,14 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }, [])
   const pathname = usePathname()
   if (typeof window !== "undefined") console.log("PATHNAME:", pathname)
+  const [showContinuar, setShowContinuar] = useState(false)
+  const [ultimaRuta, setUltimaRuta] = useState('')
+  if (typeof window !== "undefined") {
+    if (pathname && pathname !== '/login' && pathname !== '/') {
+      localStorage.setItem('scheduleo_ultima_ruta', JSON.stringify({ ruta: pathname, tiempo: Date.now() }))
+    }
   const [open, setOpen] = useState(true)
+  }
   const [isMobile, setIsMobile] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
