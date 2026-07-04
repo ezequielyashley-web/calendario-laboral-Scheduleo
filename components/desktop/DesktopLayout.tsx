@@ -285,7 +285,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [showInfo, setShowInfo] = useState(false)
   useEffect(() => {
     fetch("/api/session-info").then(r=>r.json()).then(d=>{
-      if(d?.name) setUsuarioActual({name:d.name})
+      if(d?.name) setUsuarioActual({name:d.name, id:d.id})
     }).catch(()=>{})
   }, [])
 
