@@ -280,7 +280,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const { suscrito, soportado, suscribirse } = usePushNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
   const [cerrandoSesion, setCerrandoSesion] = useState(false)
-  const [usuarioActual, setUsuarioActual] = useState<{name:string}|null>(null)
+  const [usuarioActual, setUsuarioActual] = useState<{name:string; id?:string}|null>(null)
+  const [showSignOutModal, setShowSignOutModal] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   useEffect(() => {
     fetch("/api/session-info").then(r=>r.json()).then(d=>{
