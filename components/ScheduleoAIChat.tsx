@@ -22,8 +22,13 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
   const [dragging, setDragging] = useState(false)
   const dragStart = useRef({ mx: 0, my: 0, px: 0, py: 0 })
 
+  const [resolvedUserId, setResolvedUserId] = useState(userId)
+
   useEffect(() => {
     fetch("/api/ai/config").then(r => r.json()).then(d => setActivo(d.activo)).catch(() => {})
+    if (!userId) {
+      fetch("/api/session-info").then(r => r.json()).then(d => { if(d?.id) setResolvedUserId(d.id) }).catch(() => {})
+    }
   }, [])
 
   useEffect(() => {
@@ -60,7 +65,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       const historial = mensajes.map(m => ({ rol: m.rol, contenido: m.contenido }))
       const res = await fetch("/api/ai/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensajes: [...historial, { rol: "user", contenido: texto }], userId })
+        body: JSON.stringify({ mensajes: [...historial, { rol: "user", contenido: texto }], userId: resolvedUserId })
       })
       const data = await res.json()
       setMensajes(prev => [...prev, { rol: "assistant", contenido: data.error || data.respuesta || "Sin respuesta", tiempo: hora }])
