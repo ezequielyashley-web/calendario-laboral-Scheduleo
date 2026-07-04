@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 
 interface Mensaje {
   rol: "user" | "assistant"
@@ -8,6 +9,7 @@ interface Mensaje {
 }
 
 export default function ScheduleoAIChat({ userId }: { userId: string }) {
+  const router = useRouter()
   const [abierto, setAbierto] = useState(false)
   const [mensajes, setMensajes] = useState<Mensaje[]>([
     { rol: "assistant", contenido: "Hola! Soy ScheduleoAI. Puedo ayudarte con turnos, empleados, vacaciones, grupos y mucho mas. En que te puedo ayudar?", tiempo: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) }
@@ -126,14 +128,26 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
 
           {/* Mensajes */}
           <div ref={mensajesRef} style={{ flex: 1, overflowY: "auto", padding: "14px 12px", display: "flex", flexDirection: "column", gap: 10, background: "#FAFAFA" }}>
-            {mensajes.map((m, i) => (
+            {mensajes.map((m, i) => {
+              const navMatch = m.contenido.match(/\[NAVEGAR:([^\|]+)\|([^\]]+)\]/)
+              const textoLimpio = m.contenido.replace(/\[NAVEGAR:[^\]]+\]/g, "").trim()
+              const navRuta = navMatch?.[1]
+              const navTexto = navMatch?.[2]
+              return (
               <div key={i} style={{ display: "flex", justifyContent: m.rol === "user" ? "flex-end" : "flex-start" }}>
                 <div style={{ maxWidth: "82%", background: m.rol === "user" ? "linear-gradient(135deg,#673DE6,#8B5CF6)" : "#fff", border: m.rol === "user" ? "none" : "1px solid #E5E7EB", borderRadius: m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "9px 12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                  <div style={{ fontSize: 13, color: m.rol === "user" ? "#fff" : "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", overflowWrap: "break-word" }}>{m.contenido}</div>
+                  <div style={{ fontSize: 13, color: m.rol === "user" ? "#fff" : "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", overflowWrap: "break-word" }}>{textoLimpio}</div>
+                  {navRuta && navTexto && (
+                    <button onClick={() => { router.push(navRuta); setAbierto(false) }}
+                      style={{ marginTop: 8, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, width: "100%" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      {navTexto}
+                    </button>
+                  )}
                   {m.tiempo && <div style={{ fontSize: 9, color: m.rol === "user" ? "rgba(255,255,255,0.6)" : "#9CA3AF", marginTop: 4, textAlign: "right" }}>{m.tiempo}</div>}
                 </div>
               </div>
-            ))}
+            )})}
             {cargando && (
               <div style={{ display: "flex", justifyContent: "flex-start" }}>
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: "12px 12px 12px 2px", padding: "10px 14px", display: "flex", gap: 4, alignItems: "center" }}>

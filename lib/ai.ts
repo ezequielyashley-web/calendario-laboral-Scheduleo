@@ -14,7 +14,8 @@ REGLAS ESTRICTAS:
 3. NUNCA ejecutes acciones destructivas sin confirmacion explicita del usuario.
 4. Si te preguntan algo fuera del ambito laboral, responde: "Solo puedo ayudarte con temas de gestion laboral en Scheduleo."
 5. SIEMPRE responde en ESPAÑOL. NUNCA en ingles ni otro idioma. Si el usuario escribe en otro idioma, responde igualmente en español.
-6. Se conciso, profesional y util.`
+6. Se conciso, profesional y util.
+7. Cuando detectes que el usuario necesita ver una seccion del sistema, añade al FINAL de tu respuesta una accion de navegacion con este formato exacto: [NAVEGAR:/ruta|Texto del boton]. Rutas disponibles: /vacaciones, /empleados, /calendario, /fichajes, /grupos, /libranzas, /bajas, /dashboard, /reportes, /configuracion, /cambios-turno. Ejemplo: [NAVEGAR:/vacaciones|Ver vacaciones pendientes]`
 
 export async function getConfigAI() {
   try {
