@@ -17,15 +17,37 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
   const [activo, setActivo] = useState(false)
   const mensajesRef = useRef<HTMLDivElement>(null)
 
+  // Arrastrable
+  const [pos, setPos] = useState({ x: 24, y: 24 })
+  const [dragging, setDragging] = useState(false)
+  const dragStart = useRef({ mx: 0, my: 0, px: 0, py: 0 })
+
   useEffect(() => {
     fetch("/api/ai/config").then(r => r.json()).then(d => setActivo(d.activo)).catch(() => {})
   }, [])
 
   useEffect(() => {
-    if (mensajesRef.current) {
-      mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight
-    }
+    if (mensajesRef.current) mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight
   }, [mensajes])
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setDragging(true)
+    dragStart.current = { mx: e.clientX, my: e.clientY, px: pos.x, py: pos.y }
+  }
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragging) return
+      const dx = e.clientX - dragStart.current.mx
+      const dy = e.clientY - dragStart.current.my
+      setPos({ x: Math.max(8, dragStart.current.px - dx), y: Math.max(8, dragStart.current.py - dy) })
+    }
+    const onUp = () => setDragging(false)
+    window.addEventListener("mousemove", onMove)
+    window.addEventListener("mouseup", onUp)
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp) }
+  }, [dragging])
 
   const enviar = async () => {
     if (!input.trim() || cargando) return
@@ -34,23 +56,14 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
     setInput("")
     setMensajes(prev => [...prev, { rol: "user", contenido: texto, tiempo: hora }])
     setCargando(true)
-
     try {
       const historial = mensajes.map(m => ({ rol: m.rol, contenido: m.contenido }))
       const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mensajes: [...historial, { rol: "user", contenido: texto }],
-          userId
-        })
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensajes: [...historial, { rol: "user", contenido: texto }], userId })
       })
       const data = await res.json()
-      if (data.error) {
-        setMensajes(prev => [...prev, { rol: "assistant", contenido: data.error, tiempo: hora }])
-      } else {
-        setMensajes(prev => [...prev, { rol: "assistant", contenido: data.respuesta, tiempo: hora }])
-      }
+      setMensajes(prev => [...prev, { rol: "assistant", contenido: data.error || data.respuesta || "Sin respuesta", tiempo: hora }])
     } catch {
       setMensajes(prev => [...prev, { rol: "assistant", contenido: "Error de conexion. Intentalo de nuevo.", tiempo: hora }])
     }
@@ -61,34 +74,48 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
 
   return (
     <>
-      {/* Boton flotante */}
-      <div onClick={() => setAbierto(!abierto)}
-        style={{ position: "fixed", bottom: 24, right: 24, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 16px rgba(103,61,230,0.4)", zIndex: 1000, transition: "transform 0.2s" }}
-        onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.1)")}
-        onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
-        {abierto ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        )}
+      <style>{`
+        @keyframes bounce-dot { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+        @keyframes pulse-ai { 0%,100%{box-shadow:0 0 0 0 rgba(103,61,230,0.4)} 50%{box-shadow:0 0 0 8px rgba(103,61,230,0)} }
+      `}</style>
+
+      {/* Boton flotante arrastrable */}
+      <div
+        onMouseDown={onMouseDown}
+        onClick={() => !dragging && setAbierto(!abierto)}
+        style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 4px 20px rgba(103,61,230,0.45)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
+        {/* Icono S de Scheduleo con rayo AI */}
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="5" y="20" fontFamily="Arial Black, sans-serif" fontSize="18" fontWeight="900" fill="white">S</text>
+          <circle cx="22" cy="8" r="6" fill="#FBBF24"/>
+          <text x="19" y="12" fontFamily="Arial" fontSize="9" fontWeight="900" fill="#0f0c29">AI</text>
+        </svg>
       </div>
 
       {/* Panel chat */}
       {abierto && (
-        <div style={{ position: "fixed", bottom: 88, right: 24, width: 360, height: 480, background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)", border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
+        <div style={{ position: "fixed", bottom: pos.y + 64, right: pos.x, width: 360, height: 480, background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)", border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
 
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+                <text x="3" y="18" fontFamily="Arial Black, sans-serif" fontSize="16" fontWeight="900" fill="white">S</text>
+                <circle cx="22" cy="7" r="5" fill="#FBBF24"/>
+                <text x="19.5" y="10.5" fontFamily="Arial" fontSize="7" fontWeight="900" fill="#0f0c29">AI</text>
+              </svg>
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>ScheduleoAI</div>
               <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>● Activo · Responde en segundos</div>
             </div>
             <button onClick={() => setMensajes([{ rol: "assistant", contenido: "Chat reiniciado. En que te puedo ayudar?", tiempo: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) }])}
-              style={{ marginLeft: "auto", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 6, padding: "4px 8px", color: "#fff", fontSize: 10, cursor: "pointer" }}>
+              style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 6, padding: "4px 8px", color: "#fff", fontSize: 10, cursor: "pointer", marginRight: 4 }}>
               Limpiar
+            </button>
+            <button onClick={() => setAbierto(false)}
+              style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 6, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
 
@@ -105,7 +132,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
             {cargando && (
               <div style={{ display: "flex", justifyContent: "flex-start" }}>
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: "12px 12px 12px 2px", padding: "10px 14px", display: "flex", gap: 4, alignItems: "center" }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#673DE6", animation: `bounce 1.2s ease-in-out ${i*0.2}s infinite` }} />)}
+                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#673DE6", animation: `bounce-dot 1.2s ease-in-out ${i*0.2}s infinite` }} />)}
                 </div>
               </div>
             )}
@@ -123,8 +150,6 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
-
-          <style>{`@keyframes bounce { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }`}</style>
         </div>
       )}
     </>
