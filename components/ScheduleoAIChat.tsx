@@ -138,7 +138,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
                 <div style={{ maxWidth: "82%", background: m.rol === "user" ? "linear-gradient(135deg,#673DE6,#8B5CF6)" : "#fff", border: m.rol === "user" ? "none" : "1px solid #E5E7EB", borderRadius: m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "9px 12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                   <div style={{ fontSize: 13, color: m.rol === "user" ? "#fff" : "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", overflowWrap: "break-word" }}>{textoLimpio}</div>
                   {navRuta && navTexto && (
-                    <button onClick={() => { router.push(navRuta); setAbierto(false) }}
+                    <button onClick={() => { router.push(navRuta) }}
                       style={{ marginTop: 8, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, width: "100%" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                       {navTexto}
