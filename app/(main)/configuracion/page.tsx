@@ -1118,7 +1118,7 @@ export default function ConfiguracionPage() {
 
 
         </div>
-        <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column" }}>
+        <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
 
           {seccion === "identidad" && (
