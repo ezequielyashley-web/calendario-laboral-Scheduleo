@@ -124,7 +124,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
             {mensajes.map((m, i) => (
               <div key={i} style={{ display: "flex", justifyContent: m.rol === "user" ? "flex-end" : "flex-start" }}>
                 <div style={{ maxWidth: "82%", background: m.rol === "user" ? "linear-gradient(135deg,#673DE6,#8B5CF6)" : "#fff", border: m.rol === "user" ? "none" : "1px solid #E5E7EB", borderRadius: m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "9px 12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                  <div style={{ fontSize: 13, color: m.rol === "user" ? "#fff" : "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{m.contenido}</div>
+                  <div style={{ fontSize: 13, color: m.rol === "user" ? "#fff" : "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", overflowWrap: "break-word" }}>{m.contenido}</div>
                   {m.tiempo && <div style={{ fontSize: 9, color: m.rol === "user" ? "rgba(255,255,255,0.6)" : "#9CA3AF", marginTop: 4, textAlign: "right" }}>{m.tiempo}</div>}
                 </div>
               </div>

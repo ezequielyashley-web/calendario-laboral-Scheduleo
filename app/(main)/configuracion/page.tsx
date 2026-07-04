@@ -620,7 +620,7 @@ function SeccionAI() {
     { id: "openai", label: "OpenAI", sub: "GPT-4o · GPT-4o mini", emoji: "💬", bg: "#E8F5F0", shadow: "rgba(16,163,127,0.15)", tags: [{ t: "Versatil", c: "#065F46", bg: "#E8F5F0" }, { t: "Popular", c: "#065F46", bg: "#E8F5F0" }], modelos: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"] },
     { id: "google", label: "Google Gemini", sub: "Flash · Pro", emoji: "✨", bg: "#E8F0FE", shadow: "rgba(66,133,244,0.15)", tags: [{ t: "✓ Gratis", c: "#1a73e8", bg: "#E8F0FE" }, { t: "Rapido", c: "#1a73e8", bg: "#E8F0FE" }], modelos: ["gemini-1.5-flash", "gemini-1.5-pro"] },
     { id: "mistral", label: "Mistral", sub: "Small · Medium · Large", emoji: "🌪️", bg: "#FFF0E8", shadow: "rgba(255,112,0,0.15)", tags: [{ t: "🇪🇺 Europeo", c: "#C2410C", bg: "#FFF0E8" }, { t: "RGPD", c: "#C2410C", bg: "#FFF0E8" }], modelos: ["mistral-small", "mistral-medium", "mistral-large-latest"] },
-    { id: "groq", label: "Groq", sub: "Llama 3 · Mixtral — Inferencia ultrarrápida", emoji: "⚡", bg: "#FFF7ED", shadow: "rgba(249,115,22,0.15)", tags: [{ t: "⚡ Rapido", c: "#92400E", bg: "#FEF9C3" }, { t: "Gratis", c: "#065F46", bg: "#D1FAE5" }], modelos: ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768"], extra: true },
+    { id: "groq", label: "Groq", sub: "Llama 3 · Mixtral — Inferencia ultrarrápida", emoji: "⚡", bg: "#FFF7ED", shadow: "rgba(249,115,22,0.15)", tags: [{ t: "⚡ Rapido", c: "#92400E", bg: "#FEF9C3" }, { t: "Gratis", c: "#065F46", bg: "#D1FAE5" }], modelos: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it", "mixtral-8x7b-32768"], extra: true },
   ]
 
   const proveedorActual = PROVEEDORES.find(p => p.id === config?.proveedor) || PROVEEDORES[0]
