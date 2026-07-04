@@ -15,7 +15,7 @@ async function getDatosSistema(): Promise<string> {
       prisma.$queryRaw`SELECT COUNT(*) as total FROM "Empleado" WHERE "empresaId"='empresa-001' AND "esDemostracion"=false` as Promise<any[]>,
       prisma.$queryRaw`SELECT nombre FROM "GrupoTrabajo" WHERE "empresaId"='empresa-001'` as Promise<any[]>,
       prisma.$queryRaw`SELECT COUNT(*) as total FROM "Vacacion" WHERE estado='PENDIENTE'` as Promise<any[]>,
-      prisma.$queryRaw`SELECT COUNT(*) as total FROM "BajaMedica" WHERE activa=true` as Promise<any[]>,
+      prisma.$queryRaw`SELECT COUNT(*) as total FROM "BajaMedica"` as Promise<any[]>,
     ])
     const configDemo = await prisma.$queryRaw`SELECT "modoDemo" FROM "Configuracion" LIMIT 1` as any[]
     const modoDemo = configDemo[0]?.modoDemo
