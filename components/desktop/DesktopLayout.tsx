@@ -1,6 +1,7 @@
 "use client"
 
 import BetaBanner from "@/components/BetaBanner"
+import ScheduleoAIChat from "@/components/ScheduleoAIChat"
 import { useState, useEffect } from "react"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
