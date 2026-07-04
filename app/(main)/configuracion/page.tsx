@@ -522,60 +522,65 @@ function SeccionSeguridad() {
   if (cargando) return <div style={{ padding: 40, textAlign: 'center', color: '#a0aec0' }}>Cargando...</div>
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <h2 style={{ fontSize: 16, fontWeight: 500, color: '#1e1b4b', margin: 0 }}>Seguridad del sistema</h2>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Seguridad del sistema</h2>
       {/* NIVEL DE SEGURIDAD */}
       <PanelSeguridadCert />
 
+      {/* Grid 2 columnas: Expiracion + Requisitos */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
 
-      {/* Expiracion contrasena */}
-      <div style={{ background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>Expiracion de contrasena</div>
-            <div style={{ fontSize: 13, color: '#718096' }}>El sistema obligara a cambiar la contrasena cada X dias. Elige Nunca para desactivar.</div>
-          </div>
-          {guardado && <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, background: '#d1fae5', padding: '4px 10px', borderRadius: 20 }}>Guardado</span>}
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {[['0','Nunca'],['30','30 dias'],['60','60 dias'],['90','90 dias'],['180','180 dias']].map(([val, label]) => (
-            <button key={val} onClick={() => guardar(val)} disabled={guardando}
-              style={{ padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-                background: expiracion === val ? '#6366f1' : '#fff',
-                color: expiracion === val ? '#fff' : '#475569',
-                border: expiracion === val ? '1px solid #6366f1' : '1px solid #e2e8f0',
-                boxShadow: expiracion === val ? '0 4px 12px rgba(99,102,241,0.3)' : 'none' }}>
-              {label}
-            </button>
-          ))}
-        </div>
-        {expiracion !== '0' && (
-          <div style={{ marginTop: 12, fontSize: 12, color: '#6366f1', background: '#ede9fe', padding: '8px 14px', borderRadius: 8 }}>
-            Los usuarios deberan cambiar su contrasena cada {expiracion} dias. Se les avisara 7 dias antes.
-          </div>
-        )}
-      </div>
-
-      {/* Requisitos contrasena */}
-      <div style={{ background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 24 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1b4b', marginBottom: 16 }}>Requisitos de contrasena</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {[
-            { label: 'Minimo 12 caracteres', activo: true },
-            { label: 'Al menos una letra mayuscula', activo: true },
-            { label: 'Al menos un numero', activo: true },
-            { label: 'Al menos un simbolo (!@#$...)', activo: true },
-          ].map((r, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: r.activo ? '#d1fae5' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: r.activo ? '#059669' : '#dc2626', fontWeight: 700, flexShrink: 0 }}>
-                {r.activo ? '✓' : '✗'}
-              </div>
-              <span style={{ fontSize: 13, color: '#374151' }}>{r.label}</span>
+        {/* Expiracion contrasena */}
+        <div style={{ background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>Expiracion de contrasena</div>
+              <div style={{ fontSize: 12, color: '#718096' }}>Obligar a cambiar la contrasena cada X dias.</div>
             </div>
-          ))}
+            {guardado && <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, background: '#d1fae5', padding: '3px 8px', borderRadius: 20 }}>Guardado</span>}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {[['0','Nunca'],['30','30d'],['60','60d'],['90','90d'],['180','180d']].map(([val, label]) => (
+              <button key={val} onClick={() => guardar(val)} disabled={guardando}
+                style={{ padding: '8px 14px', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                  background: expiracion === val ? '#6366f1' : '#fff',
+                  color: expiracion === val ? '#fff' : '#475569',
+                  border: expiracion === val ? '1px solid #6366f1' : '1px solid #e2e8f0',
+                  boxShadow: expiracion === val ? '0 4px 12px rgba(99,102,241,0.3)' : 'none' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {expiracion !== '0' && (
+            <div style={{ marginTop: 10, fontSize: 11, color: '#6366f1', background: '#ede9fe', padding: '7px 12px', borderRadius: 8 }}>
+              Los usuarios deberan cambiar su contrasena cada {expiracion} dias. Se les avisara 7 dias antes.
+            </div>
+          )}
         </div>
+
+        {/* Requisitos contrasena */}
+        <div style={{ background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 14 }}>Requisitos de contrasena</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[
+              { label: 'Minimo 12 caracteres', activo: true },
+              { label: 'Al menos una letra mayuscula', activo: true },
+              { label: 'Al menos un numero', activo: true },
+              { label: 'Al menos un simbolo (!@#$...)', activo: true },
+            ].map((r, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: r.activo ? '#d1fae5' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: r.activo ? '#059669' : '#dc2626', fontWeight: 700, flexShrink: 0 }}>
+                  {r.activo ? '✓' : '✗'}
+                </div>
+                <span style={{ fontSize: 12, color: '#374151' }}>{r.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
+  )
   )
 }
 
