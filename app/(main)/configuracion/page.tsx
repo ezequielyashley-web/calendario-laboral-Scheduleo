@@ -668,12 +668,12 @@ function SeccionAI() {
       </div>
 
       {/* Grid proveedores */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", minWidth: 0 }}>
         {PROVEEDORES.map(p => {
           const isActive = config?.proveedor === p.id
           return (
             <div key={p.id} onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))}
-              style={{ gridColumn: p.extra ? "span 2" : undefined, border: isActive ? "2px solid #673DE6" : "1.5px solid #E5E7EB", borderRadius: 14, padding: isActive && p.extra ? "14px" : "12px", background: isActive ? "linear-gradient(135deg,#F5F3FF,#EDE9FE)" : "#fff", cursor: "pointer", boxShadow: isActive ? `0 8px 32px rgba(103,61,230,0.25)` : `0 4px 20px ${p.shadow}, 0 1px 4px rgba(0,0,0,0.04)`, transition: "all 0.2s", position: "relative" as const }}>
+              style={{ gridColumn: p.extra ? "span 2" : undefined, minWidth: 0, overflow: "hidden", border: isActive ? "2px solid #673DE6" : "1.5px solid #E5E7EB", borderRadius: 14, padding: isActive && p.extra ? "14px" : "12px", background: isActive ? "linear-gradient(135deg,#F5F3FF,#EDE9FE)" : "#fff", cursor: "pointer", boxShadow: isActive ? `0 8px 32px rgba(103,61,230,0.25)` : `0 4px 20px ${p.shadow}, 0 1px 4px rgba(0,0,0,0.04)`, transition: "all 0.2s", position: "relative" as const }}>
               {isActive && <div style={{ position: "absolute", top: 12, right: 12, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", fontSize: 9, fontWeight: 800, padding: "3px 10px", borderRadius: 6, boxShadow: "0 2px 8px rgba(103,61,230,0.4)" }}>✓ SELECCIONADO</div>}
               <div style={{ display: "flex", alignItems: isActive && p.extra ? "center" : "flex-start", gap: 12 }}>
                 <div style={{ width: isActive && p.extra ? 40 : 36, height: isActive && p.extra ? 40 : 36, borderRadius: 10, background: `linear-gradient(135deg,${p.bg},${p.bg}dd)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: isActive && p.extra ? 18 : 16, boxShadow: `0 4px 12px ${p.shadow}` }}>{p.emoji}</div>
@@ -1119,7 +1119,7 @@ export default function ConfiguracionPage() {
 
         </div>
         <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column" }}>
-          <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
 
           {seccion === "identidad" && (
             <div>
