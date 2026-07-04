@@ -8,6 +8,38 @@ const PALABRAS_BLOQUEADAS = [
   "datos de todos", "exportar todo", "dump", "injection"
 ]
 
+
+async function getDatosSistema(): Promise<string> {
+  try {
+    const [empleados, grupos, vacaciones, bajas] = await Promise.all([
+      prisma.$queryRaw`SELECT COUNT(*) as total FROM "Empleado" WHERE "empresaId"='empresa-001' AND "esDemostracion"=false` as Promise<any[]>,
+      prisma.$queryRaw`SELECT nombre FROM "GrupoTrabajo" WHERE "empresaId"='empresa-001'` as Promise<any[]>,
+      prisma.$queryRaw`SELECT COUNT(*) as total FROM "Vacacion" WHERE estado='PENDIENTE'` as Promise<any[]>,
+      prisma.$queryRaw`SELECT COUNT(*) as total FROM "BajaMedica" WHERE activa=true` as Promise<any[]>,
+    ])
+    const configDemo = await prisma.$queryRaw`SELECT "modoDemo" FROM "Configuracion" LIMIT 1` as any[]
+    const modoDemo = configDemo[0]?.modoDemo
+
+    if (modoDemo) {
+      const empDemo = await prisma.$queryRaw`SELECT COUNT(*) as total FROM "Empleado" WHERE "esDemostracion"=true` as any[]
+      return `
+DATOS DEL SISTEMA (Modo demostración activo):
+- Empleados ficticios: ${Number(empDemo[0]?.total || 0)}
+- Grupos: ${(grupos as any[]).map((g:any) => g.nombre).join(", ") || "Ninguno"}
+- Vacaciones pendientes: ${Number((vacaciones as any[])[0]?.total || 0)}
+- Bajas médicas activas: ${Number((bajas as any[])[0]?.total || 0)}`
+    }
+
+    return `
+DATOS DEL SISTEMA (Datos reales):
+- Empleados activos: ${Number((empleados as any[])[0]?.total || 0)}
+- Grupos de trabajo: ${(grupos as any[]).map((g:any) => g.nombre).join(", ") || "Ninguno"}
+- Vacaciones pendientes de aprobar: ${Number((vacaciones as any[])[0]?.total || 0)}
+- Bajas médicas activas: ${Number((bajas as any[])[0]?.total || 0)}`
+  } catch {
+    return "No se pudieron cargar los datos del sistema."
+  }
+}
 async function getContextoUsuario(userId: string): Promise<string> {
   if (!userId) return "Usuario no identificado."
   try {
@@ -79,8 +111,8 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const contextoUsuario = await getContextoUsuario(userId || "")
-    const contextoCompleto = contextoUsuario + (contexto ? `\n\nCONTEXTO ADICIONAL:\n${contexto}` : "")
+    const [contextoUsuario, datosSistema] = await Promise.all([getContextoUsuario(userId || ""), getDatosSistema()])
+    const contextoCompleto = contextoUsuario + "\n\n" + datosSistema + (contexto ? `\n\nCONTEXTO ADICIONAL:\n${contexto}` : "")
 
     const resultado = await chatAI(mensajes, contextoCompleto)
 
