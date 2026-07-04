@@ -596,18 +596,13 @@ function SeccionAI() {
     Promise.all([
       fetch("/api/ai/config").then(r => r.json()).catch(() => ({})),
       fetch("/api/ai/uso").then(r => r.json()).catch(() => ({ consultas: 0, tokens: 0 }))
-    ]).then(([cfg, u]) => {
-      setConfig(cfg)
-      setUso(u)
-      setCargando(false)
-    })
+    ]).then(([cfg, u]) => { setConfig(cfg); setUso(u); setCargando(false) })
   }, [])
 
   const guardar = async () => {
     setGuardando(true)
     const res = await fetch("/api/ai/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...config, apiKey: apiKey || undefined })
     })
     if (res.ok) mostrarMsg("Configuracion guardada correctamente")
@@ -617,98 +612,146 @@ function SeccionAI() {
   }
 
   const PROVEEDORES = [
-    { id: "anthropic", label: "Anthropic Claude", color: "#000", modelos: ["claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-opus-4-6"] },
-    { id: "openai", label: "OpenAI GPT", color: "#10A37F", modelos: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"] },
-    { id: "google", label: "Google Gemini", color: "#4285F4", modelos: ["gemini-1.5-flash", "gemini-1.5-pro"] },
-    { id: "mistral", label: "Mistral", color: "#F55036", modelos: ["mistral-small", "mistral-medium", "mistral-large-latest"] },
-    { id: "groq", label: "Groq", color: "#F97316", modelos: ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768"] },
+    { id: "anthropic", label: "Anthropic", sub: "Claude Sonnet · Opus · Haiku", emoji: "🤖", bg: "#F5EDE8", shadow: "rgba(204,155,122,0.18)", tags: [{ t: "Razonamiento", c: "#92400E", bg: "#F5EDE8" }, { t: "Codigo", c: "#92400E", bg: "#F5EDE8" }], modelos: ["claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-opus-4-6"] },
+    { id: "openai", label: "OpenAI", sub: "GPT-4o · GPT-4o mini", emoji: "💬", bg: "#E8F5F0", shadow: "rgba(16,163,127,0.15)", tags: [{ t: "Versatil", c: "#065F46", bg: "#E8F5F0" }, { t: "Popular", c: "#065F46", bg: "#E8F5F0" }], modelos: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"] },
+    { id: "google", label: "Google Gemini", sub: "Flash · Pro", emoji: "✨", bg: "#E8F0FE", shadow: "rgba(66,133,244,0.15)", tags: [{ t: "✓ Gratis", c: "#1a73e8", bg: "#E8F0FE" }, { t: "Rapido", c: "#1a73e8", bg: "#E8F0FE" }], modelos: ["gemini-1.5-flash", "gemini-1.5-pro"] },
+    { id: "mistral", label: "Mistral", sub: "Small · Medium · Large", emoji: "🌪️", bg: "#FFF0E8", shadow: "rgba(255,112,0,0.15)", tags: [{ t: "🇪🇺 Europeo", c: "#C2410C", bg: "#FFF0E8" }, { t: "RGPD", c: "#C2410C", bg: "#FFF0E8" }], modelos: ["mistral-small", "mistral-medium", "mistral-large-latest"] },
+    { id: "groq", label: "Groq", sub: "Llama 3 · Mixtral — Inferencia ultrarrápida", emoji: "⚡", bg: "#FFF7ED", shadow: "rgba(249,115,22,0.15)", tags: [{ t: "⚡ Rapido", c: "#92400E", bg: "#FEF9C3" }, { t: "Gratis", c: "#065F46", bg: "#D1FAE5" }], modelos: ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768"], extra: true },
   ]
-
-  if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
 
   const proveedorActual = PROVEEDORES.find(p => p.id === config?.proveedor) || PROVEEDORES[0]
 
+  if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
       {msg.texto && (
         <div style={{ padding: "10px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: msg.tipo === "error" ? "#fee2e2" : "#d1fae5", color: msg.tipo === "error" ? "#991b1b" : "#065f46", border: `1px solid ${msg.tipo === "error" ? "#fca5a5" : "#6ee7b7"}` }}>
           {msg.texto}
         </div>
       )}
 
-      {/* Estado */}
-      <div style={{ background: config?.activo ? "linear-gradient(135deg,rgba(240,253,244,0.95),rgba(236,253,245,0.9))" : "#F9FAFB", border: `1px solid ${config?.activo ? "#BBF7D0" : "#E5E7EB"}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 9, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg,#0f0c29,#302b63,#24243e)", borderRadius: 16, padding: "22px 24px", position: "relative", overflow: "hidden", boxShadow: "0 12px 40px rgba(15,12,41,0.35)" }}>
+        <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(103,61,230,0.15)", pointerEvents: "none" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(103,61,230,0.6)" }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-.03em" }}>ScheduleoAI</div>
+              <div style={{ fontSize: 12, color: "#A78BFA", marginTop: 3 }}>Asistente inteligente · Potenciado por IA</div>
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>ScheduleoAI</div>
-            <div style={{ fontSize: 11, color: config?.activo ? "#059669" : "#9CA3AF" }}>{config?.activo ? "● Activo · " + proveedorActual.label : "● Inactivo"}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {config?.activo && (
+              <div style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 20, padding: "5px 12px", display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 8px #10B981" }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#10B981" }}>Activo · {proveedorActual.label}</span>
+              </div>
+            )}
+            <div onClick={() => setConfig((c: any) => ({ ...c, activo: !c?.activo }))}
+              style={{ width: 52, height: 28, borderRadius: 14, background: config?.activo ? "#673DE6" : "#374151", position: "relative", cursor: "pointer", boxShadow: config?.activo ? "0 0 16px rgba(103,61,230,0.5)" : "none", transition: "all 0.2s" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: config?.activo ? 27 : 3, transition: "left 0.2s", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }} />
+            </div>
           </div>
-        </div>
-        <div onClick={() => setConfig((c: any) => ({ ...c, activo: !c?.activo }))}
-          style={{ width: 44, height: 24, borderRadius: 12, background: config?.activo ? "#673DE6" : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
-          <div style={{ position: "absolute", top: 3, left: config?.activo ? 22 : 3, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
         </div>
       </div>
 
-      {/* Proveedor */}
-      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 18 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>Proveedor</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-          {PROVEEDORES.map(p => (
+      {/* Separador */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ height: 1, flex: 1, background: "linear-gradient(90deg,#C4B5FD,transparent)" }} />
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#7C3AED", textTransform: "uppercase" as const, letterSpacing: ".08em" }}>Elige tu proveedor de IA</span>
+        <div style={{ height: 1, flex: 1, background: "linear-gradient(90deg,transparent,#C4B5FD)" }} />
+      </div>
+
+      {/* Grid proveedores */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {PROVEEDORES.map(p => {
+          const isActive = config?.proveedor === p.id
+          return (
             <div key={p.id} onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 9, border: config?.proveedor === p.id ? "2px solid #673DE6" : "1px solid #E5E7EB", background: config?.proveedor === p.id ? "#F5F3FF" : "#fff", cursor: "pointer" }}>
-              <div style={{ width: 36, height: 36, borderRadius: 8, background: "#F9FAFB", border: "1px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><img src={(p as any).logo} width={20} height={20} alt={p.label} onError={(e:any) => { e.target.style.display="none" }} /></div>
-              <span style={{ fontSize: 12, fontWeight: config?.proveedor === p.id ? 700 : 500, color: config?.proveedor === p.id ? "#673DE6" : "#374151" }}>{p.label}</span>
+              style={{ gridColumn: p.extra ? "span 2" : undefined, border: isActive ? "2px solid #673DE6" : "1.5px solid #E5E7EB", borderRadius: 14, padding: isActive && p.extra ? "18px" : "16px", background: isActive ? "linear-gradient(135deg,#F5F3FF,#EDE9FE)" : "#fff", cursor: "pointer", boxShadow: isActive ? `0 8px 32px rgba(103,61,230,0.25)` : `0 4px 20px ${p.shadow}, 0 1px 4px rgba(0,0,0,0.04)`, transition: "all 0.2s", position: "relative" as const }}>
+              {isActive && <div style={{ position: "absolute", top: 12, right: 12, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", fontSize: 9, fontWeight: 800, padding: "3px 10px", borderRadius: 6, boxShadow: "0 2px 8px rgba(103,61,230,0.4)" }}>✓ SELECCIONADO</div>}
+              <div style={{ display: "flex", alignItems: isActive && p.extra ? "center" : "flex-start", gap: 12 }}>
+                <div style={{ width: isActive && p.extra ? 50 : 44, height: isActive && p.extra ? 50 : 44, borderRadius: 12, background: `linear-gradient(135deg,${p.bg},${p.bg}dd)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: isActive && p.extra ? 24 : 22, boxShadow: `0 4px 12px ${p.shadow}` }}>{p.emoji}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: isActive && p.extra ? 15 : 13, fontWeight: isActive ? 800 : 700, color: isActive ? "#673DE6" : "#111827" }}>{p.label}</div>
+                  <div style={{ fontSize: 11, color: isActive ? "#7C3AED" : "#6B7280", marginTop: 2 }}>{p.sub}</div>
+                  <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" as const }}>
+                    {p.tags.map((tag, ti) => <span key={ti} style={{ background: tag.bg, color: tag.c, fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 5 }}>{tag.t}</span>)}
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", marginBottom: 6 }}>Modelo</div>
+          )
+        })}
+      </div>
+
+      {/* Modelo + API Key */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div style={{ background: "#fff", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16, boxShadow: "0 4px 14px rgba(103,61,230,0.08)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#7C3AED", textTransform: "uppercase" as const, letterSpacing: ".07em", marginBottom: 10 }}>Modelo activo</div>
           <select value={config?.modelo || ""} onChange={e => setConfig((c: any) => ({ ...c, modelo: e.target.value }))}
-            style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, color: "#374151", background: "#fff" }}>
+            style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #673DE6", borderRadius: 8, fontSize: 13, color: "#673DE6", fontWeight: 600, background: "#F5F3FF", outline: "none" }}>
             {proveedorActual.modelos.map(m => <option key={m} value={m}>{m}</option>)}
           </select>
         </div>
-      </div>
-
-      {/* API Key */}
-      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 18 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>API Key</div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
-            placeholder={config?.apiKeyEnc ? "••••••••••••••••••• (cambiar)" : "Pega tu API key aqui"}
-            style={{ flex: 1, padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, color: "#374151" }} />
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span style={{ fontSize: 10, color: "#10B981", fontWeight: 600 }}>La key se cifra con AES-256-GCM antes de guardarse</span>
+        <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 16, boxShadow: "0 4px 14px rgba(0,0,0,0.04)", position: "relative" as const, overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -1, right: -1, background: "linear-gradient(135deg,#D1FAE5,#A7F3D0)", borderRadius: "0 12px 0 12px", padding: "4px 10px", display: "flex", alignItems: "center", gap: 4 }}>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "#059669" }}>AES-256</span>
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: ".07em", marginBottom: 10 }}>API Key</div>
+          <div style={{ position: "relative" as const }}>
+            <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
+              placeholder={config?.tieneKey ? "••••••••••••••••••• (cambiar)" : "Pega tu API key aqui"}
+              style={{ width: "100%", padding: "9px 12px 9px 36px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 12, fontFamily: "monospace", background: "#F9FAFB", color: "#374151", outline: "none" }} />
+            <div style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, padding: "5px 10px", background: "linear-gradient(135deg,rgba(240,253,244,0.8),rgba(236,253,245,0.6))", border: "1px solid rgba(167,243,208,0.5)", borderRadius: 7 }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span style={{ fontSize: 10, color: "#065F46", fontWeight: 600 }}>Cifrado AES-256-GCM · Nunca visible · Solo el servidor la descifra</span>
+          </div>
         </div>
       </div>
 
       {/* Uso */}
-      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 18 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>Uso este mes</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div style={{ background: "#F5F3FF", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#673DE6" }}>{uso.consultas}</div>
-            <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>Consultas hoy</div>
-            <div style={{ fontSize: 10, color: "#A78BFA" }}>Max 20/dia</div>
-          </div>
-          <div style={{ background: "#F0FDF4", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#10B981" }}>{uso.tokens.toLocaleString()}</div>
-            <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>Tokens usados</div>
-            <div style={{ fontSize: 10, color: "#6EE7B7" }}>Este mes</div>
-          </div>
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 18, boxShadow: "0 6px 20px rgba(0,0,0,0.05)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: ".07em" }}>Uso este mes</div>
+          <span style={{ fontSize: 10, color: "#6B7280", background: "#F3F4F6", padding: "3px 9px", borderRadius: 10 }}>{new Date().toLocaleString("es-ES", { month: "long", year: "numeric" })}</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          {[
+            { label: "Consultas hoy", valor: uso.consultas, sub: "0 / 20 hoy", color: "#673DE6", bg: "linear-gradient(135deg,#F5F3FF,#EDE9FE)", shadow: "rgba(103,61,230,0.14)", border: "rgba(196,181,253,0.3)", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
+            { label: "Tokens usados", valor: uso.tokens.toLocaleString(), sub: "Este mes", color: "#10B981", bg: "linear-gradient(135deg,#F0FDF4,#DCFCE7)", shadow: "rgba(16,185,129,0.14)", border: "rgba(167,243,208,0.4)", icon: "M22 12h-4l-3 9L9 3l-3 9H2" },
+            { label: "Coste estimado", valor: "$0", sub: "Este mes", color: "#D97706", bg: "linear-gradient(135deg,#FEF9C3,#FEF08A)", shadow: "rgba(217,119,6,0.14)", border: "rgba(253,230,138,0.5)", icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" },
+          ].map((item, i) => (
+            <div key={i} style={{ background: item.bg, borderRadius: 12, padding: 16, textAlign: "center", boxShadow: `0 4px 16px ${item.shadow}, 0 1px 4px ${item.shadow}`, border: `1px solid ${item.border}` }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: `rgba(${item.color === "#673DE6" ? "103,61,230" : item.color === "#10B981" ? "16,185,129" : "217,119,6"},0.12)`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2"><path d={item.icon}/></svg>
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: item.color, lineHeight: 1 }}>{item.valor}</div>
+              <div style={{ fontSize: 11, color: item.color, fontWeight: 600, marginTop: 4 }}>{item.label}</div>
+              <div style={{ height: 3, background: `rgba(${item.color === "#673DE6" ? "103,61,230" : item.color === "#10B981" ? "16,185,129" : "217,119,6"},0.15)`, borderRadius: 999, marginTop: 8 }}>
+                <div style={{ width: "0%", height: "100%", background: item.color, borderRadius: 999 }} />
+              </div>
+              <div style={{ fontSize: 9, color: item.color, opacity: 0.7, marginTop: 4 }}>{item.sub}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       <button onClick={guardar} disabled={guardando}
-        style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer", opacity: guardando ? 0.7 : 1 }}>
-        {guardando ? "Guardando..." : "Guardar configuracion"}
+        style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 12, padding: "14px 24px", fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: guardando ? 0.7 : 1, boxShadow: "0 8px 24px rgba(103,61,230,0.4)" }}>
+        {guardando ? "Guardando..." : "Guardar configuracion ScheduleoAI"}
       </button>
+
     </div>
   )
 }
