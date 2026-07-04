@@ -581,7 +581,6 @@ function SeccionSeguridad() {
       </div>
     </div>
   )
-  )
 }
 
 function SeccionAI() {
