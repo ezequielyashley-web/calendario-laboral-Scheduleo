@@ -668,7 +668,7 @@ function SeccionAI() {
       </div>
 
       {/* Grid proveedores */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%" }}>
         {PROVEEDORES.map(p => {
           const isActive = config?.proveedor === p.id
           return (
@@ -1119,7 +1119,7 @@ export default function ConfiguracionPage() {
 
         </div>
         <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column" }}>
-          <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box" }}>
 
           {seccion === "identidad" && (
             <div>
