@@ -1075,7 +1075,7 @@ export default function ConfiguracionPage() {
           {mensaje.texto}
         </div>
       )}
-      <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1, minHeight: 0, height: "100%" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
         <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
 
