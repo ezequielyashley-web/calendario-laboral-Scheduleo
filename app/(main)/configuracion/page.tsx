@@ -287,9 +287,9 @@ function SeccionIMAP() {
           <button onClick={guardar} disabled={loading} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{loading ? "Guardando..." : "Guardar configuracion"}</button>
         </div>
       </div>
-      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 24 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: "0 0 12px" }}>Como funciona y pasos para activarlo</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 16 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b", margin: "0 0 8px" }}>Como funciona y pasos para activarlo</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {[
             { n: "1", color: "#6366f1", t: "Crea un buzon dedicado", d: "Crea un email especifico (ej: bajas@tuempresa.com) en tu proveedor de hosting para recibir los partes del INSS." },
             { n: "2", color: "#0891b2", t: "Registralo en Sistema RED", d: "En el portal de la Seguridad Social indica ese email como destinatario de comunicaciones IT de tu empresa." },
@@ -297,15 +297,15 @@ function SeccionIMAP() {
             { n: "4", color: "#d97706", t: "Recibe partes automaticamente", d: "Scheduleo leera el email cada 30 min. Cuando el INSS envie un parte lo registrara y te enviara notificacion push." },
             { n: "5", color: "#7c3aed", t: "Confirma datos al INSS en 3 dias habiles", d: "Solo tendras que confirmar los datos economicos via Sistema RED. Art. 169 LGSS." },
           ].map(item => (
-            <div key={item.n} style={{ display: "flex", gap: 12, padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
-              <div style={{ width: 26, height: 26, borderRadius: "50%", background: item.color, color: "#fff", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.n}</div>
-              <div><p style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b", margin: "0 0 2px" }}>{item.t}</p><p style={{ fontSize: 12, color: "#718096", margin: 0 }}>{item.d}</p></div>
+            <div key={item.n} style={{ display: "flex", gap: 8, padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: item.color, color: "#fff", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.n}</div>
+              <div><p style={{ fontSize: 11, fontWeight: 600, color: "#1e1b4b", margin: "0 0 1px" }}>{item.t}</p><p style={{ fontSize: 10, color: "#718096", margin: 0 }}>{item.d}</p></div>
             </div>
           ))}
         </div>
-        <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 8, padding: "10px 14px", marginTop: 12 }}>
-          <p style={{ fontSize: 12, fontWeight: 600, color: "#854d0e", margin: "0 0 2px" }}>Requisito previo</p>
-          <p style={{ fontSize: 11, color: "#92400e", margin: 0 }}>Necesitas un buzon de correo dedicado en tu proveedor de hosting. El INSS enviara los partes a ese email via Sistema RED (RD 1060/2022).</p>
+        <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 7, padding: "7px 10px", marginTop: 8 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, color: "#854d0e", margin: "0 0 1px" }}>Requisito previo</p>
+          <p style={{ fontSize: 9, color: "#92400e", margin: 0 }}>Necesitas un buzon de correo dedicado en tu proveedor de hosting. El INSS enviara los partes a ese email via Sistema RED (RD 1060/2022).</p>
         </div>
       </div>
     </div>
