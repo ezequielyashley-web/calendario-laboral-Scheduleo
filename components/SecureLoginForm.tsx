@@ -247,7 +247,6 @@ export default function SecureLoginForm() {
                 const data = await res.json()
                 setVerifying2FA(false)
                 if (data.ok) {
-                  // Crear sesion NextAuth despues del 2FA exitoso
                   const csrfRes = await fetch("/api/auth/csrf")
                   const { csrfToken } = await csrfRes.json()
                   await fetch("/api/auth/callback/credentials", {
@@ -260,11 +259,21 @@ export default function SecureLoginForm() {
                   setShow2FA(false)
                   setUserName(email.split("@")[0])
                   setSuccess(true)
-                  setTimeout(() => { const saved = localStorage.getItem("scheduleo_ultima_ruta"); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== "/login") { router.push(ruta); router.refresh(); return } } catch {} } router.push("/dashboard"); router.refresh() }, 5500)
+                  setTimeout(() => { const saved = localStorage.getItem('scheduleo_ultima_ruta'); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== '/login') { router.push(ruta); router.refresh(); return } } catch {} } router.push('/dashboard'); router.refresh() }, 5500)
                 } else {
                   setError2FA(data.error || "Codigo incorrecto")
                   setCode2FA("")
                 }
+                }
+              }}
+              style={{width:'100%',height:46,background:'linear-gradient(135deg,#3b82f6,#1e40af)',color:'#fff',border:'none',borderRadius:10,fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:14}}>
+              {verifying2FA ? 'Verificando...' : 'Verificar codigo'}
+            </button>
+            <button onClick={async () => {
+                setCode2FA('')
+                setError2FA('')
+                await fetch('/api/verificacion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,action:'send'})})
+              }}
               style={{background:'none',border:'none',color:'#bfdbfe',fontSize:13,cursor:'pointer',textDecoration:'underline'}}>
               Reenviar codigo
             </button>
