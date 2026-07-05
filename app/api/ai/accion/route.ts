@@ -136,11 +136,13 @@ export async function POST(req: NextRequest) {
 
       if (!vacaciones.length) return NextResponse.json({ error: "No hay solicitudes de vacaciones pendientes que coincidan" }, { status: 404 })
 
+      const nombres: string[] = []
       for (const v of vacaciones) {
         await prisma.$executeRaw`UPDATE "Vacacion" SET estado = 'APROBADA' WHERE id = ${v.id}`
+        nombres.push(`${v.nombre} ${v.apellidos}`)
       }
 
-      return NextResponse.json({ ok: true, mensaje: `${vacaciones.length} solicitud(es) de vacaciones aprobadas correctamente.` })
+      return NextResponse.json({ ok: true, mensaje: `${vacaciones.length} solicitud(es) aprobadas correctamente:\n${nombres.map(n => `• ${n}`).join('\n')}` })
     }
 
     return NextResponse.json({ error: "Tipo de accion no reconocida" }, { status: 400 })
