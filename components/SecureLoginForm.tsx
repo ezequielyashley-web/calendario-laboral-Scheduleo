@@ -261,10 +261,10 @@ export default function SecureLoginForm() {
                   setUserName(email.split("@")[0])
                   setSuccess(true)
                   setTimeout(() => { const saved = localStorage.getItem("scheduleo_ultima_ruta"); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== "/login") { router.push(ruta); router.refresh(); return } } catch {} } router.push("/dashboard"); router.refresh() }, 5500)
-                setCode2FA('')
-                setError2FA('')
-                await fetch('/api/verificacion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,action:'send'})})
-              }}
+                } else {
+                  setError2FA(data.error || "Codigo incorrecto")
+                  setCode2FA("")
+                }
               style={{background:'none',border:'none',color:'#bfdbfe',fontSize:13,cursor:'pointer',textDecoration:'underline'}}>
               Reenviar codigo
             </button>
