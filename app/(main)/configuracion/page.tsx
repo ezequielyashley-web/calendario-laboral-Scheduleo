@@ -266,21 +266,21 @@ function SeccionIMAP() {
   }
   if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, padding: "8px 14px" }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", margin: "0 0 2px" }}>Email IMAP para bajas IT</p>
-        <p style={{ fontSize: 11, color: "#1d4ed8", margin: 0 }}>Configura el buzon donde el INSS envia los partes de baja telematicos. RD 1060/2022.</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, padding: "12px 16px" }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", margin: "0 0 4px" }}>Email IMAP para bajas IT</p>
+        <p style={{ fontSize: 12, color: "#1d4ed8", margin: 0 }}>Configura el buzon donde el INSS envia los partes de baja telematicos. RD 1060/2022.</p>
       </div>
       {mensaje.texto && <div style={{ background: mensaje.tipo === "ok" ? "#d1fae5" : "#fee2e2", border: `1px solid ${mensaje.tipo === "ok" ? "#86efac" : "#fca5a5"}`, borderRadius: 8, padding: "10px 16px", fontSize: 13, color: mensaje.tipo === "ok" ? "#065f46" : "#991b1b" }}>{mensaje.texto}</div>}
-      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 16 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b", margin: "0 0 10px" }}>Servidor IMAP</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+      <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 24 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: "0 0 16px" }}>Servidor IMAP</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
           <div><label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Servidor</label><input value={form.host} onChange={e => setForm(p => ({ ...p, host: e.target.value }))} placeholder="mail.tuempresa.com" style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} /></div>
           <div><label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Puerto</label><input value={form.port} onChange={e => setForm(p => ({ ...p, port: e.target.value }))} placeholder="993" style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} /></div>
           <div><label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Usuario</label><input value={form.user} onChange={e => setForm(p => ({ ...p, user: e.target.value }))} placeholder="bajas@empresa.com" style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} /></div>
           <div><label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Contrasena</label><input type="password" value={form.pass} onChange={e => setForm(p => ({ ...p, pass: e.target.value }))} placeholder="••••••••" style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} /></div>
           <div><label style={{ display: "block", fontSize: 12, color: "#a0aec0", marginBottom: 4 }}>Carpeta</label><input value={form.folder} onChange={e => setForm(p => ({ ...p, folder: e.target.value }))} placeholder="INBOX" style={{ width: "100%", padding: "9px 12px", border: "1px solid #e8eaf0", borderRadius: 8, fontSize: 14, boxSizing: "border-box" as "border-box" }} /></div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 14 }}><input type="checkbox" id="tls" checked={form.tls} onChange={e => setForm(p => ({ ...p, tls: e.target.checked }))} /><label htmlFor="tls" style={{ fontSize: 12, color: "#1e1b4b", cursor: "pointer" }}>Usar TLS/SSL</label></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 20 }}><input type="checkbox" id="tls" checked={form.tls} onChange={e => setForm(p => ({ ...p, tls: e.target.checked }))} /><label htmlFor="tls" style={{ fontSize: 13, color: "#1e1b4b", cursor: "pointer" }}>Usar TLS/SSL</label></div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={testConexion} disabled={testando || !form.host || !form.user} style={{ background: "#f0f4ff", color: "#6366f1", border: "1px solid #c7d2fe", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{testando ? "Probando..." : "Probar conexion"}</button>
