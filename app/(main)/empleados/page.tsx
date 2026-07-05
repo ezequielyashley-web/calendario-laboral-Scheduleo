@@ -155,7 +155,7 @@ export default function EmpleadosPage() {
                   <span style={{ marginLeft: "auto", background: "#f59e0b", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>DEMO</span>
                 )}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, width: "100%" }}>
                 {(emps as any[]).map((e: any) => (
                   <div key={e.id} onClick={() => router.push(`/empleados/${e.id}`)}
                     style={{ background: "#fff", border: `1px solid ${gc.border}`, borderRadius: 10, padding: "14px 16px", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 12, position: "relative" }}
