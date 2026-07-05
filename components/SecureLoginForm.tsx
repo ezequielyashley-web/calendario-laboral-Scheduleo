@@ -249,21 +249,16 @@ export default function SecureLoginForm() {
                 if (data.ok) {
                   const csrfRes = await fetch("/api/auth/csrf")
                   const { csrfToken } = await csrfRes.json()
-                  await fetch("/api/auth/callback/credentials", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    redirect: "manual",
-                    body: new URLSearchParams({ email, password, csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" })
-                  })
+                  await fetch("/api/auth/callback/credentials", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, redirect: "manual", body: new URLSearchParams({ email, password, csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" }) })
                   sessionStorage.setItem("2fa_verified", "true")
                   setShow2FA(false)
-                  setUserName(email.split("@")[0])
+                  setUserName(email.split('@')[0])
                   setSuccess(true)
                   setTimeout(() => { const saved = localStorage.getItem('scheduleo_ultima_ruta'); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== '/login') { router.push(ruta); router.refresh(); return } } catch {} } router.push('/dashboard'); router.refresh() }, 5500)
                 } else {
-                  setError2FA(data.error || "Codigo incorrecto")
-                  setCode2FA("")
-                }
+                  sessionStorage.setItem('2fa_verified', 'true')
+                  setError2FA(data.error || 'Codigo incorrecto')
+                  setCode2FA('')
                 }
               }}
               style={{width:'100%',height:46,background:'linear-gradient(135deg,#3b82f6,#1e40af)',color:'#fff',border:'none',borderRadius:10,fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:14}}>
