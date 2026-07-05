@@ -15,14 +15,21 @@ export async function GET(req: NextRequest) {
     ` as any[]
     const modoDemo = config[0]?.modoDemo ?? false
 
-    const empleados = await prisma.$queryRaw`
-      SELECT e.*, gt.nombre as "grupoNombre", gt.color as "grupoColor"
-      FROM "Empleado" e
-      LEFT JOIN "GrupoTrabajo" gt ON e."grupoTrabajoId" = gt.id
-      WHERE e."empresaId" = 'empresa-001'
-      AND e."esDemostracion" = ${modoDemo}
-      ORDER BY e."numeroEmpleado"
-    ` as any[]
+    const empleados = modoDemo
+      ? await prisma.$queryRaw`
+          SELECT e.*, gt.nombre as "grupoNombre", gt.color as "grupoColor"
+          FROM "Empleado" e
+          LEFT JOIN "GrupoTrabajo" gt ON e."grupoTrabajoId" = gt.id
+          WHERE e."empresaId" = 'empresa-001' AND e."esDemostracion" = true
+          ORDER BY e."numeroEmpleado"
+        ` as any[]
+      : await prisma.$queryRaw`
+          SELECT e.*, gt.nombre as "grupoNombre", gt.color as "grupoColor"
+          FROM "Empleado" e
+          LEFT JOIN "GrupoTrabajo" gt ON e."grupoTrabajoId" = gt.id
+          WHERE e."empresaId" = 'empresa-001' AND e."esDemostracion" = false
+          ORDER BY e."numeroEmpleado"
+        ` as any[]
 
     const empleadosDecifrados = empleados.map((e: any) => {
       const sensible = getEmpleadoData(e)
