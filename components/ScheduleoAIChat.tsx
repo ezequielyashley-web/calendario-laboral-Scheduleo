@@ -160,6 +160,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
                       <div style={{ fontSize: 11, color: "#78350F", marginBottom: 8 }}>
                         {accionTipo === "crear_grupo" && `Crear el grupo "${accionDatos.nombre}"`}
                         {accionTipo === "asignar_libranza" && `Asignar a ${accionDatos.empleadoNombre} al grupo de libranza "${accionDatos.grupoLibranzaNombre}"`}
+                        {accionTipo === "eliminar_grupo" && `⚠ Eliminar PERMANENTEMENTE el grupo "${accionDatos.nombre}"`}
                       </div>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button onClick={async () => {

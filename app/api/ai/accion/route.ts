@@ -61,6 +61,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, mensaje: `${empleado[0].nombre} ${empleado[0].apellidos} asignado al grupo de libranza "${grupo[0].nombre}".` })
     }
 
+    if (tipo === "eliminar_grupo") {
+      const { nombre } = datos
+      if (!nombre) return NextResponse.json({ error: "Falta el nombre del grupo a eliminar" }, { status: 400 })
+
+      const grupo = await prisma.$queryRaw`
+        SELECT id, nombre FROM "GrupoTrabajo" WHERE "empresaId" = 'empresa-001' AND nombre ILIKE ${'%' + nombre + '%'} LIMIT 1
+      ` as any[]
+      if (!grupo.length) return NextResponse.json({ error: `No se encontro el grupo "${nombre}"` }, { status: 404 })
+
+      const empleadosEnGrupo = await prisma.$queryRaw`
+        SELECT COUNT(*) as total FROM "Empleado" WHERE "grupoTrabajoId" = ${grupo[0].id}
+      ` as any[]
+      const total = Number(empleadosEnGrupo[0]?.total || 0)
+      if (total > 0) return NextResponse.json({ error: `No se puede eliminar el grupo "${grupo[0].nombre}" porque tiene ${total} empleados asignados. Reasigna a los empleados primero.` }, { status: 400 })
+
+      await prisma.$executeRaw`DELETE FROM "GrupoTrabajo" WHERE id = ${grupo[0].id}`
+      return NextResponse.json({ ok: true, mensaje: `Grupo "${grupo[0].nombre}" eliminado correctamente.` })
+    }
+
     return NextResponse.json({ error: "Tipo de accion no reconocida" }, { status: 400 })
   } catch (error: any) {
     console.error("Error ejecutando accion AI:", error)
