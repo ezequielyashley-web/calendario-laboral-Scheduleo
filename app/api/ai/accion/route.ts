@@ -80,6 +80,69 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, mensaje: `Grupo "${grupo[0].nombre}" eliminado correctamente.` })
     }
 
+    if (tipo === "asignar_libranza_grupo") {
+      const { grupoTrabajoNombre, grupoLibranzaNombre } = datos
+      if (!grupoTrabajoNombre || !grupoLibranzaNombre) return NextResponse.json({ error: "Faltan datos para la asignacion masiva" }, { status: 400 })
+
+      const grupoTrabajo = await prisma.$queryRaw`
+        SELECT id, nombre FROM "GrupoTrabajo" WHERE "empresaId" = 'empresa-001' AND nombre ILIKE ${'%' + grupoTrabajoNombre + '%'} LIMIT 1
+      ` as any[]
+      if (!grupoTrabajo.length) return NextResponse.json({ error: `No se encontro el grupo de trabajo "${grupoTrabajoNombre}"` }, { status: 404 })
+
+      const grupoLibranza = await prisma.$queryRaw`
+        SELECT id, nombre FROM "GrupoLibranza" WHERE nombre ILIKE ${'%' + grupoLibranzaNombre + '%'} LIMIT 1
+      ` as any[]
+      if (!grupoLibranza.length) return NextResponse.json({ error: `No se encontro el grupo de libranza "${grupoLibranzaNombre}"` }, { status: 404 })
+
+      const empleados = await prisma.$queryRaw`
+        SELECT id, nombre, apellidos FROM "Empleado" WHERE "grupoTrabajoId" = ${grupoTrabajo[0].id}
+      ` as any[]
+      if (!empleados.length) return NextResponse.json({ error: `El grupo "${grupoTrabajo[0].nombre}" no tiene empleados asignados` }, { status: 400 })
+
+      let asignados = 0
+      for (const emp of empleados) {
+        const existente = await prisma.$queryRaw`
+          SELECT id FROM "EmpleadoGrupoLibranza" WHERE "empleadoId" = ${emp.id} AND "grupoLibranzaId" = ${grupoLibranza[0].id} AND "fechaFin" IS NULL LIMIT 1
+        ` as any[]
+        if (!existente.length) {
+          const id = crypto.randomUUID()
+          await prisma.$executeRaw`
+            INSERT INTO "EmpleadoGrupoLibranza" (id, "empleadoId", "grupoLibranzaId", "fechaInicio", "createdAt")
+            VALUES (${id}, ${emp.id}, ${grupoLibranza[0].id}, NOW(), NOW())
+          `
+          asignados++
+        }
+      }
+      return NextResponse.json({ ok: true, mensaje: `${asignados} empleados del grupo "${grupoTrabajo[0].nombre}" asignados al grupo de libranza "${grupoLibranza[0].nombre}".` })
+    }
+
+    if (tipo === "aprobar_vacaciones_bloque") {
+      const { empleadoNombre } = datos
+
+      let vacaciones
+      if (empleadoNombre && empleadoNombre !== "todos") {
+        vacaciones = await prisma.$queryRaw`
+          SELECT v.id, e.nombre, e.apellidos FROM "Vacacion" v
+          INNER JOIN "Empleado" e ON e.id = v."empleadoId"
+          WHERE v.estado = 'PENDIENTE' AND (e.nombre ILIKE ${'%' + empleadoNombre + '%'} OR CONCAT(e.nombre,' ',e.apellidos) ILIKE ${'%' + empleadoNombre + '%'})
+        ` as any[]
+      } else {
+        vacaciones = await prisma.$queryRaw`
+          SELECT v.id, e.nombre, e.apellidos FROM "Vacacion" v
+          INNER JOIN "Empleado" e ON e.id = v."empleadoId"
+          WHERE v.estado = 'PENDIENTE'
+        ` as any[]
+      }
+
+      if (!vacaciones.length) return NextResponse.json({ error: "No hay solicitudes de vacaciones pendientes que coincidan" }, { status: 404 })
+
+      for (const v of vacaciones) {
+        await prisma.$executeRaw`UPDATE "Vacacion" SET estado = 'APROBADA' WHERE id = ${v.id}`
+      }
+
+      return NextResponse.json({ ok: true, mensaje: `${vacaciones.length} solicitud(es) de vacaciones aprobadas correctamente.` })
+    }
+
     return NextResponse.json({ error: "Tipo de accion no reconocida" }, { status: 400 })
   } catch (error: any) {
     console.error("Error ejecutando accion AI:", error)

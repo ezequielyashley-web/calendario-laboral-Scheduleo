@@ -161,6 +161,8 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
                         {accionTipo === "crear_grupo" && `Crear el grupo "${accionDatos.nombre}"`}
                         {accionTipo === "asignar_libranza" && `Asignar a ${accionDatos.empleadoNombre} al grupo de libranza "${accionDatos.grupoLibranzaNombre}"`}
                         {accionTipo === "eliminar_grupo" && `⚠ Eliminar PERMANENTEMENTE el grupo "${accionDatos.nombre}"`}
+                        {accionTipo === "asignar_libranza_grupo" && `Asignar a TODOS los empleados del grupo "${accionDatos.grupoTrabajoNombre}" al grupo de libranza "${accionDatos.grupoLibranzaNombre}"`}
+                        {accionTipo === "aprobar_vacaciones_bloque" && `Aprobar vacaciones pendientes de ${accionDatos.empleadoNombre === "todos" ? "TODOS los empleados" : accionDatos.empleadoNombre}`}
                       </div>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button onClick={async () => {
