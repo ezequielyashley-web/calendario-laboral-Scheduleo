@@ -162,7 +162,9 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
                       <div style={{ display: "flex", gap: 6 }}>
                         <button onClick={async () => {
                           setEjecutando(true)
-                          const res = await fetch("/api/ai/accion", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tipo: accionTipo, datos: accionDatos, userId: resolvedUserId }) })
+                          let uid = resolvedUserId
+                          if (!uid) { const si = await fetch("/api/session-info").then(r => r.json()).catch(() => null); uid = si?.id || "" }
+                          const res = await fetch("/api/ai/accion", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tipo: accionTipo, datos: accionDatos, userId: uid }) })
                           const data = await res.json()
                           setEjecutando(false)
                           setMensajes(prev => [...prev, { rol: "assistant", contenido: data.error || data.mensaje || "Accion completada", tiempo: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) }])
