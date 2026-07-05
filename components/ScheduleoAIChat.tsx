@@ -25,6 +25,8 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
   const dragStart = useRef({ mx: 0, my: 0, px: 0, py: 0 })
 
   const [resolvedUserId, setResolvedUserId] = useState(userId)
+  const [accionPendiente, setAccionPendiente] = useState<{ tipo: string; datos: any; msgIndex: number } | null>(null)
+  const [ejecutando, setEjecutando] = useState(false)
 
   useEffect(() => {
     fetch("/api/ai/config").then(r => r.json()).then(d => setActivo(d.activo)).catch(() => {})
@@ -130,9 +132,12 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
           <div ref={mensajesRef} style={{ flex: 1, overflowY: "auto", padding: "14px 12px", display: "flex", flexDirection: "column", gap: 10, background: "#FAFAFA" }}>
             {mensajes.map((m, i) => {
               const navMatch = m.contenido.match(/\[NAVEGAR:([^\|]+)\|([^\]]+)\]/)
-              const textoLimpio = m.contenido.replace(/\[NAVEGAR:[^\]]+\]/g, "").trim()
+              const accionMatch = m.contenido.match(/\[ACCION:([^\|]+)\|(\{[^\]]+\})\]/)
+              const textoLimpio = m.contenido.replace(/\[NAVEGAR:[^\]]+\]/g, "").replace(/\[ACCION:[^\]]+\]/g, "").trim()
               const navRuta = navMatch?.[1]
               const navTexto = navMatch?.[2]
+              let accionTipo = "", accionDatos: any = null
+              if (accionMatch) { try { accionTipo = accionMatch[1]; accionDatos = JSON.parse(accionMatch[2]) } catch {} }
               return (
               <div key={i} style={{ display: "flex", justifyContent: m.rol === "user" ? "flex-end" : "flex-start" }}>
                 <div style={{ maxWidth: "82%", background: m.rol === "user" ? "linear-gradient(135deg,#673DE6,#8B5CF6)" : "#fff", border: m.rol === "user" ? "none" : "1px solid #E5E7EB", borderRadius: m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "9px 12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
@@ -143,6 +148,34 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                       {navTexto}
                     </button>
+                    )}
+                  {accionTipo && accionDatos && (
+                    <div style={{ marginTop: 8, background: "#FEF9C3", border: "1px solid #FDE68A", borderRadius: 9, padding: "10px 12px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#92400E" strokeWidth="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#92400E" }}>Confirmar accion</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "#78350F", marginBottom: 8 }}>
+                        {accionTipo === "crear_grupo" && `Crear el grupo "${accionDatos.nombre}"`}
+                        {accionTipo === "asignar_libranza" && `Asignar a ${accionDatos.empleadoNombre} al grupo de libranza "${accionDatos.grupoLibranzaNombre}"`}
+                      </div>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button onClick={async () => {
+                          setEjecutando(true)
+                          const res = await fetch("/api/ai/accion", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tipo: accionTipo, datos: accionDatos, userId: resolvedUserId }) })
+                          const data = await res.json()
+                          setEjecutando(false)
+                          setMensajes(prev => [...prev, { rol: "assistant", contenido: data.error || data.mensaje || "Accion completada", tiempo: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) }])
+                        }} disabled={ejecutando}
+                          style={{ flex: 1, background: "#059669", color: "#fff", border: "none", borderRadius: 7, padding: "6px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                          {ejecutando ? "Ejecutando..." : "Confirmar"}
+                        </button>
+                        <button onClick={() => setMensajes(prev => [...prev, { rol: "assistant", contenido: "Accion cancelada.", tiempo: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) }])}
+                          style={{ background: "#F3F4F6", color: "#374151", border: "none", borderRadius: 7, padding: "6px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
                   )}
                   {m.tiempo && <div style={{ fontSize: 9, color: m.rol === "user" ? "rgba(255,255,255,0.6)" : "#9CA3AF", marginTop: 4, textAlign: "right" }}>{m.tiempo}</div>}
                 </div>
