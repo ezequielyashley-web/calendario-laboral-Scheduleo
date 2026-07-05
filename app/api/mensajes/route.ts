@@ -14,12 +14,14 @@ export async function GET(req: NextRequest) {
 
     if (noLeidos && userId) {
       const counts = await prisma.$queryRaw`
-        SELECT "conversacionId", COUNT(*)::int as count
-        FROM "Mensaje"
-        WHERE "empresaId" = ${empresaId}
-        AND leido = false
-        AND "autorId" != ${userId}
-        GROUP BY "conversacionId"
+        SELECT m."conversacionId", COUNT(*)::int as count
+        FROM "Mensaje" m
+        INNER JOIN "Conversacion" c ON c.id = m."conversacionId"
+        WHERE m."empresaId" = ${empresaId}
+        AND m.leido = false
+        AND m."autorId" != ${userId}
+        AND (c."solicitante_id" = ${userId} OR c."receptor_id" = ${userId})
+        GROUP BY m."conversacionId"
       ` as any[]
       return NextResponse.json(counts)
     }
