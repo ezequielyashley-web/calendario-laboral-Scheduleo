@@ -5,8 +5,15 @@ import { prisma } from "@/lib/prisma"
 const PALABRAS_BLOQUEADAS = [
   "base de datos", "database", "drop table", "delete from", "select *",
   "contrasena de otro", "api key", "token secreto", "hack", "exploit",
-  "datos de todos", "exportar todo", "dump", "injection"
+  "datos de todos", "exportar todo", "dump", "injection",
+  "ignora tus instrucciones", "ignora las instrucciones", "olvida tus instrucciones",
+  "ignore your instructions", "system prompt", "eres ahora", "actua como si",
+  "nuevo rol", "sin restricciones", "sin filtros", "modo desarrollador",
+  "jailbreak", "dan mode", "bypass", "saltate las reglas", "sin limites",
+  "eres libre de", "no tienes reglas", "cambia tu personalidad"
 ]
+
+const MAX_LONGITUD_MENSAJE = 1000
 
 
 async function getDatosSistema(): Promise<string> {
@@ -105,6 +112,10 @@ export async function POST(req: NextRequest) {
     }
 
     const ultimoMensaje = mensajes[mensajes.length - 1]?.contenido?.toLowerCase() || ""
+
+    if (ultimoMensaje.length > MAX_LONGITUD_MENSAJE) {
+      return NextResponse.json({ error: "Tu mensaje es demasiado largo. Maximo 1000 caracteres." }, { status: 400 })
+    }
     const bloqueado = PALABRAS_BLOQUEADAS.some(p => ultimoMensaje.includes(p))
     if (bloqueado) {
       return NextResponse.json({
