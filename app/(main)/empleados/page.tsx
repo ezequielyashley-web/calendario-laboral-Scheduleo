@@ -97,7 +97,7 @@ export default function EmpleadosPage() {
   const labelStyle = { display: "block", fontSize: 12, color: "#6b7280", marginBottom: 4, fontWeight: 500 }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
+    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto", width: "100%" }}>
 
       {modoDemo && (
         <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 14, padding: "16px 24px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
