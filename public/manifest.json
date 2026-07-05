@@ -1,12 +1,12 @@
 {
-  "name": "Scheduleo 2.0",
+  "name": "Scheduleo",
   "short_name": "Scheduleo",
-  "description": "Gestion laboral para empresas espanolas",
-  "start_url": "/",
+  "description": "Sistema de gestion laboral",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#f0f4ff",
-  "theme_color": "#0284c7",
-  "orientation": "portrait-primary",
+  "background_color": "#1e1b4b",
+  "theme_color": "#673DE6",
+  "orientation": "any",
   "icons": [
     {
       "src": "/icon-192.png",
