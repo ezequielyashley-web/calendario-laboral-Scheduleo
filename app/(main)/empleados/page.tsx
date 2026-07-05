@@ -77,9 +77,11 @@ export default function EmpleadosPage() {
     }
   }
 
+  const normalizar = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  const busquedaNorm = normalizar(busqueda)
   const filtrados = empleados.filter((e: any) =>
-    `${e.nombre} ${e.apellidos}`.toLowerCase().includes(busqueda.toLowerCase()) ||
-    e.numeroEmpleado?.toLowerCase().includes(busqueda.toLowerCase())
+    normalizar(`${e.nombre} ${e.apellidos}`).includes(busquedaNorm) ||
+    normalizar(e.numeroEmpleado || "").includes(busquedaNorm)
   )
 
   const porGrupo = filtrados.reduce((acc: any, e: any) => {
