@@ -14,7 +14,7 @@ async function getDatosSistema(): Promise<string> {
     const [empleados, grupos, vacaciones, bajas] = await Promise.all([
       prisma.$queryRaw`SELECT COUNT(*) as total FROM "Empleado" WHERE "empresaId"='empresa-001' AND "esDemostracion"=false` as Promise<any[]>,
       prisma.$queryRaw`SELECT nombre FROM "GrupoTrabajo" WHERE "empresaId"='empresa-001'` as Promise<any[]>,
-      prisma.$queryRaw`SELECT COUNT(*) as total FROM "Vacacion" WHERE estado='PENDIENTE'` as Promise<any[]>,
+      prisma.$queryRaw`SELECT v.id, e.nombre, e.apellidos, v."fechaInicio", v."fechaFin" FROM "Vacacion" v INNER JOIN "Empleado" e ON e.id = v."empleadoId" WHERE v.estado='PENDIENTE' LIMIT 20` as Promise<any[]>,
       prisma.$queryRaw`SELECT COUNT(*) as total FROM "BajaMedica"` as Promise<any[]>,
     ])
     const configDemo = await prisma.$queryRaw`SELECT "modoDemo" FROM "Configuracion" LIMIT 1` as any[]
@@ -22,19 +22,21 @@ async function getDatosSistema(): Promise<string> {
 
     if (modoDemo) {
       const empDemo = await prisma.$queryRaw`SELECT COUNT(*) as total FROM "Empleado" WHERE "esDemostracion"=true` as any[]
-      return `
+      const vacsDetalle = (vacaciones as any[]).map((v:any) => `${v.nombre} ${v.apellidos} (${new Date(v.fechaInicio).toLocaleDateString('es-ES')} - ${new Date(v.fechaFin).toLocaleDateString('es-ES')})`).join(", ") || "Ninguna"
+    return `
 DATOS DEL SISTEMA (Modo demostración activo):
 - Empleados ficticios: ${Number(empDemo[0]?.total || 0)}
 - Grupos: ${(grupos as any[]).map((g:any) => g.nombre).join(", ") || "Ninguno"}
-- Vacaciones pendientes: ${Number((vacaciones as any[])[0]?.total || 0)}
+- Vacaciones pendientes (${(vacaciones as any[]).length}): ${vacsDetalle}
 - Bajas médicas activas: ${Number((bajas as any[])[0]?.total || 0)}`
     }
 
+    const vacsDetalleReal = (vacaciones as any[]).map((v:any) => `${v.nombre} ${v.apellidos} (${new Date(v.fechaInicio).toLocaleDateString('es-ES')} - ${new Date(v.fechaFin).toLocaleDateString('es-ES')})`).join(", ") || "Ninguna"
     return `
 DATOS DEL SISTEMA (Datos reales):
 - Empleados activos: ${Number((empleados as any[])[0]?.total || 0)}
 - Grupos de trabajo: ${(grupos as any[]).map((g:any) => g.nombre).join(", ") || "Ninguno"}
-- Vacaciones pendientes de aprobar: ${Number((vacaciones as any[])[0]?.total || 0)}
+- Vacaciones pendientes de aprobar (${(vacaciones as any[]).length}): ${vacsDetalleReal}
 - Bajas médicas activas: ${Number((bajas as any[])[0]?.total || 0)}`
   } catch {
     return "No se pudieron cargar los datos del sistema."
