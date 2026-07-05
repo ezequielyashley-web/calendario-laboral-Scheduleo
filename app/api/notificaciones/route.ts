@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const token = await getToken({ 
       req, 
       secret: process.env.NEXTAUTH_SECRET,
-      cookieName: "authjs.session-token"
+      cookieName: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token"
     })
     if (!token?.id) return NextResponse.json({ mensajesNoLeidos: 0, solicitudesPendientes: 0, total: 0 })
 
