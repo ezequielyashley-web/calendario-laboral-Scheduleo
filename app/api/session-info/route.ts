@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const token = await getToken({ 
       req, 
       secret: process.env.NEXTAUTH_SECRET,
-      cookieName: "authjs.session-token"
+      cookieName: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token"
     })
     if (!token?.email) return NextResponse.json({ role: "EMPLEADO", permisos: {} })
     const usuario = await prisma.user.findFirst({
