@@ -67,9 +67,11 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
     setCargando(true)
     try {
       const historial = mensajes.map(m => ({ rol: m.rol, contenido: m.contenido }))
+      let uidActual = resolvedUserId
+      if (!uidActual) { const si = await fetch("/api/session-info").then(r => r.json()).catch(() => null); uidActual = si?.id || ""; if (uidActual) setResolvedUserId(uidActual) }
       const res = await fetch("/api/ai/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensajes: [...historial, { rol: "user", contenido: texto }], userId: resolvedUserId })
+        body: JSON.stringify({ mensajes: [...historial, { rol: "user", contenido: texto }], userId: uidActual })
       })
       const data = await res.json()
       setMensajes(prev => [...prev, { rol: "assistant", contenido: data.error || data.respuesta || "Sin respuesta", tiempo: hora }])
