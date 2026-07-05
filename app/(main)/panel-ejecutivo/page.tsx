@@ -6,8 +6,8 @@ function Avatar({ nombre, size = 38, online, dorado = false }: { nombre: string;
   const initials = (nombre || "?").split(" ").slice(0, 2).map((n: string) => n[0]).join("").toUpperCase()
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
-      <div style={{ width: size, height: size, borderRadius: "50%", background: dorado ? "#c9a14d" : "#2a2f45", color: dorado ? "#0b0e1a" : "#c9ccd9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 500 }}>{initials}</div>
-      <span style={{ position: "absolute", bottom: -1, right: -1, width: size * 0.28, height: size * 0.28, borderRadius: "50%", background: online ? "#1D9E75" : "#5a5f78", border: "2px solid #0b0e1a" }} />
+      <div style={{ width: size, height: size, borderRadius: size > 50 ? 16 : 10, background: dorado ? "linear-gradient(135deg,#673DE6,#8B5CF6)" : "#E2E8F0", color: dorado ? "#fff" : "#475569", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 700, boxShadow: dorado ? "0 6px 16px rgba(103,61,230,0.3)" : "none" }}>{initials}</div>
+      <span style={{ position: "absolute", bottom: -1, right: -1, width: size * 0.24, height: size * 0.24, borderRadius: "50%", background: online ? "#10B981" : "#CBD5E1", border: "2px solid #fff" }} />
     </div>
   )
 }
@@ -23,7 +23,7 @@ function tiempoDesde(fecha: string | null) {
   return `${Math.floor(h / 24)}d`
 }
 
-const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", background: "#161a2c", border: "1px solid #2a2f45", color: "#f1ecdd", boxSizing: "border-box", borderRadius: 8, fontSize: 13, outline: "none" }
+const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", background: "#F9FAFB", border: "1px solid #E2E8F0", color: "#0F172A", boxSizing: "border-box", borderRadius: 9, fontSize: 13, outline: "none" }
 
 export default function PanelEjecutivoPage() {
   const router = useRouter()
@@ -39,8 +39,9 @@ export default function PanelEjecutivoPage() {
   const [usuarioActual, setUsuarioActual] = useState<any>(null)
   const [empresaNombre, setEmpresaNombre] = useState("")
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<any>(null)
-  const [filtro, setFiltro] = useState<"todos"|"online"|"offline">("todos")
-  const [tab, setTab] = useState<"mensajes"|"email"|"actividad"|"perfil">("mensajes")
+  const [vista, setVista] = useState<"directorio"|"comunicacion">("directorio")
+  const [tabPerfil, setTabPerfil] = useState<"general"|"actividad">("general")
+  const [tabComs, setTabComs] = useState<"mensajes"|"email"|"actividad">("mensajes")
   const [mensajes, setMensajes] = useState<any[]>([])
   const [nuevoMensaje, setNuevoMensaje] = useState("")
   const [enviando, setEnviando] = useState(false)
@@ -51,9 +52,9 @@ export default function PanelEjecutivoPage() {
   const mensajesRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const sesion = sessionStorage.getItem("panelEjecutivoAuth")
-    if (sesion) {
-      try { const u = JSON.parse(sesion); setUsuarioActual(u); setAutenticado(true) } catch {}
+    const stored = sessionStorage.getItem("panelEjecutivoAuth")
+    if (stored) {
+      try { const u = JSON.parse(stored); setUsuarioActual(u); setAutenticado(true) } catch {}
     }
     setVerificando(false)
     fetch("/api/empresa").then(r => r.json()).then(d => setEmpresaNombre(d.nombre || "Mi Empresa")).catch(() => {})
@@ -70,7 +71,7 @@ export default function PanelEjecutivoPage() {
     setUsuarioActual(d.usuario)
     sessionStorage.setItem("panelEjecutivoAuth", JSON.stringify(d.usuario))
     setMostrarBienvenida(true)
-    setTimeout(() => { setAutenticado(true); setMostrarBienvenida(false) }, 1800)
+    setTimeout(() => { setAutenticado(true); setMostrarBienvenida(false) }, 1500)
   }
 
   const cargar = async () => {
@@ -98,7 +99,8 @@ export default function PanelEjecutivoPage() {
 
   const seleccionarUsuario = (u: any) => {
     setUsuarioSeleccionado(u)
-    setTab("mensajes")
+    setTabPerfil("general")
+    setTabComs("mensajes")
     setNuevoMensaje("")
     setEmailEnviado(false)
     cargarMensajes(u.id)
@@ -111,10 +113,7 @@ export default function PanelEjecutivoPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ remitenteId: usuarioActual?.id, paraId: usuarioSeleccionado.id, texto: nuevoMensaje.trim() })
     }).catch(() => null)
-    if (res?.ok) {
-      setNuevoMensaje("")
-      cargarMensajes(usuarioSeleccionado.id)
-    }
+    if (res?.ok) { setNuevoMensaje(""); cargarMensajes(usuarioSeleccionado.id) }
     setEnviando(false)
   }
 
@@ -132,240 +131,285 @@ export default function PanelEjecutivoPage() {
   if (verificando) return null
 
   if (mostrarBienvenida) return (
-    <div style={{ minHeight: "calc(100vh - 57px)", background: "#0b0e1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(180deg, #c9a14d, #a8843a)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-          <span style={{ fontSize: 30, color: "#0b0e1a" }}>✓</span>
+        <div style={{ width: 64, height: 64, borderRadius: 18, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 8px 24px rgba(103,61,230,0.3)" }}>
+          <span style={{ fontSize: 28, color: "#fff" }}>✓</span>
         </div>
-        <p style={{ fontSize: 20, fontWeight: 500, color: "#f1ecdd", margin: "0 0 4px" }}>Bienvenido{usuarioActual?.genero === "femenino" ? "a" : ""}, {usuarioActual?.name?.split(" ")[0]}</p>
-        <p style={{ fontSize: 13, color: "#8d92ab", margin: 0 }}>Identidad verificada · accediendo al panel ejecutivo...</p>
+        <p style={{ fontSize: 20, fontWeight: 700, color: "#0F172A", margin: "0 0 4px" }}>Bienvenido{usuarioActual?.genero === "femenino" ? "a" : ""}, {usuarioActual?.name?.split(" ")[0]}</p>
+        <p style={{ fontSize: 13, color: "#64748B", margin: 0 }}>Accediendo al panel ejecutivo...</p>
       </div>
     </div>
   )
 
   if (!autenticado) return (
-    <div style={{ minHeight: "calc(100vh - 57px)", background: "#0b0e1a", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: 20, left: 24, display: "flex", alignItems: "center", gap: 8, zIndex: 2 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 7, background: "#1e1b4b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "#fff" }}>{empresaNombre.charAt(0).toUpperCase()}</div>
-        <span style={{ fontSize: 12, color: "#8d92ab" }}>{empresaNombre}</span>
-      </div>
-      <div style={{ width: 360, textAlign: "center", position: "relative", zIndex: 1, background: "rgba(255,255,255,0.045)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "32px 28px", boxShadow: "0 8px 40px rgba(255,255,255,0.06), 0 2px 12px rgba(0,0,0,0.4)" }}>
-        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(180deg, #c9a14d, #a8843a)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0b0e1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" /></svg>
+    <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+      <div style={{ width: 380, textAlign: "center", background: "#fff", border: "1px solid #E2E4E9", borderRadius: 20, padding: "36px 32px", boxShadow: "0 8px 32px rgba(15,23,42,0.08)" }}>
+        <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#1E293B,#334155)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" /></svg>
         </div>
-        <p style={{ fontSize: 18, fontWeight: 500, color: "#f1ecdd", margin: "0 0 4px" }}>Panel ejecutivo</p>
-        <p style={{ fontSize: 13, color: "#8d92ab", margin: "0 0 26px" }}>Verifica tu identidad para continuar.</p>
-        {errorLogin && <div style={{ background: "rgba(228,75,74,0.12)", border: "1px solid rgba(228,75,74,0.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 16, fontSize: 12, color: "#f09595" }}>{errorLogin}</div>}
+        <p style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", margin: "0 0 4px" }}>Panel Ejecutivo</p>
+        <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 24px" }}>Acceso restringido a dirección y gerencia.</p>
+        {errorLogin && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 16, fontSize: 12, color: "#B91C1C" }}>{errorLogin}</div>}
         <div style={{ textAlign: "left", marginBottom: 14 }}>
-          <label style={{ fontSize: 11, color: "#8d92ab", display: "block", marginBottom: 6, letterSpacing: "0.04em" }}>CORREO</label>
+          <label style={{ fontSize: 11, color: "#64748B", display: "block", marginBottom: 6, fontWeight: 600 }}>CORREO</label>
           <input value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@empresa.com" style={inputStyle} />
         </div>
         <div style={{ textAlign: "left", marginBottom: 20 }}>
-          <label style={{ fontSize: 11, color: "#8d92ab", display: "block", marginBottom: 6, letterSpacing: "0.04em" }}>CONTRASENA</label>
+          <label style={{ fontSize: 11, color: "#64748B", display: "block", marginBottom: 6, fontWeight: 600 }}>CONTRASENA</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && verificarLogin()} placeholder="••••••••" style={inputStyle} />
         </div>
-        <button onClick={verificarLogin} disabled={cargandoLogin} style={{ width: "100%", background: "linear-gradient(180deg, #c9a14d, #a8843a)", color: "#0b0e1a", border: "none", padding: 11, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: cargandoLogin ? "default" : "pointer", opacity: cargandoLogin ? 0.7 : 1 }}>
-          {cargandoLogin ? "Verificando..." : "Acceder al panel ejecutivo"}
+        <button onClick={verificarLogin} disabled={cargandoLogin} style={{ width: "100%", background: "#0F172A", color: "#fff", border: "none", padding: 12, borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: cargandoLogin ? "default" : "pointer", opacity: cargandoLogin ? 0.7 : 1 }}>
+          {cargandoLogin ? "Verificando..." : "Acceder al panel"}
         </button>
-        <p style={{ fontSize: 11, color: "#5a5f78", marginTop: 18 }}>🔒 Acceso restringido a usuarios autorizados</p>
       </div>
     </div>
   )
 
-  if (loading) return <div style={{ minHeight: "calc(100vh - 57px)", background: "#0b0e1a", padding: 60, textAlign: "center", color: "#8d92ab" }}>Cargando...</div>
+  if (loading) return <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", padding: 60, textAlign: "center", color: "#64748B" }}>Cargando...</div>
 
   const superAdmins = data?.superAdmins || []
   const gerenciales = data?.gerenciales || []
   const totalOnline = data?.totalOnline || 0
   const todosUsuarios = [...superAdmins, ...gerenciales]
-  const usuariosFiltrados = todosUsuarios.filter(u => {
-    if (filtro === "online") return u.online
-    if (filtro === "offline") return !u.online
-    return true
-  })
+  const diasEnSistema = usuarioSeleccionado?.createdAt ? Math.floor((Date.now() - new Date(usuarioSeleccionado.createdAt).getTime()) / 86400000) : 0
 
   return (
-    <div style={{ height: "calc(100vh - 57px)", background: "#0b0e1a", display: "grid", gridTemplateColumns: "300px 1fr" }}>
+    <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", padding: "20px 24px" }}>
 
-      {/* SIDEBAR IZQUIERDO */}
-      <div style={{ borderRight: "1px solid #1e2235", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2235" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#f1ecdd" }}>Panel ejecutivo</div>
-              <div style={{ fontSize: 11, color: "#8d92ab", marginTop: 2 }}>
-                <span style={{ color: "#1D9E75" }}>●</span> {totalOnline} en linea de {todosUsuarios.length}
-              </div>
-            </div>
-            <button onClick={() => { sessionStorage.removeItem("panelEjecutivoAuth"); setAutenticado(false); setUsuarioActual(null) }}
-              style={{ fontSize: 10, padding: "4px 10px", background: "rgba(228,75,74,0.1)", color: "#f09595", border: "1px solid rgba(228,75,74,0.2)", borderRadius: 6, cursor: "pointer" }}>
-              Salir
-            </button>
+      {/* Header ejecutivo */}
+      <div style={{ background: "linear-gradient(135deg,#FAFBFC,#F0F1F5)", border: "1px solid #E2E4E9", borderRadius: 16, padding: "18px 22px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(15,23,42,0.04)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg,#1E293B,#334155)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(30,41,59,0.25)" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="1.8"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z"/></svg>
           </div>
-          <div style={{ display: "flex", gap: 4 }}>
-            {(["todos","online","offline"] as const).map(f => (
-              <button key={f} onClick={() => setFiltro(f)}
-                style={{ flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 600, border: "none", borderRadius: 6, cursor: "pointer", background: filtro === f ? "#673DE6" : "rgba(255,255,255,0.05)", color: filtro === f ? "#fff" : "#8d92ab" }}>
-                {f === "todos" ? "Todos" : f === "online" ? "En linea" : "Offline"}
-              </button>
-            ))}
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#0F172A" }}>Panel Ejecutivo</div>
+            <div style={{ fontSize: 11, color: "#64748B" }}>Acceso restringido · Direccion y gerencia</div>
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: 8 }}>
-          {usuariosFiltrados.map((u: any) => (
-            <div key={u.id} onClick={() => seleccionarUsuario(u)}
-              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, marginBottom: 4, cursor: "pointer", background: usuarioSeleccionado?.id === u.id ? "rgba(103,61,230,0.2)" : "rgba(255,255,255,0.03)", border: usuarioSeleccionado?.id === u.id ? "1px solid rgba(103,61,230,0.3)" : "1px solid transparent", opacity: u.online ? 1 : 0.65 }}>
-              <Avatar nombre={u.name} size={36} online={u.online} dorado={u.esFundador} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#f1ecdd", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.name}</div>
-                <div style={{ fontSize: 10, color: u.online ? "#1D9E75" : "#8d92ab" }}>{u.online ? "● En linea" : `● ${tiempoDesde(u.ultimaActividad)}`}</div>
-              </div>
-              <div style={{ fontSize: 10, color: "#5a5f78" }}>{u.esFundador ? "👑" : u.role === "SUPER_ADMIN" ? "SA" : ""}</div>
-            </div>
-          ))}
-          {usuariosFiltrados.length === 0 && (
-            <div style={{ textAlign: "center", color: "#5a5f78", fontSize: 12, padding: 20 }}>Sin usuarios</div>
-          )}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #E2E4E9", borderRadius: 20, padding: "6px 14px" }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 6px #10B981" }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#334155" }}>{totalOnline} en linea de {todosUsuarios.length}</span>
+          </div>
+          <button onClick={() => { sessionStorage.removeItem("panelEjecutivoAuth"); setAutenticado(false); setUsuarioActual(null) }}
+            style={{ fontSize: 11, padding: "6px 14px", background: "#FEF2F2", color: "#B91C1C", border: "1px solid #FECACA", borderRadius: 20, cursor: "pointer", fontWeight: 700 }}>
+            Salir
+          </button>
         </div>
       </div>
 
-      {/* PANEL DERECHO */}
-      {!usuarioSeleccionado ? (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12 }}>
-          <div style={{ fontSize: 36 }}>👥</div>
-          <div style={{ fontSize: 14, color: "#8d92ab" }}>Selecciona un usuario para comunicarte</div>
+      {/* Pestañas Directorio / Comunicacion */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <div onClick={() => setVista("directorio")} style={{ flex: 1, background: vista === "directorio" ? "#fff" : "#F9FAFB", border: `2px solid ${vista === "directorio" ? "#673DE6" : "#E2E4E9"}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", boxShadow: vista === "directorio" ? "0 4px 16px rgba(103,61,230,0.15)" : "none" }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "#F5F3FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: vista === "directorio" ? "#0F172A" : "#334155" }}>Directorio</div>
+            <div style={{ fontSize: 9, color: "#64748B" }}>Perfiles y datos de RRHH</div>
+          </div>
         </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div onClick={() => setVista("comunicacion")} style={{ flex: 1, background: vista === "comunicacion" ? "#fff" : "#F9FAFB", border: `2px solid ${vista === "comunicacion" ? "#2563EB" : "#E2E4E9"}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", boxShadow: vista === "comunicacion" ? "0 4px 16px rgba(37,99,235,0.12)" : "none" }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "#EFF6FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: vista === "comunicacion" ? "#0F172A" : "#334155" }}>Comunicacion</div>
+            <div style={{ fontSize: 9, color: "#64748B" }}>Chat y email directo</div>
+          </div>
+        </div>
+      </div>
 
-          {/* Header usuario */}
-          <div style={{ padding: "12px 20px", borderBottom: "1px solid #1e2235", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#0d1022" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <Avatar nombre={usuarioSeleccionado.name} size={38} online={usuarioSeleccionado.online} dorado={usuarioSeleccionado.esFundador} />
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#f1ecdd" }}>{usuarioSeleccionado.name}</div>
-                <div style={{ fontSize: 11, color: usuarioSeleccionado.online ? "#1D9E75" : "#8d92ab" }}>
-                  {usuarioSeleccionado.online ? "● En linea ahora" : `● Desconectado · ${tiempoDesde(usuarioSeleccionado.ultimaActividad)}`}
+      {/* Contenido principal */}
+      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 14, minHeight: 500 }}>
+
+        {/* Lista usuarios */}
+        <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid #EEF0F3", background: "#FAFBFC" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: ".06em" }}>Miembros del equipo</div>
+          </div>
+          <div style={{ padding: 8 }}>
+            {todosUsuarios.map((u: any) => (
+              <div key={u.id} onClick={() => seleccionarUsuario(u)}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, marginBottom: 4, cursor: "pointer", background: usuarioSeleccionado?.id === u.id ? "#F5F3FF" : "transparent", border: usuarioSeleccionado?.id === u.id ? "1px solid #DDD6FE" : "1px solid transparent" }}>
+                <Avatar nombre={u.name} size={38} online={u.online} dorado={u.esFundador} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#0F172A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.name}</span>
+                    {u.esFundador && <svg width="11" height="11" viewBox="0 0 24 24" fill="#673DE6"><path d="M12 2l2.4 6.8L21 9l-5.5 4.2L17 21l-5-3.5L7 21l1.5-7.8L3 9l6.6-.2z"/></svg>}
+                  </div>
+                  <div style={{ fontSize: 10, color: u.online ? "#673DE6" : "#94A3B8", fontWeight: 600 }}>{u.esFundador ? "Fundador · " : ""}{u.online ? "En linea" : tiempoDesde(u.ultimaActividad)}</div>
+                </div>
+              </div>
+            ))}
+            {todosUsuarios.length === 0 && <div style={{ textAlign: "center", color: "#94A3B8", fontSize: 12, padding: 20 }}>Sin usuarios</div>}
+          </div>
+        </div>
+
+        {/* Panel derecho */}
+        {!usuarioSeleccionado ? (
+          <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12 }}>
+            <div style={{ fontSize: 36 }}>👥</div>
+            <div style={{ fontSize: 14, color: "#94A3B8" }}>Selecciona un miembro del equipo</div>
+          </div>
+        ) : vista === "directorio" ? (
+          <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, padding: 24, boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, paddingBottom: 18, borderBottom: "1px solid #EEF0F3", marginBottom: 18 }}>
+              <Avatar nombre={usuarioSeleccionado.name} size={64} online={usuarioSeleccionado.online} dorado={usuarioSeleccionado.esFundador} />
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: "#0F172A" }}>{usuarioSeleccionado.name}</span>
+                  {usuarioSeleccionado.esFundador && (
+                    <span style={{ background: "#F5F3FF", color: "#673DE6", fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 6, display: "flex", alignItems: "center", gap: 3 }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="#673DE6"><path d="M12 2l2.4 6.8L21 9l-5.5 4.2L17 21l-5-3.5L7 21l1.5-7.8L3 9l6.6-.2z"/></svg>
+                      FUNDADOR
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>{usuarioSeleccionado.email} · {usuarioSeleccionado.role || "SUPER_ADMIN"}</div>
+              </div>
+              <button onClick={() => setVista("comunicacion")} style={{ background: "#0F172A", color: "#fff", border: "none", borderRadius: 9, padding: "9px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contactar
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 18 }}>
+              <div style={{ background: "#FAFBFC", border: "1px solid #EEF0F3", borderRadius: 10, padding: 12 }}>
+                <div style={{ fontSize: 10, color: "#94A3B8", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 4 }}>En el sistema</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#0F172A" }}>{diasEnSistema}d</div>
+              </div>
+              <div style={{ background: "#FAFBFC", border: "1px solid #EEF0F3", borderRadius: 10, padding: 12 }}>
+                <div style={{ fontSize: 10, color: "#94A3B8", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 4 }}>Estado</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: usuarioSeleccionado.online ? "#10B981" : "#94A3B8", display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: usuarioSeleccionado.online ? "#10B981" : "#CBD5E1" }} />
+                  {usuarioSeleccionado.online ? "En linea" : tiempoDesde(usuarioSeleccionado.ultimaActividad)}
+                </div>
+              </div>
+              <div style={{ background: "#FAFBFC", border: "1px solid #EEF0F3", borderRadius: 10, padding: 12 }}>
+                <div style={{ fontSize: 10, color: "#94A3B8", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 4 }}>Rol</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A" }}>{usuarioSeleccionado.role || "Super Admin"}</div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 6, borderBottom: "1px solid #EEF0F3", paddingBottom: 2, marginBottom: 16 }}>
+              {(["general", "actividad"] as const).map(t => (
+                <span key={t} onClick={() => setTabPerfil(t)} style={{ fontSize: 12, fontWeight: tabPerfil === t ? 700 : 500, color: tabPerfil === t ? "#0F172A" : "#94A3B8", padding: "8px 12px", borderBottom: `2px solid ${tabPerfil === t ? "#673DE6" : "transparent"}`, cursor: "pointer", textTransform: "capitalize" as const }}>{t}</span>
+              ))}
+            </div>
+
+            {tabPerfil === "general" && (
+              <div style={{ fontSize: 13, color: "#64748B" }}>Perfil completo disponible en la ficha detallada. Usa la pestana Comunicacion para chatear o enviar un email.</div>
+            )}
+            {tabPerfil === "actividad" && (
+              <div style={{ fontSize: 13, color: "#64748B" }}>Ultima actividad: {tiempoDesde(usuarioSeleccionado.ultimaActividad)}</div>
+            )}
+          </div>
+        ) : (
+          <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
+
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #EEF0F3", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Avatar nombre={usuarioSeleccionado.name} size={38} online={usuarioSeleccionado.online} dorado={usuarioSeleccionado.esFundador} />
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A" }}>{usuarioSeleccionado.name}</div>
+                  <div style={{ fontSize: 11, color: usuarioSeleccionado.online ? "#10B981" : "#94A3B8" }}>{usuarioSeleccionado.online ? "En linea ahora" : `Desconectado · ${tiempoDesde(usuarioSeleccionado.ultimaActividad)}`}</div>
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => { setTab("email") }}
-                style={{ background: "#1e2235", color: "#c9ccd9", border: "1px solid #2a2f45", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                Email
-              </button>
-              <button onClick={() => router.push(`/panel-ejecutivo/${usuarioSeleccionado.id}`)}
-                style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                Ver perfil
-              </button>
+
+            <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #EEF0F3" }}>
+              {(["mensajes", "email", "actividad"] as const).map(t => (
+                <button key={t} onClick={() => setTabComs(t)}
+                  style={{ padding: "10px 20px", fontSize: 12, fontWeight: 600, border: "none", borderBottom: tabComs === t ? "2px solid #2563EB" : "2px solid transparent", background: "transparent", color: tabComs === t ? "#2563EB" : "#94A3B8", cursor: "pointer", textTransform: "capitalize" as const }}>
+                  {t === "mensajes" ? "Mensajes" : t === "email" ? "Email" : "Actividad"}
+                </button>
+              ))}
             </div>
-          </div>
 
-          {/* Tabs */}
-          <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #1e2235", background: "#0d1022" }}>
-            {(["mensajes","email","actividad"] as const).map(t => (
-              <button key={t} onClick={() => setTab(t)}
-                style={{ padding: "10px 20px", fontSize: 12, fontWeight: 600, border: "none", borderBottom: tab === t ? "2px solid #673DE6" : "2px solid transparent", background: "transparent", color: tab === t ? "#673DE6" : "#8d92ab", cursor: "pointer", textTransform: "capitalize" as const }}>
-                {t === "mensajes" ? "Mensajes" : t === "email" ? "Email" : "Actividad"}
-              </button>
-            ))}
-          </div>
-
-          {/* Contenido tab */}
-          {tab === "mensajes" && (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              <div ref={mensajesRef} style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
-                {mensajes.length === 0 && (
-                  <div style={{ textAlign: "center", color: "#5a5f78", fontSize: 12, padding: 20 }}>Sin mensajes aun. Inicia la conversacion.</div>
-                )}
-                {mensajes.map((m: any, i) => {
-                  const esPropio = m.remitenteId === usuarioActual?.id
-                  return (
-                    <div key={i} style={{ display: "flex", justifyContent: esPropio ? "flex-end" : "flex-start" }}>
-                      <div style={{ background: esPropio ? "#673DE6" : "#161a2c", border: esPropio ? "none" : "1px solid #2a2f45", borderRadius: esPropio ? "10px 10px 2px 10px" : "10px 10px 10px 2px", padding: "10px 14px", maxWidth: "70%" }}>
-                        <div style={{ fontSize: 13, color: esPropio ? "#fff" : "#c9ccd9" }}>{m.texto}</div>
-                        <div style={{ fontSize: 10, color: esPropio ? "rgba(255,255,255,0.5)" : "#5a5f78", marginTop: 4, textAlign: "right" }}>
-                          {new Date(m.creadoEn || m.createdAt).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+            {tabComs === "mensajes" && (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                <div ref={mensajesRef} style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {mensajes.length === 0 && <div style={{ textAlign: "center", color: "#94A3B8", fontSize: 12, padding: 20 }}>Sin mensajes aun. Inicia la conversacion.</div>}
+                  {mensajes.map((m: any, i) => {
+                    const esPropio = m.remitenteId === usuarioActual?.id
+                    return (
+                      <div key={i} style={{ display: "flex", justifyContent: esPropio ? "flex-end" : "flex-start" }}>
+                        <div style={{ background: esPropio ? "#2563EB" : "#F1F5F9", borderRadius: esPropio ? "10px 10px 2px 10px" : "10px 10px 10px 2px", padding: "10px 14px", maxWidth: "70%" }}>
+                          <div style={{ fontSize: 13, color: esPropio ? "#fff" : "#0F172A" }}>{m.texto}</div>
+                          <div style={{ fontSize: 10, color: esPropio ? "rgba(255,255,255,0.6)" : "#94A3B8", marginTop: 4, textAlign: "right" }}>{new Date(m.creadoEn || m.createdAt).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
-              <div style={{ padding: "12px 16px", borderTop: "1px solid #1e2235", display: "flex", gap: 10, alignItems: "center" }}>
-                <input value={nuevoMensaje} onChange={e => setNuevoMensaje(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && !e.shiftKey && enviarMensaje()}
-                  placeholder={`Escribe a ${usuarioSeleccionado.name?.split(" ")[0]}...`}
-                  style={{ flex: 1, background: "#161a2c", border: "1px solid #2a2f45", color: "#f1ecdd", borderRadius: 9, padding: "9px 14px", fontSize: 13, outline: "none" }} />
-                <button onClick={enviarMensaje} disabled={enviando || !nuevoMensaje.trim()}
-                  style={{ width: 38, height: 38, background: "#673DE6", border: "none", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: !nuevoMensaje.trim() ? 0.5 : 1 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {tab === "email" && (
-            <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
-              {emailEnviado ? (
-                <div style={{ textAlign: "center", padding: 40 }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: "#1D9E75", marginBottom: 6 }}>Email enviado correctamente</div>
-                  <div style={{ fontSize: 12, color: "#8d92ab", marginBottom: 20 }}>a {usuarioSeleccionado.email}</div>
-                  <button onClick={() => setEmailEnviado(false)} style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>Nuevo email</button>
+                    )
+                  })}
                 </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div style={{ background: "#161a2c", border: "1px solid #2a2f45", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#8d92ab" }}>
-                    Para: <span style={{ color: "#c9ccd9", fontWeight: 600 }}>{usuarioSeleccionado.name} &lt;{usuarioSeleccionado.email}&gt;</span>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, color: "#8d92ab", display: "block", marginBottom: 6 }}>ASUNTO</label>
-                    <input value={emailForm.asunto} onChange={e => setEmailForm(p => ({ ...p, asunto: e.target.value }))} placeholder="Asunto del mensaje" style={{ ...inputStyle }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, color: "#8d92ab", display: "block", marginBottom: 6 }}>MENSAJE</label>
-                    <textarea value={emailForm.cuerpo} onChange={e => setEmailForm(p => ({ ...p, cuerpo: e.target.value }))}
-                      placeholder="Escribe el contenido del email..."
-                      style={{ ...inputStyle, height: 160, resize: "none" as const }} />
-                  </div>
-                  <button onClick={enviarEmail} disabled={enviandoEmail || !emailForm.asunto || !emailForm.cuerpo}
-                    style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 9, padding: "11px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: !emailForm.asunto || !emailForm.cuerpo ? 0.5 : 1 }}>
-                    {enviandoEmail ? "Enviando..." : "Enviar email"}
+                <div style={{ padding: "12px 16px", borderTop: "1px solid #EEF0F3", display: "flex", gap: 10 }}>
+                  <input value={nuevoMensaje} onChange={e => setNuevoMensaje(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && enviarMensaje()}
+                    placeholder={`Escribe a ${usuarioSeleccionado.name?.split(" ")[0]}...`}
+                    style={{ flex: 1, background: "#F9FAFB", border: "1px solid #E2E8F0", color: "#0F172A", borderRadius: 9, padding: "9px 14px", fontSize: 13, outline: "none" }} />
+                  <button onClick={enviarMensaje} disabled={enviando || !nuevoMensaje.trim()} style={{ width: 38, height: 38, background: "#2563EB", border: "none", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: !nuevoMensaje.trim() ? 0.5 : 1, flexShrink: 0 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                   </button>
                 </div>
-              )}
-            </div>
-          )}
-
-          {tab === "actividad" && (
-            <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
-              <div style={{ background: "#161a2c", border: "1px solid #2a2f45", borderRadius: 12, padding: 20, textAlign: "center" }}>
-                <div style={{ fontSize: 13, color: "#8d92ab", marginBottom: 16 }}>Ultima actividad de {usuarioSeleccionado.name?.split(" ")[0]}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {[
-                    { label: "Ultima conexion", valor: tiempoDesde(usuarioSeleccionado.ultimaActividad) },
-                    { label: "Estado", valor: usuarioSeleccionado.online ? "En linea" : "Desconectado" },
-                    { label: "Rol", valor: usuarioSeleccionado.role || "—" },
-                    { label: "Cargo", valor: usuarioSeleccionado.cargo || "—" },
-                  ].map(item => (
-                    <div key={item.label} style={{ background: "#0d1022", borderRadius: 8, padding: "10px 14px" }}>
-                      <div style={{ fontSize: 10, color: "#5a5f78", marginBottom: 4 }}>{item.label}</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#c9ccd9" }}>{item.valor}</div>
-                    </div>
-                  ))}
-                </div>
-                <button onClick={() => router.push(`/panel-ejecutivo/${usuarioSeleccionado.id}`)}
-                  style={{ marginTop: 16, background: "rgba(103,61,230,0.15)", color: "#a78bfa", border: "1px solid rgba(103,61,230,0.3)", borderRadius: 8, padding: "8px 20px", fontSize: 12, cursor: "pointer" }}>
-                  Ver perfil completo →
-                </button>
               </div>
-            </div>
-          )}
+            )}
 
-        </div>
-      )}
+            {tabComs === "email" && (
+              <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+                {emailEnviado ? (
+                  <div style={{ textAlign: "center", padding: 40 }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#10B981", marginBottom: 6 }}>Email enviado correctamente</div>
+                    <div style={{ fontSize: 12, color: "#64748B", marginBottom: 20 }}>a {usuarioSeleccionado.email}</div>
+                    <button onClick={() => setEmailEnviado(false)} style={{ background: "#0F172A", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>Nuevo email</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <div style={{ background: "#F9FAFB", border: "1px solid #E2E8F0", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#64748B" }}>
+                      Para: <span style={{ color: "#0F172A", fontWeight: 600 }}>{usuarioSeleccionado.name} &lt;{usuarioSeleccionado.email}&gt;</span>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, color: "#64748B", display: "block", marginBottom: 6, fontWeight: 600 }}>ASUNTO</label>
+                      <input value={emailForm.asunto} onChange={e => setEmailForm(p => ({ ...p, asunto: e.target.value }))} placeholder="Asunto del mensaje" style={inputStyle} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, color: "#64748B", display: "block", marginBottom: 6, fontWeight: 600 }}>MENSAJE</label>
+                      <textarea value={emailForm.cuerpo} onChange={e => setEmailForm(p => ({ ...p, cuerpo: e.target.value }))} placeholder="Escribe el contenido del email..." style={{ ...inputStyle, height: 160, resize: "none" as const }} />
+                    </div>
+                    <button onClick={enviarEmail} disabled={enviandoEmail || !emailForm.asunto || !emailForm.cuerpo}
+                      style={{ background: "#0F172A", color: "#fff", border: "none", borderRadius: 9, padding: "11px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: !emailForm.asunto || !emailForm.cuerpo ? 0.5 : 1 }}>
+                      {enviandoEmail ? "Enviando..." : "Enviar email"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tabComs === "actividad" && (
+              <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+                <div style={{ background: "#F9FAFB", border: "1px solid #E2E8F0", borderRadius: 12, padding: 20, textAlign: "center" }}>
+                  <div style={{ fontSize: 13, color: "#64748B", marginBottom: 16 }}>Ultima actividad de {usuarioSeleccionado.name?.split(" ")[0]}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    {[
+                      { label: "Ultima conexion", valor: tiempoDesde(usuarioSeleccionado.ultimaActividad) },
+                      { label: "Estado", valor: usuarioSeleccionado.online ? "En linea" : "Desconectado" },
+                      { label: "Rol", valor: usuarioSeleccionado.role || "—" },
+                      { label: "Cargo", valor: usuarioSeleccionado.cargo || "—" },
+                    ].map(item => (
+                      <div key={item.label} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 8, padding: "10px 14px" }}>
+                        <div style={{ fontSize: 10, color: "#94A3B8", marginBottom: 4 }}>{item.label}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>{item.valor}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
