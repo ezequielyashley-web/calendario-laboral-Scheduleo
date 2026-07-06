@@ -268,6 +268,16 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       document.removeEventListener("visibilitychange", verificarSesion2FA)
     }
   }, [])
+
+  // Forzar que el navegador NO guarde una "foto congelada" de esta pagina en
+  // bfcache. Un listener vacio en "unload" hace que la mayoria de navegadores
+  // (Chrome, Edge) excluyan la pagina de bfcache, evitando el parpadeo donde
+  // se ve el contenido protegido un instante antes de redirigir a /login.
+  useEffect(() => {
+    const noop = () => {}
+    window.addEventListener("unload", noop)
+    return () => window.removeEventListener("unload", noop)
+  }, [])
   useEffect(() => {
     const cargar = () => fetch("/api/solicitudes-gerenciales").then(r => r.json()).then(d => {
       if (Array.isArray(d)) setSolicitudesBadge(d.filter((s:any) => s.estado === "pendiente").length)
