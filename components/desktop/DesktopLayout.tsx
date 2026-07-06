@@ -246,6 +246,28 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const [solicitudesBadge, setSolicitudesBadge] = useState(0)
   const [userPermisos, setUserPermisos] = useState<Record<string,boolean> | null>(null)
   const [userRole, setUserRole] = useState<string>("")
+
+  // Verificacion real de sesion 2FA: vive en el layout principal (se monta en
+  // TODAS las paginas protegidas), y se ejecuta al montar, al restaurar la
+  // pagina desde bfcache (boton atras) y al recuperar visibilidad de la pestana.
+  useEffect(() => {
+    const verificarSesion2FA = () => {
+      if (typeof window === "undefined") return
+      if (!sessionStorage.getItem("2fa_verified")) {
+        window.location.replace("/login")
+      }
+    }
+    verificarSesion2FA()
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) verificarSesion2FA()
+    }
+    window.addEventListener("pageshow", handlePageShow)
+    document.addEventListener("visibilitychange", verificarSesion2FA)
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow)
+      document.removeEventListener("visibilitychange", verificarSesion2FA)
+    }
+  }, [])
   useEffect(() => {
     const cargar = () => fetch("/api/solicitudes-gerenciales").then(r => r.json()).then(d => {
       if (Array.isArray(d)) setSolicitudesBadge(d.filter((s:any) => s.estado === "pendiente").length)
