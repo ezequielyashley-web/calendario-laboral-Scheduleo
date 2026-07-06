@@ -26,6 +26,17 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var rutasPublicas = ["/login", "/forgot-password", "/reset-password", "/inspeccion"];
+              var esPublica = rutasPublicas.some(function(r) { return window.location.pathname.indexOf(r) === 0 });
+              if (!esPublica && !sessionStorage.getItem("2fa_verified")) {
+                window.location.replace("/login");
+              }
+            })();
+          `
+        }} />
         <meta name="application-name" content="Scheduleo" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
