@@ -500,13 +500,13 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 <div style={{ fontSize:12, fontWeight:700, color: isLight ? "#111827" : "#fff", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{usuarioActual?.name || "Usuario"}</div>
                 <div style={{ fontSize:10, color:"#10B981" }}>● En linea</div>
               </div>
-              <button onClick={handleSignOut} title="Cerrar sesion"
+              <button onClick={() => setShowSignOutModal(true)} title="Cerrar sesion"
                 style={{ width:30, height:30, background:"#dc2626", border:"none", borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </button>
             </div>
           ) : (
-            <button onClick={handleSignOut} title="Cerrar sesion"
+            <button onClick={() => setShowSignOutModal(true)} title="Cerrar sesion"
               style={{ width:"100%", height:36, background:"#dc2626", border:"none", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
