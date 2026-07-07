@@ -586,7 +586,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </div>
         </header>
         <BetaBanner />
-        <main className={`flex-1${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+        <main className={`flex-1 main-responsive-padding${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+          <style>{`
+            @media (max-width: 640px) {
+              .main-responsive-padding { padding: 12px !important; }
+            }
+          `}</style>
           {children}
         </main>
       </div>
