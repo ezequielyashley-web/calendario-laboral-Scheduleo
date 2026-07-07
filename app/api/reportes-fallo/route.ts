@@ -30,6 +30,19 @@ export async function POST(req: NextRequest) {
       INSERT INTO "ReporteFallo" (id, descripcion, pagina, "reportadoPor", "userAgent", "empresaId", estado, "createdAt", "updatedAt")
       VALUES (${id}, ${descripcion}, ${pagina || null}, ${reportadoPor || null}, ${userAgent || null}, 'empresa-001', 'pendiente', NOW(), NOW())
     `
+        try {
+      await fetch(`${process.env.NEXTAUTH_URL}/api/push/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: "🐞 Nuevo fallo reportado",
+          mensaje: `${reportadoPor || "Alguien"} reporto un fallo en ${pagina || "la app"}`,
+          url: "/configuracion",
+          empresaId: "empresa-001"
+        })
+      })
+    } catch { /* no bloquear si falla el push */ }
+
     return NextResponse.json({ ok: true, id }, { status: 201 })
   } catch (error) {
     console.error("Error al crear reporte de fallo:", error)
