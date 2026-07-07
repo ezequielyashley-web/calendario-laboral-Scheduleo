@@ -208,7 +208,13 @@ export default function LibranzasDesktop() {
       )}
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="libranzas-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <style>{`r
+          @media (max-width: 768px) {
+            .libranzas-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+            .libranzas-main-grid { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Gestión de libranzas</h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "3px 0 0" }}>Asigna los días libres de cada grupo para {anno}</p>
@@ -234,7 +240,7 @@ export default function LibranzasDesktop() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 16 }}>
+      <div className="libranzas-main-grid" style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 16 }}>
 
         {/* Lista grupos */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
