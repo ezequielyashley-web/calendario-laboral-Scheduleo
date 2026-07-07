@@ -351,7 +351,7 @@ function SeccionDemo() {
     await fetch('/api/config/modo-beta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modoBeta: true }) })
     setModoActual("demo")
     mostrarNotif("Modo demo activado — mostrando 50 empleados ficticios", "ok")
-    if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')) }
+    if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')); window.dispatchEvent(new Event('modoPruebasChange')) }
     setGuardando(false)
   }
 
@@ -363,7 +363,7 @@ function SeccionDemo() {
     await fetch('/api/demo/limpiar', { method: 'POST' }).catch(() => {})
     setModoActual("real")
     mostrarNotif("Modo real activado — los datos demo han sido ocultados", "ok")
-    if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')) }
+    if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')); window.dispatchEvent(new Event('modoPruebasChange')) }
     setGuardando(false)
   }
 
@@ -936,7 +936,7 @@ export default function ConfiguracionPage() {
     setGuardando(false)
     if (data.error) { mostrarMensaje(data.error, "error"); return }
     mostrarMensaje("Configuración guardada correctamente")
-    if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')) }
+    if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')); window.dispatchEvent(new Event('modoPruebasChange')) }
   }
 
   const set = (key, val) => setEmpresa(p => ({ ...p, [key]: val }))
