@@ -52,6 +52,8 @@ export default function DeudasPage() {
           .deudas-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
           .deudas-header-responsive input { width: 100% !important; box-sizing: border-box !important; }
           .deudas-kpis-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .deudas-kpis-grid > div { min-width: 0 !important; overflow: hidden !important; }
+          .deudas-kpis-grid > div > div { white-space: normal !important; word-break: break-word !important; }
           .deudas-table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
           .deudas-table-wrap table { min-width: 600px !important; }
         }
