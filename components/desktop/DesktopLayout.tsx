@@ -591,6 +591,35 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </main>
       </div>
       <ScheduleoAIChat userId={usuarioActual?.id || ""} />
+
+      {cerrandoSesion && (
+        <div style={{ position:"fixed", inset:0, background:"linear-gradient(135deg,#1e3a8a,#1e40af,#1d4ed8)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:10000, overflow:"hidden" }}>
+          <style>{`
+            @keyframes girar-anillo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            @keyframes despedida-pulso { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+            @keyframes despedida-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+          `}</style>
+          <div style={{ position:"absolute", top:"25%", left:"25%", width:384, height:384, background:"rgba(96,165,250,0.15)", borderRadius:"50%", filter:"blur(80px)" }} />
+          <div style={{ position:"absolute", bottom:"25%", right:"25%", width:320, height:320, background:"rgba(96,165,250,0.1)", borderRadius:"50%", filter:"blur(80px)" }} />
+          <div style={{ position:"relative", zIndex:10, textAlign:"center", animation:"despedida-fade 0.5s ease-out" }}>
+            <div style={{ position:"relative", width:100, height:100, margin:"0 auto 28px" }}>
+              <div style={{ position:"absolute", inset:0, border:"2px solid rgba(255,255,255,0.25)", borderTop:"2px solid #fff", borderRadius:"50%", animation:"girar-anillo 1.4s linear infinite" }} />
+              <div style={{ position:"absolute", inset:14, borderRadius:16, background:"linear-gradient(135deg,#3b82f6,#1e40af)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 10px 30px rgba(0,0,0,0.3)" }}>
+                <span style={{ fontSize:28, fontWeight:800, color:"#fff", fontFamily:'"Poppins",sans-serif' }}>S</span>
+              </div>
+            </div>
+            <h1 style={{ fontSize:26, fontWeight:700, color:"#fff", marginBottom:8, fontFamily:'"Poppins",sans-serif' }}>
+              ¡Hasta pronto{usuarioActual?.name ? `, ${usuarioActual.name.split(" ")[0]}` : ""}!
+            </h1>
+            <p style={{ color:"#bfdbfe", fontSize:14, marginBottom:24 }}>Cerrando tu sesion de forma segura...</p>
+            <div style={{ display:"flex", justifyContent:"center", gap:6 }}>
+              {[0,1,2].map(i => (
+                <div key={i} style={{ width:8, height:8, background:"#fff", borderRadius:"50%", animation:`despedida-pulso 1.2s ease-in-out ${i*0.2}s infinite` }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {showSignOutModal && (
         <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999 }}>
           <div style={{ background:"#fff", borderRadius:16, padding:28, width:400, boxShadow:"0 20px 60px rgba(0,0,0,0.15)" }}>
