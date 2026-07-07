@@ -1084,6 +1084,7 @@ export default function ConfiguracionPage() {
         @media (max-width: 768px) {
           .config-grid-responsive { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
           .config-content-responsive { height: auto !important; overflow: visible !important; }
+          .config-back-link { display: flex !important; }
         }
       `}</style>
         <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
@@ -1130,6 +1131,12 @@ export default function ConfiguracionPage() {
         </div>
         <div className="config-content-responsive" style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
+          <button
+            className="config-back-link"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            style={{ display: "none", marginBottom: 14, background: "#F1EEFE", color: "#673DE6", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", alignItems: "center", gap: 6 }}>
+            ← Volver a secciones
+          </button>
 
           {seccion === "identidad" && (
             <div>
