@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
     const año = searchParams.get("año")
     const tipo = searchParams.get("tipo")
 
-    const where: any = { esDemostracion: false }
+    const where: any = { esDemostracion: false, empleado: { esDemostracion: false } }
     if (estado && estado !== "TODAS") where.estado = estado
     if (empleadoId) where.empleadoId = empleadoId
     if (tipo && tipo !== "TODOS") where.tipo = tipo
