@@ -33,10 +33,19 @@ export default function ReportesDesktop() {
   if (!datos) return <div style={{ padding:40, textAlign:"center", color:"var(--text-muted)" }}>Cargando reportes...</div>
 
   return (
-    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+    <div className="reportes-responsive-wrap" style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .reportes-responsive-wrap { padding: 14px !important; }
+          .reportes-selector-responsive { flex-wrap: wrap !important; }
+          .reportes-selector-responsive > div { flex-basis: 100% !important; }
+          .reportes-tabs-responsive { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+          .reportes-kpis-grid, .reportes-tab-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
 
       {/* Selector mes/año */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+      <div className="reportes-selector-responsive" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
         <div style={{ fontSize: 22, fontWeight: 700, color: "#1e1b4b", flex: 1 }}>
           Reportes — {MESES[mes-1]} {anio}
         </div>
@@ -51,7 +60,7 @@ export default function ReportesDesktop() {
       </div>
 
       {/* KPIs generales */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+      <div className="reportes-kpis-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
         {[
           { label: "Empleados activos", valor: datos.totalEmpleados, color: "#6366f1", bg: "#f5f3ff" },
           { label: "Fichajes del mes", valor: datos.fichajes.total, color: "#0891b2", bg: "#f0f9ff" },
@@ -66,7 +75,7 @@ export default function ReportesDesktop() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #e2e8f0", marginBottom: 20 }}>
+      <div className="reportes-tabs-responsive" style={{ display: "flex", gap: 0, borderBottom: "2px solid #e2e8f0", marginBottom: 20 }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ padding: "10px 18px", border: "none", background: "none", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#6366f1" : "#64748b", borderBottom: tab === t.key ? "2px solid #6366f1" : "2px solid transparent", marginBottom: -2, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -77,7 +86,7 @@ export default function ReportesDesktop() {
 
       {/* TAB: Fichajes */}
       {tab === "fichajes" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        <div className="reportes-tab-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {[
             { label: "Fichajes correctos", valor: datos.fichajes.correctos, pct: datos.fichajes.pctCorrectos + "%", color: "#16a34a", bg: "#f0fdf4" },
             { label: "Fichajes tardios", valor: datos.fichajes.tardios, pct: datos.fichajes.pctTardios + "%", color: "#d97706", bg: "#fef9c3" },
@@ -94,7 +103,7 @@ export default function ReportesDesktop() {
 
       {/* TAB: Vacaciones */}
       {tab === "vacaciones" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+        <div className="reportes-tab-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
           {[
             { label: "Solicitudes aprobadas", valor: datos.vacaciones.aprobadas, color: "#16a34a", bg: "#f0fdf4" },
             { label: "Solicitudes pendientes", valor: datos.vacaciones.pendientes, color: "#d97706", bg: "#fef9c3" },
@@ -111,7 +120,7 @@ export default function ReportesDesktop() {
 
       {/* TAB: Horas */}
       {tab === "horas" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+        <div className="reportes-tab-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
           {[
             { label: "Horas trabajadas", valor: datos.horas.totales + "h", color: "#16a34a", bg: "#f0fdf4" },
             { label: "Horas esperadas", valor: datos.horas.esperadas + "h", color: "#6366f1", bg: "#f5f3ff" },
@@ -128,7 +137,7 @@ export default function ReportesDesktop() {
 
       {/* TAB: Bajas */}
       {tab === "bajas" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="reportes-tab-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {[
             { label: "Bajas en el mes", valor: datos.bajas.total, color: "#dc2626", bg: "#fef2f2" },
             { label: "Bajas activas actualmente", valor: datos.bajas.enCurso, color: "#d97706", bg: "#fef9c3" },
@@ -143,7 +152,7 @@ export default function ReportesDesktop() {
 
       {/* TAB: Cambios turno */}
       {tab === "cambios" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        <div className="reportes-tab-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {[
             { label: "Total solicitudes", valor: datos.cambiosTurno.total, color: "#6366f1", bg: "#f5f3ff" },
             { label: "Aprobados", valor: datos.cambiosTurno.aprobados, color: "#16a34a", bg: "#f0fdf4" },
