@@ -180,7 +180,13 @@ export default function GruposDesktop() {
       )}
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="grupos-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <style>{`
+          @media (max-width: 768px) {
+            .grupos-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+            .grupos-grid-responsive { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Grupos de libranza</h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "3px 0 0" }}>{empleados.length} empleados · Arrastra para reasignar grupos</p>
@@ -252,7 +258,7 @@ export default function GruposDesktop() {
       </div>
 
       {/* Grid grupos */}
-      <div style={{ display: "grid", gridTemplateColumns: tab === "entresemana" ? "repeat(3,1fr)" : "repeat(3,1fr)", gap: 14 }}>
+      <div className="grupos-grid-responsive" style={{ display: "grid", gridTemplateColumns: tab === "entresemana" ? "repeat(3,1fr)" : "repeat(3,1fr)", gap: 14 }}>
         {grupos.map(grupo => {
           const empsGrupo = getEmpleadosGrupo(grupo.id, tab)
           const isDragOver = dragOver === grupo.id
