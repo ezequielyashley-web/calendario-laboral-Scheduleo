@@ -527,15 +527,15 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
       {isMobile && (
-        <button onClick={() => setMobileOpen(!mobileOpen)} style={{ position:'fixed', top:12, left:12, zIndex:60, background: sidebarBg, border:'none', borderRadius:8, width:38, height:38, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.3)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+        <button onClick={() => setMobileOpen(!mobileOpen)} style={{ position:'fixed', top:12, left:12, zIndex:60, background: sidebarBg, border: isLight ? '1px solid #E5E7EB' : 'none', borderRadius:8, width:38, height:38, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.3)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#111827" : "white"} strokeWidth="2" strokeLinecap="round">
             {mobileOpen ? <path d="M18 6L6 18M6 6l12 12"/> : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
           </svg>
         </button>
       )}
         <header className={`flex items-center justify-between h-14 px-6 flex-shrink-0${isLight ? " bg-white border-b border-gray-200 shadow-sm" : ""}`}
           style={{ background: pathname === "/panel-ejecutivo" ? "#0b0e1a" : "var(--surface)", borderBottom: pathname === "/panel-ejecutivo" ? "1px solid #2a2f45" : "1px solid var(--border)", boxShadow:"var(--shadow-sm)" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginLeft: isMobile ? 44 : 0 }}>
             <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === "/panel-ejecutivo" ? "#f1ecdd" : "var(--text-primary)", margin:0 }}>{pageTitles[pathname] ?? empresaNombre}</h1>
             <div style={{ position:"relative" }}>
               <button onClick={() => setShowInfo(!showInfo)} style={{ width:28, height:28, borderRadius:"50%", background: showInfo ? "rgba(217,70,239,0.15)" : "transparent", border:"2px solid #d946ef", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
