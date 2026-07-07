@@ -299,10 +299,11 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }, [pathname])
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
+    const mql = window.matchMedia('(max-width: 767px)')
+    const check = () => setIsMobile(mql.matches)
     check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
+    mql.addEventListener('change', check)
+    return () => mql.removeEventListener('change', check)
   }, [])
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { theme, setTheme, effectiveTheme } = useTheme()
