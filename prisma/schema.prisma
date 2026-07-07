@@ -223,6 +223,21 @@ model BajaMedica {
   @@index([estado])
 }
 
+model ReporteFallo {
+  id           String   @id @default(cuid())
+  descripcion  String
+  pagina       String?
+  reportadoPor String?
+  estado       String   @default("pendiente")
+  userAgent    String?
+  empresaId    String   @default("empresa-001")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([estado])
+  @@index([empresaId])
+}
+
 model Libranza {
   esDemo         Boolean  @default(false)
   id             String       @id @default(cuid())
