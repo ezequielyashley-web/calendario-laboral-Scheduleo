@@ -23,22 +23,36 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
   const escuchar = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
-      alert("Tu navegador no soporta reconocimiento de voz. Prueba con Chrome en Android o en un ordenador.")
+      alert("Tu navegador no soporta reconocimiento de voz. En iPhone, usa el microfono del teclado nativo en su lugar.")
       return
     }
     if (escuchando) return
     const recognition = new SpeechRecognition()
     recognition.lang = "es-ES"
+    recognition.continuous = false
     recognition.interimResults = false
     recognition.maxAlternatives = 1
-    setEscuchando(true)
-    recognition.start()
+
     recognition.onresult = (event: any) => {
       const texto = event.results[0][0].transcript
       setInput((prev: string) => (prev ? prev + " " : "") + texto)
     }
-    recognition.onerror = () => setEscuchando(false)
+    recognition.onerror = (event: any) => {
+      setEscuchando(false)
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        alert("No se pudo acceder al microfono. Revisa los permisos del navegador para este sitio.")
+      } else if (event.error !== "no-speech" && event.error !== "aborted") {
+        alert("Error de reconocimiento de voz: " + event.error)
+      }
+    }
     recognition.onend = () => setEscuchando(false)
+
+    try {
+      recognition.start()
+      setEscuchando(true)
+    } catch {
+      setEscuchando(false)
+    }
   }
 
   // Arrastrable
