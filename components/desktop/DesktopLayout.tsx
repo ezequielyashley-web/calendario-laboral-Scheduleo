@@ -298,18 +298,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     }
   }, [pathname])
 
-  // Verificacion de sesion en CADA cambio de ruta (incluye boton atras/adelante).
-  // Es necesaria ademas del useEffect de montaje porque DesktopLayout, al ser
-  // layout compartido, NO se remonta al navegar entre paginas protegidas -
-  // por eso pageshow/visibilitychange no bastan aqui.
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (pathname === "/login") return
-    if (!sessionStorage.getItem("2fa_verified")) {
-      window.location.replace("/login")
-    }
-  }, [pathname])
-
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
