@@ -1241,16 +1241,20 @@ export default function ConfiguracionPage() {
                       <div>
                         <label style={labelStyle}>Color barra lateral</label>
                         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <input type="color" value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)}
-                            style={{ width: 44, height: 36, padding: 2, border: "1px solid #e8eaf0", borderRadius: 8, cursor: "pointer" }} />
+                          <div style={{ display: "flex", gap: 6 }}>{["#1F2937","#2d2b55","#111827","#374151","#0F172A","#4C1D95"].map(c => (
+                            <button key={c} type="button" onClick={() => set("colorSidebar", c)}
+                              style={{ width: 28, height: 28, borderRadius: 8, background: c, border: empresa.colorSidebar === c ? "2px solid #673DE6" : "1px solid #E5E7EB", cursor: "pointer", padding: 0 }} />
+                          ))}</div>
                           <input value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
                         </div>
                       </div>
                       <div>
                         <label style={labelStyle}>Color de acento</label>
                         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <input type="color" value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)}
-                            style={{ width: 44, height: 36, padding: 2, border: "1px solid #e8eaf0", borderRadius: 8, cursor: "pointer" }} />
+                          <div style={{ display: "flex", gap: 6 }}>{["#6366f1","#673DE6","#0284c7","#16a34a","#d97706","#dc2626"].map(c => (
+                            <button key={c} type="button" onClick={() => set("colorAccent", c)}
+                              style={{ width: 28, height: 28, borderRadius: 8, background: c, border: empresa.colorAccent === c ? "2px solid #673DE6" : "1px solid #E5E7EB", cursor: "pointer", padding: 0 }} />
+                          ))}</div>
                           <input value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
                         </div>
                       </div>
