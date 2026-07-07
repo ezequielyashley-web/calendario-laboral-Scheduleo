@@ -50,6 +50,7 @@ export default function PanelReportesFallo() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ modoPruebas: nuevo })
       })
+      if (typeof window !== "undefined") window.dispatchEvent(new Event("modoPruebasChange"))
     } catch {}
     setGuardandoToggle(false)
   }

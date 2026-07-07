@@ -11,7 +11,12 @@ export default function ReportarFalloButton({ userName }: { userName?: string })
   const pathname = usePathname()
 
   useEffect(() => {
-    fetch("/api/config/modo-pruebas").then(r => r.json()).then(d => setActivo(!!d.modoPruebas)).catch(() => {})
+    const cargar = () => {
+      fetch("/api/config/modo-pruebas").then(r => r.json()).then(d => setActivo(!!d.modoPruebas)).catch(() => {})
+    }
+    cargar()
+    window.addEventListener("modoPruebasChange", cargar)
+    return () => window.removeEventListener("modoPruebasChange", cargar)
   }, [])
 
   const enviar = async () => {
