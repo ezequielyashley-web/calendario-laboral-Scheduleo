@@ -72,11 +72,19 @@ export default function DashboardDesktop() {
   ]
 
   return (
-    <div style={{ padding:"28px 32px" }}>
+    <div className="dashboard-responsive-wrap" style={{ padding:"28px 32px" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .dashboard-responsive-wrap { padding: 16px 14px !important; }
+          .dashboard-kpis-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; margin-bottom: 16px !important; }
+          .dashboard-panels-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .dashboard-activity-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       <InspectorBanner />
 
       {/* KPIs */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:20, marginBottom:28 }}>
+      <div className="dashboard-kpis-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:20, marginBottom:28 }}>
         {kpisReales.map((k, i) => (
           <div key={i} style={{ background:k.gradient?k.bg:"#fff", borderRadius:16, padding:28, border:k.gradient?"none":"0.5px solid #e8eaf0", boxShadow:"0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
@@ -93,7 +101,7 @@ export default function DashboardDesktop() {
       </div>
 
       {/* Asistencia + Grupos */}
-      <div style={{ display:"grid", gridTemplateColumns:"1.6fr 1fr", gap:16, marginBottom:16 }}>
+      <div className="dashboard-panels-grid" style={{ display:"grid", gridTemplateColumns:"1.6fr 1fr", gap:16, marginBottom:16 }}>
         <div style={{ background:"#fff", borderRadius:16, padding:20, border:"0.5px solid #e8eaf0", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
             <div style={{ fontSize:14, fontWeight:500, color:"#1e1b4b" }}>Asistencia semanal</div>
@@ -136,7 +144,7 @@ export default function DashboardDesktop() {
             No hay actividad reciente
           </div>
         ) : (
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
+          <div className="dashboard-activity-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
             {actividadReal.map((a:any, i:number) => (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 14px", background:"#f8f9ff", borderRadius:10 }}>
                 <div style={{ width:38, height:38, borderRadius:10, background:a.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
