@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const tipo = searchParams.get('tipo')
     const empleadoId = searchParams.get('empleadoId')
 
-    const where: any = { empresaId: 'empresa-001' }
+    const where: any = { empresaId: 'empresa-001', esDemostracion: false, empleado: { esDemostracion: false } }
     if (estado) where.estado = estado
     if (tipo) where.tipo = tipo
     if (empleadoId) where.empleadoId = empleadoId
