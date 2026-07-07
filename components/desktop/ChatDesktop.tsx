@@ -62,6 +62,14 @@ export default function ChatDesktop() {
     }).catch(() => {})
   }, [])
 
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   const iniciarResize = (e: React.MouseEvent) => {
     isResizing.current = true
     const startX = e.clientX
@@ -174,7 +182,7 @@ export default function ChatDesktop() {
     <div style={{ display:"flex", height:"calc(100vh - 57px)", overflow:"hidden", position:"relative" as const }}>
 
       {/* SIDEBAR */}
-      <div style={{ width:sidebarWidth, background:"#f0f4f8", borderRight:"1px solid #dde3ea", display:"flex", flexDirection:"column", flexShrink:0, position:"relative" as const, minWidth:220, maxWidth:480 }}>
+      <div style={{ width: isMobile ? "100%" : sidebarWidth, background:"#f0f4f8", borderRight: isMobile ? "none" : "1px solid #dde3ea", display: isMobile && convActiva ? "none" : "flex", flexDirection:"column", flexShrink:0, position:"relative" as const, minWidth: isMobile ? "auto" : 220, maxWidth: isMobile ? "100%" : 480 }}>
         <div style={{ padding:"11px 14px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #dde3ea" }}>
           <span style={{ fontSize:14, fontWeight:600, color:"#111827" }}>Chat</span>
           {solicitudes.length > 0 && <span style={{ background:"#ef4444", color:"#fff", fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>{solicitudes.length} pendiente{solicitudes.length>1?"s":""}</span>}
@@ -295,19 +303,24 @@ export default function ChatDesktop() {
         </div>
 
         {/* Handle resize */}
-        <div onMouseDown={iniciarResize}
-          style={{ position:"absolute" as const, right:-2, top:0, bottom:0, width:5, cursor:"col-resize", zIndex:10 }}
+        <div onMouseDown={isMobile ? undefined : iniciarResize}
+          style={{ position:"absolute" as const, right:-2, top:0, bottom:0, width:5, cursor:"col-resize", zIndex:10, display: isMobile ? "none" : "block" }}
           onMouseEnter={e=>e.currentTarget.style.background="#93c5fd"}
           onMouseLeave={e=>e.currentTarget.style.background="transparent"} />
       </div>
 
       {/* AREA PRINCIPAL */}
-      <div style={{ flex:1, display:"flex", minWidth:0 }}>
+      <div style={{ flex:1, display: isMobile && !convActiva ? "none" : "flex", minWidth:0, width: isMobile ? "100%" : "auto" }}>
         {convActiva ? (
           <>
             {/* Panel mensajes */}
             <div style={{ flex:1, display:"flex", flexDirection:"column", background:"#e8eef3", minWidth:0 }}>
               <div style={{ padding:"10px 14px", background:"#fff", borderBottom:"1px solid #dde3ea", display:"flex", alignItems:"center", gap:10 }}>
+                {isMobile && (
+                  <button onClick={()=>setConvActiva(null)} style={{ background:"none", border:"none", cursor:"pointer", padding:4, marginLeft:-4, display:"flex", alignItems:"center" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                )}
                 <Avatar nombre={convActiva.nombre||"?"} size={32} />
                 <div>
                   <div style={{ fontSize:13, fontWeight:600, color:"#111827" }}>{convActiva.nombre}</div>
@@ -355,7 +368,7 @@ export default function ChatDesktop() {
             </div>
 
             {/* Panel info lateral */}
-            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"#fff", display:"flex", flexDirection:"column", flexShrink:0 }}>
+            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"#fff", display: isMobile ? "none" : "flex", flexDirection:"column", flexShrink:0 }}>
               <div style={{ padding:"12px 14px", borderBottom:"1px solid #dde3ea", background:"#f8fafc" }}>
                 <div style={{ fontSize:11, fontWeight:700, color:"#374151", marginBottom:2 }}>INFO DEL CHAT</div>
                 <div style={{ fontSize:10, color:"#6b7280" }}>Como funciona</div>
@@ -388,7 +401,7 @@ export default function ChatDesktop() {
             </div>
 
             {/* Panel info lateral siempre visible */}
-            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"#fff", display:"flex", flexDirection:"column", flexShrink:0 }}>
+            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"#fff", display: isMobile ? "none" : "flex", flexDirection:"column", flexShrink:0 }}>
               <div style={{ padding:"12px 14px", borderBottom:"1px solid #dde3ea", background:"#f8fafc" }}>
                 <div style={{ fontSize:11, fontWeight:700, color:"#374151", marginBottom:2 }}>COMO FUNCIONA</div>
                 <div style={{ fontSize:10, color:"#6b7280" }}>Chat y notificaciones</div>
