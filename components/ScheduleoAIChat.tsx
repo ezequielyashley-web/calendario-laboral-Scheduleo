@@ -88,13 +88,17 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       <style>{`
         @keyframes bounce-dot { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
         @keyframes pulse-ai { 0%,100%{box-shadow:0 0 0 0 rgba(103,61,230,0.4)} 50%{box-shadow:0 0 0 8px rgba(103,61,230,0)} }
+        @media (max-width: 640px) {
+          .ai-fab-responsive { bottom: 16px !important; right: 16px !important; }
+          .ai-panel-responsive { bottom: 82px !important; right: 16px !important; left: 16px !important; width: auto !important; height: 65vh !important; max-height: 520px !important; }
+        }
       `}</style>
 
       {/* Boton flotante arrastrable */}
       <div
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
-        style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 4px 20px rgba(103,61,230,0.45)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
+        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 4px 20px rgba(103,61,230,0.45)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
         {/* Icono S de Scheduleo con rayo AI */}
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <text x="5" y="20" fontFamily="Arial Black, sans-serif" fontSize="18" fontWeight="900" fill="white">S</text>
@@ -105,7 +109,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
 
       {/* Panel chat */}
       {abierto && (
-        <div style={{ position: "fixed", bottom: pos.y + 64, right: pos.x, width: 360, height: 480, background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)", border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
+        <div className="ai-panel-responsive" style={{ position: "fixed", bottom: pos.y + 64, right: pos.x, width: 360, height: 480, background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)", border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
 
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
