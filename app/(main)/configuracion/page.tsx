@@ -2,6 +2,7 @@
 
 
 import { useState, useEffect, Fragment } from "react"
+import PanelReportesFallo from "@/components/PanelReportesFallo"
 import PanelSeguridadCert from "@/components/PanelSeguridadCert"
 import dynamicImport from "next/dynamic"
 const SelectorTema = dynamicImport(() => import("@/components/SelectorTema"), { ssr: false })
@@ -20,6 +21,7 @@ const SECCIONES = [
   { key: "imap", label: "Email IMAP (Bajas IT)" },
   { key: "seguridad", label: "Seguridad" },
   { key: "ai", label: "ScheduleoAI" },
+  { key: "reportes", label: "Reportes de fallos" },
 ]
 
 function GenerarToken({ masterPassword }: { masterPassword: string }) {
@@ -1337,6 +1339,7 @@ export default function ConfiguracionPage() {
           {seccion === "imap" && <SeccionIMAP />}
           {seccion === "seguridad" && <SeccionSeguridad />}
           {seccion === "ai" && <SeccionAI />}
+          {seccion === "reportes" && <PanelReportesFallo />}
           {seccion === "usuarios" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
