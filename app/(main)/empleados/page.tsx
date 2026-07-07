@@ -99,7 +99,14 @@ export default function EmpleadosPage() {
   const labelStyle = { display: "block", fontSize: 12, color: "#6b7280", marginBottom: 4, fontWeight: 500 }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto", width: "100%" }}>
+    <div className="empleados-responsive-wrap" style={{ padding: 24, maxWidth: 1200, margin: "0 auto", width: "100%" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .empleados-responsive-wrap { padding: 14px !important; }
+          .empleados-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+          .empleados-search-input { width: 100% !important; box-sizing: border-box !important; }
+        }
+      `}</style>
 
       {modoDemo && (
         <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 14, padding: "16px 24px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -119,13 +126,13 @@ export default function EmpleadosPage() {
         </div>
       )}
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div className="empleados-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#6366f1", margin: 0 }}>Empleados</h1>
           <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>{empleados.length} empleados {modoDemo ? "de demostracion" : "en total"}</p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..."
+          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..." className="empleados-search-input"
             style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 14, width: 220, outline: "none" }} />
           {!modoDemo && (
             <button onClick={() => setModalAlta(true)}
