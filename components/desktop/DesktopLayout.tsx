@@ -2,6 +2,7 @@
 
 import BetaBanner from "@/components/BetaBanner"
 import ScheduleoAIChat from "@/components/ScheduleoAIChat"
+import ReportarFalloButton from "@/components/ReportarFalloButton"
 import { useState, useEffect } from "react"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
@@ -597,6 +598,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </main>
       </div>
       <ScheduleoAIChat userId={usuarioActual?.id || ""} />
+      <ReportarFalloButton userName={usuarioActual?.name} />
 
       {cerrandoSesion && (
         <div style={{ position:"fixed", inset:0, background:"linear-gradient(135deg,#1e3a8a,#1e40af,#1d4ed8)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:10000, overflow:"hidden" }}>
