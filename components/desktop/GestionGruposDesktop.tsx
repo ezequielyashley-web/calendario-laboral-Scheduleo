@@ -113,7 +113,13 @@ export default function CoberturaDesktop() {
     <div className="space-y-5">
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div className="puestos-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <style>{`
+          @media (max-width: 640px) {
+            .puestos-header-responsive { flex-direction: column !important; gap: 12px !important; align-items: stretch !important; }
+            .puestos-header-responsive button { width: 100% !important; }
+          }
+        `}</style>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 4px" }}>Puestos de trabajo</h1>
           <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>Asigna y gestiona empleados por puesto arrastrando o usando el selector</p>
