@@ -209,7 +209,7 @@ export default function LibranzasDesktop() {
 
       {/* Header */}
       <div className="libranzas-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <style>{`r
+        <style>{`
           @media (max-width: 768px) {
             .libranzas-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
             .libranzas-main-grid { grid-template-columns: 1fr !important; }
