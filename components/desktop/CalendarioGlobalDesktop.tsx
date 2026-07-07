@@ -105,10 +105,18 @@ export default function CalendarioGlobalDesktop() {
     d !== null && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio
 
   return (
-    <div style={{ padding: 0, maxWidth: '100%', margin: '0 auto' }}>
+    <div className="calendario-responsive-wrap" style={{ padding: 0, maxWidth: '100%', margin: '0 auto' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .calendario-header-row { flex-wrap: wrap !important; gap: 8px !important; }
+          .calendario-anual-grid { grid-template-columns: 1fr !important; }
+          .calendario-tips-grid { grid-template-columns: 1fr !important; }
+          .calendario-agenda-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div className="calendario-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={volverAAnual} style={{ background: vista === 'anual' ? '#6366f1' : '#f0f4ff', color: vista === 'anual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{anio}</button>
           {(vista === 'mensual' || vista === 'agenda') && (
@@ -143,7 +151,7 @@ export default function CalendarioGlobalDesktop() {
 
       {/* VISTA ANUAL */}
       {vista === 'anual' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <div className="calendario-anual-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           {Array.from({ length: 12 }, (_, m) => {
             const stats = getDaysInMonthCount(anio, m)
             const esMesHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
@@ -244,7 +252,7 @@ export default function CalendarioGlobalDesktop() {
           </div>
           <div style={{ marginTop: 16, background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 12, padding: '20px 24px' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 16 }}>¿Qué puedes hacer en esta vista?</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div className="calendario-tips-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {[
                 { icon: '📅', titulo: 'Navegar por días', desc: 'Haz click en cualquier día para ver el detalle completo de grupos, turnos y empleados asignados.' },
                 { icon: '👥', titulo: 'Ver grupos activos', desc: 'Cada chip de color representa un grupo de trabajo activo ese día. Los colores identifican cada grupo.' },
@@ -268,7 +276,7 @@ export default function CalendarioGlobalDesktop() {
 
       {/* VISTA AGENDA */}
       {vista === 'agenda' && diaSeleccionado && (
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
+        <div className="calendario-agenda-grid" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
           <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, height: 'fit-content' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>{meses[mes]} {anio}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 8 }}>
