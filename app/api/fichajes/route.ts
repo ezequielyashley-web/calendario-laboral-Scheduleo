@@ -22,14 +22,14 @@ export async function GET(req: NextRequest) {
             SELECT f.*, e.nombre, e.apellidos, e."numeroEmpleado"
             FROM "Fichaje" f
             LEFT JOIN "Empleado" e ON e.id = f."empleadoId"
-            WHERE f."empleadoId" = ${empleadoId} AND f."esDemostracion" = true
+            WHERE f."empleadoId" = ${empleadoId} AND f."esDemostracion" = true AND e."esDemostracion" = true
             ORDER BY f."horaEntrada" DESC LIMIT 500
           ` as any[]
         : await prisma.$queryRaw`
             SELECT f.*, e.nombre, e.apellidos, e."numeroEmpleado"
             FROM "Fichaje" f
             LEFT JOIN "Empleado" e ON e.id = f."empleadoId"
-            WHERE f."esDemostracion" = true
+            WHERE f."esDemostracion" = true AND e."esDemostracion" = true
             ORDER BY f."horaEntrada" DESC LIMIT 500
           ` as any[]
     } else {
@@ -38,14 +38,14 @@ export async function GET(req: NextRequest) {
             SELECT f.*, e.nombre, e.apellidos, e."numeroEmpleado"
             FROM "Fichaje" f
             LEFT JOIN "Empleado" e ON e.id = f."empleadoId"
-            WHERE f."empleadoId" = ${empleadoId} AND f."esDemostracion" = false
+            WHERE f."empleadoId" = ${empleadoId} AND f."esDemostracion" = false AND e."esDemostracion" = false
             ORDER BY f."horaEntrada" DESC LIMIT 500
           ` as any[]
         : await prisma.$queryRaw`
             SELECT f.*, e.nombre, e.apellidos, e."numeroEmpleado"
             FROM "Fichaje" f
             LEFT JOIN "Empleado" e ON e.id = f."empleadoId"
-            WHERE f."esDemostracion" = false
+            WHERE f."esDemostracion" = false AND e."esDemostracion" = false
             ORDER BY f."horaEntrada" DESC LIMIT 500
           ` as any[]
     }
