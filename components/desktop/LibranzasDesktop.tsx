@@ -213,6 +213,8 @@ export default function LibranzasDesktop() {
           @media (max-width: 768px) {
             .libranzas-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
             .libranzas-main-grid { grid-template-columns: 1fr !important; }
+            .libranzas-cal-header-responsive { flex-wrap: wrap !important; gap: 8px !important; }
+            .libranzas-leyenda-responsive { flex-wrap: wrap !important; }
           }
         `}</style>
         <div>
@@ -289,13 +291,13 @@ export default function LibranzasDesktop() {
 
           {/* Calendario */}
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div className="libranzas-cal-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <button onClick={() => setMesVista(m => Math.max(0, m - 1))} style={{ background: "var(--surface-2)", border: "1px solid var(--border-strong)", borderRadius: 6, width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>‹</button>
                 <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", minWidth: 100, textAlign: "center" }}>{MESES[mesVista]} {anno}</span>
                 <button onClick={() => setMesVista(m => Math.min(11, m + 1))} style={{ background: "var(--surface-2)", border: "1px solid var(--border-strong)", borderRadius: 6, width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>›</button>
               </div>
-              <div style={{ display: "flex", gap: 6 }}>
+              <div className="libranzas-leyenda-responsive" style={{ display: "flex", gap: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--text-muted)" }}>
                   <div style={{ width: 12, height: 12, borderRadius: 3, background: grupoSeleccionado.color }} />
                   Día libre
