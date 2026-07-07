@@ -314,7 +314,7 @@ export default function ChatDesktop() {
         {convActiva ? (
           <>
             {/* Panel mensajes */}
-            <div style={{ flex:1, display:"flex", flexDirection:"column", background:"#e8eef3", minWidth:0 }}>
+            <div style={{ flex:1, display:"flex", flexDirection:"column", background:"#e5ddd5", backgroundImage:"radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px)", backgroundSize:"18px 18px", minWidth:0 }}>
               <div style={{ padding:"10px 14px", background:"#fff", borderBottom:"1px solid #dde3ea", display:"flex", alignItems:"center", gap:10 }}>
                 {isMobile && (
                   <button onClick={()=>setConvActiva(null)} style={{ background:"none", border:"none", cursor:"pointer", padding:4, marginLeft:-4, display:"flex", alignItems:"center" }}>
@@ -345,10 +345,10 @@ export default function ChatDesktop() {
                     <div key={m.id} style={{ display:"flex", gap:6, maxWidth:"80%", alignSelf:esMio?"flex-end":"flex-start", flexDirection:esMio?"row-reverse":"row" }}>
                       {!esMio && <Avatar nombre={m.autorNombre} size={24} />}
                       <div>
-                        <div style={{ padding:"7px 11px", borderRadius:esMio?"12px 4px 12px 12px":"4px 12px 12px 12px", background:esMio?"#3b82f6":"#fff", color:esMio?"#fff":"#111827", fontSize:12, lineHeight:1.5, boxShadow:"0 1px 2px rgba(0,0,0,0.07)" }}>{m.contenido}</div>
+                        <div style={{ padding:"7px 11px", borderRadius:esMio?"12px 4px 12px 12px":"4px 12px 12px 12px", background:esMio?"#673DE6":"#fff", color:esMio?"#fff":"#111827", fontSize:12, lineHeight:1.5, boxShadow:"0 1px 2px rgba(0,0,0,0.1)" }}>{m.contenido}</div>
                         <div style={{ fontSize:10, color:"#9ca3af", marginTop:2, textAlign:esMio?"right":"left" }}>
                           {new Date(m.creadoEn).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})}
-                          {esMio && <span style={{ color:"#3b82f6", marginLeft:3 }}>✓✓</span>}
+                          {esMio && <span style={{ color:"#673DE6", marginLeft:3 }}>✓✓</span>}
                         </div>
                       </div>
                     </div>
