@@ -45,8 +45,18 @@ export default function DeudasPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+    <div className="deudas-responsive-wrap" style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .deudas-responsive-wrap { padding: 14px !important; }
+          .deudas-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+          .deudas-header-responsive input { width: 100% !important; box-sizing: border-box !important; }
+          .deudas-kpis-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .deudas-table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+          .deudas-table-wrap table { min-width: 600px !important; }
+        }
+      `}</style>
+      <div className="deudas-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>{empleadosConDeudas.length} empleados con deudas activas</p>
         </div>
@@ -54,7 +64,7 @@ export default function DeudasPage() {
           style={{ padding: "8px 14px", border: "0.5px solid #e8eaf0", borderRadius: 8, fontSize: 13, width: 200, outline: "none", background: "#fff", color: "#1e1b4b" }} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="deudas-kpis-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
         {[
           { label: "Total pendiente", valor: totalPendiente.toFixed(2) + "€", color: "#dc2626", bg: "#fee2e2" },
           { label: "Anticipos", valor: totalAnticipos.toFixed(2) + "€", color: "#6366f1", bg: "#ede9fe" },
@@ -71,7 +81,7 @@ export default function DeudasPage() {
       {loading ? (
         <div style={{ textAlign: "center", padding: 60, color: "#a0aec0" }}>Cargando...</div>
       ) : (
-        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
+        <div className="deudas-table-wrap" style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f8f9ff" }}>
