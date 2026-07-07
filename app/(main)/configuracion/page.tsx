@@ -1079,7 +1079,13 @@ export default function ConfiguracionPage() {
           {mensaje.texto}
         </div>
       )}
-      <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
+      <div className="config-grid-responsive" style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .config-grid-responsive { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
+          .config-content-responsive { height: auto !important; overflow: visible !important; }
+        }
+      `}</style>
         <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
 
@@ -1122,7 +1128,7 @@ export default function ConfiguracionPage() {
 
 
         </div>
-        <div style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+        <div className="config-content-responsive" style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
 
           {seccion === "identidad" && (
