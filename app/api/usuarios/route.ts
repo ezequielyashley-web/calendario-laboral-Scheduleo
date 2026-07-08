@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 
 export async function GET() {
   try {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
     if (!valid) return NextResponse.json({ error: "Contraseña master incorrecta" }, { status: 403 })
 
     // Generar contraseña aleatoria
-    const rawPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase() + "!"
+    const rawPassword = crypto.randomBytes(9).toString("base64").replace(/[+/=]/g, "x").slice(0, 10) + "!" + Math.floor(Math.random() * 90 + 10)
     const hashedPassword = await bcrypt.hash(rawPassword, 10)
 
     const usuario = await prisma.user.create({
