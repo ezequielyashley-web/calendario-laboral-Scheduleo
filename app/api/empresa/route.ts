@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit"
 
 export async function GET() {
   try {
@@ -24,11 +25,17 @@ export async function PATCH(req: NextRequest) {
 
     if (!masterPassword) return NextResponse.json({ error: "Contraseña master requerida" }, { status: 401 })
 
+    const rateLimitId = `masterpass_${auth.userId}`
+    const rateLimit = checkRateLimit(rateLimitId, 5, 15 * 60 * 1000)
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: "Demasiados intentos fallidos. Intenta de nuevo en unos minutos." }, { status: 429 })
+    }
     const admin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (!admin) return NextResponse.json({ error: "No se encontró admin" }, { status: 401 })
 
     const ok = await bcrypt.compare(masterPassword, admin.password)
     if (!ok) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
+    resetRateLimit(rateLimitId)
 
     await prisma.$executeRaw`
       UPDATE "Empresa" SET
