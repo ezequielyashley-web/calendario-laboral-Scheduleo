@@ -24,6 +24,10 @@ model User {
   passwordResetTokens PasswordResetToken[]
   mensajesEnviados   MensajePanelEjecutivo[] @relation("MensajesEnviados")
   mensajesRecibidos  MensajePanelEjecutivo[] @relation("MensajesRecibidos")
+  totpSecretEnc       String                 @default("")
+  totpEnabled         Boolean                @default(false)
+  metodo2FA           String                 @default("email")
+  backupCodes2FA      BackupCode2FA[]
 
   @@index([empresaId])
 }
@@ -221,6 +225,17 @@ model BajaMedica {
 
   @@index([empleadoId])
   @@index([estado])
+}
+
+model BackupCode2FA {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codigoHash String
+  usado      Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
 }
 
 model ReporteFallo {
