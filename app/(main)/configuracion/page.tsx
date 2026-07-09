@@ -4,6 +4,7 @@
 import { useState, useEffect, Fragment } from "react"
 import PanelReportesFallo from "@/components/PanelReportesFallo"
 import PanelSeguridadCert from "@/components/PanelSeguridadCert"
+import Configuracion2FA from "@/components/Configuracion2FA"
 import dynamicImport from "next/dynamic"
 const SelectorTema = dynamicImport(() => import("@/components/SelectorTema"), { ssr: false })
 
@@ -528,6 +529,8 @@ function SeccionSeguridad() {
       <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Seguridad del sistema</h2>
       {/* NIVEL DE SEGURIDAD */}
       <PanelSeguridadCert />
+
+      <Configuracion2FA />
 
       {/* Grid 2 columnas: Expiracion + Requisitos */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
