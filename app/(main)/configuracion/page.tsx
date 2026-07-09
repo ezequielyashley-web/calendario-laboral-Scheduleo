@@ -868,6 +868,16 @@ export default function ConfiguracionPage() {
   const [errorAcceso, setErrorAcceso] = useState("")
   const [verificando, setVerificando] = useState(false)
   const [seccion, setSeccion] = useState("identidad")
+  const [submenuColapsado, setSubmenuColapsado] = useState(false)
+  const [submenuTocadoManual, setSubmenuTocadoManual] = useState(false)
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 900px)")
+    const check = () => { if (!submenuTocadoManual) setSubmenuColapsado(mql.matches) }
+    check()
+    mql.addEventListener("change", check)
+    return () => mql.removeEventListener("change", check)
+  }, [submenuTocadoManual])
   const [empresa, setEmpresa] = useState<any>({})
   const [loading, setLoading] = useState(true)
   const [guardando, setGuardando] = useState(false)
@@ -1084,33 +1094,47 @@ export default function ConfiguracionPage() {
           {mensaje.texto}
         </div>
       )}
-      <div className="config-grid-responsive" style={{ display: "grid", gridTemplateColumns: "210px 1fr", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
+      <div className="config-grid-responsive" style={{ display: "grid", gridTemplateColumns: submenuColapsado ? "72px 1fr" : "210px 1fr", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
       <style>{`
         @media (max-width: 768px) {
           .config-grid-responsive { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
           .config-content-responsive { height: auto !important; overflow: visible !important; }
           .config-back-link { display: flex !important; }
         }
+        .config-tooltip-wrap { position: relative; }
+        .config-tooltip { position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); background: #1F2937; color: #fff; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.12s; z-index: 20; }
+        .config-tooltip-wrap:hover .config-tooltip { opacity: 1; }
       `}</style>
         <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
+            <button
+              onClick={() => { setSubmenuTocadoManual(true); setSubmenuColapsado(c => !c) }}
+              title={submenuColapsado ? "Expandir menu" : "Colapsar menu"}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-end", padding: "6px 8px", marginBottom: 10, background: "transparent", border: "none", borderRadius: 8, cursor: "pointer" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: submenuColapsado ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+                <polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" />
+              </svg>
+            </button>
 
 
-            <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Empresa</div>
+            {!submenuColapsado && <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Empresa</div>}
             {[
               { key: "identidad", label: "Identidad legal", p: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" },
               { key: "contacto", label: "Contacto", p: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.07 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.81.7A2 2 0 0 1 21 17z" },
               { key: "laboral", label: "Datos laborales", p: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" },
               { key: "apariencia", label: "Apariencia", p: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
             ].map(s => (
-              <button key={s.key} onClick={() => setSeccion(s.key)}
-                style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
-                {s.label}
+              <div key={s.key} className="config-tooltip-wrap">
+              <button onClick={() => setSeccion(s.key)}
+                style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
+                <svg width={submenuColapsado ? 20 : 14} height={submenuColapsado ? 20 : 14} style={{ transition: "all 0.15s", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
+                {!submenuColapsado && s.label}
               </button>
+              {submenuColapsado && <span className="config-tooltip">{s.label}</span>}
+              </div>
             ))}
             <div style={{ height: 1, background: "rgba(103,61,230,0.12)", margin: "10px 6px" }} />
-            <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Sistema</div>
+            {!submenuColapsado && <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Sistema</div>}
             {[
               { key: "licencia", label: "Licencia", p: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" },
               { key: "inspeccion", label: "Inspeccion laboral", p: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" },
@@ -1121,11 +1145,14 @@ export default function ConfiguracionPage() {
               { key: "ai", label: "ScheduleoAI", p: "M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" },
               { key: "reportes", label: "Reportes de fallos", p: "M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" },
             ].map(s => (
-              <button key={s.key} onClick={() => setSeccion(s.key)}
-                style={{ width: "100%", textAlign: "left", padding: "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", gap: 8 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
-                {s.label}
+              <div key={s.key} className="config-tooltip-wrap">
+              <button onClick={() => setSeccion(s.key)}
+                style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
+                <svg width={submenuColapsado ? 20 : 14} height={submenuColapsado ? 20 : 14} style={{ transition: "all 0.15s", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
+                {!submenuColapsado && s.label}
               </button>
+              {submenuColapsado && <span className="config-tooltip">{s.label}</span>}
+              </div>
             ))}
           </div>
 
