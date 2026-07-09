@@ -23,6 +23,10 @@ export default function SecureLoginForm() {
   const [code2FA, setCode2FA] = useState('')
   const [error2FA, setError2FA] = useState('')
   const [verifying2FA, setVerifying2FA] = useState(false)
+  const [show2FATotp, setShow2FATotp] = useState(false)
+  const [codigoTotp, setCodigoTotp] = useState('')
+  const [errorTotp, setErrorTotp] = useState('')
+  const [verifyingTotp, setVerifyingTotp] = useState(false)
 
   useEffect(() => {
     if (!blockedUntil) return
@@ -55,6 +59,10 @@ export default function SecureLoginForm() {
         setError(checkData.error || 'Email o contrasena incorrectos')
         if (newAttempts <= 0) setBlockedUntil(Date.now() + 15 * 60 * 1000)
         setShowLoading(false)
+      } else if (checkData.needsTwoFA && checkData.metodo2FA === 'totp') {
+        setUserId2FA(checkData.userId)
+        setShowLoading(false)
+        setShow2FATotp(true)
       } else if (checkData.needsTwoFA) {
         const twoFARes = await fetch('/api/verificacion', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -274,8 +282,58 @@ export default function SecureLoginForm() {
           </div>
         </div>
       )}
+      {/* 2FA TOTP SCREEN */}
+      {show2FATotp && !success && (
+        <div style={{position:'fixed',inset:0,zIndex:150,background:'linear-gradient(135deg,#1e3a8a 0%,#1e40af 50%,#1d4ed8 100%)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{background:'rgba(255,255,255,0.1)',backdropFilter:'blur(20px)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:24,padding:'40px 36px',width:'100%',maxWidth:400,textAlign:'center'}}>
+            <div style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#3b82f6,#1e40af)',marginBottom:20}}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            </div>
+            <h2 style={{fontSize:24,fontWeight:700,color:'#fff',marginBottom:8}}>Verificacion en 2 pasos</h2>
+            <p style={{color:'#bfdbfe',fontSize:14,marginBottom:28}}>Introduce el codigo de tu app de autenticacion.</p>
+            <input
+              value={codigoTotp}
+              onChange={e => setCodigoTotp(e.target.value)}
+              placeholder="000000"
+              maxLength={9}
+              style={{width:'100%',padding:'14px',border:'1px solid rgba(255,255,255,0.3)',borderRadius:10,fontSize:20,textAlign:'center',letterSpacing:6,outline:'none',background:'rgba(255,255,255,0.1)',color:'#fff',marginBottom:16}}
+            />
+            {errorTotp && <p style={{color:'#fca5a5',fontSize:13,marginBottom:12}}>{errorTotp}</p>}
+            <button
+              disabled={verifyingTotp}
+              onClick={async () => {
+                if (!codigoTotp.trim()) { setErrorTotp('Introduce el codigo'); return }
+                setVerifyingTotp(true)
+                setErrorTotp('')
+                const res = await fetch('/api/2fa/verify-login', {
+                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId: userId2FA, codigo: codigoTotp })
+                })
+                const data = await res.json()
+                setVerifyingTotp(false)
+                if (data.ok) {
+                  const csrfRes = await fetch("/api/auth/csrf")
+                  const { csrfToken } = await csrfRes.json()
+                  await fetch("/api/auth/callback/credentials", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, redirect: "manual", body: new URLSearchParams({ email, password, csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" }) })
+                  sessionStorage.setItem("2fa_verified", "true")
+                  setShow2FATotp(false)
+                  setUserName(email.split('@')[0])
+                  setSuccess(true)
+                  setTimeout(() => { const saved = localStorage.getItem('scheduleo_ultima_ruta'); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== '/login') { router.push(ruta); router.refresh(); return } } catch {} } router.push('/dashboard'); router.refresh() }, 5500)
+                } else {
+                  setErrorTotp(data.error || 'Codigo incorrecto')
+                  setCodigoTotp('')
+                }
+              }}
+              style={{width:'100%',height:46,background:'linear-gradient(135deg,#3b82f6,#1e40af)',color:'#fff',border:'none',borderRadius:10,fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:14}}>
+              {verifyingTotp ? 'Verificando...' : 'Verificar codigo'}
+            </button>
+            <p style={{color:'#93c5fd',fontSize:12}}>Tambien puedes usar un codigo de backup (formato XXXX-XXXX)</p>
+          </div>
+        </div>
+      )}
       {/* MAIN LOGIN */}
-      {!success && !showLoading && !show2FA && (
+      {!success && !showLoading && !show2FA && !show2FATotp && (
         <div style={{position:'relative',minHeight:'100vh',width:'100%',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center'}}>
           {/* Imagen fondo */}
           <div style={{position:'absolute',inset:0,width:'100%',height:'100%'}}>
