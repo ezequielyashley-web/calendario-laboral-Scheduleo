@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
       role: usuario.role,
       permisos: usuario.permisos || {},
       name: usuario.name,
-      email: usuario.email
+      email: usuario.email,
+      totpEnabled: usuario.totpEnabled || false,
+      metodo2FA: usuario.metodo2FA || "email"
     })
   } catch(e) {
     console.error(e)
