@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (action === "send") {
       const user = await prisma.user.findUnique({ where: { email } })
       if (!user) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
-      return NextResponse.json({ ok: true, skip: true }) // BYPASS TEMPORAL
+      // 2FA obligatorio para todos los usuarios, sin importar el rol
 
       // Generar codigo 6 digitos
       const codigo = Math.floor(100000 + Math.random() * 900000).toString()
