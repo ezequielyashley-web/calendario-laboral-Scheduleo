@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const identifier = email.toLowerCase().trim()
 
     const users = await prisma.$queryRaw`
-      SELECT id, email, name, password, role FROM "User" WHERE LOWER(email) = ${identifier} LIMIT 1
+      SELECT id, email, name, password, role, "metodo2FA", "totpEnabled" FROM "User" WHERE LOWER(email) = ${identifier} LIMIT 1
     ` as any[]
 
     if (!users.length || !users[0].password) {
@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
       email: user.email,
       name: user.name,
       role: user.role,
-      needsTwoFA: true
+      needsTwoFA: true,
+      metodo2FA: user.totpEnabled ? "totp" : "email"
     })
   } catch (error) {
     console.error("Login error:", error)
