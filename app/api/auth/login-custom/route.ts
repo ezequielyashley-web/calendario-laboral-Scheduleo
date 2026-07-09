@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       email: user.email,
       name: user.name,
       role: user.role,
-      needsTwoFA: user.role === "SUPER_ADMIN"
+      needsTwoFA: true
     })
   } catch (error) {
     console.error("Login error:", error)
