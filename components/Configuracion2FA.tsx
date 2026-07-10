@@ -165,8 +165,13 @@ export default function Configuracion2FA() {
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button style={{ background: "none", border: "none", color: gris, fontSize: 13, fontWeight: 500, cursor: "pointer", padding: "9px 6px" }} onClick={() => setVista("card")}>Cancelar</button>
-              <button style={btnPrimario} onClick={() => {
-                if (metodo === "email") { setVista("card"); return }
+              <button style={btnPrimario} onClick={async () => {
+                if (metodo === "email") {
+                  await fetch("/api/2fa/disable", { method: "POST" })
+                  setTotpEnabled(false)
+                  setVista("card")
+                  return
+                }
                 setVista("app")
               }}>Seleccionar</button>
             </div>
