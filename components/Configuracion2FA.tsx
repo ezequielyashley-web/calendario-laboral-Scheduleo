@@ -10,6 +10,7 @@ const verdePale = "#ECFDF3"
 export default function Configuracion2FA() {
   const [cargando, setCargando] = useState(true)
   const [totpEnabled, setTotpEnabled] = useState(false)
+  const [metodoActual, setMetodoActual] = useState("email")
 
   const [vista, setVista] = useState<"card" | "modal" | "app" | "qr" | "backup" | "exito">("card")
   const [metodo, setMetodo] = useState<"totp" | "email">("totp")
@@ -25,6 +26,7 @@ export default function Configuracion2FA() {
   useEffect(() => {
     fetch("/api/session-info").then(r => r.json()).then(d => {
       setTotpEnabled(!!d.totpEnabled)
+      setMetodoActual(d.metodo2FA || "email")
       setCargando(false)
     }).catch(() => setCargando(false))
   }, [])
@@ -119,20 +121,20 @@ export default function Configuracion2FA() {
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
               <span style={{ fontSize: 14, fontWeight: 600, color: "#222" }}>Autenticación de dos factores</span>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: totpEnabled ? "#ECECEC" : "#FFE6EA", color: totpEnabled ? "#666" : "#D84B5F" }}>
-                {totpEnabled ? "Activa" : "Desactivada"}
+              <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: "#ECFDF3", color: "#16A34A" }}>
+                Activa
               </span>
             </div>
             <div style={{ fontSize: 12.5, color: gris }}>
               {totpEnabled
-                ? "Tienes la autenticación móvil vinculada a tu cuenta de Scheduleo."
-                : "Añade una capa extra de protección a tu cuenta. Puedes usar una app de autenticación o email. Solo un método puede estar activo a la vez."}
+                ? "El codigo llega desde tu app de autenticacion (Google Authenticator / Authy) en cada inicio de sesion."
+                : "El codigo llega por email en cada inicio de sesion. Puedes cambiar a una app de autenticacion para mayor rapidez y seguridad."}
             </div>
           </div>
           {totpEnabled ? (
-            <button style={btnSecundario} onClick={apagar} disabled={apagando}>{apagando ? "Apagando..." : "Apagar"}</button>
+            <button style={btnSecundario} onClick={apagar} disabled={apagando}>{apagando ? "Cambiando..." : "Cambiar a email"}</button>
           ) : (
-            <button style={btnPrimario} onClick={() => setVista("modal")}>Activar</button>
+            <button style={btnPrimario} onClick={() => setVista("modal")}>Cambiar a app</button>
           )}
         </div>
       )}
