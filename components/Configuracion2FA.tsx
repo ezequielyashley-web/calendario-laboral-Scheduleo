@@ -20,6 +20,7 @@ export default function Configuracion2FA() {
   const [verificando, setVerificando] = useState(false)
   const [codigosBackup, setCodigosBackup] = useState<string[]>([])
   const [apagando, setApagando] = useState(false)
+  const [mensajeEmail, setMensajeEmail] = useState(false)
 
   useEffect(() => {
     fetch("/api/session-info").then(r => r.json()).then(d => {
@@ -135,6 +136,11 @@ export default function Configuracion2FA() {
           )}
         </div>
       )}
+      {vista === "card" && mensajeEmail && (
+        <div style={{ marginTop: 12, background: "#ECFDF3", border: "1px solid #16A34A33", color: "#166534", fontSize: 12.5, fontWeight: 600, padding: "10px 14px", borderRadius: 8 }}>
+          ✅ Listo: el 2FA se hara por email a partir de ahora.
+        </div>
+      )}
 
       {/* MODAL: elegir metodo */}
       {vista === "modal" && (
@@ -173,7 +179,9 @@ export default function Configuracion2FA() {
                     console.error("Error al desactivar TOTP:", e)
                   }
                   setTotpEnabled(false)
+                  setMensajeEmail(true)
                   setVista("card")
+                  setTimeout(() => setMensajeEmail(false), 4000)
                   return
                 }
                 setVista("app")
