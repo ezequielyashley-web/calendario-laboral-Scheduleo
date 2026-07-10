@@ -1109,7 +1109,6 @@ export default function ConfiguracionPage() {
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
             <button
               onClick={() => { setSubmenuTocadoManual(true); setSubmenuColapsado(c => !c) }}
-              title={submenuColapsado ? "Expandir menu" : "Colapsar menu"}
               style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-end", padding: "6px 8px", marginBottom: 10, background: "transparent", border: "none", borderRadius: 8, cursor: "pointer" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: submenuColapsado ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
                 <polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" />
