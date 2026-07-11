@@ -41,6 +41,10 @@ export default function PanelEjecutivoPage() {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<any>(null)
   const [vista, setVista] = useState<"directorio"|"comunicacion">("directorio")
   const [tabPerfil, setTabPerfil] = useState<"general"|"actividad">("general")
+  const [editandoPerfil, setEditandoPerfil] = useState(false)
+  const [formPerfil, setFormPerfil] = useState({ name: "", email: "", cargo: "", departamento: "" })
+  const [guardandoPerfil, setGuardandoPerfil] = useState(false)
+  const [errorPerfil, setErrorPerfil] = useState("")
   const [tabComs, setTabComs] = useState<"mensajes"|"email"|"actividad">("mensajes")
   const [mensajes, setMensajes] = useState<any[]>([])
   const [nuevoMensaje, setNuevoMensaje] = useState("")
@@ -309,7 +313,62 @@ export default function PanelEjecutivoPage() {
             </div>
 
             {tabPerfil === "general" && (
-              <div style={{ fontSize: 13, color: "#64748B" }}>Perfil completo disponible en la ficha detallada. Usa la pestana Comunicacion para chatear o enviar un email.</div>
+              usuarioSeleccionado.id === usuarioActual?.id ? (
+                editandoPerfil ? (
+                  <div>
+                    {errorPerfil && <div style={{ color: "#DC2626", fontSize: 12, marginBottom: 10 }}>{errorPerfil}</div>}
+                    {[
+                      { campo: "name", label: "Nombre" },
+                      { campo: "email", label: "Email" },
+                      { campo: "cargo", label: "Cargo" },
+                      { campo: "departamento", label: "Departamento" },
+                    ].map(f => (
+                      <div key={f.campo} style={{ marginBottom: 10 }}>
+                        <label style={{ fontSize: 10, color: "#94A3B8", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>{f.label}</label>
+                        <input
+                          value={(formPerfil as any)[f.campo]}
+                          onChange={e => setFormPerfil(p => ({ ...p, [f.campo]: e.target.value }))}
+                          style={{ width: "100%", padding: "8px 10px", border: "1px solid #E2E4E9", borderRadius: 8, fontSize: 13, boxSizing: "border-box" as const }}
+                        />
+                      </div>
+                    ))}
+                    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                      <button onClick={() => setEditandoPerfil(false)} style={{ background: "#F3F4F6", color: "#374151", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                      <button
+                        disabled={guardandoPerfil}
+                        onClick={async () => {
+                          setGuardandoPerfil(true); setErrorPerfil("")
+                          const res = await fetch("/api/panel-ejecutivo/actualizar-perfil", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formPerfil) })
+                          const data = await res.json()
+                          setGuardandoPerfil(false)
+                          if (data.error) { setErrorPerfil(data.error); return }
+                          const actualizado = { ...usuarioActual, name: data.name, email: data.email, cargo: data.cargo, departamento: data.departamento }
+                          setUsuarioActual(actualizado)
+                          sessionStorage.setItem("panelEjecutivoAuth", JSON.stringify(actualizado))
+                          cargar()
+                          setEditandoPerfil(false)
+                        }}
+                        style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                        {guardandoPerfil ? "Guardando..." : "Guardar"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ fontSize: 13, color: "#64748B", marginBottom: 12 }}>Este es tu perfil de Super Admin. Puedes editar tus datos.</div>
+                    <button
+                      onClick={() => {
+                        setFormPerfil({ name: usuarioSeleccionado.name || "", email: usuarioSeleccionado.email || "", cargo: usuarioSeleccionado.cargo || "", departamento: usuarioSeleccionado.departamento || "" })
+                        setEditandoPerfil(true)
+                      }}
+                      style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                      Editar mi perfil
+                    </button>
+                  </div>
+                )
+              ) : (
+                <div style={{ fontSize: 13, color: "#64748B" }}>Perfil completo disponible en la ficha detallada. Usa la pestana Comunicacion para chatear o enviar un email.</div>
+              )
             )}
             {tabPerfil === "actividad" && (
               <div style={{ fontSize: 13, color: "#64748B" }}>Ultima actividad: {tiempoDesde(usuarioSeleccionado.ultimaActividad)}</div>

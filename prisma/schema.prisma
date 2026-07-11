@@ -28,6 +28,8 @@ model User {
   totpEnabled         Boolean                @default(false)
   metodo2FA           String                 @default("email")
   backupCodes2FA      BackupCode2FA[]
+  cargo               String?
+  departamento        String?
 
   @@index([empresaId])
 }
