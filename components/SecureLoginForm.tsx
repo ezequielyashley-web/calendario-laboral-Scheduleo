@@ -328,7 +328,20 @@ export default function SecureLoginForm() {
               style={{width:'100%',height:46,background:'linear-gradient(135deg,#3b82f6,#1e40af)',color:'#fff',border:'none',borderRadius:10,fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:14}}>
               {verifyingTotp ? 'Verificando...' : 'Verificar codigo'}
             </button>
-            <p style={{color:'#93c5fd',fontSize:12}}>Tambien puedes usar un codigo de backup (formato XXXX-XXXX)</p>
+            <p style={{color:'#93c5fd',fontSize:12,marginBottom:10}}>Tambien puedes usar un codigo de backup (formato XXXX-XXXX)</p>
+            <button
+              onClick={async () => {
+                setErrorTotp('')
+                await fetch('/api/verificacion', {
+                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, action: 'send' })
+                })
+                setShow2FATotp(false)
+                setShow2FA(true)
+              }}
+              style={{background:'none',border:'none',color:'#dbeafe',fontSize:12.5,fontWeight:600,cursor:'pointer',textDecoration:'underline'}}>
+              ¿Perdiste acceso a tu app? Verificar por email
+            </button>
           </div>
         </div>
       )}
