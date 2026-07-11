@@ -175,10 +175,18 @@ export default function PanelEjecutivoPage() {
   const diasEnSistema = usuarioSeleccionado?.createdAt ? Math.floor((Date.now() - new Date(usuarioSeleccionado.createdAt).getTime()) / 86400000) : 0
 
   return (
-    <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", padding: "20px 24px" }}>
+    <div className="panel-ejec-responsive-wrap" style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", padding: "20px 24px" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .panel-ejec-responsive-wrap { padding: 12px !important; }
+          .panel-ejec-header-responsive { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+          .panel-ejec-tabs-responsive { flex-direction: column !important; }
+          .panel-ejec-grid-responsive { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       {/* Header ejecutivo */}
-      <div style={{ background: "linear-gradient(135deg,#FAFBFC,#F0F1F5)", border: "1px solid #E2E4E9", borderRadius: 16, padding: "18px 22px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(15,23,42,0.04)" }}>
+      <div className="panel-ejec-header-responsive" style={{ background: "linear-gradient(135deg,#FAFBFC,#F0F1F5)", border: "1px solid #E2E4E9", borderRadius: 16, padding: "18px 22px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(15,23,42,0.04)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg,#1E293B,#334155)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(30,41,59,0.25)" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="1.8"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z"/></svg>
@@ -201,7 +209,7 @@ export default function PanelEjecutivoPage() {
       </div>
 
       {/* Pestañas Directorio / Comunicacion */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      <div className="panel-ejec-tabs-responsive" style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <div onClick={() => setVista("directorio")} style={{ flex: 1, background: vista === "directorio" ? "#fff" : "#F9FAFB", border: `2px solid ${vista === "directorio" ? "#673DE6" : "#E2E4E9"}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", boxShadow: vista === "directorio" ? "0 4px 16px rgba(103,61,230,0.15)" : "none" }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: "#F5F3FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
@@ -223,7 +231,7 @@ export default function PanelEjecutivoPage() {
       </div>
 
       {/* Contenido principal */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 14, minHeight: 500 }}>
+      <div className="panel-ejec-grid-responsive" style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 14, minHeight: 500 }}>
 
         {/* Lista usuarios */}
         <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
