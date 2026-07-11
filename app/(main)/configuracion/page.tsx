@@ -1406,6 +1406,12 @@ export default function ConfiguracionPage() {
                               <button onClick={() => abrirModal(u.role === "PAUSADO" ? "reactivar" : "pausar", u)} style={{ background: u.role === "PAUSADO" ? "#059669" : "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>
                                 {u.role === "PAUSADO" ? "Activar" : "Pausar"}
                               </button>
+                              <button onClick={async () => {
+                                if (!confirm(`Resetear el 2FA de ${u.name || u.email}? Volvera a usar codigo por email.`)) return
+                                const res = await fetch("/api/2fa/admin-reset", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: u.id }) })
+                                const data = await res.json()
+                                alert(data.ok ? "2FA reseteado correctamente" : (data.error || "Error al resetear"))
+                              }} style={{ background: "#0891b2", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Reset 2FA</button>
                               <button onClick={() => abrirModal("borrar", u)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Borrar</button>
                             </div>
                           </td>
