@@ -240,6 +240,16 @@ model BackupCode2FA {
   @@index([userId])
 }
 
+model NotaPersonal {
+  id        String   @id @default(cuid())
+  userId    String
+  contenido String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
 model ReporteFallo {
   id           String   @id @default(cuid())
   descripcion  String
