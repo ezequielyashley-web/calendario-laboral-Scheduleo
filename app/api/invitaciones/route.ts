@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       to: emailLimpio,
       subject: `Invitacion de acceso e incorporacion — ${nombreEmpresa}`,
       html: `
-        <div style="max-width:580px;margin:0 auto;background:#ffffff;position:relative;font-family:Georgia,'Times New Roman',serif;padding:44px 48px;border:0.5px solid #E5E7EB;overflow:hidden">
+        <div style="max-width:580px;margin:0 auto;background:#ffffff;position:relative;font-family:Georgia,'Times New Roman',serif;padding:28px 20px;border:0.5px solid #E5E7EB;overflow:hidden">
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:0">
             <span style="font-size:480px;font-weight:500;color:#6B7280;opacity:0.09;font-family:Arial,sans-serif;line-height:1">S</span>
           </div>
