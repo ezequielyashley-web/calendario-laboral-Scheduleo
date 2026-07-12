@@ -27,6 +27,28 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
+
+    if (auth.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Solo el SUPER_ADMIN puede cancelar invitaciones" }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get("id")
+    if (!id) return NextResponse.json({ error: "Falta el id" }, { status: 400 })
+
+    await prisma.invitacion.delete({ where: { id } })
+
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error("Error en DELETE /api/invitaciones:", error)
+    return NextResponse.json({ error: "Error al cancelar la invitacion" }, { status: 500 })
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth(req)
