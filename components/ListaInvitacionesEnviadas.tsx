@@ -20,7 +20,11 @@ export default function ListaInvitacionesEnviadas() {
     }).catch(() => setCargando(false))
   }
 
-  useEffect(() => { cargar() }, [])
+  useEffect(() => {
+    cargar()
+    window.addEventListener("invitacionEnviada", cargar)
+    return () => window.removeEventListener("invitacionEnviada", cargar)
+  }, [])
 
   const cancelar = async (id: string) => {
     if (!confirm("¿Cancelar esta invitación? El enlace dejará de funcionar.")) return

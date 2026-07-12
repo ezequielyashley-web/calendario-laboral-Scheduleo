@@ -41,6 +41,7 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
     setEnviando(false)
     if (data.error) { setError(data.error); return }
     setEnviado(true)
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("invitacionEnviada"))
     setTimeout(() => onCerrar(), 1800)
   }
 
