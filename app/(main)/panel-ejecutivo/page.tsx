@@ -40,7 +40,7 @@ export default function PanelEjecutivoPage() {
   const [empresaNombre, setEmpresaNombre] = useState("")
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<any>(null)
   const [vista, setVista] = useState<"directorio"|"comunicacion">("directorio")
-  const [tabPerfil, setTabPerfil] = useState<"general"|"actividad">("general")
+  const [tabPerfil, setTabPerfil] = useState<"general"|"actividad"|"notas">("general")
   const [editandoPerfil, setEditandoPerfil] = useState(false)
   const [formPerfil, setFormPerfil] = useState({ name: "", email: "", cargo: "", departamento: "" })
   const [guardandoPerfil, setGuardandoPerfil] = useState(false)
