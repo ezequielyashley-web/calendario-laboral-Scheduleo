@@ -3,6 +3,7 @@
 
 import { useState, useEffect, Fragment } from "react"
 import PanelReportesFallo from "@/components/PanelReportesFallo"
+import InvitarPorCorreoModal from "@/components/InvitarPorCorreoModal"
 import PanelSeguridadCert from "@/components/PanelSeguridadCert"
 import Configuracion2FA from "@/components/Configuracion2FA"
 import dynamicImport from "next/dynamic"
@@ -1694,6 +1695,7 @@ export default function ConfiguracionPage() {
           </div>
         </div>
       )}
+      {mostrarInvitarModal && <InvitarPorCorreoModal onCerrar={() => setMostrarInvitarModal(false)} />}
     </div>
   )
 }
