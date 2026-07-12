@@ -4,14 +4,14 @@ import { prisma } from "@/lib/prisma"
 export async function GET() {
   try {
     const superAdmins = await prisma.$queryRaw`
-      SELECT id, name, email, cargo, genero, "ultimaActividad", "esFundador", "ordenSuperAdmin", "asignadoPor", "createdAt"
+      SELECT id, name, email, cargo, genero, "ultimaActividad", "esFundador", "ordenSuperAdmin", "asignadoPor", "createdAt", "totpEnabled", "metodo2FA"
       FROM "User"
       WHERE role = 'SUPER_ADMIN'
       ORDER BY "esFundador" DESC NULLS LAST, "ordenSuperAdmin" ASC NULLS LAST, "createdAt" ASC
     ` as any[]
 
     const gerenciales = await prisma.$queryRaw`
-      SELECT id, name, email, cargo, departamento, genero, "ultimaActividad", permisos, "createdAt"
+      SELECT id, name, email, cargo, departamento, genero, "ultimaActividad", permisos, "createdAt", "totpEnabled", "metodo2FA"
       FROM "User"
       WHERE role != 'SUPER_ADMIN'
       AND permisos IS NOT NULL
