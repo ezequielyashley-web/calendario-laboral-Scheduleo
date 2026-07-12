@@ -869,6 +869,7 @@ export default function ConfiguracionPage() {
   const [verificando, setVerificando] = useState(false)
   const [seccion, setSeccion] = useState("identidad")
   const [submenuColapsado, setSubmenuColapsado] = useState(false)
+  const [mostrarInvitarModal, setMostrarInvitarModal] = useState(false)
   const [submenuTocadoManual, setSubmenuTocadoManual] = useState(false)
 
   useEffect(() => {
@@ -1376,6 +1377,9 @@ export default function ConfiguracionPage() {
                 <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Gestión de usuarios</h2>
                 <button onClick={() => abrirModal("crear")} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
                   + Solicitar usuario gerencial
+                </button>
+                <button onClick={() => setMostrarInvitarModal(true)} style={{ background: "#fff", color: "#673DE6", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: 8 }}>
+                  Invitar por correo
                 </button>
               </div>
               <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, overflow: "hidden" }}>
