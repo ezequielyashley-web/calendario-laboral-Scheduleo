@@ -66,13 +66,15 @@ export async function PATCH(req: NextRequest) {
     const sol = solicitudes[0]
 
     if (accion === "aprobar") {
-      const rawPassword = Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!"
-      const hashedPassword = await bcrypt.hash(rawPassword, 10)
+      const vieneDeInvitacion = sol.origen === "invitacion" && sol.passwordHash
+      const rawPassword = vieneDeInvitacion ? null : (Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!")
+      const hashedPassword = vieneDeInvitacion ? sol.passwordHash : await bcrypt.hash(rawPassword!, 10)
+      const rolFinal = sol.cargo === "SUPER_ADMIN" ? "SUPER_ADMIN" : "EMPLEADO"
       await prisma.user.create({
         data: {
           email: sol.email.toLowerCase(),
           name: sol.nombre,
-          role: "EMPLEADO",
+          role: rolFinal,
           password: hashedPassword,
           empresaId: "empresa-001"
         }
@@ -85,15 +87,19 @@ export async function PATCH(req: NextRequest) {
       await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
 
       const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
-      const emailResult = await enviarEmailAccesoTemporal({
-        nombre: sol.nombre,
-        email: sol.email,
-        contrasenaTemporal: rawPassword,
-        empresaNombre: empresa?.nombre || "Tu empresa",
-        loginUrl: process.env.NEXTAUTH_URL || "http://localhost:3000",
-      })
+      let emailEnviado = false
+      if (!vieneDeInvitacion) {
+        const emailResult = await enviarEmailAccesoTemporal({
+          nombre: sol.nombre,
+          email: sol.email,
+          contrasenaTemporal: rawPassword!,
+          empresaNombre: empresa?.nombre || "Tu empresa",
+          loginUrl: process.env.NEXTAUTH_URL || "http://localhost:3000",
+        })
+        emailEnviado = emailResult.ok
+      }
 
-      return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email, emailEnviado: emailResult.ok })
+      return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email, emailEnviado })
     }
 
     if (accion === "rechazar") {
