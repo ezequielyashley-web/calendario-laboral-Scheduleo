@@ -101,6 +101,43 @@ export default function PanelEjecutivoPage() {
     return () => { clearInterval(t); clearInterval(intervalRef.current) }
   }, [autenticado, usuarioActual])
 
+  const cargarNotas = async () => {
+    setCargandoNotas(true)
+    const res = await fetch("/api/notas-personales").catch(() => null)
+    if (res?.ok) { const d = await res.json(); setNotas(Array.isArray(d) ? d : []) }
+    setCargandoNotas(false)
+  }
+
+  useEffect(() => {
+    if (tabPerfil === "notas" && usuarioSeleccionado?.id === usuarioActual?.id) cargarNotas()
+  }, [tabPerfil, usuarioSeleccionado])
+
+  const crearNota = async () => {
+    if (!notaNueva.trim()) return
+    setGuardandoNota(true)
+    const res = await fetch("/api/notas-personales", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contenido: notaNueva })
+    })
+    const nota = await res.json()
+    setGuardandoNota(false)
+    if (!nota.error) { setNotas(prev => [nota, ...prev]); setNotaNueva("") }
+  }
+
+  const guardarEdicionNota = async (id: string) => {
+    if (!textoEdicion.trim()) return
+    const res = await fetch("/api/notas-personales", {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, contenido: textoEdicion })
+    })
+    const actualizada = await res.json()
+    if (!actualizada.error) { setNotas(prev => prev.map(n => n.id === id ? actualizada : n)); setNotaEditando(null) }
+  }
+
+  const borrarNota = async (id: string) => {
+    if (!confirm("Borrar esta nota?")) return
+    setNotas(prev => prev.filter(n => n.id !== id))
+    await fetch(`/api/notas-personales?id=${id}`, { method: "DELETE" })
+  }
+
   const cargarMensajes = async (userId: string) => {
     const res = await fetch(`/api/panel-ejecutivo/mensajes?yo=${usuarioActual?.id}&con=${userId}`).catch(() => null)
     if (res?.ok) { const d = await res.json(); setMensajes(Array.isArray(d) ? d : []) }
