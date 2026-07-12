@@ -472,6 +472,28 @@ export default function PanelEjecutivoPage() {
                 )}
               </div>
             )}
+            {tabPerfil === "seguridad" && (
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#F9FAFB", border: "1px solid #E2E4E9", borderRadius: 10, padding: 14 }}>
+                  <div>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: "#0F172A" }}>Autenticacion de dos factores</div>
+                    <div style={{ fontSize: 11.5, color: "#64748B", marginTop: 2 }}>
+                      {usuarioSeleccionado.totpEnabled ? "Usa una app de autenticacion" : "Usa codigo por email"}
+                    </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`Resetear el 2FA de ${usuarioSeleccionado.name || usuarioSeleccionado.email}? Volvera a usar codigo por email.`)) return
+                      const res = await fetch("/api/2fa/admin-reset", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: usuarioSeleccionado.id }) })
+                      const data = await res.json()
+                      alert(data.ok ? "2FA reseteado correctamente" : (data.error || "Error al resetear"))
+                    }}
+                    style={{ background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                    Reset 2FA
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
