@@ -250,6 +250,20 @@ model NotaPersonal {
   @@index([userId])
 }
 
+model Invitacion {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  rol       String   @default("GERENCIAL")
+  permisos  Json     @default("{}")
+  estado    String   @default("pendiente")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+
 model ReporteFallo {
   id           String   @id @default(cuid())
   descripcion  String
