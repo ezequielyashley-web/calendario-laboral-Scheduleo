@@ -7,6 +7,26 @@ import crypto from "crypto"
 export const runtime = "nodejs"
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+export async function GET(req: NextRequest) {
+  try {
+    const auth = await requireAuth(req)
+    if (isUnauthorized(auth)) return auth
+
+    if (auth.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Solo el SUPER_ADMIN puede ver las invitaciones" }, { status: 403 })
+    }
+
+    const invitaciones = await prisma.invitacion.findMany({
+      orderBy: { createdAt: "desc" }
+    })
+
+    return NextResponse.json(invitaciones)
+  } catch (error) {
+    console.error("Error en GET /api/invitaciones:", error)
+    return NextResponse.json({ error: "Error al obtener las invitaciones" }, { status: 500 })
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth(req)
