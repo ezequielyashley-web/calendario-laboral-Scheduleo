@@ -416,6 +416,62 @@ export default function PanelEjecutivoPage() {
             {tabPerfil === "actividad" && (
               <div style={{ fontSize: 13, color: "#64748B" }}>Ultima actividad: {tiempoDesde(usuarioSeleccionado.ultimaActividad)}</div>
             )}
+            {tabPerfil === "notas" && (
+              <div>
+                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                  <textarea
+                    value={notaNueva}
+                    onChange={e => setNotaNueva(e.target.value)}
+                    placeholder="Escribe una nota privada..."
+                    rows={2}
+                    style={{ flex: 1, padding: "8px 10px", border: "1px solid #E2E4E9", borderRadius: 8, fontSize: 13, resize: "vertical" as const, fontFamily: "inherit" }}
+                  />
+                  <button
+                    onClick={crearNota}
+                    disabled={guardandoNota || !notaNueva.trim()}
+                    style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "0 16px", fontSize: 12, fontWeight: 600, cursor: "pointer", opacity: (!notaNueva.trim() || guardandoNota) ? 0.5 : 1 }}>
+                    Añadir
+                  </button>
+                </div>
+                {cargandoNotas ? (
+                  <div style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", padding: 20 }}>Cargando...</div>
+                ) : notas.length === 0 ? (
+                  <div style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", padding: 20 }}>No tienes notas todavia</div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {notas.map((n: any) => (
+                      <div key={n.id} style={{ background: "#FAFBFC", border: "1px solid #EEF0F3", borderRadius: 10, padding: 12 }}>
+                        {notaEditando === n.id ? (
+                          <div>
+                            <textarea
+                              value={textoEdicion}
+                              onChange={e => setTextoEdicion(e.target.value)}
+                              rows={2}
+                              style={{ width: "100%", padding: "8px 10px", border: "1px solid #E2E4E9", borderRadius: 8, fontSize: 13, resize: "vertical" as const, fontFamily: "inherit", boxSizing: "border-box" as const, marginBottom: 8 }}
+                            />
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button onClick={() => setNotaEditando(null)} style={{ background: "#F3F4F6", color: "#374151", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                              <button onClick={() => guardarEdicionNota(n.id)} style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Guardar</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div style={{ fontSize: 13, color: "#0F172A", whiteSpace: "pre-wrap" as const, marginBottom: 8 }}>{n.contenido}</div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontSize: 10, color: "#94A3B8" }}>{new Date(n.updatedAt).toLocaleString("es-ES")}</span>
+                              <div style={{ display: "flex", gap: 6 }}>
+                                <button onClick={() => { setNotaEditando(n.id); setTextoEdicion(n.contenido) }} style={{ background: "none", border: "none", color: "#673DE6", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Editar</button>
+                                <button onClick={() => borrarNota(n.id)} style={{ background: "none", border: "none", color: "#DC2626", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Borrar</button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
