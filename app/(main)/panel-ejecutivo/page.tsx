@@ -40,7 +40,7 @@ export default function PanelEjecutivoPage() {
   const [empresaNombre, setEmpresaNombre] = useState("")
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<any>(null)
   const [vista, setVista] = useState<"directorio"|"comunicacion">("directorio")
-  const [tabPerfil, setTabPerfil] = useState<"general"|"actividad"|"notas">("general")
+  const [tabPerfil, setTabPerfil] = useState<"general"|"actividad"|"notas"|"seguridad">("general")
   const [editandoPerfil, setEditandoPerfil] = useState(false)
   const [formPerfil, setFormPerfil] = useState({ name: "", email: "", cargo: "", departamento: "" })
   const [guardandoPerfil, setGuardandoPerfil] = useState(false)
@@ -350,7 +350,7 @@ export default function PanelEjecutivoPage() {
             </div>
 
             <div style={{ display: "flex", gap: 6, borderBottom: "1px solid #EEF0F3", paddingBottom: 2, marginBottom: 16 }}>
-              {(usuarioSeleccionado.id === usuarioActual?.id ? ["general", "actividad", "notas"] as const : ["general", "actividad"] as const).map(t => (
+              {(usuarioSeleccionado.id === usuarioActual?.id ? ["general", "actividad", "notas"] as const : ["general", "actividad", "seguridad"] as const).map(t => (
                 <span key={t} onClick={() => setTabPerfil(t)} style={{ fontSize: 12, fontWeight: tabPerfil === t ? 700 : 500, color: tabPerfil === t ? "#0F172A" : "#94A3B8", padding: "8px 12px", borderBottom: `2px solid ${tabPerfil === t ? "#673DE6" : "transparent"}`, cursor: "pointer", textTransform: "capitalize" as const }}>{t}</span>
               ))}
             </div>
