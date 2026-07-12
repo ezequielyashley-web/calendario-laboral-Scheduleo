@@ -77,11 +77,8 @@ export async function POST(req: NextRequest) {
       to: emailLimpio,
       subject: `Invitacion de acceso e incorporacion — ${nombreEmpresa}`,
       html: `
-        <div style="max-width:580px;margin:0 auto;background:#ffffff;position:relative;font-family:Georgia,'Times New Roman',serif;padding:28px 20px;border:0.5px solid #E5E7EB;overflow:hidden">
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:0">
-            <span style="font-size:480px;font-weight:500;color:#6B7280;opacity:0.09;font-family:Arial,sans-serif;line-height:1">S</span>
-          </div>
-          <div style="position:relative;z-index:1">
+        <div style="max-width:580px;margin:0 auto;background-color:#ffffff;background-image:url(&#39;data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22500%22 height=%22500%22%3E%3Ctext x=%22250%22 y=%22330%22 font-family=%22Arial,sans-serif%22 font-size=%22380%22 font-weight=%22bold%22 fill=%22%236B7280%22 fill-opacity=%220.08%22 text-anchor=%22middle%22%3ES%3C/text%3E%3C/svg%3E&#39;);background-repeat:no-repeat;background-position:center center;font-family:Georgia,'Times New Roman',serif;padding:28px 20px;border:0.5px solid #E5E7EB">
+          <div>
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;font-family:Arial,sans-serif">
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="width:22px;height:22px;border-radius:6px;background:#1E1B2E;display:flex;align-items:center;justify-content:center">
