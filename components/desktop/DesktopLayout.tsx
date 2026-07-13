@@ -345,7 +345,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }
 
   const sidebarBgDark = empresa?.colorSidebar || '#2d2b55'
-  const sidebarBg = isLight ? '#ffffff' : sidebarBgDark
+  const sidebarBg = isLight ? 'linear-gradient(165deg, #8B95A3 0%, #5A6577 30%, #3A4351 60%, #1F252E 100%)' : sidebarBgDark
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
@@ -353,12 +353,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
-        .light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }
-        .light-mode .nav-item:hover { background: #F3F4F6 !important; }
-        .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
-        .light-mode .nav-item { color: #374151 !important; }
-        .light-mode .nav-item:hover { background: #F3F4F6 !important; color: #111827 !important; }
-        .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
+        .light-mode .nav-item { color: rgba(255,255,255,0.88) !important; font-weight: 600 !important; font-size: 14px !important; }
+        .light-mode .nav-item:hover { background: rgba(255,255,255,0.1) !important; }
+        .light-mode .nav-item.active { background: rgba(255,255,255,0.18) !important; color: #fff !important; font-weight: 700 !important; }
+        .light-mode .nav-item { color: rgba(255,255,255,0.75) !important; }
+        .light-mode .nav-item:hover { background: rgba(255,255,255,0.1) !important; color: #fff !important; }
+        .light-mode .nav-item.active { background: rgba(255,255,255,0.18) !important; color: #fff !important; font-weight: 700 !important; }
         .light-mode .nav-section-label { color: #9CA3AF !important; }
         .nav-item { display:flex; align-items:center; gap:10px; padding:7px 10px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:400; color:var(--sidebar-text); transition:background 0.15s; cursor:pointer; }
         .nav-item:hover { background:var(--sidebar-hover); }
