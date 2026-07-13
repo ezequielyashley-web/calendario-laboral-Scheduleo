@@ -450,7 +450,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
                   >
-                    <span style={{ flexShrink:0, opacity: isActive ? 1 : (isLight ? 0.6 : 0.75), fontSize: isLight ? '18px' : 'inherit' }}>{item.icon}</span>
+                    <span style={{ flexShrink:0, opacity: isActive ? 1 : (isLight ? 0.8 : 0.75), fontSize: isLight ? '21px' : 'inherit' }}>{item.icon}</span>
                     {open && <span className="nav-label">{item.label}</span>}
                     {item.href === '/notificaciones' && noLeidas > 0 && (
                       <span style={{ marginLeft:'auto', background:'#dc2626', color:'#fff', borderRadius:'50%', fontSize:10, fontWeight:700, minWidth:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>
