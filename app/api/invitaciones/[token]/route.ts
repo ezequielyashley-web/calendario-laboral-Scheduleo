@@ -47,7 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
     await prisma.$executeRaw`
       INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "passwordHash", origen, permisos, estado, "creadaEn")
-      VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'pendiente', NOW())
+      VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'pendiente', NOW())
     `
 
     await prisma.invitacion.update({
