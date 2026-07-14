@@ -13,6 +13,21 @@ const labelStyle: React.CSSProperties = {
   fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const
 }
 
+const MODULOS = [
+  { modulo: "Empleados", ver: "empleados_ver", mod: "empleados_mod" },
+  { modulo: "Vacaciones", ver: "vacaciones_ver", mod: "vacaciones_mod" },
+  { modulo: "Fichajes", ver: "fichajes_ver", mod: "fichajes_mod" },
+  { modulo: "Reportes", ver: "reportes_ver", mod: "reportes_mod" },
+  { modulo: "Bajas medicas", ver: "bajas_ver", mod: "bajas_mod" },
+  { modulo: "Cambios de turno", ver: "cambios_ver", mod: "cambios_mod" },
+  { modulo: "Deudas", ver: "deudas_ver", mod: "deudas_mod" },
+  { modulo: "Grupos", ver: "grupos_ver", mod: "grupos_mod" },
+  { modulo: "Libranzas", ver: "libranzas_ver", mod: "libranzas_mod" },
+  { modulo: "Minimos por puesto", ver: "minimos_ver", mod: "minimos_mod" },
+  { modulo: "Calendario", ver: "calendario_ver", mod: "calendario_mod" },
+  { modulo: "Configuracion", ver: "config_ver", mod: "config_mod" },
+]
+
 export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => void }) {
   const [email, setEmail] = useState("")
   const [rol, setRol] = useState("GERENCIAL")
@@ -23,19 +38,25 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
   const [horario, setHorario] = useState("")
   const [sueldoBase, setSueldoBase] = useState("")
   const [funciones, setFunciones] = useState("")
+  const [permisos, setPermisos] = useState<Record<string, boolean>>({})
 
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState("")
   const [enviado, setEnviado] = useState(false)
 
+  const togglePermiso = (clave: string) => {
+    setPermisos(prev => ({ ...prev, [clave]: !prev[clave] }))
+  }
+
   const enviar = async () => {
     setError("")
     if (!email.trim()) { setError("El email es obligatorio"); return }
+    if (Object.keys(permisos).filter(k => permisos[k]).length === 0) { setError("Debes asignar al menos un permiso de acceso al sistema"); return }
     setEnviando(true)
     const res = await fetch("/api/invitaciones", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, rol, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, permisos: {} })
+      body: JSON.stringify({ email, rol, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, permisos })
     })
     const data = await res.json()
     setEnviando(false)
@@ -47,7 +68,7 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
 
   return (
     <div onClick={onCerrar} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 16, padding: 28, width: "100%", maxWidth: 460, maxHeight: "88vh", overflowY: "auto" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 16, padding: 28, width: "100%", maxWidth: 480, maxHeight: "88vh", overflowY: "auto" }}>
 
         {enviado ? (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -116,6 +137,26 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
               style={{ ...inputStyle, resize: "vertical" as const, fontFamily: "inherit" }}
               placeholder={"Gestión de turnos del personal\nAprobación de vacaciones y bajas"}
             />
+
+            <label style={labelStyle}>Acceso al sistema</label>
+            <div style={{ background: "#F8FAFC", borderRadius: 10, border: `1px solid ${grisClaro}`, marginBottom: 14, overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 90px", background: "#F1F5F9", borderBottom: `1px solid ${grisClaro}` }}>
+                <div style={{ padding: "7px 12px", fontSize: 10.5, fontWeight: 700, color: "#94A3B8" }}>MODULO</div>
+                <div style={{ padding: "7px 0", fontSize: 10.5, fontWeight: 700, color: "#94A3B8", textAlign: "center" as const }}>VER</div>
+                <div style={{ padding: "7px 0", fontSize: 10.5, fontWeight: 700, color: "#94A3B8", textAlign: "center" as const }}>MODIFICAR</div>
+              </div>
+              {MODULOS.map(m => (
+                <div key={m.modulo} style={{ display: "grid", gridTemplateColumns: "1fr 70px 90px", borderBottom: "1px solid #EEF0F3", alignItems: "center" }}>
+                  <div style={{ padding: "7px 12px", fontSize: 12, color: "#374151" }}>{m.modulo}</div>
+                  <div style={{ textAlign: "center" as const }}>
+                    <input type="checkbox" checked={!!permisos[m.ver]} onChange={() => togglePermiso(m.ver)} style={{ cursor: "pointer" }} />
+                  </div>
+                  <div style={{ textAlign: "center" as const }}>
+                    <input type="checkbox" checked={!!permisos[m.mod]} onChange={() => togglePermiso(m.mod)} style={{ cursor: "pointer" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
 
             {error && <div style={{ color: "#DC2626", fontSize: 12.5, marginBottom: 12 }}>{error}</div>}
 
