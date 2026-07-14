@@ -5,6 +5,7 @@ import { useState, useEffect, Fragment } from "react"
 import PanelReportesFallo from "@/components/PanelReportesFallo"
 import InvitarPorCorreoModal from "@/components/InvitarPorCorreoModal"
 import ListaInvitacionesEnviadas from "@/components/ListaInvitacionesEnviadas"
+import ListaSolicitudesPendientes from "@/components/ListaSolicitudesPendientes"
 import PanelSeguridadCert from "@/components/PanelSeguridadCert"
 import Configuracion2FA from "@/components/Configuracion2FA"
 import dynamicImport from "next/dynamic"
@@ -1375,6 +1376,7 @@ export default function ConfiguracionPage() {
           {seccion === "reportes" && <PanelReportesFallo />}
           {seccion === "usuarios" && (
             <div>
+              <ListaSolicitudesPendientes />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Gestión de usuarios</h2>
                 <button onClick={() => abrirModal("crear")} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
