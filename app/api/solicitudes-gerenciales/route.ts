@@ -76,7 +76,9 @@ export async function PATCH(req: NextRequest) {
           name: sol.nombre,
           role: rolFinal,
           password: hashedPassword,
-          empresaId: "empresa-001"
+          empresaId: "empresa-001",
+          permisos: sol.permisos || {},
+          departamento: sol.departamento || null,
         }
       })
       const aprobada = "aprobada"

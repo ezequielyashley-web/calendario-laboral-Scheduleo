@@ -30,6 +30,7 @@ model User {
   backupCodes2FA      BackupCode2FA[]
   cargo               String?
   departamento        String?
+  permisos            Json?    @default("{}")
 
   @@index([empresaId])
 }
