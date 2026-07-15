@@ -2,6 +2,32 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { unstable_cache, revalidateTag } from "next/cache"
+
+async function fetchPuestosConEmpleados(empresaId: string) {
+  const puestos = await prisma.$queryRaw`
+    SELECT p.*,
+      COUNT(e.id)::int as total_empleados
+    FROM "PuestoDeTrabajo" p
+    LEFT JOIN "Empleado" e ON e."puestoDeTrabajoId" = p.id
+    WHERE p."empresaId" = ${empresaId}
+    GROUP BY p.id
+    ORDER BY p.nombre ASC
+  ` as any[]
+
+  const puestosConEmpleados = await Promise.all(puestos.map(async (p: any) => {
+    const empleados = await prisma.$queryRaw`
+      SELECT id, nombre, apellidos, "numeroEmpleado", "grupoTrabajoId"
+      FROM "Empleado"
+      WHERE "puestoDeTrabajoId" = ${p.id}
+      AND "esDemostracion" = false
+      ORDER BY nombre ASC
+    ` as any[]
+    return { ...p, empleados }
+  }))
+
+  return puestosConEmpleados
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,26 +36,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId") || "empresa-001"
 
-    const puestos = await prisma.$queryRaw`
-      SELECT p.*,
-        COUNT(e.id)::int as total_empleados
-      FROM "PuestoDeTrabajo" p
-      LEFT JOIN "Empleado" e ON e."puestoDeTrabajoId" = p.id
-      WHERE p."empresaId" = ${empresaId}
-      GROUP BY p.id
-      ORDER BY p.nombre ASC
-    ` as any[]
-
-    const puestosConEmpleados = await Promise.all(puestos.map(async (p: any) => {
-      const empleados = await prisma.$queryRaw`
-        SELECT id, nombre, apellidos, "numeroEmpleado", "grupoTrabajoId"
-        FROM "Empleado"
-        WHERE "puestoDeTrabajoId" = ${p.id}
-        AND "esDemostracion" = false
-        ORDER BY nombre ASC
-      ` as any[]
-      return { ...p, empleados }
-    }))
+    const cached = unstable_cache(
+      () => fetchPuestosConEmpleados(empresaId),
+      [`puestos-${empresaId}`],
+      { tags: ["puestos"] }
+    )
+    const puestosConEmpleados = await cached()
 
     return NextResponse.json(puestosConEmpleados)
   } catch (error) {
@@ -57,6 +69,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO "PuestoDeTrabajo" (id, "empresaId", nombre, descripcion, "createdAt", "updatedAt")
       VALUES (${id}, ${empresaId || "empresa-001"}, ${nombre}, ${descripcion || ""}, NOW(), NOW())
     `
+    revalidateTag("puestos", { expire: 0 })
     return NextResponse.json({ ok: true, id })
   } catch (error) {
     console.error(error)
@@ -83,6 +96,7 @@ export async function PATCH(req: NextRequest) {
         UPDATE "PuestoDeTrabajo" SET nombre = ${nombre}, descripcion = ${descripcion}, "updatedAt" = NOW()
         WHERE id = ${id}
       `
+      revalidateTag("puestos", { expire: 0 })
       return NextResponse.json({ ok: true })
     }
 
@@ -134,6 +148,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     await prisma.$executeRaw`DELETE FROM "PuestoDeTrabajo" WHERE id = ${id}`
+    revalidateTag("puestos", { expire: 0 })
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error(error)

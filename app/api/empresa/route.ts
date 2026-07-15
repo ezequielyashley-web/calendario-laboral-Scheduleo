@@ -3,13 +3,23 @@ import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit"
+import { unstable_cache, revalidateTag } from "next/cache"
 
-export async function GET() {
-  try {
+const getCachedEmpresa = unstable_cache(
+  async () => {
     const empresa = await prisma.$queryRaw`
       SELECT * FROM "Empresa" WHERE id = 'empresa-001' LIMIT 1
     ` as any[]
-    return NextResponse.json(empresa[0] || {})
+    return empresa[0] || {}
+  },
+  ["empresa-001"],
+  { tags: ["empresa"] }
+)
+
+export async function GET() {
+  try {
+    const empresa = await getCachedEmpresa()
+    return NextResponse.json(empresa)
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al obtener empresa" }, { status: 500 })
@@ -65,6 +75,7 @@ export async function PATCH(req: NextRequest) {
       WHERE id = 'empresa-001'
     `
 
+    revalidateTag("empresa", { expire: 0 })
     const updated = await prisma.$queryRaw`SELECT * FROM "Empresa" WHERE id = 'empresa-001' LIMIT 1` as any[]
     return NextResponse.json(updated[0])
   } catch (error) {

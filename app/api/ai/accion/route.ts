@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { revalidateTag } from "next/cache"
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
         INSERT INTO "GrupoTrabajo" (id, "empresaId", nombre, descripcion, color, "createdAt", "updatedAt")
         VALUES (${id}, 'empresa-001', ${nombre}, ${descripcion || null}, ${color || '#673DE6'}, NOW(), NOW())
       `
+      revalidateTag("grupos-trabajo", { expire: 0 })
       return NextResponse.json({ ok: true, mensaje: `Grupo "${nombre}" creado correctamente.` })
     }
 
@@ -77,6 +79,7 @@ export async function POST(req: NextRequest) {
       if (total > 0) return NextResponse.json({ error: `No se puede eliminar el grupo "${grupo[0].nombre}" porque tiene ${total} empleados asignados. Reasigna a los empleados primero.` }, { status: 400 })
 
       await prisma.$executeRaw`DELETE FROM "GrupoTrabajo" WHERE id = ${grupo[0].id}`
+      revalidateTag("grupos-trabajo", { expire: 0 })
       return NextResponse.json({ ok: true, mensaje: `Grupo "${grupo[0].nombre}" eliminado correctamente.` })
     }
 
