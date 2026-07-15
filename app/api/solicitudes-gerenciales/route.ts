@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
       })
 
       await prisma.$executeRaw`
-        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
-        VALUES (${id}, ${nombre}, ${emailLimpio}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""}, 'aprobada', NOW(), NOW(), true)
+        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "rol", telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
+        VALUES (${id}, ${nombre}, ${emailLimpio}, ${cargo}, ${rolFinal}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""}, 'aprobada', NOW(), NOW(), true)
       `
 
       const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
@@ -84,8 +84,8 @@ export async function POST(req: NextRequest) {
     }
 
     await prisma.$executeRaw`
-      INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
-      VALUES (gen_random_uuid()::text, ${nombre}, ${emailLimpio}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
+      INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "rol", telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
+      VALUES (gen_random_uuid()::text, ${nombre}, ${emailLimpio}, ${cargo}, ${rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : "GERENCIAL"}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
     `
     return NextResponse.json({ ok: true })
   } catch (error) {
@@ -116,7 +116,7 @@ export async function PATCH(req: NextRequest) {
       const vieneDeInvitacion = sol.origen === "invitacion" && sol.passwordHash
       const rawPassword = vieneDeInvitacion ? null : (Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!")
       const hashedPassword = vieneDeInvitacion ? sol.passwordHash : await bcrypt.hash(rawPassword!, 10)
-      const rolFinal = sol.cargo === "SUPER_ADMIN" ? "SUPER_ADMIN" : "EMPLEADO"
+      const rolFinal = sol.rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : (sol.rol === "GERENCIAL" ? "GERENCIAL" : (sol.cargo === "SUPER_ADMIN" ? "SUPER_ADMIN" : "EMPLEADO"))
       await prisma.user.create({
         data: {
           email: sol.email.toLowerCase(),
