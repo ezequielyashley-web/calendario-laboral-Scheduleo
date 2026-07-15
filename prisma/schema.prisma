@@ -252,21 +252,23 @@ model NotaPersonal {
 }
 
 model Invitacion {
-  id           String   @id @default(cuid())
-  email        String
-  token        String   @unique
-  rol          String   @default("GERENCIAL")
-  permisos     Json     @default("{}")
-  estado       String   @default("pendiente")
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  cargo        String?
-  departamento String?
-  tipoContrato String?
-  jornada      String?
-  horario      String?
-  sueldoBase   Decimal?
-  funciones    String?
+  id                    String   @id @default(cuid())
+  email                 String
+  token                 String   @unique
+  rol                   String   @default("GERENCIAL")
+  permisos              Json     @default("{}")
+  estado                String   @default("pendiente")
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+  cargo                 String?
+  departamento          String?
+  tipoContrato          String?
+  jornada               String?
+  horario               String?
+  sueldoBase            Decimal?
+  funciones             String?
+  activacionAutomatica  Boolean  @default(false)
+  nombre                String?
 
   @@index([token])
   @@index([email])

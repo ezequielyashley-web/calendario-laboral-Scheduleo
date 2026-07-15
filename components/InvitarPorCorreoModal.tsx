@@ -30,7 +30,9 @@ const MODULOS = [
 
 export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => void }) {
   const [email, setEmail] = useState("")
+  const [nombre, setNombre] = useState("")
   const [rol, setRol] = useState("GERENCIAL")
+  const [activacionAutomatica, setActivacionAutomatica] = useState(false)
   const [cargo, setCargo] = useState("")
   const [departamento, setDepartamento] = useState("")
   const [tipoContrato, setTipoContrato] = useState("indefinido")
@@ -56,7 +58,7 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
     const res = await fetch("/api/invitaciones", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, rol, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, permisos })
+      body: JSON.stringify({ email, nombre, rol, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, permisos, activacionAutomatica })
     })
     const data = await res.json()
     setEnviando(false)
@@ -79,6 +81,9 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
           <>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 4 }}>Invitar por correo</div>
             <div style={{ fontSize: 12.5, color: gris, marginBottom: 18 }}>La persona recibirá un correo con un enlace de un solo uso para crear su propia cuenta.</div>
+
+            <label style={labelStyle}>Nombre</label>
+            <input value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} placeholder="Nombre y apellidos" />
 
             <label style={labelStyle}>Email</label>
             <input value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="nombre@ejemplo.com" />
@@ -156,6 +161,14 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#F8FAFC", border: `1px solid ${grisClaro}`, borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>Activación automática</div>
+                <div style={{ fontSize: 11, color: gris, marginTop: 2 }}>La cuenta se activará sola al completar el registro, sin pasar por tu aprobación manual.</div>
+              </div>
+              <input type="checkbox" checked={activacionAutomatica} onChange={e => setActivacionAutomatica(e.target.checked)} style={{ cursor: "pointer", width: 18, height: 18, flexShrink: 0, marginLeft: 12 }} />
             </div>
 
             {error && <div style={{ color: "#DC2626", fontSize: 12.5, marginBottom: 12 }}>{error}</div>}

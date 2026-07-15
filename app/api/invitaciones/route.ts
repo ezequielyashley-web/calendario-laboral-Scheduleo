@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Solo el SUPER_ADMIN puede invitar nuevos usuarios" }, { status: 403 })
     }
 
-    const { email, rol, permisos, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones } = await req.json()
+    const { email, nombre, rol, permisos, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, activacionAutomatica } = await req.json()
     if (!email || !email.trim()) {
       return NextResponse.json({ error: "El email es obligatorio" }, { status: 400 })
     }
@@ -87,6 +87,8 @@ export async function POST(req: NextRequest) {
         horario: horario || null,
         sueldoBase: sueldoBase ? parseFloat(sueldoBase) : null,
         funciones: funciones || null,
+        activacionAutomatica: activacionAutomatica === true,
+        nombre: nombre ? nombre.trim() : null,
       }
     })
 
@@ -132,7 +134,7 @@ export async function POST(req: NextRequest) {
             <span style="font-size:10px;color:#9CA3AF">${fechaHoy}</span>
           </div>
           <p style="font-size:10.5px;color:#9CA3AF;font-family:Arial,sans-serif;margin:0 0 22px">Asunto: invitacion de acceso e incorporacion al puesto en ${nombreEmpresa}</p>
-          <p style="font-size:12.5px;color:#1E1B2E;line-height:1.75;margin:0 0 16px">Estimado/a Sr./Sra.:</p>
+          <p style="font-size:12.5px;color:#1E1B2E;line-height:1.75;margin:0 0 16px">Estimado/a ${nombre && nombre.trim() ? nombre.trim() : "Sr./Sra."}:</p>
           <p style="font-size:12.5px;color:#2D2A3A;line-height:1.75;margin:0 0 16px;text-align:justify">
             Por medio de la presente, la direccion de <strong>${nombreEmpresa}</strong> le comunica que ha sido designado/a para incorporarse a la empresa con las siguientes condiciones, y para acceder al sistema de gestion laboral <strong>Scheduleo</strong> con perfil ${rol === "SUPER_ADMIN" ? "de administracion" : "gerencial"}:
           </p>

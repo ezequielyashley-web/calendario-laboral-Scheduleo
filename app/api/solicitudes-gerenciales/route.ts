@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 import { enviarEmailAccesoTemporal } from "@/lib/email"
 
 export async function GET() {
@@ -32,13 +33,59 @@ export async function POST(req: NextRequest) {
     const auth = await requireAuth(req)
     if (isUnauthorized(auth)) return auth
     const body = await req.json()
-    const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje } = body
+    const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje, rol, activacionAutomatica } = body
     const sueldoBase = body.sueldoBase ? parseFloat(body.sueldoBase) : null
     if (!nombre || !email || !cargo) return NextResponse.json({ error: "Nombre, email y cargo son obligatorios" }, { status: 400 })
 
+    const emailLimpio = email.toLowerCase().trim()
+
+    if (activacionAutomatica === true) {
+      const yaExiste = await prisma.user.findUnique({ where: { email: emailLimpio } })
+      if (yaExiste) return NextResponse.json({ error: "Ya existe una cuenta con ese email" }, { status: 400 })
+
+      const rolFinal = rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : (rol === "GERENCIAL" ? "GERENCIAL" : "EMPLEADO")
+      const rawPassword = Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!"
+      const hashedPassword = await bcrypt.hash(rawPassword, 10)
+      const id = crypto.randomUUID()
+
+      await prisma.user.create({
+        data: {
+          email: emailLimpio,
+          name: nombre,
+          role: rolFinal,
+          password: hashedPassword,
+          empresaId: "empresa-001",
+          permisos: permisos || {},
+          departamento: departamento || null,
+          cargo: cargo || null,
+        }
+      })
+
+      await prisma.$executeRaw`
+        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
+        VALUES (${id}, ${nombre}, ${emailLimpio}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""}, 'aprobada', NOW(), NOW(), true)
+      `
+
+      const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
+      const emailResult = await enviarEmailAccesoTemporal({
+        nombre,
+        email: emailLimpio,
+        contrasenaTemporal: rawPassword,
+        empresaNombre: empresa?.nombre || "Tu empresa",
+        loginUrl: process.env.NEXTAUTH_URL || "http://localhost:3000",
+      })
+
+      await prisma.$executeRaw`
+        INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor")
+        VALUES (gen_random_uuid()::text, ${id}, ${nombre}, ${emailLimpio}, ${cargo||""}, 'aprobada automatica', 'Creacion manual con activacion automatica', 'Super Admin')
+      `
+
+      return NextResponse.json({ ok: true, tempPassword: rawPassword, emailEnviado: emailResult.ok })
+    }
+
     await prisma.$executeRaw`
       INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
-      VALUES (gen_random_uuid()::text, ${nombre}, ${email}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
+      VALUES (gen_random_uuid()::text, ${nombre}, ${emailLimpio}, ${cargo}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
     `
     return NextResponse.json({ ok: true })
   } catch (error) {

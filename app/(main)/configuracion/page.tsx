@@ -992,7 +992,7 @@ export default function ConfiguracionPage() {
         horario: form.horario || "manana",
         sueldoBase: form.sueldoBase || null,
         permisos: form.permisos || {},
-        mensaje: form.mensaje || ""
+        mensaje: form.mensaje || "", rol: form.rol || "GERENCIAL", activacionAutomatica: !!form.activacionAutomatica
       })
     })
     const data = await res.json()
@@ -1556,7 +1556,7 @@ export default function ConfiguracionPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>DATOS DEL PUESTO</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Director de area"/></div>
-                  <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div>
+                  <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div><div><label style={labelStyle}>Rol</label><select value={form.rol||"GERENCIAL"} onChange={e=>setForm((p:any)=>({...p,rol:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}><option value="GERENCIAL">Agente gerencial</option><option value="SUPER_ADMIN">Super Admin</option></select></div>
                   <div><label style={labelStyle}>Sueldo base *</label><div style={{position:"relative"}}><span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#64748b",fontSize:14,pointerEvents:"none",zIndex:1}}>€</span><input type="text" inputMode="numeric" value={form.sueldoBase||""} onChange={e=>setForm((p:any)=>({...p,sueldoBase:e.target.value.replace(/[^0-9]/g,"")}))} style={{...inputStyle,paddingLeft:26}} placeholder="Ej: 2000" autoComplete="off" name="sueldobase" id="sueldobase"/></div></div>
                   <div><label style={labelStyle}>Tipo de contrato</label>
                     <select value={form.tipoContrato||"indefinido"} onChange={e=>setForm((p:any)=>({...p,tipoContrato:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
@@ -1581,7 +1581,7 @@ export default function ConfiguracionPage() {
                     </select>
                   </div>
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>ACCESO AL SISTEMA</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "10px 14px", marginTop: 6 }}><div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>Activacion automatica</div><div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>La cuenta se activara de inmediato, sin pasar por la aprobacion manual habitual.</div></div><input type="checkbox" checked={!!form.activacionAutomatica} onChange={e=>setForm((p:any)=>({...p,activacionAutomatica:e.target.checked}))} style={{ cursor: "pointer", width: 18, height: 18, flexShrink: 0, marginLeft: 12 }} /></div><div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>ACCESO AL SISTEMA</div>
                 <div style={{ background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
                   {/* Header */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0" }}>

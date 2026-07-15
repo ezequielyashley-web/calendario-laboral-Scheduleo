@@ -45,10 +45,38 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     const passwordHash = await bcrypt.hash(password, 10)
     const id = crypto.randomUUID()
 
-    await prisma.$executeRaw`
-      INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "passwordHash", origen, permisos, estado, "creadaEn")
-      VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'pendiente', NOW())
-    `
+    if (invitacion.activacionAutomatica) {
+      // Activacion automatica: se crea el User real de inmediato, sin pasar por aprobacion manual
+      await prisma.user.create({
+        data: {
+          email: invitacion.email.toLowerCase(),
+          name: nombre.trim(),
+          role: invitacion.rol,
+          password: passwordHash,
+          empresaId: "empresa-001",
+          permisos: invitacion.permisos || {},
+          cargo: invitacion.cargo || null,
+          departamento: invitacion.departamento || null,
+        }
+      })
+
+      await prisma.$executeRaw`
+        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "passwordHash", origen, permisos, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
+        VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'aprobada', NOW(), NOW(), true)
+      `
+
+      const historialId = crypto.randomUUID()
+      await prisma.$executeRaw`
+        INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor")
+        VALUES (${historialId}, ${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, 'aprobada automatica', 'Activacion automatica configurada en la invitacion', 'Sistema')
+      `
+    } else {
+      // Comportamiento actual: queda pendiente de aprobacion manual
+      await prisma.$executeRaw`
+        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "passwordHash", origen, permisos, estado, "creadaEn")
+        VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'pendiente', NOW())
+      `
+    }
 
     await prisma.invitacion.update({
       where: { id: invitacion.id },
