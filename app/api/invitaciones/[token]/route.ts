@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
+import { crearEmpleadoParaGerencial } from "@/lib/crearEmpleadoGerencial"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     const id = crypto.randomUUID()
 
     if (invitacion.activacionAutomatica) {
-      await prisma.user.create({
+      const nuevoUser = await prisma.user.create({
         data: {
           email: invitacion.email.toLowerCase(),
           name: nombre.trim(),
@@ -59,9 +60,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         }
       })
 
+      if (invitacion.rol === "GERENCIAL" || invitacion.rol === "SUPER_ADMIN") {
+        await crearEmpleadoParaGerencial({
+          userId: nuevoUser.id,
+          empresaId: "empresa-001",
+          nombre: nombre.trim(),
+          apellidos: invitacion.apellidos || "",
+          sueldoBase: invitacion.sueldoBase ? invitacion.sueldoBase.toString() : null,
+        }).catch(err => console.error("Error creando Empleado vinculado:", err))
+      }
+
       await prisma.$executeRaw`
-        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "rol", "passwordHash", origen, permisos, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
-        VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'aprobada', NOW(), NOW(), true)
+        INSERT INTO "SolicitudGerencial" (id, nombre, apellidos, email, cargo, "rol", "passwordHash", origen, permisos, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
+        VALUES (${id}, ${nombre.trim()}, ${invitacion.apellidos || ""}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'aprobada', NOW(), NOW(), true)
       `
 
       const historialId = crypto.randomUUID()
@@ -71,8 +82,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       `
     } else {
       await prisma.$executeRaw`
-        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "rol", "passwordHash", origen, permisos, estado, "creadaEn")
-        VALUES (${id}, ${nombre.trim()}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'pendiente', NOW())
+        INSERT INTO "SolicitudGerencial" (id, nombre, apellidos, email, cargo, "rol", "passwordHash", origen, permisos, estado, "creadaEn")
+        VALUES (${id}, ${nombre.trim()}, ${invitacion.apellidos || ""}, ${invitacion.email}, ${invitacion.cargo || invitacion.rol}, ${invitacion.rol}, ${passwordHash}, 'invitacion', ${JSON.stringify(invitacion.permisos)}::jsonb, 'pendiente', NOW())
       `
     }
 

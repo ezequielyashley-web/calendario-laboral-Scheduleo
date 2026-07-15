@@ -981,7 +981,7 @@ export default function ConfiguracionPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        nombre: (form.nombre + " " + form.apellidos).trim(),
+        nombre: form.nombre, apellidos: form.apellidos,
         email: form.email,
         cargo: form.cargo,
         telefono: form.telefono || "",

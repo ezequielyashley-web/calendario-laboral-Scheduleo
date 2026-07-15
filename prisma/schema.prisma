@@ -84,6 +84,8 @@ model Empleado {
   ibanEnc             String          @default("")
   telefonoEnc         String          @default("")
   salarioEnc          String          @default("")
+  direccion           String?
+  direccionEnc        String          @default("")
   fechaNacimiento     DateTime?
   fechaContratacion   DateTime?
   grupoTrabajoId      String?
@@ -269,6 +271,7 @@ model Invitacion {
   funciones             String?
   activacionAutomatica  Boolean  @default(false)
   nombre                String?
+  apellidos             String?
 
   @@index([token])
   @@index([email])

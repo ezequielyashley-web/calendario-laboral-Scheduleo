@@ -31,6 +31,7 @@ const MODULOS = [
 export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => void }) {
   const [email, setEmail] = useState("")
   const [nombre, setNombre] = useState("")
+  const [apellidos, setApellidos] = useState("")
   const [rol, setRol] = useState("GERENCIAL")
   const [activacionAutomatica, setActivacionAutomatica] = useState(false)
   const [cargo, setCargo] = useState("")
@@ -58,7 +59,7 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
     const res = await fetch("/api/invitaciones", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, nombre, rol, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, permisos, activacionAutomatica })
+      body: JSON.stringify({ email, nombre, apellidos, rol, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, permisos, activacionAutomatica })
     })
     const data = await res.json()
     setEnviando(false)
@@ -82,8 +83,16 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
             <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 4 }}>Invitar por correo</div>
             <div style={{ fontSize: 12.5, color: gris, marginBottom: 18 }}>La persona recibirá un correo con un enlace de un solo uso para crear su propia cuenta.</div>
 
-            <label style={labelStyle}>Nombre</label>
-            <input value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} placeholder="Nombre y apellidos" />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div>
+                <label style={labelStyle}>Nombre</label>
+                <input value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} placeholder="Ej: Carlos" />
+              </div>
+              <div>
+                <label style={labelStyle}>Apellidos</label>
+                <input value={apellidos} onChange={e => setApellidos(e.target.value)} style={inputStyle} placeholder="Ej: Garcia Lopez" />
+              </div>
+            </div>
 
             <label style={labelStyle}>Email</label>
             <input value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="nombre@ejemplo.com" />

@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Solo el SUPER_ADMIN puede invitar nuevos usuarios" }, { status: 403 })
     }
 
-    const { email, nombre, rol, permisos, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, activacionAutomatica } = await req.json()
+    const { email, nombre, apellidos, rol, permisos, cargo, departamento, tipoContrato, jornada, horario, sueldoBase, funciones, activacionAutomatica } = await req.json()
     if (!email || !email.trim()) {
       return NextResponse.json({ error: "El email es obligatorio" }, { status: 400 })
     }
@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
         funciones: funciones || null,
         activacionAutomatica: activacionAutomatica === true,
         nombre: nombre ? nombre.trim() : null,
+        apellidos: apellidos ? apellidos.trim() : null,
       }
     })
 

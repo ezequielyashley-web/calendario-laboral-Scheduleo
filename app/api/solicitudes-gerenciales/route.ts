@@ -3,6 +3,7 @@ import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
+import { crearEmpleadoParaGerencial } from "@/lib/crearEmpleadoGerencial"
 import { enviarEmailAccesoTemporal } from "@/lib/email"
 
 export async function GET() {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
     const auth = await requireAuth(req)
     if (isUnauthorized(auth)) return auth
     const body = await req.json()
-    const { nombre, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje, rol, activacionAutomatica } = body
+    const { nombre, apellidos, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje, rol, activacionAutomatica } = body
     const sueldoBase = body.sueldoBase ? parseFloat(body.sueldoBase) : null
     if (!nombre || !email || !cargo) return NextResponse.json({ error: "Nombre, email y cargo son obligatorios" }, { status: 400 })
 
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
       const hashedPassword = await bcrypt.hash(rawPassword, 10)
       const id = crypto.randomUUID()
 
-      await prisma.user.create({
+      const nuevoUser = await prisma.user.create({
         data: {
           email: emailLimpio,
           name: nombre,
@@ -61,9 +62,19 @@ export async function POST(req: NextRequest) {
         }
       })
 
+      await crearEmpleadoParaGerencial({
+        userId: nuevoUser.id,
+        empresaId: "empresa-001",
+        nombre,
+        apellidos: apellidos || "",
+        dni: dni || null,
+        telefono: telefono || null,
+        sueldoBase: sueldoBase || null,
+      }).catch(err => console.error("Error creando Empleado vinculado:", err))
+
       await prisma.$executeRaw`
-        INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "rol", telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
-        VALUES (${id}, ${nombre}, ${emailLimpio}, ${cargo}, ${rolFinal}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""}, 'aprobada', NOW(), NOW(), true)
+        INSERT INTO "SolicitudGerencial" (id, nombre, apellidos, email, cargo, "rol", telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje, estado, "creadaEn", "resueltaEn", "activacionAutomatica")
+        VALUES (${id}, ${nombre}, ${apellidos||""}, ${emailLimpio}, ${cargo}, ${rolFinal}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""}, 'aprobada', NOW(), NOW(), true)
       `
 
       const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
@@ -84,8 +95,8 @@ export async function POST(req: NextRequest) {
     }
 
     await prisma.$executeRaw`
-      INSERT INTO "SolicitudGerencial" (id, nombre, email, cargo, "rol", telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
-      VALUES (gen_random_uuid()::text, ${nombre}, ${emailLimpio}, ${cargo}, ${rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : "GERENCIAL"}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
+      INSERT INTO "SolicitudGerencial" (id, nombre, apellidos, email, cargo, "rol", telefono, dni, departamento, "tipoContrato", jornada, horario, "sueldoBase", permisos, mensaje)
+      VALUES (gen_random_uuid()::text, ${nombre}, ${apellidos||""}, ${emailLimpio}, ${cargo}, ${rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : "GERENCIAL"}, ${telefono||""}, ${dni||""}, ${departamento||""}, ${tipoContrato||"indefinido"}, ${jornada||"completa"}, ${horario||"manana"}, ${sueldoBase}, ${JSON.stringify(permisos||{})}::jsonb, ${mensaje||""})
     `
     return NextResponse.json({ ok: true })
   } catch (error) {
@@ -117,7 +128,7 @@ export async function PATCH(req: NextRequest) {
       const rawPassword = vieneDeInvitacion ? null : (Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!")
       const hashedPassword = vieneDeInvitacion ? sol.passwordHash : await bcrypt.hash(rawPassword!, 10)
       const rolFinal = sol.rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : (sol.rol === "GERENCIAL" ? "GERENCIAL" : (sol.cargo === "SUPER_ADMIN" ? "SUPER_ADMIN" : "EMPLEADO"))
-      await prisma.user.create({
+      const nuevoUser = await prisma.user.create({
         data: {
           email: sol.email.toLowerCase(),
           name: sol.nombre,
@@ -128,6 +139,18 @@ export async function PATCH(req: NextRequest) {
           departamento: sol.departamento || null,
         }
       })
+
+      if (rolFinal === "GERENCIAL" || rolFinal === "SUPER_ADMIN") {
+        await crearEmpleadoParaGerencial({
+          userId: nuevoUser.id,
+          empresaId: "empresa-001",
+          nombre: sol.nombre,
+          apellidos: sol.apellidos || "",
+          dni: sol.dni || null,
+          telefono: sol.telefono || null,
+          sueldoBase: sol.sueldoBase || null,
+        }).catch(err => console.error("Error creando Empleado vinculado:", err))
+      }
       const aprobada = "aprobada"
       await prisma.$executeRaw`UPDATE "SolicitudGerencial" SET estado = ${aprobada}, "resueltaEn" = NOW() WHERE id = ${id}`
       const accionStr = "aprobada"
