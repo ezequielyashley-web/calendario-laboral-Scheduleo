@@ -1408,10 +1408,10 @@ export default function ConfiguracionPage() {
                           <td style={{ padding: "10px 16px", fontSize: 12, color: "#a0aec0" }}>{new Date(u.createdAt).toLocaleDateString("es-ES")}</td>
                           <td style={{ padding: "10px 16px" }}>
                             <div style={{ display: "flex", gap: 6 }}>
-                              <button onClick={() => abrirModal("editar", u)} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Editar</button>
-                              <button onClick={() => abrirModal("reset", u)} style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Reset pwd</button>
-                              <button onClick={() => abrirModal("cambiarEmail", u)} style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Email</button>
-                              <button onClick={() => abrirModal(u.role === "PAUSADO" ? "reactivar" : "pausar", u)} style={{ background: u.role === "PAUSADO" ? "#059669" : "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>
+                              <button onClick={() => abrirModal("editar", u)} style={{ background: "#F9FAFB", color: "#374151", border: "1px solid #D1D5DB", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 500, cursor: "pointer" }}>Editar</button>
+                              <button onClick={() => abrirModal("reset", u)} style={{ background: "#6B7280", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 500, cursor: "pointer" }}>Reset pwd</button>
+                              <button onClick={() => abrirModal("cambiarEmail", u)} style={{ background: "#F9FAFB", color: "#374151", border: "1px solid #D1D5DB", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 500, cursor: "pointer" }}>Email</button>
+                              <button onClick={() => abrirModal(u.role === "PAUSADO" ? "reactivar" : "pausar", u)} style={{ background: "#6B7280", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 500, cursor: "pointer" }}>
                                 {u.role === "PAUSADO" ? "Activar" : "Pausar"}
                               </button>
                               <button onClick={async () => {
@@ -1419,8 +1419,8 @@ export default function ConfiguracionPage() {
                                 const res = await fetch("/api/2fa/admin-reset", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: u.id }) })
                                 const data = await res.json()
                                 alert(data.ok ? "2FA reseteado correctamente" : (data.error || "Error al resetear"))
-                              }} style={{ background: "#0891b2", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Reset 2FA</button>
-                              <button onClick={() => abrirModal("borrar", u)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer" }}>Borrar</button>
+                              }} style={{ background: "#F9FAFB", color: "#374151", border: "1px solid #D1D5DB", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 500, cursor: "pointer" }}>Reset 2FA</button>
+                              <button onClick={() => abrirModal("borrar", u)} style={{ background: "#fff", color: "#DC2626", border: "1px solid #FCA5A5", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 500, cursor: "pointer" }}>Borrar</button>
                             </div>
                           </td>
                         </tr>
