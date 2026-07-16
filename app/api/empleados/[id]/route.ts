@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
+import { revalidateTag } from "next/cache"
 import { getEmpleadoData, prepararCamposCifrados } from "@/lib/empleadoData"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -109,6 +110,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
     })
 
+    revalidateTag("empleados-ligero", { expire: 0 })
     return NextResponse.json({ ok: true, id: empleado.id })
   } catch (error) {
     console.error(error)

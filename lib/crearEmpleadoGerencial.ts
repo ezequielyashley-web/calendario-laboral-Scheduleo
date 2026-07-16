@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { prepararCamposCifrados } from "@/lib/empleadoData"
+import { revalidateTag } from "next/cache"
 
 export async function crearEmpleadoParaGerencial(params: {
   userId: string
@@ -33,7 +34,7 @@ export async function crearEmpleadoParaGerencial(params: {
     false
   )
 
-  return prisma.empleado.create({
+  const nuevo = await prisma.empleado.create({
     data: {
       userId: params.userId,
       empresaId: params.empresaId,
@@ -45,4 +46,6 @@ export async function crearEmpleadoParaGerencial(params: {
       ...camposSensibles,
     }
   })
+  revalidateTag("empleados-ligero", { expire: 0 })
+  return nuevo
 }

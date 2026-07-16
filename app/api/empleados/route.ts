@@ -5,6 +5,7 @@ import { getEmpleadoData, prepararCamposCifrados } from "@/lib/empleadoData"
 import { validarDatosEmpleado, sanitizeText, sanitizeEmail, sanitizePhone } from "@/lib/validation"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { getClientIP } from "@/lib/security-middleware"
+import { revalidateTag } from "next/cache"
 
 export async function GET(req: NextRequest) {
   try {
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
         }
       })
 
+      revalidateTag("empleados-ligero", { expire: 0 })
       return { user, empleado }
     })
 
