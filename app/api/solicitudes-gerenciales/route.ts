@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { crearEmpleadoParaGerencial } from "@/lib/crearEmpleadoGerencial"
 import { enviarEmailAccesoTemporal } from "@/lib/email"
+import { runAsync } from "@/lib/asyncTask"
 
 export async function GET() {
   try {
@@ -78,20 +79,20 @@ export async function POST(req: NextRequest) {
       `
 
       const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
-      const emailResult = await enviarEmailAccesoTemporal({
+      runAsync("email-acceso-temporal-manual-auto", () => enviarEmailAccesoTemporal({
         nombre,
         email: emailLimpio,
         contrasenaTemporal: rawPassword,
         empresaNombre: empresa?.nombre || "Tu empresa",
         loginUrl: process.env.NEXTAUTH_URL || "http://localhost:3000",
-      })
+      }))
 
       await prisma.$executeRaw`
         INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor")
         VALUES (gen_random_uuid()::text, ${id}, ${nombre}, ${emailLimpio}, ${cargo||""}, 'aprobada automatica', 'Creacion manual con activacion automatica', 'Super Admin')
       `
 
-      return NextResponse.json({ ok: true, tempPassword: rawPassword, emailEnviado: emailResult.ok })
+      return NextResponse.json({ ok: true, tempPassword: rawPassword, emailEnviado: true })
     }
 
     await prisma.$executeRaw`
@@ -159,19 +160,17 @@ export async function PATCH(req: NextRequest) {
       await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
 
       const empresa = await prisma.empresa.findFirst({ where: { id: "empresa-001" } })
-      let emailEnviado = false
       if (!vieneDeInvitacion) {
-        const emailResult = await enviarEmailAccesoTemporal({
+        runAsync("email-acceso-temporal-aprobacion", () => enviarEmailAccesoTemporal({
           nombre: sol.nombre,
           email: sol.email,
           contrasenaTemporal: rawPassword!,
           empresaNombre: empresa?.nombre || "Tu empresa",
           loginUrl: process.env.NEXTAUTH_URL || "http://localhost:3000",
-        })
-        emailEnviado = emailResult.ok
+        }))
       }
 
-      return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email, emailEnviado })
+      return NextResponse.json({ ok: true, tempPassword: rawPassword, nombre: sol.nombre, email: sol.email, emailEnviado: !vieneDeInvitacion })
     }
 
     if (accion === "rechazar") {

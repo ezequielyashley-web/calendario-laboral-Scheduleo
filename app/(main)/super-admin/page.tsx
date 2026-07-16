@@ -65,6 +65,13 @@ export default function SuperAdminPage() {
   const [pinLimpiar, setPinLimpiar] = useState("")
   const [showLimpiar, setShowLimpiar] = useState(false)
   const [ultimoCreado, setUltimoCreado] = useState<any>(null)
+  const [asyncStatus, setAsyncStatus] = useState<{ recomendar: boolean; fallos: number }>({ recomendar: false, fallos: 0 })
+
+  useEffect(() => {
+    fetch("/api/sistema/async-status").then(r => r.json()).then(data => {
+      if (data && typeof data.recomendar === "boolean") setAsyncStatus(data)
+    }).catch(() => {})
+  }, [])
 
   const mostrarMensaje = (texto: string, tipo = "ok") => {
     setMensaje({ texto, tipo })
@@ -208,6 +215,12 @@ export default function SuperAdminPage() {
           </div>
         </div>
       </div>
+
+      {asyncStatus.recomendar && (
+        <div style={{ marginBottom: 16, padding: "12px 16px", background: "#fef3c7", borderRadius: 8, fontSize: 13, color: "#92400e", border: "1px solid #fde68a" }}>
+          <strong>Aviso de rendimiento:</strong> se han detectado {asyncStatus.fallos} fallos de tareas en segundo plano (emails) en los ultimos 7 dias. Puede ser buen momento para migrar a Upstash QStash — instrucciones en docs/MIGRACION-QSTASH.md.
+        </div>
+      )}
 
       {mensaje.texto && (
         <div style={{ marginBottom: 16, padding: "10px 16px", background: mensaje.tipo === "error" ? "#fee2e2" : "#d1fae5", borderRadius: 8, fontSize: 13, color: mensaje.tipo === "error" ? "#991b1b" : "#065f46", border: `1px solid ${mensaje.tipo === "error" ? "#fca5a5" : "#86efac"}` }}>

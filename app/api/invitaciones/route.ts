@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import { Resend } from "resend"
+import { runAsync } from "@/lib/asyncTask"
 import crypto from "crypto"
 
 export const runtime = "nodejs"
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
       ? funciones.split("\n").filter((l: string) => l.trim()).map((l: string) => `&middot; ${l.trim()}<br/>`).join("")
       : "&middot; Acceso al sistema de gestion laboral Scheduleo segun los permisos asignados<br/>"
 
-    await resend.emails.send({
+    runAsync("enviar-invitacion", async () => { await resend.emails.send({
       from: "Scheduleo <verificacion@scheduleo.es>",
       to: emailLimpio,
       subject: `Invitacion de acceso e incorporacion — ${nombreEmpresa}`,
@@ -169,7 +170,7 @@ export async function POST(req: NextRequest) {
           </div>
         </div>
       `
-    })
+    }) })
 
     return NextResponse.json({ ok: true })
   } catch (error) {
