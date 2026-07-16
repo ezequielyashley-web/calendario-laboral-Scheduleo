@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { revalidateTag } from "next/cache"
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,6 +34,8 @@ export async function POST(req: NextRequest) {
         permisos = '${JSON.stringify(permisos||{})}'::jsonb
       WHERE id = '${usuario.id}'
     `)
+    revalidateTag(`session-info-${emailOriginal.toLowerCase()}`, { expire: 0 })
+    revalidateTag(`session-info-${email.toLowerCase()}`, { expire: 0 })
 
     // Actualizar solicitud
     const sueldoVal = sueldoBase ? parseFloat(sueldoBase) : null
