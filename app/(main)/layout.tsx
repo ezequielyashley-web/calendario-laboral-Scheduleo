@@ -1,5 +1,6 @@
 import DesktopLayout from "@/components/desktop/DesktopLayout"
 import BienvenidaPopup from "@/components/BienvenidaPopup"
+import TourBienvenida from "@/components/TourBienvenida"
 import { auth } from "@/lib/auth"
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
     <DesktopLayout>
       {children}
       <BienvenidaPopup email={email} />
+      <TourBienvenida />
     </DesktopLayout>
   )
 }
