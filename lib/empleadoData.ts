@@ -1,4 +1,4 @@
-import { decryptIfExists } from './encryption'
+import { decryptIfExists } from "./encryption"
 
 export interface EmpleadoDataSensible {
   dni: string | null
@@ -6,6 +6,7 @@ export interface EmpleadoDataSensible {
   iban: string | null
   telefono: string | null
   salario: string | null
+  direccion: string | null
 }
 
 interface EmpleadoConCifrado {
@@ -15,29 +16,33 @@ interface EmpleadoConCifrado {
   iban?: string | null
   telefono?: string | null
   salario?: any | null
+  direccion?: string | null
   dniEnc?: string | null
   nafEnc?: string | null
   ibanEnc?: string | null
   telefonoEnc?: string | null
   salarioEnc?: string | null
+  direccionEnc?: string | null
 }
 
 export function getEmpleadoData(empleado: EmpleadoConCifrado): EmpleadoDataSensible {
   if (empleado.esDemostracion) {
     return {
-      dni:      empleado.dni      ?? null,
-      naf:      empleado.naf      ?? null,
-      iban:     empleado.iban     ?? null,
-      telefono: empleado.telefono ?? null,
-      salario:  empleado.salario  ? String(empleado.salario) : null,
+      dni:       empleado.dni      ?? null,
+      naf:       empleado.naf      ?? null,
+      iban:      empleado.iban     ?? null,
+      telefono:  empleado.telefono ?? null,
+      salario:   empleado.salario  ? String(empleado.salario) : null,
+      direccion: empleado.direccion ?? null,
     }
   }
   return {
-    dni:      decryptIfExists(empleado.dniEnc),
-    naf:      decryptIfExists(empleado.nafEnc),
-    iban:     decryptIfExists(empleado.ibanEnc),
-    telefono: decryptIfExists(empleado.telefonoEnc),
-    salario:  decryptIfExists(empleado.salarioEnc),
+    dni:       decryptIfExists(empleado.dniEnc),
+    naf:       decryptIfExists(empleado.nafEnc),
+    iban:      decryptIfExists(empleado.ibanEnc),
+    telefono:  decryptIfExists(empleado.telefonoEnc),
+    salario:   decryptIfExists(empleado.salarioEnc),
+    direccion: decryptIfExists(empleado.direccionEnc),
   }
 }
 
@@ -47,34 +52,37 @@ export function prepararCamposCifrados(datos: {
   iban?: string
   telefono?: string
   salario?: string
+  direccion?: string
 }, esDemostracion: boolean) {
-  const { encrypt } = require('./encryption')
-
+  const { encrypt } = require("./encryption")
   if (esDemostracion) {
     return {
-      dni:         datos.dni      ?? null,
-      naf:         datos.naf      ?? null,
-      iban:        datos.iban     ?? null,
-      telefono:    datos.telefono ?? null,
-      salario:     datos.salario  ? parseFloat(datos.salario) : null,
-      dniEnc:      '',
-      nafEnc:      '',
-      ibanEnc:     '',
-      telefonoEnc: '',
-      salarioEnc:  '',
+      dni:          datos.dni      ?? null,
+      naf:          datos.naf      ?? null,
+      iban:         datos.iban     ?? null,
+      telefono:     datos.telefono ?? null,
+      salario:      datos.salario  ? parseFloat(datos.salario) : null,
+      direccion:    datos.direccion ?? null,
+      dniEnc:       "",
+      nafEnc:       "",
+      ibanEnc:      "",
+      telefonoEnc:  "",
+      salarioEnc:   "",
+      direccionEnc: "",
     }
   }
-
   return {
-    dni:         null,
-    naf:         null,
-    iban:        null,
-    telefono:    null,
-    salario:     null,
-    dniEnc:      datos.dni      ? encrypt(datos.dni)      : '',
-    nafEnc:      datos.naf      ? encrypt(datos.naf)      : '',
-    ibanEnc:     datos.iban     ? encrypt(datos.iban)     : '',
-    telefonoEnc: datos.telefono ? encrypt(datos.telefono) : '',
-    salarioEnc:  datos.salario  ? encrypt(datos.salario)  : '',
+    dni:          null,
+    naf:          null,
+    iban:         null,
+    telefono:     null,
+    salario:      null,
+    direccion:    null,
+    dniEnc:       datos.dni       ? encrypt(datos.dni)       : "",
+    nafEnc:       datos.naf       ? encrypt(datos.naf)       : "",
+    ibanEnc:      datos.iban      ? encrypt(datos.iban)      : "",
+    telefonoEnc:  datos.telefono  ? encrypt(datos.telefono)  : "",
+    salarioEnc:   datos.salario   ? encrypt(datos.salario)   : "",
+    direccionEnc: datos.direccion ? encrypt(datos.direccion) : "",
   }
 }

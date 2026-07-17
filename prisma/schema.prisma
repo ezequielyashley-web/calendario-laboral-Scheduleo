@@ -86,6 +86,10 @@ model Empleado {
   salarioEnc          String          @default("")
   direccion           String?
   direccionEnc        String          @default("")
+  estadoDatosPersonales String        @default("pendiente")
+  motivoRechazoDatos  String?
+  datosRevisadosPor   String?
+  datosRevisadosEn    DateTime?
   @@index([empresaId, esDemostracion])
   fechaNacimiento     DateTime?
   fechaContratacion   DateTime?
