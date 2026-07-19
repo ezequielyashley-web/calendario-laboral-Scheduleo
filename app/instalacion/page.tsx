@@ -22,6 +22,9 @@ export default function InstalacionPage() {
   const [nombre, setNombre] = useState("")
   const [apellidos, setApellidos] = useState("")
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
+  const [usernameError, setUsernameError] = useState("")
+  const [comprobandoUsername, setComprobandoUsername] = useState(false)
   const [password, setPassword] = useState("")
   const [confirmarPassword, setConfirmarPassword] = useState("")
   const [claveInstalacion, setClaveInstalacion] = useState("")
@@ -37,11 +40,24 @@ export default function InstalacionPage() {
     }).catch(() => setVerificando(false))
   }, [])
 
+  useEffect(() => {
+    if (!username.trim()) { setUsernameError(""); return }
+    setComprobandoUsername(true)
+    const timeout = setTimeout(() => {
+      fetch(`/api/username-disponible?username=${encodeURIComponent(username.trim())}`)
+        .then(r => r.json())
+        .then(data => { setUsernameError(data.disponible ? "" : (data.error || "No disponible")) })
+        .finally(() => setComprobandoUsername(false))
+    }, 500)
+    return () => clearTimeout(timeout)
+  }, [username])
+
   const enviar = async () => {
     setError("")
-    if (!nombre.trim() || !apellidos.trim() || !email.trim() || !password || !claveInstalacion.trim()) {
+    if (!nombre.trim() || !apellidos.trim() || !email.trim() || !username.trim() || !password || !claveInstalacion.trim()) {
       setError("Todos los campos son obligatorios"); return
     }
+    if (usernameError) { setError(usernameError); return }
     if (password.length < 8) { setError("La contrasena debe tener al menos 8 caracteres"); return }
     if (password !== confirmarPassword) { setError("Las contrasenas no coinciden"); return }
 
@@ -49,7 +65,7 @@ export default function InstalacionPage() {
     const res = await fetch("/api/instalacion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, apellidos, email, password, claveInstalacion })
+      body: JSON.stringify({ nombre, apellidos, email, username, password, claveInstalacion })
     })
     const data = await res.json()
     setEnviando(false)
@@ -115,6 +131,12 @@ export default function InstalacionPage() {
 
         <label style={labelStyle}>Email</label>
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="tu@email.com" />
+
+        <label style={labelStyle}>Nombre de usuario</label>
+        <input value={username} onChange={e => setUsername(e.target.value)} style={inputStyle} placeholder="Ej: ezequiely" />
+        {comprobandoUsername && <div style={{ fontSize: 11.5, color: gris, marginTop: -10, marginBottom: 10 }}>Comprobando disponibilidad...</div>}
+        {!comprobandoUsername && usernameError && <div style={{ fontSize: 11.5, color: "#DC2626", marginTop: -10, marginBottom: 10 }}>{usernameError}</div>}
+        {!comprobandoUsername && !usernameError && username.trim() && <div style={{ fontSize: 11.5, color: "#16A34A", marginTop: -10, marginBottom: 10 }}>Disponible</div>}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div>
