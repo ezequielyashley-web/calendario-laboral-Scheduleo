@@ -1,4 +1,5 @@
 "use client"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 
 import { useState, useEffect, Fragment } from "react"
@@ -969,9 +970,16 @@ export default function ConfiguracionPage() {
     if (data.error) { mostrarMensaje(data.error, "error"); return }
     mostrarMensaje("Configuración guardada correctamente")
     if (typeof window !== 'undefined') { window.dispatchEvent(new Event('modoBetaChange')); window.dispatchEvent(new Event('modoPruebasChange')) }
+    recargarApariencia()
   }
 
-  const set = (key, val) => setEmpresa(p => ({ ...p, [key]: val }))
+  const { setPreview, recargar: recargarApariencia } = useApariencia()
+  const set = (key, val) => {
+    setEmpresa(p => ({ ...p, [key]: val }))
+    if (["nombreComercial", "logo", "colorSidebar", "colorAccent"].includes(key)) {
+      setPreview({ [key === "nombreComercial" ? "nombre" : key]: val })
+    }
+  }
 
   const abrirModal = (tipo, usuario = null) => {
     setModal({ tipo, usuario })

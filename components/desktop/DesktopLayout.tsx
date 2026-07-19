@@ -11,6 +11,7 @@ import { useTheme } from "@/components/providers/ThemeProvider"
 import { usePushNotifications } from "@/hooks/usePushNotifications"
 import { useNotifications } from "@/components/providers/NotificationProvider"
 import { useNotificaciones } from "@/hooks/useNotificaciones"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 const Icons = {
   dashboard:      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
@@ -322,7 +323,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const { noLeidas } = useNotifications()
   const chatNotifs = useNotificaciones(10000)
   const { suscrito, soportado, suscribirse } = usePushNotifications()
-  const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
+  const { apariencia: empresa } = useApariencia()
   const [cerrandoSesion, setCerrandoSesion] = useState(false)
   const [usuarioActual, setUsuarioActual] = useState<{name:string; id?:string; username?:string}|null>(null)
   const [showSignOutModal, setShowSignOutModal] = useState(false)
@@ -334,7 +335,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }, [])
 
   useEffect(() => {
-    fetch("/api/empresa").then(r => r.json()).then(data => setEmpresa(data)).catch(() => {})
+    
   }, [])
 
   const handleSignOut = async () => {
@@ -344,8 +345,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     await signOut({ callbackUrl: '/login' })
   }
 
-  const sidebarBgDark = empresa?.colorSidebar || '#2d2b55'
-  const sidebarBg = isLight ? '#ffffff' : sidebarBgDark
+  const sidebarBg = empresa?.colorSidebar || (isLight ? '#ffffff' : '#2d2b55')
+  
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
