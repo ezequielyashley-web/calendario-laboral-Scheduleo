@@ -11,7 +11,7 @@
 
   /* Light mode — fondo más oscuro para que las cards destaquen */
   --bg:            #f0f4ff;   /* gris azulado más pronunciado */
-  --surface:       #ffffff;   /* cards blancas puras */
+  --surface:       #fafbfc;   /* gris muy suave, no blanco puro */
   --surface-2:     #edf1f7;   /* interior de cards / inputs */
   --border:        #e8eaf0;   /* borde visible — no tan sutil */
   --border-strong: #8fa0bc;   /* borde fuerte */
@@ -28,7 +28,7 @@
   --sidebar-active-bg: #6366f1;
 
   /* Shadows — más pronunciadas en claro para separar cards */
-  --shadow-sm: 0 1px 4px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.08);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
   --shadow-md: 0 4px 14px rgba(0,0,0,.12), 0 2px 4px rgba(0,0,0,.08);
   --shadow-lg: 0 8px 28px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.08);
 }
