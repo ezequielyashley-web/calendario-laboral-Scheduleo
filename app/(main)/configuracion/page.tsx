@@ -900,6 +900,21 @@ export default function ConfiguracionPage() {
 
   const [modal, setModal] = useState<any>(null)
   const [showRevision, setShowRevision] = useState(false)
+  const [usernameError, setUsernameError] = useState("")
+  const [comprobandoUsername, setComprobandoUsername] = useState(false)
+
+  useEffect(() => {
+    const u = (form?.username || "").trim()
+    if (!u) { setUsernameError(""); return }
+    setComprobandoUsername(true)
+    const timeout = setTimeout(() => {
+      fetch(`/api/username-disponible?username=${encodeURIComponent(u)}`)
+        .then(r => r.json())
+        .then(data => { setUsernameError(data.disponible ? "" : (data.error || "No disponible")) })
+        .finally(() => setComprobandoUsername(false))
+    }, 500)
+    return () => clearTimeout(timeout)
+  }, [form?.username])
   const [showExito, setShowExito] = useState(false)
   const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
   const [errorRevision, setErrorRevision] = useState("")
@@ -968,7 +983,8 @@ export default function ConfiguracionPage() {
   const cerrarModal = () => { setModal(null); setModalPin(""); setTempPassword("") }
 
   const crearUsuario = async () => {
-    if (!form.nombre || !form.apellidos || !form.email || !form.cargo || !form.telefono || !form.departamento || !form.sueldoBase) { mostrarMensaje("Todos los campos son obligatorios", "error"); return }
+    if (!form.nombre || !form.apellidos || !form.username || !form.email || !form.cargo || !form.telefono || !form.departamento || !form.sueldoBase) { mostrarMensaje("Todos los campos son obligatorios", "error"); return }
+    if (usernameError) { mostrarMensaje(usernameError, "error"); return }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { mostrarMensaje("El email no tiene formato valido", "error"); return }
     if (!form.permisos || Object.keys(form.permisos).filter(k => form.permisos[k]).length === 0) { mostrarMensaje("Debes asignar al menos un permiso de acceso al sistema", "error"); return }
     setShowRevision(true)
@@ -992,7 +1008,7 @@ export default function ConfiguracionPage() {
         horario: form.horario || "manana",
         sueldoBase: form.sueldoBase || null,
         permisos: form.permisos || {},
-        mensaje: form.mensaje || "", rol: form.rol || "GERENCIAL", activacionAutomatica: !!form.activacionAutomatica
+        mensaje: form.mensaje || "", rol: form.rol || "GERENCIAL", activacionAutomatica: !!form.activacionAutomatica, username: form.username || ""
       })
     })
     const data = await res.json()
@@ -1548,7 +1564,7 @@ export default function ConfiguracionPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em" }}>DATOS PERSONALES</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={labelStyle}>Nombre *</label><input value={form.nombre||""} onChange={e=>setForm((p:any)=>({...p,nombre:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Carlos"/></div>
-                  <div><label style={labelStyle}>Apellidos *</label><input value={form.apellidos||""} onChange={e=>setForm((p:any)=>({...p,apellidos:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Garcia Lopez"/></div>
+                  <div><label style={labelStyle}>Apellidos *</label><input value={form.apellidos||""} onChange={e=>setForm((p:any)=>({...p,apellidos:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Garcia Lopez"/></div><div><label style={labelStyle}>Nombre de usuario *</label><input value={form.username||""} onChange={e=>setForm((p:any)=>({...p,username:e.target.value}))} style={inputStyle} placeholder="Ej: juanp"/>{comprobandoUsername&&<div style={{fontSize:11,color:"#6b7280"}}>Comprobando...</div>}{!comprobandoUsername&&usernameError&&<div style={{fontSize:11,color:"#ef4444"}}>{usernameError}</div>}{!comprobandoUsername&&!usernameError&&form.username&&<div style={{fontSize:11,color:"#16a34a"}}>Disponible</div>}</div>
                   <div><label style={labelStyle}>Email *</label><input type="email" value={form.email||""} onChange={e=>setForm((p:any)=>({...p,email:e.target.value.toLowerCase()}))} style={{...inputStyle,borderColor:form.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)?"#ef4444":"var(--border)"}} placeholder="Ej: correo@empresa.com"/>{form.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)&&<div style={{fontSize:11,color:"#ef4444"}}>Email invalido</div>}</div>
                   <div><label style={labelStyle}>Telefono</label><input value={form.telefono||""} onChange={e=>setForm((p:any)=>({...p,telefono:e.target.value.replace(/[^0-9+\s]/g,"")}))} style={inputStyle} placeholder="Ej: 600 000 000" maxLength={15}/></div>
                   <div><label style={labelStyle}>DNI / NIE</label><input value={form.dni||""} onChange={e=>setForm((p:any)=>({...p,dni:e.target.value.toUpperCase()}))} style={{...inputStyle,borderColor:form.dni&&!/^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/.test(form.dni)?"#ef4444":"var(--border)"}} placeholder="Ej: 12345678A" maxLength={9}/>{form.dni&&!/^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/.test(form.dni)&&<div style={{fontSize:11,color:"#ef4444"}}>Formato invalido</div>}</div>

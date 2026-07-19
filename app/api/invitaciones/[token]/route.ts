@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { crearEmpleadoParaGerencial } from "@/lib/crearEmpleadoGerencial"
+import { validarFormatoUsername, usernameDisponible } from "@/lib/username"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
@@ -38,10 +39,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: "Esta invitacion ha caducado" }, { status: 400 })
     }
 
-    const { nombre, password } = await req.json()
+    const { nombre, username, password } = await req.json()
     if (!nombre || !nombre.trim() || !password || password.length < 8) {
       return NextResponse.json({ error: "Nombre y contrasena (minimo 8 caracteres) son obligatorios" }, { status: 400 })
     }
+    const usernameLimpio = (username || "").trim()
+    const errorFormatoUsername = validarFormatoUsername(usernameLimpio)
+    if (errorFormatoUsername) return NextResponse.json({ error: errorFormatoUsername }, { status: 400 })
+    const disponibleUsername = await usernameDisponible(usernameLimpio)
+    if (!disponibleUsername) return NextResponse.json({ error: "Ese nombre de usuario ya esta en uso" }, { status: 400 })
 
     const passwordHash = await bcrypt.hash(password, 10)
     const id = crypto.randomUUID()
@@ -51,6 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         data: {
           email: invitacion.email.toLowerCase(),
           name: nombre.trim(),
+          username: usernameLimpio,
           role: invitacion.rol,
           password: passwordHash,
           empresaId: "empresa-001",

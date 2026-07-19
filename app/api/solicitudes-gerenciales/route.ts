@@ -6,6 +6,7 @@ import crypto from "crypto"
 import { crearEmpleadoParaGerencial } from "@/lib/crearEmpleadoGerencial"
 import { enviarEmailAccesoTemporal } from "@/lib/email"
 import { runAsync } from "@/lib/asyncTask"
+import { validarFormatoUsername, usernameDisponible } from "@/lib/username"
 
 export async function GET() {
   try {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
     const auth = await requireAuth(req)
     if (isUnauthorized(auth)) return auth
     const body = await req.json()
-    const { nombre, apellidos, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje, rol, activacionAutomatica } = body
+    const { nombre, apellidos, email, cargo, telefono, dni, departamento, tipoContrato, jornada, horario, permisos, mensaje, rol, activacionAutomatica, username } = body
     const sueldoBase = body.sueldoBase ? parseFloat(body.sueldoBase) : null
     if (!nombre || !email || !cargo) return NextResponse.json({ error: "Nombre, email y cargo son obligatorios" }, { status: 400 })
 
@@ -44,6 +45,12 @@ export async function POST(req: NextRequest) {
     if (activacionAutomatica === true) {
       const yaExiste = await prisma.user.findUnique({ where: { email: emailLimpio } })
       if (yaExiste) return NextResponse.json({ error: "Ya existe una cuenta con ese email" }, { status: 400 })
+
+      const usernameLimpio = (username || "").trim()
+      const errorFormatoUsername = validarFormatoUsername(usernameLimpio)
+      if (errorFormatoUsername) return NextResponse.json({ error: errorFormatoUsername }, { status: 400 })
+      const disponibleUsername = await usernameDisponible(usernameLimpio)
+      if (!disponibleUsername) return NextResponse.json({ error: "Ese nombre de usuario ya esta en uso" }, { status: 400 })
 
       const rolFinal = rol === "SUPER_ADMIN" ? "SUPER_ADMIN" : (rol === "GERENCIAL" ? "GERENCIAL" : "EMPLEADO")
       const rawPassword = Math.random().toString(36).slice(-8) + "Gerencial" + Math.floor(Math.random() * 999) + "!"
@@ -54,6 +61,7 @@ export async function POST(req: NextRequest) {
         data: {
           email: emailLimpio,
           name: nombre,
+          username: usernameLimpio,
           role: rolFinal,
           password: hashedPassword,
           empresaId: "empresa-001",

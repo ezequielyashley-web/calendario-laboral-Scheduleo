@@ -16,6 +16,9 @@ export default function AceptarInvitacionPage() {
   const [error, setError] = useState("")
 
   const [nombre, setNombre] = useState("")
+  const [username, setUsername] = useState("")
+  const [usernameError, setUsernameError] = useState("")
+  const [comprobandoUsername, setComprobandoUsername] = useState(false)
   const [password, setPassword] = useState("")
   const [password2, setPassword2] = useState("")
   const [enviando, setEnviando] = useState(false)
@@ -30,9 +33,23 @@ export default function AceptarInvitacionPage() {
     }).catch(() => { setError("Error al verificar la invitacion"); setCargando(false) })
   }, [token])
 
+  useEffect(() => {
+    if (!username.trim()) { setUsernameError(""); return }
+    setComprobandoUsername(true)
+    const timeout = setTimeout(() => {
+      fetch(`/api/username-disponible?username=${encodeURIComponent(username.trim())}`)
+        .then(r => r.json())
+        .then(data => { setUsernameError(data.disponible ? "" : (data.error || "No disponible")) })
+        .finally(() => setComprobandoUsername(false))
+    }, 500)
+    return () => clearTimeout(timeout)
+  }, [username])
+
   const enviar = async () => {
     setError("")
     if (!nombre.trim()) { setError("Introduce tu nombre"); return }
+    if (!username.trim()) { setError("Elige un nombre de usuario"); return }
+    if (usernameError) { setError(usernameError); return }
     if (password.length < 8) { setError("La contrasena debe tener al menos 8 caracteres"); return }
     if (password !== password2) { setError("Las contrasenas no coinciden"); return }
 
@@ -40,7 +57,7 @@ export default function AceptarInvitacionPage() {
     const res = await fetch(`/api/invitaciones/${token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, password })
+      body: JSON.stringify({ nombre, username, password })
     })
     const data = await res.json()
     setEnviando(false)
@@ -89,6 +106,12 @@ export default function AceptarInvitacionPage() {
 
             <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Nombre completo</label>
             <input value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} placeholder="Tu nombre" />
+
+            <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Nombre de usuario</label>
+            <input value={username} onChange={e => setUsername(e.target.value)} style={inputStyle} placeholder="Ej: juanp" />
+            {comprobandoUsername && <div style={{ fontSize: 11.5, color: gris, marginTop: -10, marginBottom: 10 }}>Comprobando disponibilidad...</div>}
+            {!comprobandoUsername && usernameError && <div style={{ fontSize: 11.5, color: "#DC2626", marginTop: -10, marginBottom: 10 }}>{usernameError}</div>}
+            {!comprobandoUsername && !usernameError && username.trim() && <div style={{ fontSize: 11.5, color: "#16A34A", marginTop: -10, marginBottom: 10 }}>Disponible</div>}
 
             <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Contrasena</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} placeholder="Minimo 8 caracteres" />
