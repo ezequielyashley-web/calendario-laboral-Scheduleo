@@ -902,6 +902,11 @@ export default function ConfiguracionPage() {
   const [showRevision, setShowRevision] = useState(false)
   const [usernameError, setUsernameError] = useState("")
   const [comprobandoUsername, setComprobandoUsername] = useState(false)
+  const [showExito, setShowExito] = useState(false)
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
+  const [errorRevision, setErrorRevision] = useState("")
+  const [tempPassword, setTempPassword] = useState("")
+  const [form, setForm] = useState<any>({ email: "", name: "", role: "EMPLEADO", telefono: "", dni: "", cargo: "", departamento: "", tipoContrato: "indefinido", jornada: "completa", horario: "manana", sueldoBase: "", mensaje: "" })
 
   useEffect(() => {
     const u = (form?.username || "").trim()
@@ -915,11 +920,6 @@ export default function ConfiguracionPage() {
     }, 500)
     return () => clearTimeout(timeout)
   }, [form?.username])
-  const [showExito, setShowExito] = useState(false)
-  const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
-  const [errorRevision, setErrorRevision] = useState("")
-  const [tempPassword, setTempPassword] = useState("")
-  const [form, setForm] = useState<any>({ email: "", name: "", role: "EMPLEADO", telefono: "", dni: "", cargo: "", departamento: "", tipoContrato: "indefinido", jornada: "completa", horario: "manana", sueldoBase: "", mensaje: "" })
   const [modalPin, setModalPin] = useState("")
 
   const mostrarMensaje = (texto, tipo = "ok") => {

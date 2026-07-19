@@ -324,12 +324,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const { suscrito, soportado, suscribirse } = usePushNotifications()
   const [empresa, setEmpresa] = useState<{ nombre?: string; logo?: string; colorSidebar?: string; colorAccent?: string } | null>(null)
   const [cerrandoSesion, setCerrandoSesion] = useState(false)
-  const [usuarioActual, setUsuarioActual] = useState<{name:string; id?:string}|null>(null)
+  const [usuarioActual, setUsuarioActual] = useState<{name:string; id?:string; username?:string}|null>(null)
   const [showSignOutModal, setShowSignOutModal] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   useEffect(() => {
     fetch("/api/session-info").then(r=>r.json()).then(d=>{
-      if(d?.name) setUsuarioActual({name:d.name, id:d.id})
+      if(d?.name) setUsuarioActual({name:d.name, id:d.id, username:d.username})
     }).catch(()=>{})
   }, [])
 
@@ -570,14 +570,14 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               </div>
           </div>
           <div className="flex items-center gap-2">
-            {soportado && !suscrito && (
+            {false && soportado && !suscrito && (
               <button onClick={suscribirse} title="Activar notificaciones push"
                 className="flex items-center justify-center w-8 h-8 transition-colors duration-150"
                 style={{ borderRadius:4, background:"var(--surface-2)", border:"1px solid var(--border)", color:"var(--text-muted)", cursor:"pointer" }}>
                 🔔
               </button>
             )}
-            {suscrito && (
+            {false && suscrito && (
               <div title="Notificaciones activadas"
                 className="flex items-center justify-center w-8 h-8"
                 style={{ borderRadius:4, background:"#dcfce7", border:"1px solid #86efac", fontSize:14 }}>
@@ -592,7 +592,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 <div style={{ position:"absolute", bottom:-1, right:-1, width:8, height:8, borderRadius:"50%", background:"#10B981", border:"2px solid var(--surface-2)", boxShadow:"0 0 4px #10B981" }} />
               </div>
               <span style={{ fontSize:12, fontWeight:600, color:"var(--text-primary)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-                {usuarioActual?.name ?? "Usuario"}
+                {usuarioActual?.username ?? usuarioActual?.name ?? "Usuario"}
               </span>
             </div>
           </div>
