@@ -346,6 +346,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }
 
   const sidebarBg = empresa?.colorSidebar || (isLight ? '#ffffff' : '#2d2b55')
+  const sidebarPersonalizado = !!empresa?.colorSidebar
   
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
@@ -354,10 +355,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
-        .light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }
+        ${!sidebarPersonalizado ? `.light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }` : ``}
         .light-mode .nav-item:hover { background: #F3F4F6 !important; }
         .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
-        .light-mode .nav-item { color: #374151 !important; }
+        
         .light-mode .nav-item:hover { background: #F3F4F6 !important; color: #111827 !important; }
         .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
         .light-mode .nav-section-label { color: #9CA3AF !important; }
