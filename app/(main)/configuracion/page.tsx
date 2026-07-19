@@ -1265,7 +1265,15 @@ export default function ConfiguracionPage() {
           {seccion === "apariencia" && (
             <div>
               <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827", margin: "0 0 4px" }}>Apariencia de la aplicacion</h2>
-              <p style={{ fontSize: 13, color: "#6B7280", margin: "0 0 24px" }}>Personaliza la identidad visual de Scheduleo para tu empresa</p>
+              <p style={{ fontSize: 13, color: "#6B7280", margin: "0 0 20px" }}>Personaliza la identidad visual de Scheduleo para tu empresa</p>
+              <button type="button" onClick={() => {
+                set("nombreComercial", "")
+                set("logo", "")
+                set("colorSidebar", "")
+                set("colorAccent", "")
+              }} style={{ background: "none", border: "1px solid #E5E7EB", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 600, color: "#6B7280", cursor: "pointer", marginBottom: 20 }}>
+                Restablecer a valores originales
+              </button>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
