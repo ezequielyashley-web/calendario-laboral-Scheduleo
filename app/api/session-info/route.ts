@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
       role: usuario.role,
       permisos: usuario.permisos || {},
       name: usuario.name,
+      username: usuario.username,
       email: usuario.email,
       totpEnabled: usuario.totpEnabled || false,
       metodo2FA: usuario.metodo2FA || "email"
