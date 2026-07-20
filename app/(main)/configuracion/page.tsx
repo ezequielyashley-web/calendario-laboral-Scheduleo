@@ -598,6 +598,7 @@ function SeccionAI() {
   const [apiKey, setApiKey] = useState("")
   const [validandoKey, setValidandoKey] = useState(false)
   const [keyValida, setKeyValida] = useState<boolean | null>(null)
+  const [errorValidacion, setErrorValidacion] = useState("")
   const [guardando, setGuardando] = useState(false)
   const [msg, setMsg] = useState({ texto: "", tipo: "" })
   const [uso, setUso] = useState({ consultas: 0, tokens: 0 })
@@ -609,7 +610,7 @@ function SeccionAI() {
       fetch("/api/ai/validar-key", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ proveedor: config?.proveedor, apiKey })
-      }).then(r => r.json()).then(d => setKeyValida(!!d.valido)).finally(() => setValidandoKey(false))
+      }).then(r => r.json()).then(d => { setKeyValida(!!d.valido); setErrorValidacion(d.error || "") }).finally(() => setValidandoKey(false))
     }, 700)
     return () => clearTimeout(timeout)
   }, [apiKey, config?.proveedor])
@@ -746,6 +747,9 @@ function SeccionAI() {
                   <span style={{ color: "#DC2626", fontSize: 16, fontWeight: 700 }}>✕</span>
                 ) : null}
               </div>
+            )}
+            {keyValida === false && errorValidacion && (
+              <div style={{ fontSize: 11, color: "#DC2626", marginTop: 6 }}>{errorValidacion}</div>
             )}
             <div style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
