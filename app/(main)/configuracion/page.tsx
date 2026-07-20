@@ -596,9 +596,23 @@ function SeccionAI() {
   const [config, setConfig] = useState<any>(null)
   const [cargando, setCargando] = useState(true)
   const [apiKey, setApiKey] = useState("")
+  const [validandoKey, setValidandoKey] = useState(false)
+  const [keyValida, setKeyValida] = useState<boolean | null>(null)
   const [guardando, setGuardando] = useState(false)
   const [msg, setMsg] = useState({ texto: "", tipo: "" })
   const [uso, setUso] = useState({ consultas: 0, tokens: 0 })
+
+  useEffect(() => {
+    if (!apiKey.trim()) { setKeyValida(null); return }
+    setValidandoKey(true)
+    const timeout = setTimeout(() => {
+      fetch("/api/ai/validar-key", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proveedor: config?.proveedor, apiKey })
+      }).then(r => r.json()).then(d => setKeyValida(!!d.valido)).finally(() => setValidandoKey(false))
+    }, 700)
+    return () => clearTimeout(timeout)
+  }, [apiKey, config?.proveedor])
 
   const mostrarMsg = (texto: string, tipo = "ok") => {
     setMsg({ texto, tipo })
@@ -721,7 +735,18 @@ function SeccionAI() {
           <div style={{ position: "relative" as const }}>
             <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
               placeholder={config?.tieneKey ? "••••••••••••••••••• (cambiar)" : "Pega tu API key aqui"}
-              style={{ width: "100%", padding: "9px 12px 9px 36px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 12, fontFamily: "monospace", background: "#F9FAFB", color: "#374151", outline: "none" }} />
+              style={{ width: "100%", padding: "9px 36px 9px 36px", border: `1px solid ${keyValida === true ? "#10B981" : keyValida === false ? "#DC2626" : "#E5E7EB"}`, borderRadius: 8, fontSize: 12, fontFamily: "monospace", background: "#F9FAFB", color: "#374151", outline: "none" }} />
+            {apiKey.trim() && (
+              <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)" }}>
+                {validandoKey ? (
+                  <span style={{ fontSize: 11, color: "#9CA3AF" }}>...</span>
+                ) : keyValida === true ? (
+                  <span style={{ color: "#10B981", fontSize: 16, fontWeight: 700 }}>✓</span>
+                ) : keyValida === false ? (
+                  <span style={{ color: "#DC2626", fontSize: 16, fontWeight: 700 }}>✕</span>
+                ) : null}
+              </div>
+            )}
             <div style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
