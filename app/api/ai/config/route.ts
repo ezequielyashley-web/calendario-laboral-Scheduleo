@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const { proveedor, modelo, activo, apiKey } = await req.json()
-    const apiKeyEnc = apiKey ? encrypt(apiKey) : undefined
+    const apiKeyEnc = apiKey ? encrypt(apiKey.trim()) : undefined
 
     if (apiKeyEnc) {
       await prisma.$executeRaw`
