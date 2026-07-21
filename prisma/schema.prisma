@@ -427,6 +427,16 @@ model ConfiguracionAI {
   updatedAt  DateTime @updatedAt
 }
 
+model ConfiguracionAIProveedor {
+  id           String    @id @default(cuid())
+  proveedor    String    @unique
+  apiKeyEnc    String?
+  valido       Boolean?
+  verificadoEn DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
 model ChatAI {
   id         String   @id @default(cuid())
   userId     String

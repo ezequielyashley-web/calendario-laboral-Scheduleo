@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
+import { prisma } from "@/lib/prisma"
 
 async function validarGroq(apiKey: string) {
   const res = await fetch("https://api.groq.com/openai/v1/models", {
@@ -55,6 +56,11 @@ export async function POST(req: NextRequest) {
       case "mistral": valido = await validarMistral(clave); break
       default: return NextResponse.json({ valido: false, error: "Proveedor no reconocido" })
     }
+
+    await prisma.configuracionAIProveedor.updateMany({
+      where: { proveedor },
+      data: { valido, verificadoEn: new Date() },
+    })
 
     return NextResponse.json({ valido, error: valido ? null : "La clave no es valida para este proveedor" })
   } catch (error) {
