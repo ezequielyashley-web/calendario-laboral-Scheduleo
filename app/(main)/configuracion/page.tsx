@@ -595,29 +595,25 @@ function SeccionSeguridad() {
 function SeccionAI() {
   const [config, setConfig] = useState<any>(null)
   const [cargando, setCargando] = useState(true)
-  const [apiKey, setApiKey] = useState("")
-  const [validandoKey, setValidandoKey] = useState(false)
-  const [keyValida, setKeyValida] = useState<boolean | null>(null)
-  const [errorValidacion, setErrorValidacion] = useState("")
+  const [proveedoresEstado, setProveedoresEstado] = useState<any[]>([])
+  const [editando, setEditando] = useState<string | null>(null)
+  const [claves, setClaves] = useState<Record<string, string>>({})
+  const [probando, setProbando] = useState<Record<string, boolean>>({})
+  const [guardandoClave, setGuardandoClave] = useState<Record<string, boolean>>({})
   const [guardando, setGuardando] = useState(false)
   const [msg, setMsg] = useState({ texto: "", tipo: "" })
   const [uso, setUso] = useState({ consultas: 0, tokens: 0 })
-
-  useEffect(() => {
-    if (!apiKey.trim()) { setKeyValida(null); return }
-    setValidandoKey(true)
-    const timeout = setTimeout(() => {
-      fetch("/api/ai/validar-key", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ proveedor: config?.proveedor, apiKey })
-      }).then(r => r.json()).then(d => { setKeyValida(!!d.valido); setErrorValidacion(d.error || "") }).finally(() => setValidandoKey(false))
-    }, 700)
-    return () => clearTimeout(timeout)
-  }, [apiKey, config?.proveedor])
+  const [mensajePrueba, setMensajePrueba] = useState("")
+  const [historialPrueba, setHistorialPrueba] = useState<{ rol: string; texto: string }[]>([])
+  const [enviandoPrueba, setEnviandoPrueba] = useState(false)
 
   const mostrarMsg = (texto: string, tipo = "ok") => {
     setMsg({ texto, tipo })
     setTimeout(() => setMsg({ texto: "", tipo: "" }), 3000)
+  }
+
+  const cargarProveedores = () => {
+    fetch("/api/ai/proveedores").then(r => r.json()).then(d => { if (Array.isArray(d)) setProveedoresEstado(d) }).catch(() => {})
   }
 
   useEffect(() => {
@@ -625,29 +621,76 @@ function SeccionAI() {
       fetch("/api/ai/config").then(r => r.json()).catch(() => ({})),
       fetch("/api/ai/uso").then(r => r.json()).catch(() => ({ consultas: 0, tokens: 0 }))
     ]).then(([cfg, u]) => { setConfig(cfg); setUso(u); setCargando(false) })
+    cargarProveedores()
   }, [])
 
-  const guardar = async () => {
-    setGuardando(true)
-    const res = await fetch("/api/ai/config", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...config, apiKey: apiKey || undefined })
-    })
-    if (res.ok) mostrarMsg("Configuracion guardada correctamente")
-    else mostrarMsg("Error al guardar", "error")
-    setApiKey("")
-    setGuardando(false)
-  }
-
   const PROVEEDORES = [
-    { id: "anthropic", label: "Anthropic", sub: "Claude Sonnet · Opus · Haiku", emoji: "🤖", bg: "#F5EDE8", shadow: "rgba(204,155,122,0.18)", tags: [{ t: "Razonamiento", c: "#92400E", bg: "#F5EDE8" }, { t: "Codigo", c: "#92400E", bg: "#F5EDE8" }], modelos: ["claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-opus-4-6"] },
-    { id: "openai", label: "OpenAI", sub: "GPT-4o · GPT-4o mini", emoji: "💬", bg: "#E8F5F0", shadow: "rgba(16,163,127,0.15)", tags: [{ t: "Versatil", c: "#065F46", bg: "#E8F5F0" }, { t: "Popular", c: "#065F46", bg: "#E8F5F0" }], modelos: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"] },
-    { id: "google", label: "Google Gemini", sub: "Flash · Pro", emoji: "✨", bg: "#E8F0FE", shadow: "rgba(66,133,244,0.15)", tags: [{ t: "✓ Gratis", c: "#1a73e8", bg: "#E8F0FE" }, { t: "Rapido", c: "#1a73e8", bg: "#E8F0FE" }], modelos: ["gemini-1.5-flash", "gemini-1.5-pro"] },
-    { id: "mistral", label: "Mistral", sub: "Small · Medium · Large", emoji: "🌪️", bg: "#FFF0E8", shadow: "rgba(255,112,0,0.15)", tags: [{ t: "🇪🇺 Europeo", c: "#C2410C", bg: "#FFF0E8" }, { t: "RGPD", c: "#C2410C", bg: "#FFF0E8" }], modelos: ["mistral-small", "mistral-medium", "mistral-large-latest"] },
-    { id: "groq", label: "Groq", sub: "Llama 3 · Mixtral — Inferencia ultrarrápida", emoji: "⚡", bg: "#FFF7ED", shadow: "rgba(249,115,22,0.15)", tags: [{ t: "⚡ Rapido", c: "#92400E", bg: "#FEF9C3" }, { t: "Gratis", c: "#065F46", bg: "#D1FAE5" }], modelos: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it", "mixtral-8x7b-32768"], extra: true },
+    { id: "anthropic", label: "Anthropic", sub: "Claude Sonnet · Opus · Haiku", letra: "A", color: "#92400E", bg: "#F5EDE8", modelos: ["claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-opus-4-6"] },
+    { id: "openai", label: "OpenAI", sub: "GPT-4o · GPT-4o mini", letra: "O", color: "#065F46", bg: "#E8F5F0", modelos: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"] },
+    { id: "google", label: "Google Gemini", sub: "Flash · Pro", letra: "G", color: "#1a73e8", bg: "#E8F0FE", modelos: ["gemini-1.5-flash", "gemini-1.5-pro"] },
+    { id: "mistral", label: "Mistral", sub: "Small · Medium · Large", letra: "M", color: "#C2410C", bg: "#FFF0E8", modelos: ["mistral-small", "mistral-medium", "mistral-large-latest"] },
+    { id: "groq", label: "Groq", sub: "Llama 3 · Mixtral — Ultrarrapida", letra: "Q", color: "#92400E", bg: "#FFF7ED", modelos: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it", "mixtral-8x7b-32768"] },
   ]
 
   const proveedorActual = PROVEEDORES.find(p => p.id === config?.proveedor) || PROVEEDORES[0]
+  const estadoDe = (id: string) => proveedoresEstado.find(p => p.proveedor === id)
+
+  const guardarClave = async (proveedorId: string) => {
+    const clave = claves[proveedorId]
+    if (!clave?.trim()) return
+    setGuardandoClave(prev => ({ ...prev, [proveedorId]: true }))
+    const res = await fetch("/api/ai/proveedores", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ proveedor: proveedorId, apiKey: clave })
+    })
+    setGuardandoClave(prev => ({ ...prev, [proveedorId]: false }))
+    if (res.ok) {
+      mostrarMsg("Clave guardada correctamente")
+      setEditando(null)
+      setClaves(prev => ({ ...prev, [proveedorId]: "" }))
+      cargarProveedores()
+    } else {
+      mostrarMsg("Error al guardar la clave", "error")
+    }
+  }
+
+  const probarConexion = async (proveedorId: string) => {
+    setProbando(prev => ({ ...prev, [proveedorId]: true }))
+    const res = await fetch("/api/ai/validar-key", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ proveedor: proveedorId, apiKey: claves[proveedorId] || "" })
+    })
+    const data = await res.json()
+    setProbando(prev => ({ ...prev, [proveedorId]: false }))
+    mostrarMsg(data.valido ? "Conexion correcta" : (data.error || "La clave no es valida"), data.valido ? "ok" : "error")
+    cargarProveedores()
+  }
+
+  const guardarConfiguracion = async () => {
+    setGuardando(true)
+    const res = await fetch("/api/ai/config", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ proveedor: config?.proveedor, modelo: config?.modelo, activo: config?.activo })
+    })
+    setGuardando(false)
+    if (res.ok) mostrarMsg("Configuracion guardada correctamente")
+    else mostrarMsg("Error al guardar", "error")
+  }
+
+  const enviarPrueba = async () => {
+    if (!mensajePrueba.trim()) return
+    const texto = mensajePrueba.trim()
+    setHistorialPrueba(prev => [...prev, { rol: "user", texto }])
+    setMensajePrueba("")
+    setEnviandoPrueba(true)
+    const res = await fetch("/api/ai/chat-prueba", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ proveedor: config?.proveedor, modelo: config?.modelo, mensaje: texto })
+    })
+    const data = await res.json()
+    setEnviandoPrueba(false)
+    setHistorialPrueba(prev => [...prev, { rol: "assistant", texto: data.respuesta || data.error || "Error al obtener respuesta" }])
+  }
 
   if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
 
@@ -661,138 +704,155 @@ function SeccionAI() {
       )}
 
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg,#0f0c29,#302b63,#24243e)", borderRadius: 16, padding: "22px 24px", position: "relative", overflow: "hidden", boxShadow: "0 12px 40px rgba(15,12,41,0.35)" }}>
-        <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(103,61,230,0.15)", pointerEvents: "none" }} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(103,61,230,0.6)" }}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-            </div>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-.03em" }}>ScheduleoAI</div>
-              <div style={{ fontSize: 12, color: "#A78BFA", marginTop: 3 }}>Asistente inteligente · Potenciado por IA</div>
-            </div>
+      <div style={{ background: "linear-gradient(135deg,#3C3489,#673DE6)", borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {config?.activo && (
-              <div style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 20, padding: "5px 12px", display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 8px #10B981" }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#10B981" }}>Activo · {proveedorActual.label}</span>
-              </div>
-            )}
-            <div onClick={() => setConfig((c: any) => ({ ...c, activo: !c?.activo }))}
-              style={{ width: 52, height: 28, borderRadius: 14, background: config?.activo ? "#673DE6" : "#374151", position: "relative", cursor: "pointer", boxShadow: config?.activo ? "0 0 16px rgba(103,61,230,0.5)" : "none", transition: "all 0.2s" }}>
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: config?.activo ? 27 : 3, transition: "left 0.2s", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }} />
-            </div>
+          <div>
+            <div style={{ color: "#fff", fontSize: 16, fontWeight: 700 }}>ScheduleoAI</div>
+            <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 12 }}>Asistente inteligente</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ background: "rgba(255,255,255,0.15)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "5px 14px 5px 10px", borderRadius: 20, display: "flex", alignItems: "center", gap: 7 }}>
+            <span style={{ position: "relative", width: 8, height: 8, display: "inline-block" }}>
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: config?.activo ? "#4ade80" : "#9CA3AF", animation: config?.activo ? "pulso-scheduleo-ai 1.6s ease-out infinite" : "none" }} />
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: config?.activo ? "#4ade80" : "#9CA3AF" }} />
+            </span>
+            {config?.activo ? `Activo · ${proveedorActual.label}` : "Inactivo"}
+          </div>
+          <div onClick={() => setConfig((c: any) => ({ ...c, activo: !c?.activo }))}
+            style={{ width: 44, height: 24, borderRadius: 12, background: config?.activo ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)", position: "relative", cursor: "pointer" }}>
+            <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: config?.activo ? 23 : 3, transition: "left 0.2s" }} />
           </div>
         </div>
       </div>
+      <style>{`@keyframes pulso-scheduleo-ai{0%{transform:scale(1);opacity:0.8}100%{transform:scale(2.8);opacity:0}}`}</style>
 
-      {/* Separador */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ height: 1, flex: 1, background: "linear-gradient(90deg,#C4B5FD,transparent)" }} />
-        <span style={{ fontSize: 11, fontWeight: 700, color: "#7C3AED", textTransform: "uppercase" as const, letterSpacing: ".08em" }}>Elige tu proveedor de IA</span>
-        <div style={{ height: 1, flex: 1, background: "linear-gradient(90deg,transparent,#C4B5FD)" }} />
-      </div>
-
-      {/* Grid proveedores */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", minWidth: 0 }}>
+      {/* Tarjetas de proveedores */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {PROVEEDORES.map(p => {
-          const isActive = config?.proveedor === p.id
+          const estado = estadoDe(p.id)
+          const esActivo = config?.proveedor === p.id
+          const estaEditando = editando === p.id
+          let etiquetaEstado = "Sin configurar", colorEstado = "#6B7280", bgEstado = "#F3F4F6"
+          if (estado?.tieneKey && estado?.valido === true) { etiquetaEstado = "Configurada"; colorEstado = "#065F46"; bgEstado = "#D1FAE5" }
+          else if (estado?.tieneKey && estado?.valido === false) { etiquetaEstado = "Clave invalida"; colorEstado = "#991B1B"; bgEstado = "#FEE2E2" }
+          else if (estado?.tieneKey) { etiquetaEstado = "Sin verificar"; colorEstado = "#92400E"; bgEstado = "#FEF3C7" }
+
           return (
-            <div key={p.id} onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))}
-              style={{ gridColumn: p.extra ? "span 2" : undefined, minWidth: 0, overflow: "hidden", border: isActive ? "2px solid #673DE6" : "1.5px solid #E5E7EB", borderRadius: 14, padding: isActive && p.extra ? "14px" : "12px", background: isActive ? "linear-gradient(135deg,#F5F3FF,#EDE9FE)" : "#fff", cursor: "pointer", boxShadow: isActive ? `0 8px 32px rgba(103,61,230,0.25)` : `0 4px 20px ${p.shadow}, 0 1px 4px rgba(0,0,0,0.04)`, transition: "all 0.2s", position: "relative" as const }}>
-              {isActive && <div style={{ position: "absolute", top: 12, right: 12, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", fontSize: 9, fontWeight: 800, padding: "3px 10px", borderRadius: 6, boxShadow: "0 2px 8px rgba(103,61,230,0.4)" }}>✓ SELECCIONADO</div>}
-              <div style={{ display: "flex", alignItems: isActive && p.extra ? "center" : "flex-start", gap: 12 }}>
-                <div style={{ width: isActive && p.extra ? 40 : 36, height: isActive && p.extra ? 40 : 36, borderRadius: 10, background: `linear-gradient(135deg,${p.bg},${p.bg}dd)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: isActive && p.extra ? 18 : 16, boxShadow: `0 4px 12px ${p.shadow}` }}>{p.emoji}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: isActive && p.extra ? 13 : 12, fontWeight: isActive ? 800 : 700, color: isActive ? "#673DE6" : "#111827" }}>{p.label}</div>
-                  <div style={{ fontSize: 10, color: isActive ? "#7C3AED" : "#6B7280", marginTop: 2 }}>{p.sub}</div>
-                  <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" as const }}>
-                    {p.tags.map((tag, ti) => <span key={ti} style={{ background: tag.bg, color: tag.c, fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 5 }}>{tag.t}</span>)}
+            <div key={p.id} style={{ background: "#fff", border: esActivo ? "2px solid #673DE6" : "1px solid #E5E7EB", borderRadius: 12, padding: 16 }}>
+              <div onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: p.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: p.color }}>{p.letra}</div>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{p.label}</span>
+                </div>
+                <span style={{ background: bgEstado, color: colorEstado, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>{etiquetaEstado}</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 12 }}>
+                {estado?.verificadoEn ? `Verificada ${new Date(estado.verificadoEn).toLocaleString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : (estado?.tieneKey ? "Sin verificar todavia" : "Aun no se ha anadido una clave")}
+              </div>
+
+              {estaEditando ? (
+                <div style={{ marginBottom: 10 }}>
+                  <input type="password" value={claves[p.id] || ""} onChange={e => setClaves(prev => ({ ...prev, [p.id]: e.target.value }))}
+                    placeholder="Pega tu API key aqui" style={{ width: "100%", padding: "8px 10px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 12, fontFamily: "monospace", marginBottom: 8, boxSizing: "border-box" as const }} />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => setEditando(null)} style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
+                    <button onClick={() => guardarClave(p.id)} disabled={guardandoClave[p.id]} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardandoClave[p.id] ? 0.6 : 1 }}>
+                      {guardandoClave[p.id] ? "Guardando..." : "Guardar clave"}
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => setEditando(p.id)} style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>
+                    {estado?.tieneKey ? "Editar clave" : "Anadir clave"}
+                  </button>
+                  {estado?.tieneKey && (
+                    <button onClick={() => probarConexion(p.id)} disabled={probando[p.id]} style={{ flex: 1, background: "#EEEDFE", border: "1px solid #673DE6", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#3C3489", cursor: "pointer", opacity: probando[p.id] ? 0.6 : 1 }}>
+                      {probando[p.id] ? "Probando..." : "Probar conexion"}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )
         })}
       </div>
 
-      {/* Modelo + API Key */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <div style={{ background: "#fff", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16, boxShadow: "0 4px 14px rgba(103,61,230,0.08)" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#7C3AED", textTransform: "uppercase" as const, letterSpacing: ".07em", marginBottom: 10 }}>Modelo activo</div>
-          <select value={config?.modelo || ""} onChange={e => setConfig((c: any) => ({ ...c, modelo: e.target.value }))}
-            style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #673DE6", borderRadius: 8, fontSize: 13, color: "#673DE6", fontWeight: 600, background: "#F5F3FF", outline: "none" }}>
-            {proveedorActual.modelos.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
+      {/* Modelo activo */}
+      <div style={{ background: "#fff", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#7C3AED", textTransform: "uppercase" as const, letterSpacing: ".07em", marginBottom: 10 }}>Modelo activo</div>
+        <select value={config?.modelo || ""} onChange={e => setConfig((c: any) => ({ ...c, modelo: e.target.value }))}
+          style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #673DE6", borderRadius: 8, fontSize: 13, color: "#673DE6", fontWeight: 600, background: "#F5F3FF", outline: "none" }}>
+          {proveedorActual.modelos.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+      </div>
+
+      {/* Probar el asistente en vivo */}
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>Probar el asistente en vivo</span>
+          <span style={{ fontSize: 11, color: "#9CA3AF" }}>(usa {proveedorActual.label} · {config?.modelo})</span>
         </div>
-        <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 16, boxShadow: "0 4px 14px rgba(0,0,0,0.04)", position: "relative" as const, overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: -1, right: -1, background: "linear-gradient(135deg,#D1FAE5,#A7F3D0)", borderRadius: "0 12px 0 12px", padding: "4px 10px", display: "flex", alignItems: "center", gap: 4 }}>
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span style={{ fontSize: 9, fontWeight: 800, color: "#059669" }}>AES-256</span>
-          </div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: ".07em", marginBottom: 10 }}>API Key</div>
-          <div style={{ position: "relative" as const }}>
-            <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
-              placeholder={config?.tieneKey ? "••••••••••••••••••• (cambiar)" : "Pega tu API key aqui"}
-              style={{ width: "100%", padding: "9px 36px 9px 36px", border: `1px solid ${keyValida === true ? "#10B981" : keyValida === false ? "#DC2626" : "#E5E7EB"}`, borderRadius: 8, fontSize: 12, fontFamily: "monospace", background: "#F9FAFB", color: "#374151", outline: "none" }} />
-            {apiKey.trim() && (
-              <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)" }}>
-                {validandoKey ? (
-                  <span style={{ fontSize: 11, color: "#9CA3AF" }}>...</span>
-                ) : keyValida === true ? (
-                  <span style={{ color: "#10B981", fontSize: 16, fontWeight: 700 }}>✓</span>
-                ) : keyValida === false ? (
-                  <span style={{ color: "#DC2626", fontSize: 16, fontWeight: 700 }}>✕</span>
-                ) : null}
+        <div style={{ background: "#F8FAFC", borderRadius: 8, padding: 12, minHeight: 70, maxHeight: 220, overflowY: "auto" as const, marginBottom: 10, display: "flex", flexDirection: "column" as const, gap: 10 }}>
+          {historialPrueba.length === 0 && <div style={{ fontSize: 12, color: "#9CA3AF", textAlign: "center" as const }}>Escribe un mensaje para probar el asistente</div>}
+          {historialPrueba.map((m, i) => m.rol === "user" ? (
+            <div key={i} style={{ alignSelf: "flex-end", background: "#673DE6", color: "#fff", fontSize: 12, padding: "7px 12px", borderRadius: "10px 10px 0 10px", maxWidth: "75%" }}>{m.texto}</div>
+          ) : (
+            <div key={i} style={{ display: "flex", alignItems: "flex-end", gap: 8, alignSelf: "flex-start" }}>
+              <div className="robot-pensando-icono" style={{ width: 26, height: 26, borderRadius: 8, background: "#EEEDFE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3C3489" strokeWidth="2"><rect x="5" y="9" width="14" height="10" rx="2"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M12 9V6M9 6h6"/></svg>
               </div>
-            )}
-            {keyValida === false && errorValidacion && (
-              <div style={{ fontSize: 11, color: "#DC2626", marginTop: 6 }}>{errorValidacion}</div>
-            )}
-            <div style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div style={{ background: "#fff", border: "1px solid #E5E7EB", color: "#374151", fontSize: 12, padding: "7px 12px", borderRadius: "10px 10px 10px 0", maxWidth: "75%" }}>{m.texto}</div>
             </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, padding: "5px 10px", background: "linear-gradient(135deg,rgba(240,253,244,0.8),rgba(236,253,245,0.6))", border: "1px solid rgba(167,243,208,0.5)", borderRadius: 7 }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span style={{ fontSize: 10, color: "#065F46", fontWeight: 600 }}>Cifrado AES-256-GCM · Nunca visible · Solo el servidor la descifra</span>
-          </div>
+          ))}
+          {enviandoPrueba && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, alignSelf: "flex-start" }}>
+              <div className="robot-pensando-icono" style={{ width: 26, height: 26, borderRadius: 8, background: "#EEEDFE", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3C3489" strokeWidth="2"><rect x="5" y="9" width="14" height="10" rx="2"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M12 9V6M9 6h6"/></svg>
+              </div>
+              <span style={{ fontSize: 11, color: "#9CA3AF" }}>Escribiendo...</span>
+            </div>
+          )}
+        </div>
+        <style>{`@keyframes robot-pensando{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-2px) rotate(-4deg)}75%{transform:translateY(-2px) rotate(4deg)}}.robot-pensando-icono{animation:robot-pensando 1.8s ease-in-out infinite}`}</style>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={mensajePrueba} onChange={e => setMensajePrueba(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarPrueba()}
+            placeholder="Escribe un mensaje de prueba..." style={{ flex: 1, border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 12px", fontSize: 12, outline: "none" }} />
+          <button onClick={enviarPrueba} disabled={enviandoPrueba} style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer", opacity: enviandoPrueba ? 0.6 : 1 }}>Enviar</button>
         </div>
       </div>
 
       {/* Uso */}
-      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 18, boxShadow: "0 6px 20px rgba(0,0,0,0.05)" }}>
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 18 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: ".07em" }}>Uso este mes</div>
           <span style={{ fontSize: 10, color: "#6B7280", background: "#F3F4F6", padding: "3px 9px", borderRadius: 10 }}>{new Date().toLocaleString("es-ES", { month: "long", year: "numeric" })}</span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {[
-            { label: "Consultas hoy", valor: uso.consultas, sub: "0 / 20 hoy", color: "#673DE6", bg: "linear-gradient(135deg,#F5F3FF,#EDE9FE)", shadow: "rgba(103,61,230,0.14)", border: "rgba(196,181,253,0.3)", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
-            { label: "Tokens usados", valor: uso.tokens.toLocaleString(), sub: "Este mes", color: "#10B981", bg: "linear-gradient(135deg,#F0FDF4,#DCFCE7)", shadow: "rgba(16,185,129,0.14)", border: "rgba(167,243,208,0.4)", icon: "M22 12h-4l-3 9L9 3l-3 9H2" },
-            { label: "Coste estimado", valor: "$0", sub: "Este mes", color: "#D97706", bg: "linear-gradient(135deg,#FEF9C3,#FEF08A)", shadow: "rgba(217,119,6,0.14)", border: "rgba(253,230,138,0.5)", icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" },
+            { label: "Consultas hoy", valor: uso.consultas, color: "#673DE6", bg: "#F5F3FF" },
+            { label: "Tokens usados", valor: uso.tokens.toLocaleString(), color: "#10B981", bg: "#F0FDF4" },
+            { label: "Coste estimado", valor: "$0", color: "#D97706", bg: "#FEF9C3" },
           ].map((item, i) => (
-            <div key={i} style={{ background: item.bg, borderRadius: 12, padding: 16, textAlign: "center", boxShadow: `0 4px 16px ${item.shadow}, 0 1px 4px ${item.shadow}`, border: `1px solid ${item.border}` }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: `rgba(${item.color === "#673DE6" ? "103,61,230" : item.color === "#10B981" ? "16,185,129" : "217,119,6"},0.12)`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2"><path d={item.icon}/></svg>
-              </div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: item.color, lineHeight: 1 }}>{item.valor}</div>
+            <div key={i} style={{ background: item.bg, borderRadius: 12, padding: 16, textAlign: "center" as const }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.valor}</div>
               <div style={{ fontSize: 11, color: item.color, fontWeight: 600, marginTop: 4 }}>{item.label}</div>
-              <div style={{ height: 3, background: `rgba(${item.color === "#673DE6" ? "103,61,230" : item.color === "#10B981" ? "16,185,129" : "217,119,6"},0.15)`, borderRadius: 999, marginTop: 8 }}>
-                <div style={{ width: "0%", height: "100%", background: item.color, borderRadius: 999 }} />
-              </div>
-              <div style={{ fontSize: 9, color: item.color, opacity: 0.7, marginTop: 4 }}>{item.sub}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <button onClick={guardar} disabled={guardando}
-        style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 12, padding: "14px 24px", fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: guardando ? 0.7 : 1, boxShadow: "0 8px 24px rgba(103,61,230,0.4)" }}>
-        {guardando ? "Guardando..." : "Guardar configuracion ScheduleoAI"}
-      </button>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button onClick={guardarConfiguracion} disabled={guardando}
+          style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", opacity: guardando ? 0.7 : 1 }}>
+          {guardando ? "Guardando..." : "Guardar cambios"}
+        </button>
+      </div>
 
     </div>
   )

@@ -37,17 +37,13 @@ export async function getConfigAI() {
   }
 }
 
-export async function chatAI(mensajes: MensajeAI[], contexto?: string): Promise<{ respuesta: string; tokens: number; proveedor: string }> {
-  const config = await getConfigAI()
-  if (!config || !config.activo) throw new Error("ScheduleoAI no esta configurado o activo")
-  if (!config.apiKeyEnc) throw new Error("No hay API key configurada")
-
-  const apiKey = decrypt(config.apiKeyEnc)
-  const proveedor = config.proveedor
-  const modelo = config.modelo
-
-  const systemContent = SYSTEM_PROMPT + (contexto ? `\n\nCONTEXTO ACTUAL DEL SISTEMA:\n${contexto}` : "")
-
+export async function llamarModeloIA(
+  proveedor: string,
+  modelo: string,
+  apiKey: string,
+  mensajes: MensajeAI[],
+  systemContent: string
+): Promise<{ respuesta: string; tokens: number; proveedor: string }> {
   if (proveedor === "anthropic") {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -122,4 +118,15 @@ export async function chatAI(mensajes: MensajeAI[], contexto?: string): Promise<
   }
 
   throw new Error(`Proveedor no soportado: ${proveedor}`)
+}
+
+export async function chatAI(mensajes: MensajeAI[], contexto?: string): Promise<{ respuesta: string; tokens: number; proveedor: string }> {
+  const config = await getConfigAI()
+  if (!config || !config.activo) throw new Error("ScheduleoAI no esta configurado o activo")
+  if (!config.apiKeyEnc) throw new Error("No hay API key configurada")
+
+  const apiKey = decrypt(config.apiKeyEnc)
+  const systemContent = SYSTEM_PROMPT + (contexto ? `\n\nCONTEXTO ACTUAL DEL SISTEMA:\n${contexto}` : "")
+
+  return llamarModeloIA(config.proveedor, config.modelo, apiKey, mensajes, systemContent)
 }

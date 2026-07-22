@@ -44,8 +44,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { proveedor, apiKey } = await req.json()
-    const clave = (apiKey || "").trim()
-    if (!clave) return NextResponse.json({ valido: false, error: "La clave esta vacia" })
+    let clave = (apiKey || "").trim()
+    if (!clave) {
+      const guardada = await prisma.configuracionAIProveedor.findUnique({ where: { proveedor } })
+      if (!guardada?.apiKeyEnc) return NextResponse.json({ valido: false, error: "No hay ninguna clave guardada para probar" })
+      const { decrypt } = await import("@/lib/encryption")
+      clave = decrypt(guardada.apiKeyEnc)
+    }
 
     let valido = false
     switch (proveedor) {
