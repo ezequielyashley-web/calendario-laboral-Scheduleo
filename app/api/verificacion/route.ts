@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         DELETE FROM "TwoFactorCode" WHERE "userId" = ${user.id} AND expires < NOW()
       `
 
-      await resend.emails.send({
+      const { data: emailData, error: emailError } = await resend.emails.send({
         from: "Scheduleo <verificacion@scheduleo.es>",
         to: email,
         subject: "Codigo de verificacion Scheduleo",
@@ -40,6 +40,10 @@ export async function POST(req: NextRequest) {
         </div>`
       })
 
+      if (emailError) {
+        console.error("Error enviando codigo 2FA:", emailError)
+        return NextResponse.json({ error: "No se pudo enviar el codigo. Intenta de nuevo o contacta con soporte." }, { status: 500 })
+      }
       return NextResponse.json({ ok: true, userId: user.id })
     }
 
