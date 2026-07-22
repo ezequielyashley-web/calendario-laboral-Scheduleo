@@ -51,6 +51,7 @@ export default function LoginV2Page() {
   const [mostrarPassword, setMostrarPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [featureHover, setFeatureHover] = useState<number | null>(null)
 
   const iniciarSesion = () => {
     setEstado("verificando")
@@ -68,7 +69,7 @@ export default function LoginV2Page() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 40px 10px 38px", border: "1px solid #E2E8F0", borderRadius: 12,
-    fontSize: 13, background: "#fff", outline: "none", boxSizing: "border-box" as const
+    fontSize: 13, background: "#fff", outline: "none", boxSizing: "border-box" as const, transition: "border-color 0.2s, box-shadow 0.2s"
   }
 
   return (
@@ -77,13 +78,31 @@ export default function LoginV2Page() {
         <img src="/login-bg.png" alt="background" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(13,71,161,0.1) 0%,rgba(25,118,210,0.05) 50%,rgba(15,23,42,0.08) 100%)" }} />
+      <div style={{ position: "absolute", top: "18%", left: "8%", width: 340, height: 340, background: "rgba(66,165,245,0.16)", borderRadius: "50%", filter: "blur(90px)", animation: "loginv2-blob-1 9s ease-in-out infinite" }} />
+      <div style={{ position: "absolute", bottom: "12%", right: "10%", width: 300, height: 300, background: "rgba(25,118,210,0.14)", borderRadius: "50%", filter: "blur(90px)", animation: "loginv2-blob-2 11s ease-in-out infinite 1s" }} />
+      <style>{`
+        @keyframes loginv2-blob-1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.08); } }
+        @keyframes loginv2-blob-2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-25px,20px) scale(1.05); } }
+        @keyframes loginv2-entrada { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes loginv2-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .loginv2-feature { transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; cursor: default; }
+        .loginv2-feature:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,71,161,0.1); border-color: ${azulAcento} !important; }
+        .loginv2-badge { transition: transform 0.18s; }
+        .loginv2-badge:hover { transform: translateY(-1px) scale(1.02); }
+        .loginv2-btn-social { transition: all 0.18s; }
+        .loginv2-btn-social:hover { background: #F8FAFC !important; border-color: ${azulSecundario} !important; }
+        .loginv2-btn-principal { transition: all 0.2s; }
+        .loginv2-btn-principal:hover { filter: brightness(1.08); box-shadow: 0 10px 24px rgba(13,71,161,0.35); }
+        .loginv2-input:focus { border-color: ${azulSecundario} !important; box-shadow: 0 0 0 3px rgba(25,118,210,0.12); }
+        .loginv2-barra { background: linear-gradient(90deg, ${azulSecundario} 0%, ${azulAcento} 50%, ${azulSecundario} 100%); background-size: 200% 100%; animation: loginv2-shimmer 1.6s linear infinite; }
+      `}</style>
 
       {estado === "login" && (
-        <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1100, display: "flex", background: "rgba(255,255,255,0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.9)", borderRadius: 24, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", overflow: "hidden" }}>
+        <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1100, display: "flex", background: "rgba(255,255,255,0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.9)", borderRadius: 24, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", overflow: "hidden", animation: "loginv2-entrada 0.5s ease-out" }}>
 
           <div style={{ flex: 1.15, padding: "36px 32px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(13,71,161,0.35)" }}>
                 <span style={{ color: "#fff", fontSize: 18, fontWeight: 700 }}>S</span>
               </div>
               <span style={{ fontSize: 22, fontWeight: 700, color: "#0F172A" }}>Scheduleo <span style={{ color: azulSecundario }}>2.0</span></span>
@@ -97,8 +116,10 @@ export default function LoginV2Page() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
               {FEATURES.map((f, i) => (
-                <div key={i} style={{ background: "rgba(255,255,255,0.75)", border: "1px solid rgba(226,232,240,0.8)", borderRadius: 12, padding: 10 }}>
-                  <div style={{ color: azulSecundario, marginBottom: 6 }}>{f.icono}</div>
+                <div key={i} className="loginv2-feature"
+                  onMouseEnter={() => setFeatureHover(i)} onMouseLeave={() => setFeatureHover(null)}
+                  style={{ background: "rgba(255,255,255,0.75)", border: "1px solid rgba(226,232,240,0.8)", borderRadius: 12, padding: 10, animation: `loginv2-entrada 0.4s ease-out ${i * 0.05}s both` }}>
+                  <div style={{ color: azulSecundario, marginBottom: 6, transform: featureHover === i ? "scale(1.1)" : "scale(1)", transition: "transform 0.18s" }}>{f.icono}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#0F172A", lineHeight: 1.3 }}>{f.titulo}</div>
                   <div style={{ fontSize: 9.5, color: "#64748B", marginTop: 3, lineHeight: 1.3 }}>{f.texto}</div>
                 </div>
@@ -107,7 +128,7 @@ export default function LoginV2Page() {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 6 }}>
               {BADGES.map((b, i) => (
-                <div key={i} style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(226,232,240,0.7)", borderRadius: 10, padding: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                <div key={i} className="loginv2-badge" style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(226,232,240,0.7)", borderRadius: 10, padding: 8, display: "flex", alignItems: "center", gap: 6, animation: `loginv2-entrada 0.4s ease-out ${0.3 + i * 0.05}s both` }}>
                   <div style={{ color: azulAcento, flexShrink: 0 }}>{b.icono}</div>
                   <div>
                     <div style={{ fontSize: 9, fontWeight: 700, color: "#0F172A" }}>{b.titulo}</div>
@@ -126,7 +147,7 @@ export default function LoginV2Page() {
               <label style={{ fontSize: 11.5, color: "#334155", fontWeight: 600, display: "block", marginBottom: 4 }}>Correo electronico</label>
               <div style={{ position: "relative" as const }}>
                 <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }}>{Icons.correo}</span>
-                <input value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="tu@empresa.com" />
+                <input className="loginv2-input" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="tu@empresa.com" />
               </div>
             </div>
 
@@ -134,7 +155,7 @@ export default function LoginV2Page() {
               <label style={{ fontSize: 11.5, color: "#334155", fontWeight: 600, display: "block", marginBottom: 4 }}>Contrasena</label>
               <div style={{ position: "relative" as const }}>
                 <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }}>{Icons.candado}</span>
-                <input type={mostrarPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} placeholder="Ingresa tu contrasena" />
+                <input className="loginv2-input" type={mostrarPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} placeholder="Ingresa tu contrasena" />
                 <span onClick={() => setMostrarPassword(!mostrarPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#94A3B8", cursor: "pointer" }}>{Icons.ojo}</span>
               </div>
             </div>
@@ -144,7 +165,7 @@ export default function LoginV2Page() {
               <a style={{ color: azulSecundario, cursor: "pointer" }}>Olvidaste tu contrasena?</a>
             </div>
 
-            <button onClick={iniciarSesion} style={{ width: "100%", background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 13.5, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 18 }}>
+            <button onClick={iniciarSesion} className="loginv2-btn-principal" style={{ width: "100%", background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 13.5, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 18, boxShadow: "0 6px 16px rgba(13,71,161,0.25)" }}>
               Iniciar sesion {Icons.flecha}
             </button>
 
@@ -155,17 +176,17 @@ export default function LoginV2Page() {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 16 }}>
-              <button style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Google</button>
-              <button style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Microsoft</button>
-              <button style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Apple</button>
-              <button style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>{Icons.edificio} SSO</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Google</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Microsoft</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Apple</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.edificio} SSO</button>
             </div>
 
             <div style={{ fontSize: 10.5, color: "#94A3B8", marginBottom: 8 }}>Entrar con Passkey</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, marginBottom: 18 }}>
-              <button style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.ventana} Windows Hello</button>
-              <button style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.escaner} Face ID</button>
-              <button style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.huella} Touch ID</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.ventana} Windows Hello</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.escaner} Face ID</button>
+              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.huella} Touch ID</button>
             </div>
 
             <div style={{ fontSize: 11, color: "#64748B" }}>No tienes cuenta? <a style={{ color: azulSecundario, fontWeight: 600 }}>Solicita una demostracion</a></div>
@@ -174,34 +195,34 @@ export default function LoginV2Page() {
       )}
 
       {estado === "verificando" && (
-        <div style={{ position: "relative", zIndex: 10, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "40px 48px", textAlign: "center" as const, maxWidth: 380, boxShadow: "0 25px 60px rgba(13,71,161,0.15)" }}>
-          <div style={{ width: 60, height: 60, borderRadius: 16, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+        <div style={{ position: "relative", zIndex: 10, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "40px 48px", textAlign: "center" as const, maxWidth: 380, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", animation: "loginv2-entrada 0.4s ease-out" }}>
+          <div style={{ width: 60, height: 60, borderRadius: 16, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 10px 24px rgba(13,71,161,0.35)" }}>
             <span style={{ color: "#fff", fontSize: 26, fontWeight: 700 }}>S</span>
           </div>
           <div style={{ fontSize: 17, fontWeight: 700, color: "#0F172A", marginBottom: 20 }}>Verificando tu identidad...</div>
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, marginBottom: 20, textAlign: "left" as const }}>
             {PASOS_VERIFICACION.map((paso, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, opacity: i < pasoActual ? 1 : 0.35, transition: "opacity 0.3s" }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, opacity: i < pasoActual ? 1 : 0.35, transform: i < pasoActual ? "translateX(0)" : "translateX(-4px)", transition: "opacity 0.3s, transform 0.3s" }}>
                 {i < pasoActual ? Icons.check : <div style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid #CBD5E1" }} />}
                 <span style={{ fontSize: 13, color: "#334155" }}>{paso}</span>
               </div>
             ))}
           </div>
-          <div style={{ height: 4, background: "#E2E8F0", borderRadius: 999 }}>
-            <div style={{ width: `${(pasoActual / PASOS_VERIFICACION.length) * 100}%`, height: "100%", background: azulSecundario, borderRadius: 999, transition: "width 0.4s" }} />
+          <div style={{ height: 4, background: "#E2E8F0", borderRadius: 999, overflow: "hidden" }}>
+            <div className="loginv2-barra" style={{ width: `${(pasoActual / PASOS_VERIFICACION.length) * 100}%`, height: "100%", borderRadius: 999, transition: "width 0.4s" }} />
           </div>
         </div>
       )}
 
       {estado === "bienvenido" && (
-        <div style={{ position: "relative", zIndex: 10, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "48px", textAlign: "center" as const, maxWidth: 380, boxShadow: "0 25px 60px rgba(13,71,161,0.15)" }}>
-          <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+        <div style={{ position: "relative", zIndex: 10, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "48px", textAlign: "center" as const, maxWidth: 380, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", animation: "loginv2-entrada 0.5s ease-out" }}>
+          <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 0 0 8px rgba(66,165,245,0.15), 0 10px 28px rgba(13,71,161,0.35)" }}>
             <span style={{ color: "#fff", fontSize: 28, fontWeight: 700 }}>S</span>
           </div>
           <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>Bienvenido a Scheduleo!</div>
           <div style={{ fontSize: 13, color: "#64748B", marginBottom: 20 }}>Preparando tu espacio de trabajo...</div>
-          <div style={{ height: 4, background: "#E2E8F0", borderRadius: 999 }}>
-            <div style={{ width: "70%", height: "100%", background: azulSecundario, borderRadius: 999 }} />
+          <div style={{ height: 4, background: "#E2E8F0", borderRadius: 999, overflow: "hidden" }}>
+            <div className="loginv2-barra" style={{ width: "70%", height: "100%", borderRadius: 999 }} />
           </div>
         </div>
       )}
