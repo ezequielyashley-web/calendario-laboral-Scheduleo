@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
-
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const { searchParams } = new URL(req.url)
     const fichajeId = searchParams.get("fichajeId")
     const empleadoId = searchParams.get("empleadoId")
-
     let logs: any[]
-
     if (fichajeId) {
       logs = await prisma.$queryRaw`
         SELECT * FROM "LogModificacion"
@@ -31,7 +31,6 @@ export async function GET(req: NextRequest) {
         LIMIT 200
       ` as any[]
     }
-
     return NextResponse.json(logs)
   } catch (error) {
     console.error(error)

@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import webpush from "web-push"
-
 webpush.setVapidDetails(
   process.env.VAPID_EMAIL || "mailto:admin@empresa.com",
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "",
   process.env.VAPID_PRIVATE_KEY || ""
 )
-
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
   try {
     const { titulo, mensaje, url, empresaId } = await req.json()
-
     const subs = await prisma.$queryRaw`
       SELECT * FROM "PushSubscription" WHERE "empresaId" = ${empresaId || "empresa-001"}
     ` as any[]
-
     const resultados = await Promise.allSettled(
       subs.map(sub =>
         webpush.sendNotification(
@@ -24,7 +26,6 @@ export async function POST(req: NextRequest) {
         )
       )
     )
-
     const enviadas = resultados.filter(r => r.status === "fulfilled").length
     return NextResponse.json({ ok: true, enviadas, total: subs.length })
   } catch (error) {

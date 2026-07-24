@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No tienes permisos suficientes para realizar esta accion. Solo el Super Admin puede ejecutar acciones desde ScheduleoAI." }, { status: 403 })
+  }
   try {
-    const { tipo, datos, userId } = await req.json()
-    if (!userId) return NextResponse.json({ error: "Usuario no identificado" }, { status: 401 })
-
-    const usuarios = await prisma.$queryRaw`
-      SELECT role FROM "User" WHERE id = ${userId} LIMIT 1
-    ` as any[]
-    const rol = usuarios[0]?.role
-
-    if (rol !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "No tienes permisos suficientes para realizar esta accion. Solo el Super Admin puede ejecutar acciones desde ScheduleoAI." }, { status: 403 })
-    }
+    const { tipo, datos } = await req.json()
 
     if (tipo === "crear_grupo") {
       const { nombre, color, descripcion } = datos
