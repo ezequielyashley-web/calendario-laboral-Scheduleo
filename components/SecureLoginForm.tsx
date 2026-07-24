@@ -257,7 +257,7 @@ export default function SecureLoginForm() {
                 if (data.ok) {
                   const csrfRes = await fetch("/api/auth/csrf")
                   const { csrfToken } = await csrfRes.json()
-                  await fetch("/api/auth/callback/credentials", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, redirect: "manual", body: new URLSearchParams({ email, password, csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" }) })
+                  await fetch("/api/auth/callback/credentials", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, redirect: "manual", body: new URLSearchParams({ email, password, sessionGrant: data.sessionGrant || "", csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" }) })
                   sessionStorage.setItem("2fa_verified", "true")
                   setShow2FA(false)
                   setUserName(email.split('@')[0])
@@ -314,7 +314,7 @@ export default function SecureLoginForm() {
                 if (data.ok) {
                   const csrfRes = await fetch("/api/auth/csrf")
                   const { csrfToken } = await csrfRes.json()
-                  await fetch("/api/auth/callback/credentials", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, redirect: "manual", body: new URLSearchParams({ email, password, csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" }) })
+                  await fetch("/api/auth/callback/credentials", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, redirect: "manual", body: new URLSearchParams({ email, password, sessionGrant: data.sessionGrant || "", csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" }) })
                   sessionStorage.setItem("2fa_verified", "true")
                   setShow2FATotp(false)
                   setUserName(email.split('@')[0])

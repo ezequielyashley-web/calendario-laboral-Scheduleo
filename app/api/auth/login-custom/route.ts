@@ -1,28 +1,30 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-
+import { checkRateLimit } from "@/lib/rate-limit"
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json()
     if (!email || !password) return NextResponse.json({ error: "Credenciales requeridas" }, { status: 400 })
-
     const identifier = email.toLowerCase().trim()
+
+    const rl = checkRateLimit(`login-custom-${identifier}`, 5, 15 * 60 * 1000)
+    if (!rl.success) {
+      const minutosRestantes = Math.ceil((rl.resetTime - Date.now()) / 60000)
+      return NextResponse.json({ error: `Demasiados intentos. Espera ${minutosRestantes} minutos.` }, { status: 429 })
+    }
 
     const users = await prisma.$queryRaw`
       SELECT id, email, name, password, role, "metodo2FA", "totpEnabled" FROM "User" WHERE LOWER(email) = ${identifier} LIMIT 1
     ` as any[]
-
     if (!users.length || !users[0].password) {
       return NextResponse.json({ error: "Email o contrasena incorrectos" }, { status: 401 })
     }
-
     const user = users[0]
     const isValid = await bcrypt.compare(password, user.password)
     if (!isValid) {
       return NextResponse.json({ error: "Email o contrasena incorrectos" }, { status: 401 })
     }
-
     return NextResponse.json({
       ok: true,
       userId: user.id,

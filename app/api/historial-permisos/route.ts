@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
     const permisosAntes = usuario.permisos || {}
 
     // Actualizar permisos
-    await prisma.$executeRawUnsafe(`
-      UPDATE "User" SET permisos = '${JSON.stringify(permisosNuevos)}'::jsonb WHERE id = '${usuario.id}'
-    `)
+    await prisma.$executeRaw`
+      UPDATE "User" SET permisos = ${JSON.stringify(permisosNuevos)}::jsonb WHERE id = ${usuario.id}
+    `
 
     // Registrar en historial
     await prisma.$executeRaw`

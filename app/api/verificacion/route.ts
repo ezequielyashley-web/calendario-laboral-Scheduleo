@@ -1,23 +1,29 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { Resend } from "resend"
-
+import crypto from "crypto"
+import { checkRateLimit } from "@/lib/rate-limit"
 export const runtime = "nodejs"
-
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+async function generarSessionGrant(userId: string): Promise<string> {
+  const token = crypto.randomBytes(32).toString("hex")
+  const expiresAt = new Date(Date.now() + 60 * 1000)
+  await prisma.sessionGrant.create({
+    data: { userId, token, expiresAt }
+  })
+  return token
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { email, action, code, userId } = await req.json()
-
     if (action === "send") {
       const user = await prisma.user.findUnique({ where: { email } })
       if (!user) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
       // 2FA obligatorio para todos los usuarios, sin importar el rol
-
       const codigo = Math.floor(100000 + Math.random() * 900000).toString()
       const expires = new Date(Date.now() + 10 * 60 * 1000)
-
       await prisma.$executeRaw`
         INSERT INTO "TwoFactorCode" (id, "userId", code, expires)
         VALUES (gen_random_uuid()::text, ${user.id}, ${codigo}, ${expires})
@@ -25,7 +31,6 @@ export async function POST(req: NextRequest) {
       await prisma.$executeRaw`
         DELETE FROM "TwoFactorCode" WHERE "userId" = ${user.id} AND expires < NOW()
       `
-
       const { data: emailData, error: emailError } = await resend.emails.send({
         from: "Scheduleo <verificacion@scheduleo.es>",
         to: email,
@@ -39,15 +44,21 @@ export async function POST(req: NextRequest) {
           <p style="color:#94a3b8;font-size:13px;text-align:center">Este codigo expira en <strong>10 minutos</strong>.</p>
         </div>`
       })
-
       if (emailError) {
         console.error("Error enviando codigo 2FA:", emailError)
         return NextResponse.json({ error: "No se pudo enviar el codigo. Intenta de nuevo o contacta con soporte." }, { status: 500 })
       }
       return NextResponse.json({ ok: true, userId: user.id })
     }
-
     if (action === "verify") {
+      if (!userId || !code) return NextResponse.json({ error: "Faltan datos" }, { status: 400 })
+
+      // Limite de intentos: 5 intentos cada 10 minutos por usuario, evita fuerza bruta del codigo
+      const rl = checkRateLimit(`2fa-verify-${userId}`, 5, 10 * 60 * 1000)
+      if (!rl.success) {
+        return NextResponse.json({ error: "Demasiados intentos. Espera unos minutos e intenta de nuevo." }, { status: 429 })
+      }
+
       const codigos = await prisma.$queryRaw`
         SELECT * FROM "TwoFactorCode"
         WHERE "userId" = ${userId}
@@ -57,16 +68,13 @@ export async function POST(req: NextRequest) {
         ORDER BY "createdAt" DESC
         LIMIT 1
       ` as any[]
-
       if (!codigos.length) return NextResponse.json({ error: "Codigo invalido o expirado" }, { status: 400 })
-
       await prisma.$executeRaw`
         UPDATE "TwoFactorCode" SET used = true WHERE id = ${codigos[0].id}
       `
-
-      return NextResponse.json({ ok: true })
+      const sessionGrant = await generarSessionGrant(userId)
+      return NextResponse.json({ ok: true, sessionGrant })
     }
-
     return NextResponse.json({ error: "Accion no valida" }, { status: 400 })
   } catch (error) {
     console.error(error)
