@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import { encrypt } from "@/lib/encryption"
-
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const configs = await prisma.$queryRaw`
       SELECT id, proveedor, modelo, activo, CASE WHEN "apiKeyEnc" IS NOT NULL AND "apiKeyEnc" != '' THEN true ELSE false END as "tieneKey"
@@ -13,12 +15,15 @@ export async function GET() {
     return NextResponse.json({ proveedor: "anthropic", modelo: "claude-sonnet-4-6", activo: false, tieneKey: false })
   }
 }
-
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "Solo el Super Admin puede modificar esto" }, { status: 403 })
+  }
   try {
     const { proveedor, modelo, activo, apiKey } = await req.json()
     const apiKeyEnc = apiKey ? encrypt(apiKey.trim()) : undefined
-
     if (apiKeyEnc) {
       await prisma.$executeRaw`
         UPDATE "ConfiguracionAI" SET proveedor=${proveedor}, modelo=${modelo}, activo=${activo}, "apiKeyEnc"=${apiKeyEnc}, "updatedAt"=NOW()

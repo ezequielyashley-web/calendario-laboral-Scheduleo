@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
-
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
   try {
     const superAdmins = await prisma.$queryRaw`
       SELECT id, name, email, cargo, genero, "ultimaActividad", "esFundador", "ordenSuperAdmin", "asignadoPor", "createdAt", "totpEnabled", "metodo2FA"
@@ -9,7 +14,6 @@ export async function GET() {
       WHERE role = 'SUPER_ADMIN'
       ORDER BY "esFundador" DESC NULLS LAST, "ordenSuperAdmin" ASC NULLS LAST, "createdAt" ASC
     ` as any[]
-
     const gerenciales = await prisma.$queryRaw`
       SELECT id, name, email, cargo, departamento, genero, "ultimaActividad", permisos, "createdAt", "totpEnabled", "metodo2FA"
       FROM "User"
@@ -18,13 +22,11 @@ export async function GET() {
       AND permisos::text != '{}'
       ORDER BY "ultimaActividad" DESC NULLS LAST
     ` as any[]
-
     const ahora = Date.now()
     const conEstado = (lista: any[]) => lista.map(u => ({
       ...u,
       online: u.ultimaActividad ? (ahora - new Date(u.ultimaActividad).getTime()) < 60000 : false
     }))
-
     return NextResponse.json({
       superAdmins: conEstado(superAdmins),
       gerenciales: conEstado(gerenciales),
