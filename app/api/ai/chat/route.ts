@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { chatAI } from "@/lib/ai"
 import { prisma } from "@/lib/prisma"
 
@@ -95,8 +96,11 @@ IMPORTANTE: Si el usuario solicita una accion que no corresponde a su rol, RECHA
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
-    const { mensajes, userId, contexto } = await req.json()
+    const { mensajes, contexto } = await req.json()
+    const userId = auth.userId
     if (!mensajes) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
 
     const hoy = new Date()

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
-
 export async function GET(req: NextRequest) {
-  const miId = req.nextUrl.searchParams.get("yo")
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  const miId = auth.userId
   const conId = req.nextUrl.searchParams.get("con")
-  if (!miId || !conId) return NextResponse.json([])
+  if (!conId) return NextResponse.json([])
   const mensajes = await prisma.mensajePanelEjecutivo.findMany({
     where: {
       OR: [
@@ -17,12 +19,13 @@ export async function GET(req: NextRequest) {
   })
   return NextResponse.json(mensajes)
 }
-
 export async function POST(req: NextRequest) {
-  const { remitenteId, paraId, texto } = await req.json()
-  if (!remitenteId || !paraId || !texto?.trim()) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  const { paraId, texto } = await req.json()
+  if (!paraId || !texto?.trim()) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
   const mensaje = await prisma.mensajePanelEjecutivo.create({
-    data: { remitenteId, destinatarioId: paraId, texto: texto.trim() }
+    data: { remitenteId: auth.userId, destinatarioId: paraId, texto: texto.trim() }
   })
   return NextResponse.json(mensaje)
 }

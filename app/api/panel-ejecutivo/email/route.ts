@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { Resend } from "resend"
 import { runAsync } from "@/lib/asyncTask"
-
 const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
   const { para, nombre, asunto, cuerpo } = await req.json()
   if (!para || !asunto || !cuerpo) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
-
   runAsync("email-panel-ejecutivo", () => resend.emails.send({
     from: "Scheduleo <verificacion@scheduleo.es>",
     to: para,
@@ -24,6 +27,5 @@ export async function POST(req: NextRequest) {
       </div>
     `
   }))
-
   return NextResponse.json({ ok: true })
 }
