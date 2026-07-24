@@ -1,17 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
-
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
-    const { searchParams } = new URL(req.url)
-    const email = searchParams.get("email")
-    if (!email) return NextResponse.json({ error: "Email requerido" }, { status: 400 })
-
     const usuario = await prisma.user.findFirst({
-      where: { email: email.toLowerCase() }
+      where: { id: auth.userId }
     }) as any
     if (!usuario) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
-
     let notificaciones = 0
     try {
       const notifs = await prisma.$queryRaw`
@@ -19,7 +16,6 @@ export async function GET(req: Request) {
       ` as any[]
       notificaciones = Number(notifs[0]?.count || 0)
     } catch {}
-
     let empresa = "Mi Empresa S.L."
     try {
       const emp = await prisma.$queryRaw`
@@ -27,14 +23,13 @@ export async function GET(req: Request) {
       ` as any[]
       if (emp[0]?.nombre) empresa = emp[0].nombre
     } catch {}
-
     // Cambios de permisos desde ultimo login
     let cambiosPermisos: any[] = []
     try {
       if (usuario.ultimoLogin) {
         const cambios = await prisma.$queryRaw`
-          SELECT * FROM "HistorialPermisos" 
-          WHERE "usuarioId" = ${usuario.id} 
+          SELECT * FROM "HistorialPermisos"
+          WHERE "usuarioId" = ${usuario.id}
           AND "creadoEn" > ${usuario.ultimoLogin}
           ORDER BY "creadoEn" DESC
           LIMIT 1
@@ -51,12 +46,10 @@ export async function GET(req: Request) {
         }
       }
     } catch {}
-
     const ultimoLogin = usuario.ultimoLogin
     try {
-      await prisma.$executeRawUnsafe(`UPDATE "User" SET "ultimoLogin" = NOW() WHERE id = '${usuario.id}'`)
+      await prisma.$executeRaw`UPDATE "User" SET "ultimoLogin" = NOW() WHERE id = ${usuario.id}`
     } catch {}
-
     return NextResponse.json({
       nombre: usuario.name,
       email: usuario.email,

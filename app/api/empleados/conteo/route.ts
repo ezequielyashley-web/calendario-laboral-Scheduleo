@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
-
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const [reales, demo] = await Promise.all([
       prisma.empleado.count({ where: { empresaId: "empresa-001", esDemostracion: false } }),

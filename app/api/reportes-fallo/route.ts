@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
   try {
     const { searchParams } = new URL(req.url)
     const estado = searchParams.get("estado")
@@ -20,6 +26,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const { descripcion, pagina, reportadoPor, userAgent } = await req.json()
     if (!descripcion || !descripcion.trim()) {
@@ -30,7 +38,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO "ReporteFallo" (id, descripcion, pagina, "reportadoPor", "userAgent", "empresaId", estado, "createdAt", "updatedAt")
       VALUES (${id}, ${descripcion}, ${pagina || null}, ${reportadoPor || null}, ${userAgent || null}, 'empresa-001', 'pendiente', NOW(), NOW())
     `
-        try {
+    try {
       await fetch(`${process.env.NEXTAUTH_URL}/api/push/notify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,6 +59,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
   try {
     const { id, estado } = await req.json()
     if (!id || !estado) {

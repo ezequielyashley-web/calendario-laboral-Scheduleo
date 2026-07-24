@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
-
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const alertas: { tipo: string; mensaje: string; icono: string }[] = []
-
     // Vacaciones pendientes hace mas de 5 dias
     const vacsPendientes = await prisma.$queryRaw`
       SELECT COUNT(*) as total FROM "Vacacion"
@@ -14,7 +15,6 @@ export async function GET() {
     if (totalVacsAntiguas > 0) {
       alertas.push({ tipo: "vacaciones", icono: "🏖️", mensaje: `Hay ${totalVacsAntiguas} solicitud(es) de vacaciones pendientes desde hace mas de 5 dias sin revisar.` })
     }
-
     // Solicitudes de cambio de turno pendientes
     const cambiosPendientes = await prisma.$queryRaw`
       SELECT COUNT(*) as total FROM "CambioTurno" WHERE estado = 'PENDIENTE'
@@ -23,7 +23,6 @@ export async function GET() {
     if (totalCambios > 0) {
       alertas.push({ tipo: "cambios", icono: "🔄", mensaje: `Hay ${totalCambios} solicitud(es) de cambio de turno pendientes de aprobar.` })
     }
-
     // Bajas medicas activas
     const bajasActivas = await prisma.$queryRaw`
       SELECT COUNT(*) as total FROM "BajaMedica"
@@ -32,7 +31,6 @@ export async function GET() {
     if (totalBajas > 0) {
       alertas.push({ tipo: "bajas", icono: "⚕️", mensaje: `Actualmente hay ${totalBajas} baja(s) medica(s) registradas en el sistema.` })
     }
-
     // Empleados sin grupo asignado
     const sinGrupo = await prisma.$queryRaw`
       SELECT COUNT(*) as total FROM "Empleado" WHERE "grupoTrabajoId" IS NULL AND "empresaId" = 'empresa-001'
@@ -41,7 +39,6 @@ export async function GET() {
     if (totalSinGrupo > 0) {
       alertas.push({ tipo: "grupos", icono: "⚠️", mensaje: `Hay ${totalSinGrupo} empleado(s) sin grupo de trabajo asignado.` })
     }
-
     return NextResponse.json({ alertas })
   } catch (error) {
     console.error("Error generando alertas:", error)
