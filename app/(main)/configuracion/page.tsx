@@ -2,7 +2,8 @@
 import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 
-import { useState, useEffect, Fragment } from "react"
+import { useState, useEffect, useRef, Fragment } from "react"
+import { createPortal } from "react-dom"
 import PanelReportesFallo from "@/components/PanelReportesFallo"
 import InvitarPorCorreoModal from "@/components/InvitarPorCorreoModal"
 import ListaInvitacionesEnviadas from "@/components/ListaInvitacionesEnviadas"
@@ -588,6 +589,24 @@ function SeccionSeguridad() {
         </div>
 
       </div>
+    </div>
+  )
+}
+
+function TooltipIconWrap({ texto, activo, children }: { texto: string; activo: boolean; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+  return (
+    <div ref={ref}
+      onMouseEnter={() => { if (activo && ref.current) { const r = ref.current.getBoundingClientRect(); setPos({ top: r.top + r.height / 2, left: r.right + 8 }) } }}
+      onMouseLeave={() => setPos(null)}>
+      {children}
+      {activo && pos && typeof document !== "undefined" && createPortal(
+        <span style={{ position: "fixed", top: pos.top, left: pos.left, transform: "translateY(-50%)", background: "#1F2937", color: "#fff", fontSize: 11, fontWeight: 600, padding: "5px 10px", borderRadius: 6, whiteSpace: "nowrap", zIndex: 9999, pointerEvents: "none" }}>
+          {texto}
+        </span>,
+        document.body
+      )}
     </div>
   )
 }
@@ -1218,9 +1237,7 @@ export default function ConfiguracionPage() {
           .config-content-responsive { height: auto !important; overflow: visible !important; }
           .config-back-link { display: flex !important; }
         }
-        .config-tooltip-wrap { position: relative; }
-        .config-tooltip { position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); background: #1F2937; color: #fff; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.12s; z-index: 20; }
-        .config-tooltip-wrap:hover .config-tooltip { opacity: 1; }
+
       `}</style>
         <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
@@ -1240,14 +1257,13 @@ export default function ConfiguracionPage() {
               { key: "laboral", label: "Datos laborales", p: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" },
               { key: "apariencia", label: "Apariencia", p: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
             ].map(s => (
-              <div key={s.key} className="config-tooltip-wrap">
+              <TooltipIconWrap key={s.key} texto={s.label} activo={submenuColapsado}>
               <button onClick={() => setSeccion(s.key)}
                 style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
                 <svg width={submenuColapsado ? 20 : 14} height={submenuColapsado ? 20 : 14} style={{ transition: "all 0.15s", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
                 {!submenuColapsado && s.label}
               </button>
-              {submenuColapsado && <span className="config-tooltip">{s.label}</span>}
-              </div>
+                          </TooltipIconWrap>
             ))}
             <div style={{ height: 1, background: "rgba(103,61,230,0.12)", margin: "10px 6px" }} />
             {!submenuColapsado && <div style={{ fontSize: 9, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, padding: "0 12px" }}>Sistema</div>}
@@ -1261,14 +1277,13 @@ export default function ConfiguracionPage() {
               { key: "ai", label: "ScheduleoAI", p: "M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" },
               { key: "reportes", label: "Reportes de fallos", p: "M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" },
             ].map(s => (
-              <div key={s.key} className="config-tooltip-wrap">
+              <TooltipIconWrap key={s.key} texto={s.label} activo={submenuColapsado}>
               <button onClick={() => setSeccion(s.key)}
                 style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
                 <svg width={submenuColapsado ? 20 : 14} height={submenuColapsado ? 20 : 14} style={{ transition: "all 0.15s", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
                 {!submenuColapsado && s.label}
               </button>
-              {submenuColapsado && <span className="config-tooltip">{s.label}</span>}
-              </div>
+                          </TooltipIconWrap>
             ))}
           </div>
 
