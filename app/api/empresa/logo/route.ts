@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 
+async function quitarFondo(buffer: Buffer, mimeType: string): Promise<Buffer> {
+  const formData = new FormData()
+  formData.append("image_file", new Blob([new Uint8Array(buffer)], { type: mimeType }), "logo")
+  formData.append("size", "auto")
+
+  const res = await fetch("https://api.remove.bg/v1.0/removebg", {
+    method: "POST",
+    headers: { "X-Api-Key": process.env.REMOVEBG_API_KEY || "" },
+    body: formData
+  })
+
+  if (!res.ok) {
+    const errorText = await res.text()
+    console.error("Error de remove.bg:", errorText)
+    throw new Error("No se pudo quitar el fondo de la imagen")
+  }
+
+  const arrayBuffer = await res.arrayBuffer()
+  return Buffer.from(arrayBuffer)
+}
+
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
@@ -16,9 +37,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Solo se permiten imagenes PNG o JPG" }, { status: 400 })
     }
 
-    const extension = file.type === "image/png" ? "png" : "jpg"
-    const nombreArchivo = `empresa-001-${Date.now()}.${extension}`
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const bufferOriginal = Buffer.from(await file.arrayBuffer())
+
+    let bufferFinal: Buffer
+    try {
+      bufferFinal = await quitarFondo(bufferOriginal, file.type)
+    } catch (e) {
+      console.error("Fallo quitando fondo, se usa la imagen original:", e)
+      bufferFinal = bufferOriginal
+    }
+
+    // remove.bg siempre devuelve PNG con transparencia
+    const nombreArchivo = `empresa-001-${Date.now()}.png`
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SECRET_KEY
@@ -27,10 +57,10 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${supabaseKey}`,
-        "Content-Type": file.type,
+        "Content-Type": "image/png",
         "x-upsert": "true"
       },
-      body: buffer
+      body: new Uint8Array(bufferFinal)
     })
 
     if (!res.ok) {
