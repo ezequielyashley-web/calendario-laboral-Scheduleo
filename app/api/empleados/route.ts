@@ -97,6 +97,17 @@ export async function POST(req: NextRequest) {
       esDemostracion
     )
 
+    // Comprobar limite de aforo segun el plan de la empresa
+    const LIMITES_PLAN: Record<string, number> = { basico: 100, profesional: 500, enterprise: Infinity }
+    const empresaActual = await prisma.empresa.findUnique({ where: { id: 'empresa-001' } })
+    const limitePlan = LIMITES_PLAN[empresaActual?.plan || 'basico'] ?? 100
+    if (limitePlan !== Infinity) {
+      const totalActual = await prisma.empleado.count({ where: { empresaId: 'empresa-001', esDemostracion: false } })
+      if (totalActual >= limitePlan) {
+        return NextResponse.json({ error: `Has alcanzado el limite de ${limitePlan} empleados de tu plan (${empresaActual?.plan || 'basico'}). Actualiza de plan para anadir mas.` }, { status: 403 })
+      }
+    }
+
     // Generar numero de empleado correlativo
     const ultimo = await prisma.$queryRaw`
       SELECT "numeroEmpleado" FROM "Empleado"
