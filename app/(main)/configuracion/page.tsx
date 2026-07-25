@@ -666,6 +666,10 @@ function SeccionPlan() {
         </div>
       )}
 
+      <div style={{ background: "#F5F3FF", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16, fontSize: 12.5, color: "#4C1D95", lineHeight: 1.6 }}>
+        <strong>¿Que es esto?</strong> El plan de tu empresa determina cuantos empleados reales puedes tener registrados a la vez en Scheduleo. Al llegar al limite de tu plan, el sistema bloqueara la creacion de nuevos empleados hasta que liberes plazas (dando de baja a alguien) o cambies a un plan superior. Los empleados de demostracion no cuentan para este limite.
+      </div>
+
       <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 20 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
@@ -692,11 +696,16 @@ function SeccionPlan() {
         {editando && (
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #F3F4F6" }}>
             <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Nuevo plan</label>
-            <select value={nuevoPlan} onChange={e => setNuevoPlan(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 10 }}>
+            <select value={nuevoPlan} onChange={e => setNuevoPlan(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 6 }}>
               <option value="basico">Basico (100 empleados)</option>
               <option value="profesional">Profesional (500 empleados)</option>
               <option value="enterprise">Enterprise (sin limite)</option>
             </select>
+            <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 10, lineHeight: 1.5 }}>
+              {nuevoPlan === "basico" && "Pensado para negocios pequenos: hasta 100 empleados registrados a la vez."}
+              {nuevoPlan === "profesional" && "Para empresas en crecimiento: hasta 500 empleados registrados a la vez."}
+              {nuevoPlan === "enterprise" && "Sin limite de empleados. Pensado para grupos empresariales o multiples negocios."}
+            </div>
             <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Contrasena maestra</label>
             <input type="password" value={masterPassword} onChange={e => setMasterPassword(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 12, boxSizing: "border-box" as const }} placeholder="Confirma con tu contrasena maestra" />
             <div style={{ display: "flex", gap: 8 }}>
