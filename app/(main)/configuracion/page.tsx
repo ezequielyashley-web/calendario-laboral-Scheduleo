@@ -1504,13 +1504,16 @@ export default function ConfiguracionPage() {
                           <div style={{ fontSize: 10.5, color: "#9CA3AF", marginTop: 2 }}>PNG o JPG - Max 2MB</div>
                         </label>
                         <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/jpg" style={{ display: "none" }}
-                          onChange={e => {
+                          onChange={async e => {
                             const file = e.target.files?.[0]
                             if (!file) return
                             if (file.size > 2 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 2MB", "error"); return }
-                            const reader = new FileReader()
-                            reader.onload = () => set("logo", reader.result as string)
-                            reader.readAsDataURL(file)
+                            const formData = new FormData()
+                            formData.append("file", file)
+                            const res = await fetch("/api/empresa/logo", { method: "POST", body: formData })
+                            const data = await res.json()
+                            if (data.error) { mostrarMensaje(data.error, "error"); return }
+                            set("logo", data.url)
                           }} />
                       </div>
                     </div>
