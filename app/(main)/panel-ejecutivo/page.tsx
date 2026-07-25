@@ -58,6 +58,7 @@ export default function PanelEjecutivoPage() {
   const [emailForm, setEmailForm] = useState({ asunto: "", cuerpo: "" })
   const [enviandoEmail, setEnviandoEmail] = useState(false)
   const [emailEnviado, setEmailEnviado] = useState(false)
+  const [filtroRolPanel, setFiltroRolPanel] = useState<"todos" | "SUPER_ADMIN" | "GERENCIAL">("todos")
   const intervalRef = useRef<any>(null)
   const mensajesRef = useRef<HTMLDivElement>(null)
 
@@ -219,7 +220,6 @@ export default function PanelEjecutivoPage() {
   const gerenciales = data?.gerenciales || []
   const totalOnline = data?.totalOnline || 0
   const todosUsuarios = [...superAdmins, ...gerenciales]
-  const [filtroRolPanel, setFiltroRolPanel] = useState<"todos" | "SUPER_ADMIN" | "GERENCIAL">("todos")
   const usuariosFiltradosPanel = filtroRolPanel === "todos" ? todosUsuarios : filtroRolPanel === "SUPER_ADMIN" ? superAdmins : gerenciales
   const diasEnSistema = usuarioSeleccionado?.createdAt ? Math.floor((Date.now() - new Date(usuarioSeleccionado.createdAt).getTime()) / 86400000) : 0
 
