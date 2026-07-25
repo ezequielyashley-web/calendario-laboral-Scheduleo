@@ -219,6 +219,8 @@ export default function PanelEjecutivoPage() {
   const gerenciales = data?.gerenciales || []
   const totalOnline = data?.totalOnline || 0
   const todosUsuarios = [...superAdmins, ...gerenciales]
+  const [filtroRolPanel, setFiltroRolPanel] = useState<"todos" | "SUPER_ADMIN" | "GERENCIAL">("todos")
+  const usuariosFiltradosPanel = filtroRolPanel === "todos" ? todosUsuarios : filtroRolPanel === "SUPER_ADMIN" ? superAdmins : gerenciales
   const diasEnSistema = usuarioSeleccionado?.createdAt ? Math.floor((Date.now() - new Date(usuarioSeleccionado.createdAt).getTime()) / 86400000) : 0
 
   return (
@@ -283,10 +285,22 @@ export default function PanelEjecutivoPage() {
         {/* Lista usuarios */}
         <div style={{ background: "#fff", border: "1px solid #E2E4E9", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 8px rgba(15,23,42,0.03)" }}>
           <div style={{ padding: "12px 16px", borderBottom: "1px solid #EEF0F3", background: "#FAFBFC" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: ".06em" }}>Miembros del equipo</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Miembros del equipo</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <div onClick={() => setFiltroRolPanel(filtroRolPanel === "SUPER_ADMIN" ? "todos" : "SUPER_ADMIN")}
+                style={{ flex: 1, cursor: "pointer", background: filtroRolPanel === "SUPER_ADMIN" ? "#F5F3FF" : "#fff", border: `1px solid ${filtroRolPanel === "SUPER_ADMIN" ? "#673DE6" : "#E2E4E9"}`, borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: "#673DE6" }}>{superAdmins.length}</div>
+                <div style={{ fontSize: 9, color: "#64748B", fontWeight: 600 }}>Super Admin{superAdmins.length === 1 ? "" : "s"}</div>
+              </div>
+              <div onClick={() => setFiltroRolPanel(filtroRolPanel === "GERENCIAL" ? "todos" : "GERENCIAL")}
+                style={{ flex: 1, cursor: "pointer", background: filtroRolPanel === "GERENCIAL" ? "#EFF6FF" : "#fff", border: `1px solid ${filtroRolPanel === "GERENCIAL" ? "#2563EB" : "#E2E4E9"}`, borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: "#2563EB" }}>{gerenciales.length}</div>
+                <div style={{ fontSize: 9, color: "#64748B", fontWeight: 600 }}>Gerencial{gerenciales.length === 1 ? "" : "es"}</div>
+              </div>
+            </div>
           </div>
           <div style={{ padding: 8 }}>
-            {todosUsuarios.map((u: any) => (
+            {usuariosFiltradosPanel.map((u: any) => (
               <div key={u.id} onClick={() => seleccionarUsuario(u)}
                 style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, marginBottom: 4, cursor: "pointer", background: usuarioSeleccionado?.id === u.id ? "#F5F3FF" : "transparent", border: usuarioSeleccionado?.id === u.id ? "1px solid #DDD6FE" : "1px solid transparent" }}>
                 <Avatar nombre={u.name} size={38} online={u.online} dorado={u.esFundador} />
@@ -299,7 +313,7 @@ export default function PanelEjecutivoPage() {
                 </div>
               </div>
             ))}
-            {todosUsuarios.length === 0 && <div style={{ textAlign: "center", color: "#94A3B8", fontSize: 12, padding: 20 }}>Sin usuarios</div>}
+            {usuariosFiltradosPanel.length === 0 && <div style={{ textAlign: "center", color: "#94A3B8", fontSize: 12, padding: 20 }}>Sin usuarios en este filtro</div>}
           </div>
         </div>
 
