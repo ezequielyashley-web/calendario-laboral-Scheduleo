@@ -611,6 +611,105 @@ function TooltipIconWrap({ texto, activo, children }: { texto: string; activo: b
   )
 }
 
+function SeccionPlan() {
+  const [empresa, setEmpresa] = useState<any>(null)
+  const [conteo, setConteo] = useState({ reales: 0, demo: 0 })
+  const [cargando, setCargando] = useState(true)
+  const [nuevoPlan, setNuevoPlan] = useState("")
+  const [masterPassword, setMasterPassword] = useState("")
+  const [guardando, setGuardando] = useState(false)
+  const [msg, setMsg] = useState({ texto: "", tipo: "" })
+  const [editando, setEditando] = useState(false)
+
+  const LIMITES: Record<string, number> = { basico: 100, profesional: 500, enterprise: Infinity }
+  const NOMBRES: Record<string, string> = { basico: "Basico", profesional: "Profesional", enterprise: "Enterprise" }
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/empresa").then(r => r.json()).catch(() => ({})),
+      fetch("/api/empleados/conteo").then(r => r.json()).catch(() => ({ reales: 0, demo: 0 }))
+    ]).then(([emp, c]) => { setEmpresa(emp); setConteo(c); setCargando(false); setNuevoPlan(emp.plan || "basico") })
+  }, [])
+
+  const mostrarMsg = (texto: string, tipo = "ok") => {
+    setMsg({ texto, tipo })
+    setTimeout(() => setMsg({ texto: "", tipo: "" }), 3000)
+  }
+
+  const guardarPlan = async () => {
+    if (!masterPassword) { mostrarMsg("Introduce la contrasena maestra", "error"); return }
+    setGuardando(true)
+    const res = await fetch("/api/empresa", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: nuevoPlan, masterPassword })
+    })
+    const data = await res.json()
+    setGuardando(false)
+    if (data.error) { mostrarMsg(data.error, "error"); return }
+    setEmpresa(data)
+    setEditando(false)
+    setMasterPassword("")
+    mostrarMsg("Plan actualizado correctamente")
+  }
+
+  if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
+
+  const planActual = empresa?.plan || "basico"
+  const limite = LIMITES[planActual] ?? 100
+  const porcentaje = limite === Infinity ? 0 : Math.min(100, (conteo.reales / limite) * 100)
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {msg.texto && (
+        <div style={{ padding: "10px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: msg.tipo === "error" ? "#fee2e2" : "#d1fae5", color: msg.tipo === "error" ? "#991b1b" : "#065f46", border: `1px solid ${msg.tipo === "error" ? "#fca5a5" : "#6ee7b7"}` }}>
+          {msg.texto}
+        </div>
+      )}
+
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: ".07em" }}>Plan actual</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#673DE6", marginTop: 4 }}>{NOMBRES[planActual] || planActual}</div>
+          </div>
+          {!editando && (
+            <button onClick={() => setEditando(true)} style={{ background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, color: "#673DE6", cursor: "pointer" }}>Cambiar plan</button>
+          )}
+        </div>
+
+        <div style={{ marginBottom: editando ? 16 : 0 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+            <span>Empleados</span>
+            <span style={{ fontWeight: 700, color: "#374151" }}>{conteo.reales} / {limite === Infinity ? "Sin limite" : limite}</span>
+          </div>
+          {limite !== Infinity && (
+            <div style={{ height: 8, background: "#F3F4F6", borderRadius: 999 }}>
+              <div style={{ width: `${porcentaje}%`, height: "100%", background: porcentaje >= 90 ? "#DC2626" : "#673DE6", borderRadius: 999, transition: "width 0.3s" }} />
+            </div>
+          )}
+        </div>
+
+        {editando && (
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #F3F4F6" }}>
+            <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Nuevo plan</label>
+            <select value={nuevoPlan} onChange={e => setNuevoPlan(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 10 }}>
+              <option value="basico">Basico (100 empleados)</option>
+              <option value="profesional">Profesional (500 empleados)</option>
+              <option value="enterprise">Enterprise (sin limite)</option>
+            </select>
+            <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Contrasena maestra</label>
+            <input type="password" value={masterPassword} onChange={e => setMasterPassword(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 12, boxSizing: "border-box" as const }} placeholder="Confirma con tu contrasena maestra" />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => { setEditando(false); setMasterPassword(""); setNuevoPlan(planActual) }} style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
+              <button onClick={guardarPlan} disabled={guardando} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>{guardando ? "Guardando..." : "Guardar"}</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function SeccionAI() {
   const [config, setConfig] = useState<any>(null)
   const [cargando, setCargando] = useState(true)
@@ -1276,6 +1375,7 @@ export default function ConfiguracionPage() {
               { key: "seguridad", label: "Seguridad", p: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
               { key: "ai", label: "ScheduleoAI", p: "M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" },
               { key: "reportes", label: "Reportes de fallos", p: "M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" },
+              { key: "plan", label: "Plan y aforo", p: "M3 3v18h18M18 17V9M13 17V5M8 17v-3" },
             ].map(s => (
               <TooltipIconWrap key={s.key} texto={s.label} activo={submenuColapsado}>
               <button onClick={() => setSeccion(s.key)}
@@ -1510,6 +1610,7 @@ export default function ConfiguracionPage() {
           {seccion === "seguridad" && <SeccionSeguridad />}
           {seccion === "ai" && <SeccionAI />}
           {seccion === "reportes" && <PanelReportesFallo />}
+          {seccion === "plan" && <SeccionPlan />}
           {seccion === "usuarios" && (
             <div>
               <ListaSolicitudesPendientes />
