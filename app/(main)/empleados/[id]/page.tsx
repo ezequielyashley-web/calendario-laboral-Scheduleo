@@ -228,6 +228,13 @@ export default function PerfilEmpleadoPage() {
         </div>
       )}
       <BannerEstadoEmpleado empleado={empleado} />
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+        <a href={`/api/empleados/${empleado.id}/pdf`} target="_blank" rel="noreferrer"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 600, color: "#673DE6", textDecoration: "none" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar ficha en PDF
+        </a>
+      </div>
       <div style={{ background: esDemo ? "#fffbeb" : "#fff", border: esDemo ? "1px solid #fcd34d" : "0.5px solid #e8eaf0", borderRadius: 16, padding: 24, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 500, color: "#fff", flexShrink: 0 }}>
