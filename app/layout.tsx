@@ -9,15 +9,20 @@ const inter = Inter({ subsets: ['latin'] })
 
 export async function generateMetadata(): Promise<Metadata> {
   let nombreEmpresa = 'Scheduleo'
+  let faviconUrl = '/favicon.ico'
   try {
     const { prisma } = await import('@/lib/prisma')
     const empresa: any = await prisma.empresa.findUnique({ where: { id: 'empresa-001' } })
     nombreEmpresa = empresa?.nombreComercial || empresa?.nombre || 'Scheduleo'
+    if (empresa?.logo) faviconUrl = empresa.logo
   } catch {}
   return {
     title: `${nombreEmpresa} - Sistema de Gestion Laboral`,
     description: 'Sistema completo de gestion laboral para empresas espanolas',
     manifest: '/manifest.json',
+    icons: {
+      icon: faviconUrl,
+    },
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',
@@ -52,7 +57,6 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#0284c7" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
