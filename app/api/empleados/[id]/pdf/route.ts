@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getEmpleadoData } from "@/lib/empleadoData"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { FichaEmpleadoPDF } from "@/lib/pdf/FichaEmpleadoPDF"
+import { createElement } from "react"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req)
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const empresa = await prisma.empresa.findUnique({ where: { id: "empresa-001" } })
 
     const buffer = await renderToBuffer(
-      FichaEmpleadoPDF({
+      createElement(FichaEmpleadoPDF, {
         empleado: {
           nombre: empleado.nombre,
           apellidos: empleado.apellidos,
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           grupoTrabajo: empleado.grupoTrabajo,
         },
         empresa: empresa || undefined
-      })
+      }) as any
     )
 
     return new NextResponse(new Uint8Array(buffer), {

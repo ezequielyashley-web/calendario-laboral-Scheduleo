@@ -3,6 +3,7 @@ import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { InformeFichajesPDF } from "@/lib/pdf/InformeFichajesPDF"
+import { createElement } from "react"
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req)
@@ -30,12 +31,12 @@ export async function GET(req: NextRequest) {
     const empresa: any = await prisma.empresa.findUnique({ where: { id: "empresa-001" } })
 
     const buffer = await renderToBuffer(
-      InformeFichajesPDF({
+      createElement(InformeFichajesPDF, {
         titulo: "Informe general de fichajes",
         subtitulo: `${empresa?.nombreComercial || empresa?.nombre || "Empresa"} — ultimos 500 registros`,
         fichajes,
         mostrarEmpleado: true
-      })
+      }) as any
     )
 
     return new NextResponse(new Uint8Array(buffer), {

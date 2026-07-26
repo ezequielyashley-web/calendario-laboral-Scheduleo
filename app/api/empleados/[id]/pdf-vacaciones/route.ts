@@ -3,6 +3,7 @@ import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { InformeVacacionesPDF } from "@/lib/pdf/InformeVacacionesPDF"
+import { createElement } from "react"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req)
@@ -21,11 +22,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const empresa = await prisma.empresa.findUnique({ where: { id: "empresa-001" } })
 
     const buffer = await renderToBuffer(
-      InformeVacacionesPDF({
+      createElement(InformeVacacionesPDF, {
         empleado: { nombre: empleado.nombre, apellidos: empleado.apellidos, numeroEmpleado: empleadoBase.numeroEmpleado },
         empresa: empresa || undefined,
         vacaciones
-      })
+      }) as any
     )
 
     return new NextResponse(new Uint8Array(buffer), {
