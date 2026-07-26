@@ -36,7 +36,9 @@ export function middleware(request: NextRequest) {
   }
 
   // Headers de seguridad
-  response.headers.set("X-Frame-Options", "DENY")
+  // Los endpoints que generan PDF necesitan poder mostrarse en un iframe del propio sitio (visor integrado)
+  const esRutaPDF = /\/pdf(-vacaciones|-fichajes)?($|\?)/.test(request.nextUrl.pathname)
+  response.headers.set("X-Frame-Options", esRutaPDF ? "SAMEORIGIN" : "DENY")
   response.headers.set("X-Content-Type-Options", "nosniff")
   response.headers.set("X-XSS-Protection", "1; mode=block")
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
