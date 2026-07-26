@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ['192.168.1.106'],
+  serverExternalPackages: ['@react-pdf/renderer'],
   images: {
     remotePatterns: [{ protocol: 'http', hostname: 'localhost' }],
   },
@@ -28,6 +29,22 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
         ],
+      },
+      {
+        source: "/api/empleados/:id/pdf",
+        headers: [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' }],
+      },
+      {
+        source: "/api/empleados/:id/pdf-vacaciones",
+        headers: [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' }],
+      },
+      {
+        source: "/api/empleados/:id/pdf-fichajes",
+        headers: [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' }],
+      },
+      {
+        source: "/api/reportes/pdf-fichajes",
+        headers: [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' }],
       },
     ]
   },
