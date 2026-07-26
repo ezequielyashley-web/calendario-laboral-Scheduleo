@@ -86,6 +86,14 @@ export default function ReportesDesktop() {
 
       {/* TAB: Fichajes */}
       {tab === "fichajes" && (
+        <>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+          <a href="/api/reportes/pdf-fichajes" target="_blank" rel="noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 600, color: "#673DE6", textDecoration: "none" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar fichajes en PDF
+          </a>
+        </div>
         <div className="reportes-tab-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {[
             { label: "Fichajes correctos", valor: datos.fichajes.correctos, pct: datos.fichajes.pctCorrectos + "%", color: "#16a34a", bg: "#f0fdf4" },
@@ -99,6 +107,7 @@ export default function ReportesDesktop() {
             </div>
           ))}
         </div>
+        </>
       )}
 
       {/* TAB: Vacaciones */}
