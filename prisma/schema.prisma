@@ -428,6 +428,29 @@ model ConfiguracionAI {
   updatedAt  DateTime @updatedAt
 }
 
+model SolicitudPlan {
+  id             String   @id @default(cuid())
+  empresaId      String   @default("empresa-001")
+  planActual     String
+  planSolicitado String
+  mensaje        String?
+  estado         String   @default("pendiente")
+  createdAt      DateTime @default(now())
+
+  @@index([estado])
+}
+
+model LlaveActivacionPlan {
+  id          String   @id @default(cuid())
+  empresaId   String
+  planDestino String
+  token       String   @unique
+  usado       Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([token])
+}
+
 model SessionGrant {
   id        String   @id @default(cuid())
   userId    String
