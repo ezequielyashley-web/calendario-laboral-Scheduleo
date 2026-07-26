@@ -449,44 +449,6 @@ export default function LibranzasDesktop() {
         </div>
       )}
 
-      {/* Modal añadir dia */}
-      {showAddDia && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.5)" }}
-          onClick={e => { if (e.target === e.currentTarget) setShowAddDia(false) }}>
-          <div style={{ background: "var(--surface)", borderRadius: 14, boxShadow: "var(--shadow-lg)", width: "100%", maxWidth: 400 }}>
-            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", background: grupoSeleccionado.bg, borderRadius: "14px 14px 0 0" }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: grupoSeleccionado.color, margin: 0 }}>+ Añadir día libre — {grupoSeleccionado.nombre}</p>
-            </div>
-            <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 4 }}>Fecha *</label>
-                <input type="date" className="input-base text-sm" value={newFecha} onChange={e => setNewFecha(e.target.value)} />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 4 }}>Observación (opcional)</label>
-                <input type="text" className="input-base text-sm" placeholder="Ej: Festivo local, cambio convenio..." value={newObservacion} onChange={e => setNewObservacion(e.target.value)} />
-              </div>
-            </div>
-            <div style={{ padding: "12px 20px", borderTop: "1px solid var(--border)", display: "flex", gap: 8 }}>
-              <button onClick={() => { setShowAddDia(false); setNewFecha(""); setNewObservacion("") }} className="btn-secondary flex-1 py-2 text-sm">Cancelar</button>
-              <button onClick={() => {
-                if (!newFecha) return
-                if (!diasGrupoActual.includes(newFecha)) {
-                  setDiasGrupo(prev => ({ ...prev, [grupoSeleccionado.id]: [...(prev[grupoSeleccionado.id] || []), newFecha].sort() }))
-                  mostrarToast(`Día ${newFecha} añadido — guarda con clave master`, "ok")
-                }
-                setShowAddDia(false)
-                setNewFecha("")
-                setNewObservacion("")
-              }} disabled={!newFecha}
-                style={{ flex: 1, padding: "8px", fontSize: 13, fontWeight: 700, background: grupoSeleccionado.color, color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", opacity: !newFecha ? 0.5 : 1 }}>
-                Añadir día
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Modal distribución automática */}
       {showAutoModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.5)" }}
