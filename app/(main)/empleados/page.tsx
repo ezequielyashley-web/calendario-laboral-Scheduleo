@@ -134,6 +134,11 @@ export default function EmpleadosPage() {
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..." className="empleados-search-input"
             style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 14, width: 220, outline: "none" }} />
+          <a href="/api/reportes/excel-empleados"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "9px 16px", fontSize: 13, fontWeight: 600, color: "#673DE6", textDecoration: "none", marginRight: 8 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar a Excel
+          </a>
           {!modoDemo && (
             <button onClick={() => setModalAlta(true)}
               style={{ background: "#0369a1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
