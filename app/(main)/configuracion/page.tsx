@@ -621,14 +621,31 @@ function SeccionPlan() {
   const [msg, setMsg] = useState({ texto: "", tipo: "" })
   const [editando, setEditando] = useState(false)
 
+  const [solicitando, setSolicitando] = useState(false)
+  const [planASolicitar, setPlanASolicitar] = useState("profesional")
+  const [mensajeSolicitud, setMensajeSolicitud] = useState("")
+  const [enviandoSolicitud, setEnviandoSolicitud] = useState(false)
+
+  const [claveActivacion, setClaveActivacion] = useState("")
+  const [activando, setActivando] = useState(false)
+
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState<any[]>([])
+  const [generandoClaveId, setGenerandoClaveId] = useState<string | null>(null)
+  const [clavesGeneradas, setClavesGeneradas] = useState<Record<string, string>>({})
+
   const LIMITES: Record<string, number> = { basico: 100, profesional: 500, enterprise: Infinity }
   const NOMBRES: Record<string, string> = { basico: "Basico", profesional: "Profesional", enterprise: "Enterprise" }
+
+  const cargarSolicitudes = () => {
+    fetch("/api/plan/solicitudes").then(r => r.json()).then(d => { if (Array.isArray(d)) setSolicitudesPendientes(d) }).catch(() => {})
+  }
 
   useEffect(() => {
     Promise.all([
       fetch("/api/empresa").then(r => r.json()).catch(() => ({})),
       fetch("/api/empleados/conteo").then(r => r.json()).catch(() => ({ reales: 0, demo: 0 }))
     ]).then(([emp, c]) => { setEmpresa(emp); setConteo(c); setCargando(false); setNuevoPlan(emp.plan || "basico") })
+    cargarSolicitudes()
   }, [])
 
   const mostrarMsg = (texto: string, tipo = "ok") => {
@@ -650,6 +667,49 @@ function SeccionPlan() {
     setEditando(false)
     setMasterPassword("")
     mostrarMsg("Plan actualizado correctamente")
+  }
+
+  const enviarSolicitud = async () => {
+    setEnviandoSolicitud(true)
+    const res = await fetch("/api/plan/solicitar", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ planSolicitado: planASolicitar, mensaje: mensajeSolicitud })
+    })
+    const data = await res.json()
+    setEnviandoSolicitud(false)
+    if (data.error) { mostrarMsg(data.error, "error"); return }
+    setSolicitando(false)
+    setMensajeSolicitud("")
+    mostrarMsg("Solicitud enviada correctamente")
+    cargarSolicitudes()
+  }
+
+  const activarClave = async () => {
+    if (!claveActivacion.trim()) { mostrarMsg("Introduce la clave de activacion", "error"); return }
+    setActivando(true)
+    const res = await fetch("/api/plan/activar", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: claveActivacion })
+    })
+    const data = await res.json()
+    setActivando(false)
+    if (data.error) { mostrarMsg(data.error, "error"); return }
+    setClaveActivacion("")
+    setEmpresa((e: any) => ({ ...e, plan: data.plan }))
+    mostrarMsg(`Plan actualizado a ${NOMBRES[data.plan] || data.plan}`)
+  }
+
+  const generarClave = async (solicitud: any) => {
+    setGenerandoClaveId(solicitud.id)
+    const res = await fetch("/api/plan/generar-clave", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ planDestino: solicitud.planSolicitado, solicitudId: solicitud.id, empresaId: solicitud.empresaId })
+    })
+    const data = await res.json()
+    setGenerandoClaveId(null)
+    if (data.error) { mostrarMsg(data.error, "error"); return }
+    setClavesGeneradas(prev => ({ ...prev, [solicitud.id]: data.token }))
+    cargarSolicitudes()
   }
 
   if (cargando) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando...</div>
@@ -677,7 +737,7 @@ function SeccionPlan() {
             <div style={{ fontSize: 22, fontWeight: 800, color: "#673DE6", marginTop: 4 }}>{NOMBRES[planActual] || planActual}</div>
           </div>
           {!editando && (
-            <button onClick={() => setEditando(true)} style={{ background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, color: "#673DE6", cursor: "pointer" }}>Cambiar plan</button>
+            <button onClick={() => setEditando(true)} style={{ background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, color: "#673DE6", cursor: "pointer" }}>Cambiar plan (manual)</button>
           )}
         </div>
 
@@ -712,6 +772,67 @@ function SeccionPlan() {
               <button onClick={() => { setEditando(false); setMasterPassword(""); setNuevoPlan(planActual) }} style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
               <button onClick={guardarPlan} disabled={guardando} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>{guardando ? "Guardando..." : "Guardar"}</button>
             </div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 20 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>Subir de plan</div>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 14 }}>Solicita un aumento de plan, o introduce la clave de activacion que te hayamos enviado tras confirmarlo.</div>
+
+        {!solicitando ? (
+          <button onClick={() => setSolicitando(true)} style={{ background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: "9px 16px", fontSize: 12.5, fontWeight: 600, color: "#374151", cursor: "pointer", marginBottom: 16 }}>
+            Solicitar aumento de plan
+          </button>
+        ) : (
+          <div style={{ background: "#FAFBFC", border: "1px solid #EEF0F3", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Plan que quieres solicitar</label>
+            <select value={planASolicitar} onChange={e => setPlanASolicitar(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 10 }}>
+              <option value="profesional">Profesional (500 empleados)</option>
+              <option value="enterprise">Enterprise (sin limite)</option>
+            </select>
+            <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Mensaje (opcional)</label>
+            <textarea value={mensajeSolicitud} onChange={e => setMensajeSolicitud(e.target.value)} rows={2} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 10, boxSizing: "border-box" as const, fontFamily: "inherit", resize: "vertical" as const }} placeholder="Cuentanos algo si quieres" />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => setSolicitando(false)} style={{ flex: 1, background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
+              <button onClick={enviarSolicitud} disabled={enviandoSolicitud} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: enviandoSolicitud ? 0.6 : 1 }}>{enviandoSolicitud ? "Enviando..." : "Enviar solicitud"}</button>
+            </div>
+          </div>
+        )}
+
+        <div style={{ paddingTop: 16, borderTop: "1px solid #F3F4F6" }}>
+          <label style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const }}>Introducir clave de activacion</label>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input value={claveActivacion} onChange={e => setClaveActivacion(e.target.value.toUpperCase())} placeholder="XXXX-XXXX-XXXX-XXXX" style={{ flex: 1, padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, fontFamily: "monospace" }} />
+            <button onClick={activarClave} disabled={activando} style={{ background: "#111827", border: "none", borderRadius: 8, padding: "9px 16px", fontSize: 12.5, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: activando ? 0.6 : 1 }}>{activando ? "Activando..." : "Activar"}</button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 14, padding: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#92400E", textTransform: "uppercase" as const, letterSpacing: ".06em", marginBottom: 4 }}>Panel del proveedor (solo para ti)</div>
+        <div style={{ fontSize: 12, color: "#78350F", marginBottom: 14 }}>Solicitudes de cambio de plan pendientes. Genera la clave y envisela al cliente por el medio que prefieras.</div>
+        {solicitudesPendientes.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#92400E" }}>No hay solicitudes pendientes.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {solicitudesPendientes.map((s: any) => (
+              <div key={s.id} style={{ background: "#fff", border: "1px solid #FDE68A", borderRadius: 10, padding: 12 }}>
+                <div style={{ fontSize: 12.5, color: "#78350F" }}>
+                  <strong>{NOMBRES[s.planActual] || s.planActual}</strong> → <strong>{NOMBRES[s.planSolicitado] || s.planSolicitado}</strong>
+                </div>
+                {s.mensaje && <div style={{ fontSize: 11.5, color: "#92400E", marginTop: 4 }}>"{s.mensaje}"</div>}
+                {clavesGeneradas[s.id] ? (
+                  <div style={{ marginTop: 8, background: "#F0FDF4", border: "1px solid #86EFAC", borderRadius: 8, padding: "8px 10px", fontFamily: "monospace", fontSize: 13, fontWeight: 700, color: "#065F46" }}>
+                    {clavesGeneradas[s.id]}
+                  </div>
+                ) : (
+                  <button onClick={() => generarClave(s)} disabled={generandoClaveId === s.id} style={{ marginTop: 8, background: "#673DE6", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 11.5, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: generandoClaveId === s.id ? 0.6 : 1 }}>
+                    {generandoClaveId === s.id ? "Generando..." : "Generar clave de activacion"}
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
