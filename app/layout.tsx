@@ -7,15 +7,23 @@ import { NotificationProvider } from '@/components/providers/NotificationProvide
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'Scheduleo - Sistema de Gestion Laboral',
-  description: 'Sistema completo de gestion laboral para empresas espanolas',
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Scheduleo',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  let nombreEmpresa = 'Scheduleo'
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    const empresa: any = await prisma.empresa.findUnique({ where: { id: 'empresa-001' } })
+    nombreEmpresa = empresa?.nombreComercial || empresa?.nombre || 'Scheduleo'
+  } catch {}
+  return {
+    title: `${nombreEmpresa} - Sistema de Gestion Laboral`,
+    description: 'Sistema completo de gestion laboral para empresas espanolas',
+    manifest: '/manifest.json',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: nombreEmpresa,
+    },
+  }
 }
 
 export default function RootLayout({
