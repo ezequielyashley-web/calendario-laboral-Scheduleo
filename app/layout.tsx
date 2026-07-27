@@ -21,7 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
     description: 'Sistema completo de gestion laboral para empresas espanolas',
     manifest: '/manifest.json',
     icons: {
-      icon: faviconUrl,
+      icon: [
+        { url: faviconUrl, type: 'image/png' },
+      ],
     },
     appleWebApp: {
       capable: true,
