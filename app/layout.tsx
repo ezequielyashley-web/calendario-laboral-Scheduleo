@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { NotificationProvider } from '@/components/providers/NotificationProvider'
 
 const inter = Inter({ subsets: ['latin'] })
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
   let nombreEmpresa = 'Scheduleo'
