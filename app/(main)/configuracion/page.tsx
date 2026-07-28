@@ -1617,14 +1617,13 @@ export default function ConfiguracionPage() {
               <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
                 {[
                   { key: "identidad", label: "Identidad", p: "M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7" },
-                  { key: "colores", label: "Colores", p: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
                   { key: "tema", label: "Tema", p: "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" },
                   { key: "fondo", label: "Fondo", p: "M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" },
                 ].map(t => (
                   <button key={t.key} type="button" onClick={() => setSubApariencia(t.key)}
-                    style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 8px", borderRadius: 12, cursor: "pointer", background: "#fff", border: subApariencia === t.key ? "2px solid #673DE6" : "1px solid #E5E7EB" }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={subApariencia === t.key ? "#673DE6" : "#9CA3AF"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.p} /></svg>
-                    <span style={{ fontSize: 12, fontWeight: subApariencia === t.key ? 600 : 400, color: subApariencia === t.key ? "#673DE6" : "#6B7280" }}>{t.label}</span>
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 8, cursor: "pointer", background: subApariencia === t.key ? "#673DE6" : "#fff", border: subApariencia === t.key ? "1px solid #673DE6" : "1px solid #E5E7EB" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={subApariencia === t.key ? "#fff" : "#6B7280"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.p} /></svg>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: subApariencia === t.key ? "#fff" : "#374151" }}>{t.label}</span>
                   </button>
                 ))}
               </div>
@@ -1641,56 +1640,31 @@ export default function ConfiguracionPage() {
                     </div>
                   </div>
                   <div style={{ padding: 24 }}>
+                    <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Define el nombre y el logo con los que tu empresa aparece en toda la aplicacion, incluida la barra lateral.</p>
                     <label style={labelStyle}>Nombre de la empresa</label>
                     <input value={empresa.nombreComercial || empresa.nombre || ""} onChange={e => set("nombreComercial", e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} />
-                    <label htmlFor="logoUpload" style={{ display: "block", border: "2px dashed #D1D5DB", borderRadius: 10, padding: 14, textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 600, color: "#4B5563" }}>Subir logo de la empresa</div>
-                      <div style={{ fontSize: 10.5, color: "#9CA3AF", marginTop: 2 }}>PNG o JPG - Max 2MB</div>
-                    </label>
-                    <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/jpg" style={{ display: "none" }}
-                      onChange={async e => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
-                        if (file.size > 2 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 2MB", "error"); return }
-                        const formData = new FormData()
-                        formData.append("file", file)
-                        const res = await fetch("/api/empresa/logo", { method: "POST", body: formData })
-                        const data = await res.json()
-                        if (data.error) { mostrarMensaje(data.error, "error"); return }
-                        set("logo", data.url)
-                      }} />
-                  </div>
-                </div>
-              )}
-
-              {subApariencia === "colores" && (
-                <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                  <div style={{ background: empresa.colorSidebar || "#2d2b55", padding: 14 }}>
-                    {["Dashboard", "Empleados", "Deudas"].map((item, i) => (
-                      <div key={item} style={{ padding: "6px 8px", borderRadius: 6, color: i === 2 ? "#fff" : "rgba(255,255,255,0.7)", fontSize: 11, marginBottom: 2, background: i === 2 ? (empresa.colorAccent || "#6366f1") : "transparent", fontWeight: i === 2 ? 600 : 400 }}>{item}</div>
-                    ))}
-                  </div>
-                  <div style={{ padding: 24 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                      <div>
-                        <label style={labelStyle}>Color barra lateral</label>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <div style={{ display: "flex", gap: 6 }}>{["#1F2937","#2d2b55","#111827","#374151","#0F172A","#4C1D95"].map(c => (
-                            <button key={c} type="button" onClick={() => set("colorSidebar", c)}
-                              style={{ width: 28, height: 28, borderRadius: 8, background: c, border: empresa.colorSidebar === c ? "2px solid #673DE6" : "1px solid #E5E7EB", cursor: "pointer", padding: 0 }} />
-                          ))}</div>
-                          <input value={empresa.colorSidebar || "#2d2b55"} onChange={e => set("colorSidebar", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-                        </div>
+                    <label style={labelStyle}>Logo de la empresa</label>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 10, border: "1px solid #E5E7EB", flexShrink: 0, overflow: "hidden", background: "#FAFAFA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {empresa.logo ? <img src={empresa.logo} alt="preview logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 10, color: "#D1D5DB" }}>Sin logo</span>}
                       </div>
-                      <div>
-                        <label style={labelStyle}>Color de acento</label>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <div style={{ display: "flex", gap: 6 }}>{["#6366f1","#673DE6","#0284c7","#16a34a","#d97706","#dc2626"].map(c => (
-                            <button key={c} type="button" onClick={() => set("colorAccent", c)}
-                              style={{ width: 28, height: 28, borderRadius: 8, background: c, border: empresa.colorAccent === c ? "2px solid #673DE6" : "1px solid #E5E7EB", cursor: "pointer", padding: 0 }} />
-                          ))}</div>
-                          <input value={empresa.colorAccent || "#6366f1"} onChange={e => set("colorAccent", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-                        </div>
+                      <div style={{ flex: 1 }}>
+                        <label htmlFor="logoUpload" style={{ display: "block", border: "2px dashed #D1D5DB", borderRadius: 10, padding: 12, textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
+                          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#4B5563" }}>Subir logo de la empresa</div>
+                          <div style={{ fontSize: 10.5, color: "#9CA3AF", marginTop: 2 }}>PNG o JPG - Max 2MB</div>
+                        </label>
+                        <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/jpg" style={{ display: "none" }}
+                          onChange={async e => {
+                            const file = e.target.files?.[0]
+                            if (!file) return
+                            if (file.size > 2 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 2MB", "error"); return }
+                            const formData = new FormData()
+                            formData.append("file", file)
+                            const res = await fetch("/api/empresa/logo", { method: "POST", body: formData })
+                            const data = await res.json()
+                            if (data.error) { mostrarMensaje(data.error, "error"); return }
+                            set("logo", data.url)
+                          }} />
                       </div>
                     </div>
                   </div>
@@ -1699,41 +1673,46 @@ export default function ConfiguracionPage() {
 
               {subApariencia === "tema" && (
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                  <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Elige si la aplicacion se ve en modo claro, oscuro, o segun la preferencia del dispositivo de cada usuario.</p>
                   <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
                 </div>
               )}
 
               {subApariencia === "fondo" && (
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                  <div style={{ position: "relative", height: 90, overflow: "hidden" }}>
+                  <div style={{ position: "relative", height: 70, overflow: "hidden" }}>
                     <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${empresa.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"})`, backgroundSize: "cover", backgroundPosition: "center", filter: `brightness(${empresa.fondoBrillo ?? 100}%)` }} />
                     <div style={{ position: "absolute", inset: 0, background: `rgba(249,250,251,${(empresa.fondoOpacidad ?? 88) / 100})` }} />
                     <div style={{ position: "relative", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 11, color: "#9CA3AF" }}>Asi se vera el fondo, en vivo</span>
+                      <span style={{ fontSize: 10, color: "#9CA3AF" }}>Asi se vera el fondo, en vivo</span>
                     </div>
                   </div>
-                  <div style={{ padding: 24 }}>
-                    <label htmlFor="fondoUpload" style={{ display: "block", border: "2px dashed #D1D5DB", borderRadius: 10, padding: 14, textAlign: "center", cursor: "pointer", background: "#FAFAFA", marginBottom: 16 }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 600, color: "#4B5563" }}>Subir fondo del workspace</div>
-                      <div style={{ fontSize: 10.5, color: "#9CA3AF", marginTop: 2 }}>PNG, JPG o WEBP - Max 4MB</div>
-                    </label>
-                    <input id="fondoUpload" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" style={{ display: "none" }}
-                      onChange={async e => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
-                        if (file.size > 4 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 4MB", "error"); return }
-                        const formData = new FormData()
-                        formData.append("file", file)
-                        const res = await fetch("/api/empresa/fondo", { method: "POST", body: formData })
-                        const data = await res.json()
-                        if (data.error) { mostrarMensaje(data.error, "error"); return }
-                        set("fondoWorkspace", data.url)
-                        setPreview({ fondoWorkspace: data.url })
-                      }} />
-                    <label style={labelStyle}>Tono del overlay ({empresa.fondoOpacidad ?? 88}%)</label>
-                    <input type="range" min="0" max="100" value={empresa.fondoOpacidad ?? 88} onChange={e => { const v = Number(e.target.value); set("fondoOpacidad", v); setPreview({ fondoOpacidad: v }) }} style={{ width: "100%", marginBottom: 16 }} />
-                    <label style={labelStyle}>Brillo de la imagen ({empresa.fondoBrillo ?? 100}%)</label>
-                    <input type="range" min="50" max="150" value={empresa.fondoBrillo ?? 100} onChange={e => { const v = Number(e.target.value); set("fondoBrillo", v); setPreview({ fondoBrillo: v }) }} style={{ width: "100%" }} />
+                  <div style={{ padding: 20 }}>
+                    <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 14px" }}>Sube una imagen de fondo para el contenido de la app y ajusta cuanto se nota, sin afectar al menu lateral.</p>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: "1px solid #E5E7EB", backgroundImage: `url(${empresa.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                      <label htmlFor="fondoUpload" style={{ flex: 1, border: "2px dashed #D1D5DB", borderRadius: 8, padding: "8px 10px", textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "#4B5563" }}>Subir fondo</span>
+                        <span style={{ fontSize: 10, color: "#9CA3AF", marginLeft: 6 }}>PNG, JPG o WEBP - Max 4MB</span>
+                      </label>
+                      <input id="fondoUpload" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" style={{ display: "none" }}
+                        onChange={async e => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          if (file.size > 4 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 4MB", "error"); return }
+                          const formData = new FormData()
+                          formData.append("file", file)
+                          const res = await fetch("/api/empresa/fondo", { method: "POST", body: formData })
+                          const data = await res.json()
+                          if (data.error) { mostrarMensaje(data.error, "error"); return }
+                          set("fondoWorkspace", data.url)
+                          setPreview({ fondoWorkspace: data.url })
+                        }} />
+                    </div>
+                    <label style={{ ...labelStyle, fontSize: 11 }}>Tono del overlay ({empresa.fondoOpacidad ?? 88}%)</label>
+                    <input type="range" min="0" max="100" value={empresa.fondoOpacidad ?? 88} onChange={e => { const v = Number(e.target.value); set("fondoOpacidad", v); setPreview({ fondoOpacidad: v }) }} style={{ width: "100%", height: 4, marginBottom: 10 }} />
+                    <label style={{ ...labelStyle, fontSize: 11 }}>Brillo de la imagen ({empresa.fondoBrillo ?? 100}%)</label>
+                    <input type="range" min="50" max="150" value={empresa.fondoBrillo ?? 100} onChange={e => { const v = Number(e.target.value); set("fondoBrillo", v); setPreview({ fondoBrillo: v }) }} style={{ width: "100%", height: 4 }} />
                   </div>
                 </div>
               )}
