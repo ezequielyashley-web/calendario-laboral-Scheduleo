@@ -551,7 +551,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </button>
       )}
         <header className={`flex items-center justify-between h-14 px-6 flex-shrink-0${isLight ? " bg-white border-b border-gray-200 shadow-sm" : ""}`}
-          style={{ background: pathname === "/panel-ejecutivo" ? "#0b0e1a" : "var(--surface)", borderBottom: pathname === "/panel-ejecutivo" ? "1px solid #2a2f45" : "1px solid var(--border)", boxShadow:"var(--shadow-sm)" }}>
+          style={{ background: pathname === "/panel-ejecutivo" ? "#0b0e1a" : "var(--surface)", borderBottom: pathname === "/panel-ejecutivo" ? "1px solid #2a2f45" : "1px solid var(--border)", boxShadow:"var(--shadow-sm)", position: "relative", zIndex: 20 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8, marginLeft: isMobile ? 44 : 0 }}>
             <h1 className="text-base font-semibold tracking-tight" style={{ color: pathname === "/panel-ejecutivo" ? "#f1ecdd" : "var(--text-primary)", margin:0 }}>{pageTitles[pathname] ?? empresaNombre}</h1>
             <div style={{ position:"relative" }}>
