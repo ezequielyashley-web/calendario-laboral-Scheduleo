@@ -194,7 +194,7 @@ export default function CalendarioGlobalDesktop() {
       {/* VISTA MENSUAL */}
       {vista === 'mensual' && (
         <div>
-          <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', border: '0.5px solid #e8eaf0', borderRadius: 16, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '0.5px solid #e8eaf0' }}>
               {diasCortos.map((d, i) => (
                 <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 13, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>{d}</div>
@@ -234,7 +234,7 @@ export default function CalendarioGlobalDesktop() {
               })}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12, padding: '14px 20px', background: '#fff', borderRadius: 10, border: '0.5px solid #e8eaf0', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12, padding: '14px 20px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', borderRadius: 10, border: '0.5px solid #e8eaf0', alignItems: 'center' }}>
             {Object.entries(grupoColors).map(([g, v]) => (
               <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: v.solid }} />
@@ -261,7 +261,7 @@ export default function CalendarioGlobalDesktop() {
                 { icon: '🏢', titulo: 'Filtrar por sede', desc: 'Filtra por Madrid Centro o Vallecas para ver la distribución de cada sede por separado.' },
                 { icon: '📊', titulo: 'Vista agenda', desc: 'Al hacer click en un día accedes a la vista agenda con KPIs, detalle de turnos y navegación día a día.' },
               ].map((item, i) => (
-                <div key={i} style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div key={i} style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', border: '0.5px solid #e8eaf0', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <div style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>{item.titulo}</div>
@@ -277,7 +277,7 @@ export default function CalendarioGlobalDesktop() {
       {/* VISTA AGENDA */}
       {vista === 'agenda' && diaSeleccionado && (
         <div className="calendario-agenda-grid" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
-          <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, height: 'fit-content' }}>
+          <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, height: 'fit-content' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>{meses[mes]} {anio}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 8 }}>
               {['L','M','X','J','V','S','D'].map(d => (
