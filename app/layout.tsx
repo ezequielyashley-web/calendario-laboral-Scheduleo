@@ -16,7 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
     const empresa: any = await prisma.empresa.findUnique({ where: { id: 'empresa-001' } })
     nombreEmpresa = empresa?.nombreComercial || empresa?.nombre || 'Scheduleo'
     if (empresa?.logo) faviconUrl = empresa.logo
-  } catch {}
+  } catch (e) {
+    console.error('ERROR en generateMetadata al leer empresa:', e)
+  }
   return {
     title: `${nombreEmpresa} - Sistema de Gestion Laboral`,
     description: 'Sistema completo de gestion laboral para empresas espanolas',
