@@ -603,13 +603,21 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </div>
         </header>
         <BetaBanner />
-        <main className={`flex-1 main-responsive-padding${isLight ? " bg-gray-50" : ""}`} style={{ background: fondoWorkspace ? `linear-gradient(rgba(var(--bg-rgb,249,250,251),0.88), rgba(var(--bg-rgb,249,250,251),0.88)), url(${fondoWorkspace})` : "var(--bg)", backgroundSize: fondoWorkspace ? "cover" : undefined, backgroundPosition: fondoWorkspace ? "center" : undefined, backgroundAttachment: fondoWorkspace ? "fixed" : undefined, backgroundRepeat: fondoWorkspace ? "no-repeat" : undefined, padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+        <main className={`flex-1 main-responsive-padding${isLight ? " bg-gray-50" : ""}`} style={{ background: fondoWorkspace ? undefined : "var(--bg)", position: "relative", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+          {fondoWorkspace && (
+            <>
+              <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${fondoWorkspace})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "no-repeat", filter: `brightness(${fondoBrillo}%)`, zIndex: 0 }} />
+              <div style={{ position: "absolute", inset: 0, background: `rgba(249,250,251,${fondoOpacidad / 100})`, zIndex: 0 }} />
+            </>
+          )}
           <style>{`
             @media (max-width: 640px) {
               .main-responsive-padding { padding: 12px !important; }
             }
           `}</style>
-          {children}
+          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+            {children}
+          </div>
         </main>
       </div>
       <ScheduleoAIChat userId={usuarioActual?.id || ""} />
