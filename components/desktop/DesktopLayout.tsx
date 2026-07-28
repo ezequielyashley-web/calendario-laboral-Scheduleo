@@ -351,6 +351,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
+  const fondoWorkspace = empresa?.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"
   return (
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
@@ -600,7 +601,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </div>
         </header>
         <BetaBanner />
-        <main className={`flex-1 main-responsive-padding${isLight ? " bg-gray-50" : ""}`} style={{ background:"var(--bg)", padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
+        <main className={`flex-1 main-responsive-padding${isLight ? " bg-gray-50" : ""}`} style={{ background: fondoWorkspace ? `linear-gradient(rgba(var(--bg-rgb,249,250,251),0.88), rgba(var(--bg-rgb,249,250,251),0.88)), url(${fondoWorkspace})` : "var(--bg)", backgroundSize: fondoWorkspace ? "cover" : undefined, backgroundPosition: fondoWorkspace ? "center" : undefined, backgroundAttachment: fondoWorkspace ? "fixed" : undefined, backgroundRepeat: fondoWorkspace ? "no-repeat" : undefined, padding: (pathname === "/chat" || pathname === "/panel-ejecutivo" || pathname === "/configuracion") ? 0 : 24, overflow: (pathname === "/chat" || pathname === "/configuracion") ? "hidden" : "auto", height: (pathname === "/chat" || pathname === "/configuracion") ? "100%" : "auto", display: "flex", flexDirection: "column" }}>
           <style>{`
             @media (max-width: 640px) {
               .main-responsive-padding { padding: 12px !important; }

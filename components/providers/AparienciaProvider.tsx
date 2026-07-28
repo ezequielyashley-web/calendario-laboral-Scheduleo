@@ -6,6 +6,7 @@ type AparienciaState = {
   logo?: string
   colorSidebar?: string
   colorAccent?: string
+  fondoWorkspace?: string
 }
 
 const AparienciaContext = createContext<{
@@ -28,6 +29,7 @@ export function AparienciaProvider({ children }: { children: React.ReactNode }) 
         logo: d?.logo,
         colorSidebar: d?.colorSidebar,
         colorAccent: d?.colorAccent,
+        fondoWorkspace: d?.fondoWorkspace,
       })
     }).catch(() => {})
   }
