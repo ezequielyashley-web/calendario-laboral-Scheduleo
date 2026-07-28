@@ -1723,8 +1723,10 @@ export default function ConfiguracionPage() {
                         <div key={item} style={{ padding: "6px 8px", borderRadius: 6, color: i === 2 ? "#fff" : "rgba(255,255,255,0.7)", fontSize: 11, marginBottom: 2, background: i === 2 ? (empresa.colorAccent || "#6366f1") : "transparent", fontWeight: i === 2 ? 600 : 400 }}>{item}</div>
                       ))}
                     </div>
-                    <div style={{ background: "#F8F9FA", padding: 16, height: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 11, color: "#D1D5DB" }}>Contenido de la app</span>
+                    <div style={{ position: "relative", padding: 16, height: 80, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${empresa.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"})`, backgroundSize: "cover", backgroundPosition: "center", filter: `brightness(${empresa.fondoBrillo ?? 100}%)` }} />
+                      <div style={{ position: "absolute", inset: 0, background: `rgba(249,250,251,${(empresa.fondoOpacidad ?? 88) / 100})` }} />
+                      <span style={{ position: "relative", fontSize: 11, color: "#9CA3AF" }}>Contenido de la app</span>
                     </div>
                   </div>
                   <div style={{ fontSize: 11, color: "#9CA3AF", textAlign: "center", marginTop: 10 }}>Asi se vera tu app con esta configuracion</div>
