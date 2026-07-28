@@ -207,7 +207,8 @@ export default function LibranzasDesktop() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Header (fijo al hacer scroll) */}
+      <div style={{ position: "sticky", top: 0, zIndex: 5, background: "rgba(255,255,255,0.97)", paddingBottom: 12, marginBottom: -12 }}>
       <div className="libranzas-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <style>{`
           @media (max-width: 768px) {
@@ -240,6 +241,7 @@ export default function LibranzasDesktop() {
             {t.label}
           </button>
         ))}
+      </div>
       </div>
 
       <div className="libranzas-main-grid" style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 16 }}>
