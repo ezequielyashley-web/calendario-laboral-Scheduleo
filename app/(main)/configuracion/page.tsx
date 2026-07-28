@@ -1605,6 +1605,8 @@ export default function ConfiguracionPage() {
                 set("logo", "")
                 set("colorSidebar", "")
                 set("colorAccent", "")
+                set("fondoOpacidad", 88)
+                set("fondoBrillo", 100)
               }} style={{ background: "none", border: "1px solid #E5E7EB", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 600, color: "#6B7280", cursor: "pointer", marginBottom: 20 }}>
                 Restablecer a valores originales
               </button>
@@ -1669,6 +1671,14 @@ export default function ConfiguracionPage() {
                   <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Tema del sistema</div>
                     <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
+                  </div>
+
+                  <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Fondo del workspace</div>
+                    <label style={labelStyle}>Tono del overlay ({empresa.fondoOpacidad ?? 88}%)</label>
+                    <input type="range" min="0" max="100" value={empresa.fondoOpacidad ?? 88} onChange={e => set("fondoOpacidad", Number(e.target.value))} style={{ width: "100%", marginBottom: 16 }} />
+                    <label style={labelStyle}>Brillo de la imagen ({empresa.fondoBrillo ?? 100}%)</label>
+                    <input type="range" min="50" max="150" value={empresa.fondoBrillo ?? 100} onChange={e => set("fondoBrillo", Number(e.target.value))} style={{ width: "100%" }} />
                   </div>
 
                 </div>

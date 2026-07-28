@@ -7,6 +7,8 @@ type AparienciaState = {
   colorSidebar?: string
   colorAccent?: string
   fondoWorkspace?: string
+  fondoOpacidad?: number
+  fondoBrillo?: number
 }
 
 const AparienciaContext = createContext<{
@@ -30,6 +32,8 @@ export function AparienciaProvider({ children }: { children: React.ReactNode }) 
         colorSidebar: d?.colorSidebar,
         colorAccent: d?.colorAccent,
         fondoWorkspace: d?.fondoWorkspace,
+        fondoOpacidad: d?.fondoOpacidad,
+        fondoBrillo: d?.fondoBrillo,
       })
     }).catch(() => {})
   }

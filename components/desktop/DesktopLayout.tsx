@@ -352,6 +352,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
   const fondoWorkspace = empresa?.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"
+  const fondoOpacidad = empresa?.fondoOpacidad ?? 88
+  const fondoBrillo = empresa?.fondoBrillo ?? 100
   return (
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`

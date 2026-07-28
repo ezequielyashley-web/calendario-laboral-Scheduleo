@@ -55,6 +55,8 @@ model Empresa {
   cif                       String                     @unique
   plan                      String                     @default("basico")
   fondoWorkspace            String?
+  fondoOpacidad             Int?
+  fondoBrillo               Int?
   direccion                 String?
   telefono                  String?
   email                     String?
