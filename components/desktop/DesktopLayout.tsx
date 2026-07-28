@@ -33,6 +33,16 @@ const Icons = {
   auto: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor" stroke="none"/></svg>,
 }
 
+function hexToRgba(hex: string, alpha: number) {
+  const h = hex.replace('#', '')
+  const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h
+  const bigint = parseInt(full, 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
 function ClimaWidget() {
   const [hora, setHora] = useState('')
   const [fecha, setFecha] = useState('')
@@ -374,9 +384,12 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       {isMobile && mobileOpen && (
         <div onClick={() => setMobileOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:40 }} />
       )}
-      <aside style={{ width: isMobile ? 240 : (open ? 260 : 52), background: sidebarBg, display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight: isLight ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.06)',
+      <aside style={{ width: isMobile ? 240 : (open ? 260 : 52), background: 'transparent', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight: isLight ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.06)',
           boxShadow: isLight ? '2px 0 8px rgba(0,0,0,0.04), 4px 0 24px rgba(103,61,230,0.05)' : 'none', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={isLight ? 'light-mode' : ''}>
+          <div style={{ position:'absolute', inset:0, backgroundImage:'url(/design-system/00-global/backgrounds/workspace-background-default.png)', backgroundSize:'cover', backgroundPosition:'center', zIndex:0 }} />
+          <div style={{ position:'absolute', inset:0, background: hexToRgba(sidebarBg, isLight ? 0.85 : 0.8), zIndex:1 }} />
+          <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
 
         {/* Nombre empresa */}
         <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
@@ -539,6 +552,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               {open ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
             </svg>
           </button>
+        </div>
         </div>
       </aside>
 
