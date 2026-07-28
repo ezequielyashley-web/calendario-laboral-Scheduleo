@@ -5,12 +5,21 @@ import { revalidateTag } from "next/cache"
 import { getEmpleadoData, prepararCamposCifrados } from "@/lib/empleadoData"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const { id } = await params
 
     const empleadoRaw = await prisma.$queryRaw`SELECT * FROM "Empleado" WHERE id = ${id}` as any[]
     if (!empleadoRaw.length) return NextResponse.json({ error: "Empleado no encontrado" }, { status: 404 })
     const empleadoBase = empleadoRaw[0]
+    if (auth.role !== "SUPER_ADMIN" && empleadoBase.userId !== auth.userId) {
+      const solicitante = await prisma.user.findUnique({ where: { id: auth.userId } })
+      const permisos: any = (solicitante as any)?.permisos || {}
+      if (!permisos.empleados_ver) {
+        return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+      }
+    }
 
     const empleado = await prisma.empleado.findUnique({
       where: { id },
@@ -80,6 +89,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const { id } = await params
     const body = await req.json()
