@@ -1675,10 +1675,32 @@ export default function ConfiguracionPage() {
 
                   <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Fondo del workspace</div>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}>
+                      <div style={{ width: 64, height: 64, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: "1px solid #E5E7EB", backgroundImage: `url(${empresa.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                      <div style={{ flex: 1 }}>
+                        <label htmlFor="fondoUpload" style={{ display: "block", border: "2px dashed #D1D5DB", borderRadius: 10, padding: 14, textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
+                          <div style={{ fontSize: 11.5, fontWeight: 600, color: "#4B5563" }}>Subir fondo del workspace</div>
+                          <div style={{ fontSize: 10.5, color: "#9CA3AF", marginTop: 2 }}>PNG, JPG o WEBP - Max 4MB</div>
+                        </label>
+                        <input id="fondoUpload" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" style={{ display: "none" }}
+                          onChange={async e => {
+                            const file = e.target.files?.[0]
+                            if (!file) return
+                            if (file.size > 4 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 4MB", "error"); return }
+                            const formData = new FormData()
+                            formData.append("file", file)
+                            const res = await fetch("/api/empresa/fondo", { method: "POST", body: formData })
+                            const data = await res.json()
+                            if (data.error) { mostrarMensaje(data.error, "error"); return }
+                            set("fondoWorkspace", data.url)
+                            setPreview({ fondoWorkspace: data.url })
+                          }} />
+                      </div>
+                    </div>
                     <label style={labelStyle}>Tono del overlay ({empresa.fondoOpacidad ?? 88}%)</label>
-                    <input type="range" min="0" max="100" value={empresa.fondoOpacidad ?? 88} onChange={e => set("fondoOpacidad", Number(e.target.value))} style={{ width: "100%", marginBottom: 16 }} />
+                    <input type="range" min="0" max="100" value={empresa.fondoOpacidad ?? 88} onChange={e => { const v = Number(e.target.value); set("fondoOpacidad", v); setPreview({ fondoOpacidad: v }) }} style={{ width: "100%", marginBottom: 16 }} />
                     <label style={labelStyle}>Brillo de la imagen ({empresa.fondoBrillo ?? 100}%)</label>
-                    <input type="range" min="50" max="150" value={empresa.fondoBrillo ?? 100} onChange={e => set("fondoBrillo", Number(e.target.value))} style={{ width: "100%" }} />
+                    <input type="range" min="50" max="150" value={empresa.fondoBrillo ?? 100} onChange={e => { const v = Number(e.target.value); set("fondoBrillo", v); setPreview({ fondoBrillo: v }) }} style={{ width: "100%" }} />
                   </div>
 
                 </div>
