@@ -175,7 +175,7 @@ html.dark {
 
 /* ─── FONDO SECCIONES ESPECIFICAS ───────────────────────────── */
 .bg-section-dark {
-  background-color: rgba(226,232,240,0.5);
+  background-color: transparent;
   min-height: 100vh;
   padding: 24px;
 }
