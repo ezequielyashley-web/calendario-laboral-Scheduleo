@@ -3,6 +3,7 @@ import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { unstable_cache, revalidateTag } from "next/cache"
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit"
 
 async function fetchPuestosConEmpleados(empresaId: string) {
   const puestos = await prisma.$queryRaw`
@@ -57,12 +58,16 @@ export async function POST(req: NextRequest) {
     const { nombre, descripcion, empresaId, masterPassword } = await req.json()
     if (!nombre) return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 })
 
+    const rl = checkRateLimit(`masterpass-puestos-${auth.userId}`, 5, 15 * 60 * 1000)
+    if (!rl.success) return NextResponse.json({ error: "Demasiados intentos. Espera unos minutos." }, { status: 429 })
+
     const empresa = await prisma.$queryRaw`
       SELECT "masterPasswordHash" FROM "Empresa" WHERE id = ${empresaId || "empresa-001"}
     ` as any[]
     if (!empresa.length) return NextResponse.json({ error: "Empresa no encontrada" }, { status: 404 })
     const isValid = await bcrypt.compare(masterPassword, empresa[0].masterPasswordHash)
     if (!isValid) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 401 })
+    resetRateLimit(`masterpass-puestos-${auth.userId}`)
 
     const id = `puesto-${Date.now()}`
     await prisma.$executeRaw`
@@ -83,15 +88,17 @@ export async function PATCH(req: NextRequest) {
     if (isUnauthorized(auth)) return auth
     const { id, nombre, descripcion, empleadoId, accion, masterPassword } = await req.json()
 
-    const empresa = await prisma.$queryRaw`
-      SELECT "masterPasswordHash" FROM "Empresa" WHERE id = 'empresa-001'
-    ` as any[]
-    if (!empresa.length) return NextResponse.json({ error: "Empresa no encontrada" }, { status: 404 })
-    const isValid = await bcrypt.compare(masterPassword, empresa[0].masterPasswordHash)
-    if (!isValid) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 401 })
-
-    // Editar puesto
     if (accion === "editar") {
+      const rl = checkRateLimit(`masterpass-puestos-${auth.userId}`, 5, 15 * 60 * 1000)
+      if (!rl.success) return NextResponse.json({ error: "Demasiados intentos. Espera unos minutos." }, { status: 429 })
+      const empresa = await prisma.$queryRaw`
+        SELECT "masterPasswordHash" FROM "Empresa" WHERE id = 'empresa-001'
+      ` as any[]
+      if (!empresa.length) return NextResponse.json({ error: "Empresa no encontrada" }, { status: 404 })
+      const isValid = await bcrypt.compare(masterPassword, empresa[0].masterPasswordHash)
+      if (!isValid) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 401 })
+      resetRateLimit(`masterpass-puestos-${auth.userId}`)
+
       await prisma.$executeRaw`
         UPDATE "PuestoDeTrabajo" SET nombre = ${nombre}, descripcion = ${descripcion}, "updatedAt" = NOW()
         WHERE id = ${id}
@@ -100,17 +107,14 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Asignar empleado a puesto
     if (accion === "asignar") {
       await prisma.$executeRaw`
         UPDATE "Empleado" SET "puestoDeTrabajoId" = ${id}, "updatedAt" = NOW()
         WHERE id = ${empleadoId}
       `
-      // Notificacion push pendiente para app movil
       return NextResponse.json({ ok: true })
     }
 
-    // Quitar empleado de puesto
     if (accion === "quitar") {
       await prisma.$executeRaw`
         UPDATE "Empleado" SET "puestoDeTrabajoId" = NULL, "updatedAt" = NOW()
@@ -134,11 +138,15 @@ export async function DELETE(req: NextRequest) {
     const id = searchParams.get("id")
     const masterPassword = searchParams.get("masterPassword")
 
+    const rl = checkRateLimit(`masterpass-puestos-${auth.userId}`, 5, 15 * 60 * 1000)
+    if (!rl.success) return NextResponse.json({ error: "Demasiados intentos. Espera unos minutos." }, { status: 429 })
+
     const empresa = await prisma.$queryRaw`
       SELECT "masterPasswordHash" FROM "Empresa" WHERE id = 'empresa-001'
     ` as any[]
     const isValid = await bcrypt.compare(masterPassword || "", empresa[0].masterPasswordHash)
     if (!isValid) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 401 })
+    resetRateLimit(`masterpass-puestos-${auth.userId}`)
 
     const empleados = await prisma.$queryRaw`
       SELECT COUNT(*)::int as total FROM "Empleado" WHERE "puestoDeTrabajoId" = ${id}
