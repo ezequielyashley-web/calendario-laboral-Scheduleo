@@ -25,8 +25,7 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next()
 
   // Evitar cache en paginas protegidas
-  const isProtected = !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/_next") &&
+  const isProtected = !request.nextUrl.pathname.startsWith("/_next") &&
     !request.nextUrl.pathname.startsWith("/api/auth")
 
   if (isProtected) {
