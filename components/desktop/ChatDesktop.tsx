@@ -182,7 +182,7 @@ export default function ChatDesktop() {
     <div style={{ display:"flex", height:"calc(100vh - 57px)", overflow:"hidden", position:"relative" as const }}>
 
       {/* SIDEBAR */}
-      <div style={{ width: isMobile ? "100%" : sidebarWidth, background:"#f0f4f8", borderRight: isMobile ? "none" : "1px solid #dde3ea", display: isMobile && convActiva ? "none" : "flex", flexDirection:"column", flexShrink:0, position:"relative" as const, minWidth: isMobile ? "auto" : 220, maxWidth: isMobile ? "100%" : 480 }}>
+      <div style={{ width: isMobile ? "100%" : sidebarWidth, background:"rgba(240,244,248,0.55)", backdropFilter:"blur(6px)", borderRight: isMobile ? "none" : "1px solid #dde3ea", display: isMobile && convActiva ? "none" : "flex", flexDirection:"column", flexShrink:0, position:"relative" as const, minWidth: isMobile ? "auto" : 220, maxWidth: isMobile ? "100%" : 480 }}>
         <div style={{ padding:"11px 14px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #dde3ea" }}>
           <span style={{ fontSize:14, fontWeight:600, color:"#111827" }}>Chat</span>
           {solicitudes.length > 0 && <span style={{ background:"#ef4444", color:"#fff", fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>{solicitudes.length} pendiente{solicitudes.length>1?"s":""}</span>}
@@ -314,7 +314,7 @@ export default function ChatDesktop() {
         {convActiva ? (
           <>
             {/* Panel mensajes */}
-            <div style={{ flex:1, display:"flex", flexDirection:"column", background:"#e5ddd5", backgroundImage:"radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px)", backgroundSize:"18px 18px", minWidth:0 }}>
+            <div style={{ flex:1, display:"flex", flexDirection:"column", background:"rgba(229,221,213,0.5)", backgroundImage:"radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px)", backgroundSize:"18px 18px", minWidth:0 }}>
               <div style={{ padding:"10px 14px", background:"#fff", borderBottom:"1px solid #dde3ea", display:"flex", alignItems:"center", gap:10 }}>
                 {isMobile && (
                   <button onClick={()=>setConvActiva(null)} style={{ background:"none", border:"none", cursor:"pointer", padding:4, marginLeft:-4, display:"flex", alignItems:"center" }}>
@@ -368,7 +368,7 @@ export default function ChatDesktop() {
             </div>
 
             {/* Panel info lateral */}
-            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"#fff", display: isMobile ? "none" : "flex", flexDirection:"column", flexShrink:0 }}>
+            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"rgba(255,255,255,0.85)", backdropFilter:"blur(6px)", display: isMobile ? "none" : "flex", flexDirection:"column", flexShrink:0 }}>
               <div style={{ padding:"12px 14px", borderBottom:"1px solid #dde3ea", background:"#f8fafc" }}>
                 <div style={{ fontSize:11, fontWeight:700, color:"#374151", marginBottom:2 }}>INFO DEL CHAT</div>
                 <div style={{ fontSize:10, color:"#6b7280" }}>Como funciona</div>
@@ -395,13 +395,13 @@ export default function ChatDesktop() {
         ) : (
           <>
             {/* Area vacia con logo */}
-            <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"#e8eef3", gap:12 }}>
+            <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"rgba(232,238,243,0.5)", gap:12 }}>
               <LogoScheduleo size={140} />
               <div style={{ fontSize:12, color:"#9ca3af", marginTop:4 }}>Selecciona una conversacion o inicia una nueva</div>
             </div>
 
             {/* Panel info lateral siempre visible */}
-            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"#fff", display: isMobile ? "none" : "flex", flexDirection:"column", flexShrink:0 }}>
+            <div style={{ width:220, borderLeft:"1px solid #dde3ea", background:"rgba(255,255,255,0.85)", backdropFilter:"blur(6px)", display: isMobile ? "none" : "flex", flexDirection:"column", flexShrink:0 }}>
               <div style={{ padding:"12px 14px", borderBottom:"1px solid #dde3ea", background:"#f8fafc" }}>
                 <div style={{ fontSize:11, fontWeight:700, color:"#374151", marginBottom:2 }}>COMO FUNCIONA</div>
                 <div style={{ fontSize:10, color:"#6b7280" }}>Chat y notificaciones</div>
