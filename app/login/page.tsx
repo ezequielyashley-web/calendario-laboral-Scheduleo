@@ -317,7 +317,7 @@ export default function LoginV2Page() {
               </div>
 
               <div style={{ textAlign: "center", fontSize: 13, color: "#64748B", marginBottom: 16 }}>
-                No tienes cuenta? <a href="#" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                No tienes cuenta? <a href="/solicitar-acceso" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
               </div>
 
               <div style={{ background: "#EFF4FF", border: "1px solid #DBE6FF", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>

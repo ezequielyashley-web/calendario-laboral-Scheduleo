@@ -479,6 +479,20 @@ model ConfiguracionAIProveedor {
   updatedAt    DateTime  @updatedAt
 }
 
+model SolicitudAccesoPublica {
+  id          String    @id @default(cuid())
+  nombre      String
+  email       String
+  empresa     String?
+  motivo      String?
+  estado      String    @default("pendiente")
+  revisadoPor String?
+  revisadoEn  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([estado])
+}
+
 model ChatAI {
   id         String   @id @default(cuid())
   userId     String
