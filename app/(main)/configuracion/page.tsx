@@ -1469,7 +1469,7 @@ export default function ConfiguracionPage() {
         }
 
       `}</style>
-        <div style={{ background: "linear-gradient(180deg,#EDE9FE 0%,#E8E4FB 100%)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
+        <div style={{ background: "linear-gradient(180deg,rgba(237,233,254,0.55) 0%,rgba(232,228,251,0.55) 100%)", backdropFilter: "blur(4px)", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(103,61,230,0.12)" }}>
           <div style={{ padding: "10px 8px", flex: 1, overflowY: "auto" }}>
             <button
               onClick={() => { setSubmenuTocadoManual(true); setSubmenuColapsado(c => !c) }}
@@ -1524,7 +1524,7 @@ export default function ConfiguracionPage() {
 
 
         </div>
-        <div className="config-content-responsive" style={{ background: "#FAFAFA", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+        <div className="config-content-responsive" style={{ background: "rgba(250,250,250,0.55)", backdropFilter: "blur(4px)", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", padding: "22px 28px", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
           <button
             className="config-back-link"
