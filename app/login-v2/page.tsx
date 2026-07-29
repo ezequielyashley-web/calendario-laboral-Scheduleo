@@ -198,12 +198,13 @@ export default function LoginV2Page() {
                 </button>
               </form>
 
-              <div style={{ position: "relative", textAlign: "center", marginBottom: 20 }}>
+              <div style={{ position: "relative", textAlign: "center", marginBottom: 12 }}>
                 <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "#E2E8F0" }} />
                 <span style={{ position: "relative", background: "rgba(255,255,255,0.92)", padding: "0 12px", fontSize: 12, color: "#94A3B8" }}>o continua con</span>
               </div>
+              <div style={{ textAlign: "center", fontSize: 10.5, color: "#94A3B8", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" as const, marginBottom: 8 }}>Proximamente</div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20, opacity: 0.5 }}>
                 {[
                   { id: "google", label: "Google", icon: "icon-google.svg" },
                   { id: "microsoft", label: "Microsoft", icon: "icon-microsoft.svg" },
