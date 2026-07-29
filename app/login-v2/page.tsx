@@ -136,7 +136,7 @@ export default function LoginV2Page() {
             ].map(f => (
               <div key={f.title} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 12, background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                  <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 28, height: 28 }} />
+                  <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 34, height: 34 }} />
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>{f.title}</div>
                 <div style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>{f.text}</div>
