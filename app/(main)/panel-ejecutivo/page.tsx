@@ -179,7 +179,7 @@ export default function PanelEjecutivoPage() {
   if (verificando) return null
 
   if (mostrarBienvenida) return (
-    <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "calc(100vh - 57px)", background: "rgba(244,245,247,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 64, height: 64, borderRadius: 18, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 8px 24px rgba(103,61,230,0.3)" }}>
           <span style={{ fontSize: 28, color: "#fff" }}>✓</span>
@@ -191,7 +191,7 @@ export default function PanelEjecutivoPage() {
   )
 
   if (!autenticado) return (
-    <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "calc(100vh - 57px)", background: "rgba(244,245,247,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ width: 380, textAlign: "center", background: "#fff", border: "1px solid #E2E4E9", borderRadius: 20, padding: "36px 32px", boxShadow: "0 8px 32px rgba(15,23,42,0.08)" }}>
         <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#1E293B,#334155)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" /></svg>
@@ -214,7 +214,7 @@ export default function PanelEjecutivoPage() {
     </div>
   )
 
-  if (loading) return <div style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", padding: 60, textAlign: "center", color: "#64748B" }}>Cargando...</div>
+  if (loading) return <div style={{ minHeight: "calc(100vh - 57px)", background: "rgba(244,245,247,0.5)", padding: 60, textAlign: "center", color: "#64748B" }}>Cargando...</div>
 
   const superAdmins = data?.superAdmins || []
   const gerenciales = data?.gerenciales || []
@@ -224,7 +224,7 @@ export default function PanelEjecutivoPage() {
   const diasEnSistema = usuarioSeleccionado?.createdAt ? Math.floor((Date.now() - new Date(usuarioSeleccionado.createdAt).getTime()) / 86400000) : 0
 
   return (
-    <div className="panel-ejec-responsive-wrap" style={{ minHeight: "calc(100vh - 57px)", background: "#F4F5F7", padding: "20px 24px" }}>
+    <div className="panel-ejec-responsive-wrap" style={{ minHeight: "calc(100vh - 57px)", background: "rgba(244,245,247,0.5)", padding: "20px 24px" }}>
       <style>{`
         @media (max-width: 768px) {
           .panel-ejec-responsive-wrap { padding: 12px !important; }
