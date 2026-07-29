@@ -129,14 +129,14 @@ export default function LoginV2Page() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
             {[
-              { title: "Control de Asistencia", text: "Registra y controla la jornada laboral en tiempo real.", icon: "icon-attendance.svg" },
-              { title: "Gestion de Horarios", text: "Planifica turnos y coberturas de forma inteligente.", icon: "icon-schedule.svg" },
-              { title: "Grupos Laborales", text: "Organiza equipos por departamentos, centros y turnos.", icon: "icon-groups.svg" },
-              { title: "Asistencia de Hacienda", text: "Genera informes y reportes para cumplir con la normativa.", icon: "icon-tax-compliance.svg" },
+              { title: "Control de Asistencia", text: "Registra y controla la jornada laboral en tiempo real.", icon: "icon-control-asistencia.svg" },
+              { title: "Gestion de Horarios", text: "Planifica turnos y coberturas de forma inteligente.", icon: "icon-gestion-horarios.svg" },
+              { title: "Grupos Laborales", text: "Organiza equipos por departamentos, centros y turnos.", icon: "icon-grupos-laborales.svg" },
+              { title: "Asistencia de Hacienda", text: "Genera informes y reportes para cumplir con la normativa.", icon: "icon-asistencia-hacienda.svg" },
             ].map(f => (
               <div key={f.title} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                  <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 18, height: 18 }} />
+                <div style={{ width: 46, height: 46, borderRadius: 12, background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                  <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 28, height: 28 }} />
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>{f.title}</div>
                 <div style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>{f.text}</div>
@@ -206,8 +206,8 @@ export default function LoginV2Page() {
                   { id: "sso", label: "SSO Empresarial", icon: "icon-sso-enterprise.svg" },
                   { id: "apple", label: "Apple", icon: "icon-apple.svg" },
                 ].map(p => (
-                  <button key={p.id} type="button" disabled title="Proveedor no configurado todavia" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 44, border: "1px solid #E2E8F0", borderRadius: 10, background: "#fff", fontSize: 13, fontWeight: 600, color: "#334155", cursor: "not-allowed", opacity: 0.6 }}>
-                    <img src={"/design-system/login/" + p.icon} alt="" style={{ width: 18, height: 18 }} />
+                  <button key={p.id} type="button" disabled title="Proveedor no configurado todavia" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 46, border: "1.5px solid #E2E8F0", borderRadius: 10, background: "#fff", fontSize: 13, fontWeight: 700, color: "#1E293B", cursor: "not-allowed" }}>
+                    <img src={"/design-system/login/" + p.icon} alt="" style={{ width: 22, height: 22 }} />
                     {p.label}
                   </button>
                 ))}
@@ -218,7 +218,7 @@ export default function LoginV2Page() {
               </div>
 
               <div style={{ background: "#EFF4FF", border: "1px solid #DBE6FF", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <img src="/design-system/login/icon-security-shield.svg" alt="" style={{ width: 16, height: 16, marginTop: 2, flexShrink: 0 }} />
+                <img src="/design-system/login/icon-autenticacion-segura.svg" alt="" style={{ width: 16, height: 16, marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "#1E3A8A" }}>Autenticacion segura</div>
                   <div style={{ fontSize: 11, color: "#475569" }}>Tus datos estan protegidos con cifrado de extremo a extremo.</div>
