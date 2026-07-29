@@ -388,7 +388,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           boxShadow: isLight ? '2px 0 8px rgba(0,0,0,0.04), 4px 0 24px rgba(103,61,230,0.05)' : 'none', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={isLight ? 'light-mode' : ''}>
           <div style={{ position:'absolute', inset:0, backgroundImage:'url(/design-system/00-global/backgrounds/workspace-background-default.png)', backgroundSize:'cover', backgroundPosition:'center', zIndex:0 }} />
-          <div style={{ position:'absolute', inset:0, background: hexToRgba(sidebarBg, isLight ? 0.99 : 0.98), zIndex:1 }} />
+          <div style={{ position:'absolute', inset:0, background: hexToRgba(sidebarBg, 0.2), zIndex:1 }} />
           <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
 
         {/* Nombre empresa */}
