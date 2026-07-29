@@ -1,231 +1,258 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
-const azulPrimario = "#0D47A1"
-const azulSecundario = "#1976D2"
-const azulAcento = "#42A5F5"
-
-const Icons = {
-  reloj: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
-  usuarios: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-  sombrilla: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 0 1 10 10H2A10 10 0 0 1 12 2zM12 12v9M9 21h6"/></svg>,
-  maletin: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
-  grafico: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>,
-  chispas: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>,
-  escudoCheck: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>,
-  candado: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  escudo: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-  nube: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>,
-  correo: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>,
-  ojo: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
-  flecha: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>,
-  edificio: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 6h.01M15 6h.01M9 10h.01M15 10h.01M9 14h.01M15 14h.01M9 18h6"/></svg>,
-  ventana: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>,
-  escaner: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 3H5a2 2 0 0 0-2 2v2M17 3h2a2 2 0 0 1 2 2v2M7 21H5a2 2 0 0 1-2-2v-2M17 21h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>,
-  huella: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 11a2 2 0 0 1 2 2v1a5 5 0 0 1-5 5M8 14a4 4 0 0 1 4-4"/><path d="M6 18a8 8 0 0 1-1-5 7 7 0 0 1 14 0"/><path d="M4 9a10 10 0 0 1 17 5"/></svg>,
-  check: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>,
-}
-
-const FEATURES = [
-  { icono: Icons.reloj, titulo: "Registro horario obligatorio", texto: "Cumple con el RD-Ley 8/2019 y la normativa vigente." },
-  { icono: Icons.usuarios, titulo: "Gestion de turnos y coberturas", texto: "Planifica, organiza y asegura las coberturas minimas." },
-  { icono: Icons.sombrilla, titulo: "Vacaciones y permisos", texto: "Control total de ausencias, vacaciones y libranzas." },
-  { icono: Icons.maletin, titulo: "Bajas medicas automatizadas", texto: "Recepcion automatica de partes del INSS, sin intervencion manual." },
-  { icono: Icons.grafico, titulo: "Reportes ejecutivos", texto: "Dashboards y reportes avanzados para decidir con datos reales." },
-  { icono: Icons.chispas, titulo: "IA integrada", texto: "Tu asistente inteligente para la gestion diaria." },
-]
-
-const BADGES = [
-  { icono: Icons.escudoCheck, titulo: "AES-256-GCM", sub: "Cifrado bancario" },
-  { icono: Icons.candado, titulo: "2FA Obligatorio", sub: "Para todos" },
-  { icono: Icons.escudo, titulo: "RGPD", sub: "Cumplimiento total" },
-  { icono: Icons.chispas, titulo: "IA Segura", sub: "Privada y confiable" },
-  { icono: Icons.nube, titulo: "100% Cloud", sub: "Alta disponibilidad" },
-]
-
-const PASOS_VERIFICACION = ["Validando credenciales", "Verificando permisos", "Sincronizando informacion", "Cargando tu espacio de trabajo"]
+function validarEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) }
 
 export default function LoginV2Page() {
-  const [estado, setEstado] = useState<"login" | "verificando" | "bienvenido">("login")
-  const [pasoActual, setPasoActual] = useState(0)
-  const [mostrarPassword, setMostrarPassword] = useState(false)
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [featureHover, setFeatureHover] = useState<number | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [remember, setRemember] = useState(false)
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const iniciarSesion = () => {
-    setEstado("verificando")
-    setPasoActual(0)
-    let i = 0
-    const intervalo = setInterval(() => {
-      i++
-      setPasoActual(i)
-      if (i >= PASOS_VERIFICACION.length) {
-        clearInterval(intervalo)
-        setTimeout(() => setEstado("bienvenido"), 500)
+  const [show2FA, setShow2FA] = useState(false)
+  const [code2FA, setCode2FA] = useState("")
+  const [error2FA, setError2FA] = useState("")
+  const [verifying2FA, setVerifying2FA] = useState(false)
+
+  const [show2FATotp, setShow2FATotp] = useState(false)
+  const [codigoTotp, setCodigoTotp] = useState("")
+  const [errorTotp, setErrorTotp] = useState("")
+  const [verifyingTotp, setVerifyingTotp] = useState(false)
+
+  const [userId2FA, setUserId2FA] = useState("")
+
+  const completarSesion = async (sessionGrant?: string) => {
+    const csrfRes = await fetch("/api/auth/csrf")
+    const { csrfToken } = await csrfRes.json()
+    await fetch("/api/auth/callback/credentials", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      redirect: "manual",
+      body: new URLSearchParams({ email, password, sessionGrant: sessionGrant || "", csrfToken, redirect: "false", callbackUrl: "/dashboard", json: "true" })
+    })
+    sessionStorage.setItem("2fa_verified", "true")
+    router.push("/dashboard")
+    router.refresh()
+  }
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault()
+    setError("")
+    if (!validarEmail(email)) { setError("Email invalido"); return }
+    if (!password) { setError("Ingresa tu contrasena"); return }
+    setLoading(true)
+    try {
+      const checkRes = await fetch("/api/auth/login-custom", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+      const checkData = await checkRes.json()
+      setLoading(false)
+      if (!checkRes.ok) { setError(checkData.error || "Email o contrasena incorrectos"); return }
+      if (checkData.needsTwoFA && checkData.metodo2FA === "totp") {
+        setUserId2FA(checkData.userId)
+        setShow2FATotp(true)
+        return
       }
-    }, 700)
+      if (checkData.needsTwoFA) {
+        const twoFARes = await fetch("/api/verificacion", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, action: "send" })
+        })
+        const twoFAData = await twoFARes.json()
+        setUserId2FA(twoFAData.userId)
+        setShow2FA(true)
+        return
+      }
+      await completarSesion()
+    } catch {
+      setLoading(false)
+      setError("Error de conexion")
+    }
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "10px 40px 10px 38px", border: "1px solid #E2E8F0", borderRadius: 12,
-    fontSize: 13, background: "#fff", outline: "none", boxSizing: "border-box" as const, transition: "border-color 0.2s, box-shadow 0.2s"
+  const verificarCodigo2FA = async () => {
+    setVerifying2FA(true); setError2FA("")
+    const res = await fetch("/api/verificacion", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "verify", userId: userId2FA, code: code2FA })
+    })
+    const data = await res.json()
+    setVerifying2FA(false)
+    if (data.ok) { await completarSesion(data.sessionGrant) }
+    else { setError2FA(data.error || "Codigo incorrecto"); setCode2FA("") }
   }
+
+  const verificarTotp = async () => {
+    setVerifyingTotp(true); setErrorTotp("")
+    const res = await fetch("/api/2fa/verify-login", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: userId2FA, codigo: codigoTotp })
+    })
+    const data = await res.json()
+    setVerifyingTotp(false)
+    if (data.ok) { await completarSesion(data.sessionGrant) }
+    else { setErrorTotp(data.error || "Codigo incorrecto"); setCodigoTotp("") }
+  }
+
+  const inputBase: React.CSSProperties = { width: "100%", height: 46, padding: "0 14px 0 42px", border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 14, color: "#0F172A", outline: "none", background: "#fff", boxSizing: "border-box" }
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", width: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+    <div style={{ position: "relative", minHeight: "100vh", width: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
         <img src="/login-bg.png" alt="background" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
       </div>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(13,71,161,0.1) 0%,rgba(25,118,210,0.05) 50%,rgba(15,23,42,0.08) 100%)" }} />
-      <div style={{ position: "absolute", top: "18%", left: "8%", width: 340, height: 340, background: "rgba(66,165,245,0.16)", borderRadius: "50%", filter: "blur(90px)", animation: "loginv2-blob-1 9s ease-in-out infinite" }} />
-      <div style={{ position: "absolute", bottom: "12%", right: "10%", width: 300, height: 300, background: "rgba(25,118,210,0.14)", borderRadius: "50%", filter: "blur(90px)", animation: "loginv2-blob-2 11s ease-in-out infinite 1s" }} />
-      <style>{`
-        @keyframes loginv2-blob-1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.08); } }
-        @keyframes loginv2-blob-2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-25px,20px) scale(1.05); } }
-        @keyframes loginv2-entrada { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes loginv2-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .loginv2-feature { transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; cursor: default; }
-        .loginv2-feature:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,71,161,0.1); border-color: ${azulAcento} !important; }
-        .loginv2-badge { transition: transform 0.18s; }
-        .loginv2-badge:hover { transform: translateY(-1px) scale(1.02); }
-        .loginv2-btn-social { transition: all 0.18s; }
-        .loginv2-btn-social:hover { background: #F8FAFC !important; border-color: ${azulSecundario} !important; }
-        .loginv2-btn-principal { transition: all 0.2s; }
-        .loginv2-btn-principal:hover { filter: brightness(1.08); box-shadow: 0 10px 24px rgba(13,71,161,0.35); }
-        .loginv2-input:focus { border-color: ${azulSecundario} !important; box-shadow: 0 0 0 3px rgba(25,118,210,0.12); }
-        .loginv2-barra { background: linear-gradient(90deg, ${azulSecundario} 0%, ${azulAcento} 50%, ${azulSecundario} 100%); background-size: 200% 100%; animation: loginv2-shimmer 1.6s linear infinite; }
-      `}</style>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(30,58,138,0.15) 0%,rgba(30,88,146,0.08) 50%,rgba(15,23,42,0.1) 100%)" }} />
+      <div style={{ position: "absolute", top: "25%", left: "25%", width: 384, height: 384, background: "rgba(59,130,246,0.08)", borderRadius: "50%", filter: "blur(80px)" }} />
+      <div style={{ position: "absolute", bottom: "25%", right: "25%", width: 320, height: 320, background: "rgba(59,130,246,0.06)", borderRadius: "50%", filter: "blur(80px)" }} />
 
-      {estado === "login" && (
-        <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1100, display: "flex", background: "rgba(255,255,255,0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.9)", borderRadius: 24, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", overflow: "hidden", animation: "loginv2-entrada 0.5s ease-out" }}>
+      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 28px 80px rgba(23,67,151,0.18)" }}>
 
-          <div style={{ flex: 1.15, padding: "36px 32px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(13,71,161,0.35)" }}>
-                <span style={{ color: "#fff", fontSize: 18, fontWeight: 700 }}>S</span>
-              </div>
-              <span style={{ fontSize: 22, fontWeight: 700, color: "#0F172A" }}>Scheduleo <span style={{ color: azulSecundario }}>2.0</span></span>
+        <div style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+            <img src="/design-system/login/scheduleo-logo.svg" alt="Scheduleo" style={{ width: 56, height: 56 }} />
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A" }}>Scheduleo</div>
+              <div style={{ fontSize: 12, color: "#64748B" }}>Gestion inteligente de personal</div>
             </div>
-            <p style={{ fontSize: 14, color: "#334155", margin: "0 0 6px", lineHeight: 1.5 }}>
-              La plataforma de gestion laboral en la que las <strong style={{ color: azulSecundario }}>empresas espanolas</strong> confian su dia a dia.
-            </p>
-            <p style={{ fontSize: 12.5, color: "#64748B", margin: "0 0 20px", lineHeight: 1.5 }}>
-              Todo lo que necesitas para cumplir la ley, automatizar procesos y tomar mejores decisiones con la ayuda de la inteligencia artificial.
-            </p>
+          </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
-              {FEATURES.map((f, i) => (
-                <div key={i} className="loginv2-feature"
-                  onMouseEnter={() => setFeatureHover(i)} onMouseLeave={() => setFeatureHover(null)}
-                  style={{ background: "rgba(255,255,255,0.75)", border: "1px solid rgba(226,232,240,0.8)", borderRadius: 12, padding: 10, animation: `loginv2-entrada 0.4s ease-out ${i * 0.05}s both` }}>
-                  <div style={{ color: azulSecundario, marginBottom: 6, transform: featureHover === i ? "scale(1.1)" : "scale(1)", transition: "transform 0.18s" }}>{f.icono}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#0F172A", lineHeight: 1.3 }}>{f.titulo}</div>
-                  <div style={{ fontSize: 9.5, color: "#64748B", marginTop: 3, lineHeight: 1.3 }}>{f.texto}</div>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Bienvenido</h1>
+          <div style={{ width: 40, height: 4, background: "#2F63F4", borderRadius: 2, marginBottom: 16 }} />
+          <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6, marginBottom: 24 }}>
+            La plataforma completa para el control de asistencia, horarios, grupos laborales y cumplimiento normativo.
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+            {[
+              { title: "Control de Asistencia", text: "Registra y controla la jornada laboral en tiempo real.", icon: "icon-attendance.svg" },
+              { title: "Gestion de Horarios", text: "Planifica turnos y coberturas de forma inteligente.", icon: "icon-schedule.svg" },
+              { title: "Grupos Laborales", text: "Organiza equipos por departamentos, centros y turnos.", icon: "icon-groups.svg" },
+              { title: "Asistencia de Hacienda", text: "Genera informes y reportes para cumplir con la normativa.", icon: "icon-tax-compliance.svg" },
+            ].map(f => (
+              <div key={f.title} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                  <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 18, height: 18 }} />
                 </div>
-              ))}
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 6 }}>
-              {BADGES.map((b, i) => (
-                <div key={i} className="loginv2-badge" style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(226,232,240,0.7)", borderRadius: 10, padding: 8, display: "flex", alignItems: "center", gap: 6, animation: `loginv2-entrada 0.4s ease-out ${0.3 + i * 0.05}s both` }}>
-                  <div style={{ color: azulAcento, flexShrink: 0 }}>{b.icono}</div>
-                  <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: "#0F172A" }}>{b.titulo}</div>
-                    <div style={{ fontSize: 8, color: "#64748B" }}>{b.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ flex: 1, background: "rgba(255,255,255,0.92)", padding: "36px 32px", textAlign: "center" as const }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>Bienvenido de nuevo</div>
-            <div style={{ fontSize: 12.5, color: "#64748B", marginBottom: 22 }}>Inicia sesion para continuar</div>
-
-            <div style={{ textAlign: "left" as const, marginBottom: 12 }}>
-              <label style={{ fontSize: 11.5, color: "#334155", fontWeight: 600, display: "block", marginBottom: 4 }}>Correo electronico</label>
-              <div style={{ position: "relative" as const }}>
-                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }}>{Icons.correo}</span>
-                <input className="loginv2-input" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="tu@empresa.com" />
-              </div>
-            </div>
-
-            <div style={{ textAlign: "left" as const, marginBottom: 10 }}>
-              <label style={{ fontSize: 11.5, color: "#334155", fontWeight: 600, display: "block", marginBottom: 4 }}>Contrasena</label>
-              <div style={{ position: "relative" as const }}>
-                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }}>{Icons.candado}</span>
-                <input className="loginv2-input" type={mostrarPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} placeholder="Ingresa tu contrasena" />
-                <span onClick={() => setMostrarPassword(!mostrarPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#94A3B8", cursor: "pointer" }}>{Icons.ojo}</span>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, fontSize: 11.5 }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 5, color: "#475569" }}><input type="checkbox" style={{ margin: 0 }} />Mantener sesion iniciada</label>
-              <a style={{ color: azulSecundario, cursor: "pointer" }}>Olvidaste tu contrasena?</a>
-            </div>
-
-            <button onClick={iniciarSesion} className="loginv2-btn-principal" style={{ width: "100%", background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 13.5, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 18, boxShadow: "0 6px 16px rgba(13,71,161,0.25)" }}>
-              Iniciar sesion {Icons.flecha}
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
-              <span style={{ fontSize: 10.5, color: "#94A3B8" }}>o continua con</span>
-              <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 16 }}>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Google</button>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Microsoft</button>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer" }}>Apple</button>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, padding: "8px 0", fontSize: 10, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.edificio} SSO</button>
-            </div>
-
-            <div style={{ fontSize: 10.5, color: "#94A3B8", marginBottom: 8 }}>Entrar con Passkey</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, marginBottom: 18 }}>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.ventana} Windows Hello</button>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.escaner} Face ID</button>
-              <button className="loginv2-btn-social" style={{ background: "#fff", border: "1px dashed #CBD5E1", borderRadius: 10, padding: "7px 0", fontSize: 9.5, color: azulSecundario, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{Icons.huella} Touch ID</button>
-            </div>
-
-            <div style={{ fontSize: 11, color: "#64748B" }}>No tienes cuenta? <a style={{ color: azulSecundario, fontWeight: 600 }}>Solicita una demostracion</a></div>
-          </div>
-        </div>
-      )}
-
-      {estado === "verificando" && (
-        <div style={{ position: "relative", zIndex: 10, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "40px 48px", textAlign: "center" as const, maxWidth: 380, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", animation: "loginv2-entrada 0.4s ease-out" }}>
-          <div style={{ width: 60, height: 60, borderRadius: 16, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 10px 24px rgba(13,71,161,0.35)" }}>
-            <span style={{ color: "#fff", fontSize: 26, fontWeight: 700 }}>S</span>
-          </div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: "#0F172A", marginBottom: 20 }}>Verificando tu identidad...</div>
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, marginBottom: 20, textAlign: "left" as const }}>
-            {PASOS_VERIFICACION.map((paso, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, opacity: i < pasoActual ? 1 : 0.35, transform: i < pasoActual ? "translateX(0)" : "translateX(-4px)", transition: "opacity 0.3s, transform 0.3s" }}>
-                {i < pasoActual ? Icons.check : <div style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid #CBD5E1" }} />}
-                <span style={{ fontSize: 13, color: "#334155" }}>{paso}</span>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>{f.title}</div>
+                <div style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>{f.text}</div>
               </div>
             ))}
           </div>
-          <div style={{ height: 4, background: "#E2E8F0", borderRadius: 999, overflow: "hidden" }}>
-            <div className="loginv2-barra" style={{ width: `${(pasoActual / PASOS_VERIFICACION.length) * 100}%`, height: "100%", borderRadius: 999, transition: "width 0.4s" }} />
-          </div>
-        </div>
-      )}
 
-      {estado === "bienvenido" && (
-        <div style={{ position: "relative", zIndex: 10, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "48px", textAlign: "center" as const, maxWidth: 380, boxShadow: "0 25px 60px rgba(13,71,161,0.15)", animation: "loginv2-entrada 0.5s ease-out" }}>
-          <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg,${azulSecundario},${azulPrimario})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 0 0 8px rgba(66,165,245,0.15), 0 10px 28px rgba(13,71,161,0.35)" }}>
-            <span style={{ color: "#fff", fontSize: 28, fontWeight: 700 }}>S</span>
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>Bienvenido a Scheduleo!</div>
-          <div style={{ fontSize: 13, color: "#64748B", marginBottom: 20 }}>Preparando tu espacio de trabajo...</div>
-          <div style={{ height: 4, background: "#E2E8F0", borderRadius: 999, overflow: "hidden" }}>
-            <div className="loginv2-barra" style={{ width: "70%", height: "100%", borderRadius: 999 }} />
+          <div style={{ marginTop: "auto", background: "#2F63F4", borderRadius: 14, padding: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
+            <img src="/design-system/login/icon-security-shield.svg" alt="" style={{ width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 4 }}>Seguro, confiable y siempre disponible</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>Tus datos y los de tu empresa estan protegidos con los mas altos estandares de seguridad.</div>
+            </div>
           </div>
         </div>
-      )}
+
+        <div style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+
+          {!show2FA && !show2FATotp && (
+            <>
+              <div style={{ textAlign: "center", marginBottom: 28 }}>
+                <h2 style={{ fontSize: 24, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Iniciar sesion</h2>
+                <p style={{ fontSize: 13, color: "#64748B", margin: 0 }}>Accede a tu cuenta para continuar</p>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                {error && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error}</div>}
+
+                <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Correo electronico</label>
+                <div style={{ position: "relative", marginBottom: 16 }}>
+                  <img src="/design-system/login/icon-email.svg" alt="" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 16, height: 16 }} />
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@empresa.com" style={inputBase} />
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, color: "#334155", fontWeight: 600 }}>Contrasena</label>
+                  <a href="#" style={{ fontSize: 12, color: "#2F63F4", textDecoration: "none" }}>Olvidaste tu contrasena?</a>
+                </div>
+                <div style={{ position: "relative", marginBottom: 16 }}>
+                  <img src="/design-system/login/icon-lock.svg" alt="" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 16, height: 16 }} />
+                  <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="********" style={{ ...inputBase, paddingRight: 42 }} />
+                  <button type="button" onClick={() => setShowPassword(p => !p)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }} aria-label="Mostrar contrasena">
+                    <img src="/design-system/login/icon-eye.svg" alt="" style={{ width: 16, height: 16 }} />
+                  </button>
+                </div>
+
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", marginBottom: 20, cursor: "pointer" }}>
+                  <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />
+                  Recordarme en este dispositivo
+                </label>
+
+                <button type="submit" disabled={loading} style={{ width: "100%", height: 48, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
+                  <img src="/design-system/login/icon-login.svg" alt="" style={{ width: 16, height: 16 }} />
+                  {loading ? "Accediendo..." : "Acceder"}
+                </button>
+              </form>
+
+              <div style={{ position: "relative", textAlign: "center", marginBottom: 20 }}>
+                <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "#E2E8F0" }} />
+                <span style={{ position: "relative", background: "rgba(255,255,255,0.92)", padding: "0 12px", fontSize: 12, color: "#94A3B8" }}>o continua con</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+                {[
+                  { id: "google", label: "Google", icon: "icon-google.svg" },
+                  { id: "microsoft", label: "Microsoft", icon: "icon-microsoft.svg" },
+                  { id: "sso", label: "SSO Empresarial", icon: "icon-sso-enterprise.svg" },
+                  { id: "apple", label: "Apple", icon: "icon-apple.svg" },
+                ].map(p => (
+                  <button key={p.id} type="button" disabled title="Proveedor no configurado todavia" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 44, border: "1px solid #E2E8F0", borderRadius: 10, background: "#fff", fontSize: 13, fontWeight: 600, color: "#334155", cursor: "not-allowed", opacity: 0.6 }}>
+                    <img src={"/design-system/login/" + p.icon} alt="" style={{ width: 18, height: 18 }} />
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ textAlign: "center", fontSize: 13, color: "#64748B", marginBottom: 16 }}>
+                No tienes cuenta? <a href="#" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+              </div>
+
+              <div style={{ background: "#EFF4FF", border: "1px solid #DBE6FF", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <img src="/design-system/login/icon-security-shield.svg" alt="" style={{ width: 16, height: 16, marginTop: 2, flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#1E3A8A" }}>Autenticacion segura</div>
+                  <div style={{ fontSize: 11, color: "#475569" }}>Tus datos estan protegidos con cifrado de extremo a extremo.</div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {show2FA && (
+            <div>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 8, textAlign: "center" }}>Verificacion en dos pasos</h2>
+              <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginBottom: 20 }}>Te enviamos un codigo a {email}</p>
+              {error2FA && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error2FA}</div>}
+              <input value={code2FA} onChange={e => setCode2FA(e.target.value)} maxLength={6} placeholder="000000" style={{ ...inputBase, textAlign: "center", fontSize: 20, letterSpacing: 6, paddingLeft: 14, marginBottom: 16 }} />
+              <button onClick={verificarCodigo2FA} disabled={verifying2FA || code2FA.length < 6} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: (verifying2FA || code2FA.length < 6) ? 0.6 : 1 }}>
+                {verifying2FA ? "Verificando..." : "Verificar codigo"}
+              </button>
+            </div>
+          )}
+
+          {show2FATotp && (
+            <div>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 8, textAlign: "center" }}>Codigo de tu app de autenticacion</h2>
+              <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginBottom: 20 }}>Introduce el codigo de 6 digitos</p>
+              {errorTotp && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{errorTotp}</div>}
+              <input value={codigoTotp} onChange={e => setCodigoTotp(e.target.value)} maxLength={6} placeholder="000000" style={{ ...inputBase, textAlign: "center", fontSize: 20, letterSpacing: 6, paddingLeft: 14, marginBottom: 16 }} />
+              <button onClick={verificarTotp} disabled={verifyingTotp || codigoTotp.length < 6} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: (verifyingTotp || codigoTotp.length < 6) ? 0.6 : 1 }}>
+                {verifyingTotp ? "Verificando..." : "Verificar codigo"}
+              </button>
+            </div>
+          )}
+
+        </div>
+      </div>
     </div>
   )
 }
