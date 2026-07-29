@@ -113,6 +113,8 @@ export default function LoginV2Page() {
       <style>{`
         @keyframes logo-pulse-v2 { 0%,100% { box-shadow: 0 6px 20px rgba(59,130,246,0.5); transform: scale(1); } 50% { box-shadow: 0 12px 35px rgba(59,130,246,0.9); transform: scale(1.08); } }
         .logo-v2 { animation: logo-pulse-v2 2.5s ease-in-out infinite; }
+        @keyframes panel-swap-in { from { opacity: 0; transform: translateX(24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .panel-swap { animation: panel-swap-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
       `}</style>
       <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
 
@@ -160,7 +162,7 @@ export default function LoginV2Page() {
         <div style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
           {!show2FA && !show2FATotp && (
-            <>
+            <div className="panel-swap" style={{ display: "contents" }}>
               <div style={{ textAlign: "center", marginBottom: 28 }}>
                 <h2 style={{ fontSize: 24, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Iniciar sesion</h2>
                 <p style={{ fontSize: 13, color: "#64748B", margin: 0 }}>Accede a tu cuenta para continuar</p>
@@ -229,11 +231,11 @@ export default function LoginV2Page() {
                   <div style={{ fontSize: 11, color: "#475569" }}>Tus datos estan protegidos con cifrado de extremo a extremo.</div>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {show2FA && (
-            <div>
+            <div className="panel-swap">
               <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 8, textAlign: "center" }}>Verificacion en dos pasos</h2>
               <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginBottom: 20 }}>Te enviamos un codigo a {email}</p>
               {error2FA && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error2FA}</div>}
@@ -245,7 +247,7 @@ export default function LoginV2Page() {
           )}
 
           {show2FATotp && (
-            <div>
+            <div className="panel-swap">
               <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 8, textAlign: "center" }}>Codigo de tu app de autenticacion</h2>
               <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginBottom: 20 }}>Introduce el codigo de 6 digitos</p>
               {errorTotp && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{errorTotp}</div>}
