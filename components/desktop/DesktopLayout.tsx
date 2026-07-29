@@ -361,6 +361,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const accentColor = empresa?.colorAccent || '#6366f1'
   const empresaNombre = empresa?.nombre || 'Mi Empresa'
   const empresaLogo = empresa?.logo || null
+  const fondoMenu = empresa?.fondoMenu || null
+  const fondoMenuOpacidad = empresa?.fondoMenuOpacidad ?? 80
+  const fondoMenuBrillo = empresa?.fondoMenuBrillo ?? 100
   const fondoWorkspace = empresa?.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"
   const fondoOpacidad = empresa?.fondoOpacidad ?? 88
   const fondoBrillo = empresa?.fondoBrillo ?? 100
@@ -387,8 +390,13 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       <aside style={{ width: isMobile ? 240 : (open ? 260 : 52), background: 'transparent', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s, width 0.2s', overflow:'hidden', borderRight: isLight ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.06)',
           boxShadow: isLight ? '2px 0 8px rgba(0,0,0,0.04), 4px 0 24px rgba(103,61,230,0.05)' : 'none', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : 'auto', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={isLight ? 'light-mode' : ''}>
-          <div style={{ position:'absolute', inset:0, backgroundImage:'url(/design-system/00-global/backgrounds/workspace-background-default.png)', backgroundSize:'cover', backgroundPosition:'center', zIndex:0 }} />
-          <div style={{ position:'absolute', inset:0, background: hexToRgba(sidebarBg, 0.2), zIndex:1 }} />
+          {fondoMenu && (
+            <>
+              <div style={{ position:'absolute', inset:0, backgroundImage:`url(${fondoMenu})`, backgroundSize:'cover', backgroundPosition:'center', filter:`brightness(${fondoMenuBrillo}%)`, zIndex:0 }} />
+              <div style={{ position:'absolute', inset:0, background: hexToRgba(sidebarBg, fondoMenuOpacidad / 100), zIndex:1 }} />
+            </>
+          )}
+          {!fondoMenu && <div style={{ position:'absolute', inset:0, background: sidebarBg, zIndex:0 }} />}
           <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
 
         {/* Nombre empresa */}
