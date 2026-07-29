@@ -83,7 +83,7 @@ export default function SecureLoginForm() {
         sessionStorage.setItem('2fa_verified', 'true')
         setUserName(checkData.name || email.split('@')[0])
         setSuccess(true)
-        setTimeout(() => { const saved = localStorage.getItem('scheduleo_ultima_ruta'); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== '/login') { router.push(ruta); router.refresh(); return } } catch {} } router.push('/dashboard'); router.refresh() }, 5500)
+        setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
       }
     } catch {
       setShowLoading(false)
@@ -262,7 +262,7 @@ export default function SecureLoginForm() {
                   setShow2FA(false)
                   setUserName(email.split('@')[0])
                   setSuccess(true)
-                  setTimeout(() => { const saved = localStorage.getItem('scheduleo_ultima_ruta'); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== '/login') { router.push(ruta); router.refresh(); return } } catch {} } router.push('/dashboard'); router.refresh() }, 5500)
+                  setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
                 } else {
                   setError2FA(data.error || 'Codigo incorrecto')
                   setCode2FA('')
@@ -319,7 +319,7 @@ export default function SecureLoginForm() {
                   setShow2FATotp(false)
                   setUserName(email.split('@')[0])
                   setSuccess(true)
-                  setTimeout(() => { const saved = localStorage.getItem('scheduleo_ultima_ruta'); if (saved) { try { const { ruta, tiempo } = JSON.parse(saved); if (Date.now() - tiempo < 24 * 60 * 60 * 1000 && ruta !== '/login') { router.push(ruta); router.refresh(); return } } catch {} } router.push('/dashboard'); router.refresh() }, 5500)
+                  setTimeout(() => { router.push('/dashboard'); router.refresh() }, 5500)
                 } else {
                   setErrorTotp(data.error || 'Codigo incorrecto')
                   setCodigoTotp('')
