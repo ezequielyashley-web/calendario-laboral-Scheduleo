@@ -1,8 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 
 function validarEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) }
+function formatMMSS(s: number) { const m = Math.floor(s / 60); const r = s % 60; return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0") }
 
 export default function LoginV2Page() {
   const router = useRouter()
@@ -14,16 +15,46 @@ export default function LoginV2Page() {
   const [loading, setLoading] = useState(false)
 
   const [show2FA, setShow2FA] = useState(false)
-  const [code2FA, setCode2FA] = useState("")
-  const [error2FA, setError2FA] = useState("")
-  const [verifying2FA, setVerifying2FA] = useState(false)
-
   const [show2FATotp, setShow2FATotp] = useState(false)
+  const [userId2FA, setUserId2FA] = useState("")
+
+  const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""])
+  const [focusedIdx, setFocusedIdx] = useState(0)
+  const [estadoOtp, setEstadoOtp] = useState<"idle" | "verifying" | "success" | "error" | "expired">("idle")
+  const [shakeOtp, setShakeOtp] = useState(false)
+  const [intentosRestantes, setIntentosRestantes] = useState<number | null>(null)
+  const [tiempoExpira, setTiempoExpira] = useState(600)
+  const [cooldownReenvio, setCooldownReenvio] = useState(60)
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
+  const errorTimeoutRef = useRef<any>(null)
+
   const [codigoTotp, setCodigoTotp] = useState("")
   const [errorTotp, setErrorTotp] = useState("")
   const [verifyingTotp, setVerifyingTotp] = useState(false)
+  const totpErrorTimeoutRef = useRef<any>(null)
 
-  const [userId2FA, setUserId2FA] = useState("")
+  useEffect(() => {
+    if (!show2FA || estadoOtp === "expired") return
+    const t = setInterval(() => {
+      setTiempoExpira(prev => { if (prev <= 1) { setEstadoOtp("expired"); return 0 } return prev - 1 })
+    }, 1000)
+    return () => clearInterval(t)
+  }, [show2FA, estadoOtp])
+
+  useEffect(() => {
+    if (cooldownReenvio <= 0) return
+    const t = setInterval(() => setCooldownReenvio(p => Math.max(0, p - 1)), 1000)
+    return () => clearInterval(t)
+  }, [cooldownReenvio])
+
+  const volverALogin = () => {
+    if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
+    if (totpErrorTimeoutRef.current) clearTimeout(totpErrorTimeoutRef.current)
+    setShow2FA(false); setShow2FATotp(false)
+    setDigits(["", "", "", "", "", ""]); setEstadoOtp("idle"); setIntentosRestantes(null)
+    setTiempoExpira(600); setCooldownReenvio(60)
+    setCodigoTotp(""); setErrorTotp("")
+  }
 
   const completarSesion = async (sessionGrant?: string) => {
     const csrfRes = await fetch("/api/auth/csrf")
@@ -75,16 +106,58 @@ export default function LoginV2Page() {
     }
   }
 
+  const handleDigitChange = (i: number, val: string) => {
+    const v = val.replace(/[^0-9]/g, "").slice(-1)
+    const next = [...digits]; next[i] = v; setDigits(next)
+    if (v && i < 5) { otpRefs.current[i + 1]?.focus(); setFocusedIdx(i + 1) }
+  }
+
+  const handleDigitKeyDown = (i: number, e: any) => {
+    if (e.key === "Backspace" && !digits[i] && i > 0) {
+      otpRefs.current[i - 1]?.focus(); setFocusedIdx(i - 1)
+    } else if (e.key === "ArrowLeft" && i > 0) { otpRefs.current[i - 1]?.focus(); setFocusedIdx(i - 1) }
+    else if (e.key === "ArrowRight" && i < 5) { otpRefs.current[i + 1]?.focus(); setFocusedIdx(i + 1) }
+  }
+
+  const handlePaste = (e: any) => {
+    const texto = (e.clipboardData.getData("text") || "").replace(/[^0-9]/g, "").slice(0, 6)
+    if (!texto) return
+    e.preventDefault()
+    const next = texto.split(""); while (next.length < 6) next.push("")
+    setDigits(next)
+    const ultimo = Math.min(texto.length, 5)
+    otpRefs.current[ultimo]?.focus(); setFocusedIdx(ultimo)
+  }
+
   const verificarCodigo2FA = async () => {
-    setVerifying2FA(true); setError2FA("")
+    setEstadoOtp("verifying")
     const res = await fetch("/api/verificacion", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "verify", userId: userId2FA, code: code2FA })
+      body: JSON.stringify({ action: "verify", userId: userId2FA, code: digits.join("") })
     })
     const data = await res.json()
-    setVerifying2FA(false)
-    if (data.ok) { await completarSesion(data.sessionGrant) }
-    else { setError2FA(data.error || "Codigo incorrecto"); setCode2FA("") }
+    if (data.ok) {
+      setEstadoOtp("success")
+      setTimeout(() => { completarSesion(data.sessionGrant) }, 900)
+    } else {
+      setEstadoOtp("error"); setShakeOtp(true)
+      if (typeof data.attemptsLeft === "number") setIntentosRestantes(data.attemptsLeft)
+      setTimeout(() => setShakeOtp(false), 260)
+      setTimeout(() => { setEstadoOtp("idle"); setDigits(["", "", "", "", "", ""]); otpRefs.current[0]?.focus(); setFocusedIdx(0) }, 420)
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
+      errorTimeoutRef.current = setTimeout(() => { volverALogin() }, 10000)
+    }
+  }
+
+  const handleReenviar = async () => {
+    if (cooldownReenvio > 0) return
+    if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
+    await fetch("/api/verificacion", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, action: "send" })
+    })
+    setDigits(["", "", "", "", "", ""]); setEstadoOtp("idle"); setTiempoExpira(600); setCooldownReenvio(60)
+    otpRefs.current[0]?.focus(); setFocusedIdx(0)
   }
 
   const verificarTotp = async () => {
@@ -96,10 +169,19 @@ export default function LoginV2Page() {
     const data = await res.json()
     setVerifyingTotp(false)
     if (data.ok) { await completarSesion(data.sessionGrant) }
-    else { setErrorTotp(data.error || "Codigo incorrecto"); setCodigoTotp("") }
+    else {
+      setErrorTotp(data.error || "Codigo incorrecto"); setCodigoTotp("")
+      if (totpErrorTimeoutRef.current) clearTimeout(totpErrorTimeoutRef.current)
+      totpErrorTimeoutRef.current = setTimeout(() => { volverALogin() }, 10000)
+    }
   }
 
   const inputBase: React.CSSProperties = { width: "100%", height: 46, padding: "0 14px 0 42px", border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 14, color: "#0F172A", outline: "none", background: "#fff", boxSizing: "border-box" }
+
+  const otpBg = estadoOtp === "success" ? "rgba(240,253,244,0.92)" : estadoOtp === "error" ? "rgba(254,242,242,0.92)" : "rgba(248,251,255,0.96)"
+  const otpTextColor = estadoOtp === "success" ? "#15803D" : estadoOtp === "error" ? "#B91C1C" : "#14213D"
+  const otpBorderIdle = "#D9E2F1"
+  const otpBorderColor = estadoOtp === "success" ? "#22C55E" : estadoOtp === "error" ? "#EF4444" : otpBorderIdle
 
   return (
     <div style={{ position: "relative", minHeight: "100vh", width: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -115,6 +197,9 @@ export default function LoginV2Page() {
         .logo-v2 { animation: logo-pulse-v2 2.5s ease-in-out infinite; }
         @keyframes panel-swap-in { from { opacity: 0; transform: translateX(24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         .panel-swap { animation: panel-swap-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes otp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes shake-otp { 0%{transform:translateX(0)} 14%{transform:translateX(-4px)} 28%{transform:translateX(4px)} 42%{transform:translateX(-3px)} 57%{transform:translateX(3px)} 71%{transform:translateX(-2px)} 85%{transform:translateX(2px)} 100%{transform:translateX(0)} }
+        .shake-otp { animation: shake-otp 0.26s ease-in-out; }
       `}</style>
       <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
 
@@ -235,19 +320,82 @@ export default function LoginV2Page() {
           )}
 
           {show2FA && (
-            <div className="panel-swap">
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 8, textAlign: "center" }}>Verificacion en dos pasos</h2>
-              <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginBottom: 20 }}>Te enviamos un codigo a {email}</p>
-              {error2FA && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error2FA}</div>}
-              <input value={code2FA} onChange={e => setCode2FA(e.target.value)} maxLength={6} placeholder="000000" style={{ ...inputBase, textAlign: "center", fontSize: 20, letterSpacing: 6, paddingLeft: 14, marginBottom: 16 }} />
-              <button onClick={verificarCodigo2FA} disabled={verifying2FA || code2FA.length < 6} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: (verifying2FA || code2FA.length < 6) ? 0.6 : 1 }}>
-                {verifying2FA ? "Verificando..." : "Verificar codigo"}
+            <div className="panel-swap" style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
+              <button onClick={volverALogin} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>
+                &larr; Volver
               </button>
+
+              <div style={{ textAlign: "center", marginBottom: 8 }}>
+                <img src="/design-system/login/icon-autenticacion-segura.svg" alt="" style={{ width: 72, height: 72, margin: "0 auto 16px", display: "block" }} />
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Verificacion en dos pasos</h2>
+                <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 4px" }}>Te hemos enviado un codigo de 6 digitos a</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#2F63F4", margin: 0 }}>{email}</p>
+              </div>
+
+              <div className={shakeOtp ? "shake-otp" : ""} style={{ display: "flex", justifyContent: "center", gap: 12, margin: "24px 0 20px" }}>
+                {digits.map((d, i) => (
+                  <div key={i} style={{ position: "relative", width: 64, height: 76, borderRadius: 14, overflow: "hidden", background: otpBorderColor }}>
+                    {focusedIdx === i && estadoOtp === "idle" && (
+                      <div style={{ position: "absolute", inset: "-60%", background: "conic-gradient(from 0deg, transparent 0deg 300deg, rgba(76,141,255,.15) 320deg, rgba(76,141,255,.85) 350deg, transparent 360deg)", animation: "otp-spin 1.6s linear infinite" }} />
+                    )}
+                    <input
+                      ref={el => { otpRefs.current[i] = el }}
+                      value={d}
+                      onChange={e => handleDigitChange(i, e.target.value)}
+                      onKeyDown={e => handleDigitKeyDown(i, e)}
+                      onPaste={i === 0 ? handlePaste : undefined}
+                      onFocus={() => setFocusedIdx(i)}
+                      disabled={estadoOtp === "verifying" || estadoOtp === "expired" || estadoOtp === "success"}
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={1}
+                      aria-label={"Digito " + (i + 1) + " de 6"}
+                      style={{ position: "absolute", inset: 1.5, borderRadius: 12.5, border: "none", outline: "none", textAlign: "center", fontSize: 30, fontWeight: 600, color: otpTextColor, background: otpBg, boxSizing: "border-box" as const }}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div aria-live="polite">
+                {estadoOtp === "error" && (
+                  <div style={{ textAlign: "center", color: "#DC2626", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
+                    Codigo incorrecto. Intentalo de nuevo.{intentosRestantes !== null && " Te quedan " + intentosRestantes + " intentos."}
+                  </div>
+                )}
+                {estadoOtp === "success" && (
+                  <div style={{ textAlign: "center", color: "#15803D", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Codigo verificado correctamente</div>
+                )}
+                {estadoOtp === "expired" && (
+                  <div style={{ textAlign: "center", color: "#DC2626", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>El codigo ha expirado. Solicita uno nuevo.</div>
+                )}
+              </div>
+
+              <button onClick={verificarCodigo2FA} disabled={estadoOtp === "verifying" || estadoOtp === "expired" || digits.some(d => !d)} style={{ width: "100%", height: 48, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: (estadoOtp === "verifying" || estadoOtp === "expired" || digits.some(d => !d)) ? 0.6 : 1, marginBottom: 16 }}>
+                {estadoOtp === "verifying" ? "Verificando..." : "Verificar codigo"}
+              </button>
+
+              <div style={{ textAlign: "center", fontSize: 12, color: "#94A3B8", marginBottom: 14 }}>
+                {estadoOtp !== "expired" && "Este codigo expirara en " + formatMMSS(tiempoExpira)}
+              </div>
+
+              <div style={{ textAlign: "center", fontSize: 13, color: "#64748B" }}>
+                No recibiste el codigo?{" "}
+                <button onClick={handleReenviar} disabled={cooldownReenvio > 0} style={{ background: "none", border: "none", color: cooldownReenvio > 0 ? "#94A3B8" : "#2F63F4", fontSize: 13, fontWeight: 700, cursor: cooldownReenvio > 0 ? "default" : "pointer", padding: 0 }}>
+                  {cooldownReenvio > 0 ? "Reenviar codigo en " + formatMMSS(cooldownReenvio) : "Reenviar codigo"}
+                </button>
+              </div>
+
+              <div style={{ background: "#EFF4FF", border: "1px solid #DBE6FF", borderRadius: 10, padding: "12px 14px", marginTop: 20, fontSize: 12, color: "#475569", textAlign: "center" }}>
+                Revisa tu bandeja de entrada y tambien la carpeta de correo no deseado.
+              </div>
             </div>
           )}
 
           {show2FATotp && (
             <div className="panel-swap">
+              <button onClick={volverALogin} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>
+                &larr; Volver
+              </button>
               <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 8, textAlign: "center" }}>Codigo de tu app de autenticacion</h2>
               <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginBottom: 20 }}>Introduce el codigo de 6 digitos</p>
               {errorTotp && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{errorTotp}</div>}
