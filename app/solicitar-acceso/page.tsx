@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 
 export default function SolicitarAccesoPage() {
@@ -9,6 +9,21 @@ export default function SolicitarAccesoPage() {
   const [error, setError] = useState("")
   const [enviando, setEnviando] = useState(false)
   const [form, setForm] = useState({ nombre: "", email: "", empresa: "", motivo: "" })
+  const [suspendido, setSuspendido] = useState(false)
+  const [segundosRestantes, setSegundosRestantes] = useState(0)
+
+  const consultarEstadoEmail = async (email: string) => {
+    if (!email || !email.includes("@")) return
+    const res = await fetch("/api/solicitar-acceso/estado?email=" + encodeURIComponent(email.toLowerCase().trim()))
+    const data = await res.json()
+    if (data.bloqueado) { setSuspendido(true); setSegundosRestantes(data.segundosRestantes) }
+  }
+
+  useEffect(() => {
+    if (!suspendido || segundosRestantes <= 0) { if (suspendido && segundosRestantes <= 0) setSuspendido(false); return }
+    const t = setInterval(() => setSegundosRestantes(s => Math.max(0, s - 1)), 1000)
+    return () => clearInterval(t)
+  }, [suspendido, segundosRestantes])
 
   const enviar = async (e: any) => {
     e.preventDefault()
@@ -21,7 +36,11 @@ export default function SolicitarAccesoPage() {
     })
     const data = await res.json()
     setEnviando(false)
-    if (data.error) { setError(data.error); return }
+    if (data.error) {
+      setError(data.error)
+      if (data.bloqueadoEmail) { await consultarEstadoEmail(form.email) }
+      return
+    }
     setEnviado(true)
   }
 
@@ -81,18 +100,28 @@ export default function SolicitarAccesoPage() {
               {error && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error}</div>}
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Nombre completo *</label>
-              <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} style={inputStyle} placeholder="Tu nombre" />
+              <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu nombre" />
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Correo electronico *</label>
-              <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={inputStyle} placeholder="tu@empresa.com" />
+              <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} onBlur={e => consultarEstadoEmail(e.target.value)} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="tu@empresa.com" />
+
+              {suspendido && (
+                <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: "12px 14px", marginBottom: 16, textAlign: "center" }}>
+                  <div style={{ fontSize: 12.5, color: "#B91C1C", fontWeight: 700, marginBottom: 4 }}>Formulario suspendido temporalmente</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#991B1B", fontVariantNumeric: "tabular-nums" as const }}>
+                    {String(Math.floor(segundosRestantes / 60)).padStart(2, "0")}:{String(segundosRestantes % 60).padStart(2, "0")}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "#B91C1C", marginTop: 4 }}>Podras volver a intentarlo cuando termine la cuenta atras.</div>
+                </div>
+              )}
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Empresa</label>
-              <input value={form.empresa} onChange={e => setForm(p => ({ ...p, empresa: e.target.value }))} style={inputStyle} placeholder="Nombre de tu empresa" />
+              <input value={form.empresa} onChange={e => setForm(p => ({ ...p, empresa: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Nombre de tu empresa" />
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Motivo de la solicitud</label>
-              <textarea value={form.motivo} onChange={e => setForm(p => ({ ...p, motivo: e.target.value }))} rows={3} style={{ ...inputStyle, height: "auto", padding: "10px 14px", resize: "vertical" as const }} placeholder="Cuentanos brevemente por que necesitas acceso" />
+              <textarea value={form.motivo} onChange={e => setForm(p => ({ ...p, motivo: e.target.value }))} rows={3} disabled={suspendido} style={{ ...inputStyle, height: "auto", padding: "10px 14px", resize: "vertical" as const, opacity: suspendido ? 0.45 : 1 }} placeholder="Cuentanos brevemente por que necesitas acceso" />
 
-              <button type="submit" disabled={enviando} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: enviando ? "default" : "pointer", opacity: enviando ? 0.7 : 1, marginTop: 6 }}>
+              <button type="submit" disabled={enviando || suspendido} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (enviando || suspendido) ? "default" : "pointer", opacity: (enviando || suspendido) ? 0.5 : 1, marginTop: 6 }}>
                 {enviando ? "Enviando..." : "Enviar solicitud"}
               </button>
             </form>
