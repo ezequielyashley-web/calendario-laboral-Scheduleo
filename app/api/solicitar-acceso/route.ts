@@ -7,9 +7,9 @@ function validarEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) }
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-    const rateLimitIP = checkRateLimit("solicitar-acceso_ip_" + ip, 5, 60 * 60 * 1000)
+    const rateLimitIP = checkRateLimit("solicitar-acceso_ip_" + ip, 1, 30 * 60 * 1000)
     if (!rateLimitIP.success) {
-      return NextResponse.json({ error: "Demasiadas solicitudes desde esta conexion. Intenta mas tarde." }, { status: 429 })
+      return NextResponse.json({ error: "Ya se envio una solicitud desde esta conexion recientemente. Intentalo de nuevo en unos 30 minutos." }, { status: 429 })
     }
 
     const { nombre, email, empresa, motivo, aceptaTratamiento } = await req.json()
@@ -19,10 +19,7 @@ export async function POST(req: NextRequest) {
     if (aceptaTratamiento !== true) return NextResponse.json({ error: "Debes aceptar el tratamiento de datos para continuar" }, { status: 400 })
 
     const emailLimpio = email.toLowerCase().trim()
-    const rateLimitEmail = checkRateLimit("solicitar-acceso_email_" + emailLimpio, 3, 60 * 60 * 1000)
-    if (!rateLimitEmail.success) {
-      return NextResponse.json({ error: "Ya se ha enviado una solicitud reciente con este email. Intenta mas tarde." }, { status: 429 })
-    }
+    
 
     const yaExisteUsuario = await prisma.user.findUnique({ where: { email: emailLimpio } })
     if (yaExisteUsuario) {
@@ -33,7 +30,7 @@ export async function POST(req: NextRequest) {
       where: { email: emailLimpio, estado: "pendiente" }
     })
     if (pendienteExistente) {
-      return NextResponse.json({ ok: true })
+      return NextResponse.json({ error: "Ya tienes una solicitud pendiente de revision con este email. Espera a que se resuelva antes de enviar otra." }, { status: 400 })
     }
 
     await prisma.solicitudAccesoPublica.create({
