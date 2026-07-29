@@ -21,6 +21,11 @@ export async function POST(req: NextRequest) {
     const emailLimpio = email.toLowerCase().trim()
     
 
+    const rateLimitEmail = checkRateLimit("solicitar-acceso_email_" + emailLimpio, 1, 30 * 60 * 1000)
+    if (!rateLimitEmail.success) {
+      return NextResponse.json({ error: "Ya se envio una solicitud con este email hace poco. Espera antes de intentarlo de nuevo.", bloqueadoEmail: true }, { status: 429 })
+    }
+
     const yaExisteUsuario = await prisma.user.findUnique({ where: { email: emailLimpio } })
     if (yaExisteUsuario) {
       return NextResponse.json({ error: "Ya existe una cuenta con ese email. Usa el inicio de sesion." }, { status: 400 })

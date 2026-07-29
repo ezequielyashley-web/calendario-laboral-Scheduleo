@@ -79,6 +79,16 @@ export function checkRateLimit(
 /**
  * Resetea el contador para un identificador (usar después de login exitoso)
  */
+/**
+ * Consulta el estado de un identificador SIN gastar un intento (solo lectura)
+ */
+export function peekRateLimit(identifier: string): { bloqueado: boolean; segundosRestantes: number } {
+  const record = store[identifier]
+  const now = Date.now()
+  if (!record || record.resetTime < now) return { bloqueado: false, segundosRestantes: 0 }
+  return { bloqueado: record.count >= 1, segundosRestantes: Math.max(0, Math.ceil((record.resetTime - now) / 1000)) }
+}
+
 export function resetRateLimit(identifier: string): void {
   delete store[identifier]
 }
