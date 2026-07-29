@@ -204,6 +204,11 @@ export default function LoginV2Page() {
       <style>{`
         @keyframes logo-pulse-v2 { 0%,100% { box-shadow: 0 6px 20px rgba(59,130,246,0.5); transform: scale(1); } 50% { box-shadow: 0 12px 35px rgba(59,130,246,0.9); transform: scale(1.08); } }
         .logo-v2 { animation: logo-pulse-v2 2.5s ease-in-out infinite; }
+        .tooltip-acceso { position: relative; }
+        .tooltip-acceso .tooltip-box { visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) translateY(4px); width: 260px; background: #0F172A; color: #E2E8F0; padding: 12px 14px; border-radius: 10px; font-size: 11.5px; line-height: 1.6; box-shadow: 0 12px 30px rgba(15,23,42,0.35); transition: opacity 0.2s ease, transform 0.2s ease; z-index: 30; text-align: left; }
+        .tooltip-acceso .tooltip-box strong { color: #fff; font-size: 12px; display: block; margin-bottom: 4px; }
+        .tooltip-acceso .tooltip-box::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 6px; border-style: solid; border-color: #0F172A transparent transparent transparent; }
+        .tooltip-acceso:hover .tooltip-box { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
         @keyframes panel-swap-in { from { opacity: 0; transform: translateX(24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         .panel-swap { animation: panel-swap-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
         @keyframes otp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -317,7 +322,14 @@ export default function LoginV2Page() {
               </div>
 
               <div style={{ textAlign: "center", fontSize: 13, color: "#64748B", marginBottom: 16 }}>
-                No tienes cuenta? <a href="/solicitar-acceso" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                No tienes cuenta?{" "}
+                <span className="tooltip-acceso" style={{ display: "inline-block" }}>
+                  <a href="/solicitar-acceso" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                  <span className="tooltip-box">
+                    <strong>Antes de solicitar acceso</strong>
+                    Solo puedes tener una solicitud activa por correo electronico: si ya enviaste una, espera a que se resuelva antes de enviar otra. Por seguridad, tambien limitamos el numero de solicitudes desde una misma conexion en un periodo corto de tiempo.
+                  </span>
+                </span>
               </div>
 
               <div style={{ background: "#EFF4FF", border: "1px solid #DBE6FF", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
