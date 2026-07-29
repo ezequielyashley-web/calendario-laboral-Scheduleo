@@ -28,6 +28,8 @@ export default function LoginV2Page() {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
   const errorTimeoutRef = useRef<any>(null)
 
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [sessionGrantPendiente, setSessionGrantPendiente] = useState("")
   const [codigoTotp, setCodigoTotp] = useState("")
   const [errorTotp, setErrorTotp] = useState("")
   const [verifyingTotp, setVerifyingTotp] = useState(false)
@@ -46,6 +48,12 @@ export default function LoginV2Page() {
     const t = setInterval(() => setCooldownReenvio(p => Math.max(0, p - 1)), 1000)
     return () => clearInterval(t)
   }, [cooldownReenvio])
+
+  useEffect(() => {
+    if (!showWelcome) return
+    const t = setTimeout(() => { completarSesion(sessionGrantPendiente) }, 5500)
+    return () => clearTimeout(t)
+  }, [showWelcome])
 
   const volverALogin = () => {
     if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
@@ -138,7 +146,8 @@ export default function LoginV2Page() {
     const data = await res.json()
     if (data.ok) {
       setEstadoOtp("success")
-      setTimeout(() => { completarSesion(data.sessionGrant) }, 900)
+      setSessionGrantPendiente(data.sessionGrant || "")
+      setTimeout(() => { setShowWelcome(true) }, 900)
     } else {
       setEstadoOtp("error"); setShakeOtp(true)
       if (typeof data.attemptsLeft === "number") setIntentosRestantes(data.attemptsLeft)
@@ -168,7 +177,7 @@ export default function LoginV2Page() {
     })
     const data = await res.json()
     setVerifyingTotp(false)
-    if (data.ok) { await completarSesion(data.sessionGrant) }
+    if (data.ok) { setSessionGrantPendiente(data.sessionGrant || ""); setShowWelcome(true) }
     else {
       setErrorTotp(data.error || "Codigo incorrecto"); setCodigoTotp("")
       if (totpErrorTimeoutRef.current) clearTimeout(totpErrorTimeoutRef.current)
@@ -200,6 +209,8 @@ export default function LoginV2Page() {
         @keyframes otp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes shake-otp { 0%{transform:translateX(0)} 14%{transform:translateX(-4px)} 28%{transform:translateX(4px)} 42%{transform:translateX(-3px)} 57%{transform:translateX(3px)} 71%{transform:translateX(-2px)} 85%{transform:translateX(2px)} 100%{transform:translateX(0)} }
         .shake-otp { animation: shake-otp 0.26s ease-in-out; }
+        @keyframes checkmark-pop-v2 { 0% { transform: scale(0) rotate(-180deg); } 100% { transform: scale(1) rotate(0deg); } }
+        @keyframes pulse-dot-v2 { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.5); opacity: 1; } }
       `}</style>
       <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
 
@@ -319,7 +330,34 @@ export default function LoginV2Page() {
             </div>
           )}
 
-          {show2FA && (
+          {showWelcome && (
+            <div className="panel-swap" style={{ textAlign: "center", padding: "20px 0" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 72, height: 72, background: "#EFF4FF", borderRadius: "50%", marginBottom: 20, animation: "checkmark-pop-v2 0.6s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2F63F4" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0F172A", marginBottom: 8 }}>Bienvenido!</h1>
+              <p style={{ fontSize: 15, color: "#475569", marginBottom: 24 }}>Hola <strong style={{ color: "#0F172A" }}>{email.split("@")[0]}</strong>, sesion iniciada correctamente.</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28, maxWidth: 320, margin: "0 auto 28px" }}>
+                {[
+                  { icon: "M3 4h18v2H3zM3 9h12v2H3zM3 14h18v2H3zM3 19h12v2H3z", txt: "Gestion de Horarios" },
+                  { icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z", txt: "Control de Personal" },
+                  { icon: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2", txt: "Registro de Fichajes" },
+                  { icon: "M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", txt: "Reportes y Analisis" },
+                ].map((f, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "#EFF4FF", padding: "10px 14px", borderRadius: 8, border: "1px solid #DBE6FF", color: "#0F172A", fontSize: 13, fontWeight: 600 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F63F4" strokeWidth="2"><path d={f.icon} /></svg>
+                    <span>{f.txt}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 16 }}>
+                {[0, 1, 2].map(i => <div key={i} style={{ width: 8, height: 8, background: "#2F63F4", borderRadius: "50%", animation: "pulse-dot-v2 1.5s ease-in-out " + (i * 0.2) + "s infinite" }} />)}
+              </div>
+              <p style={{ color: "#64748B", fontSize: 13 }}>Redirigiendo al panel principal...</p>
+            </div>
+          )}
+
+          {!showWelcome && show2FA && (
             <div className="panel-swap" style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
               <button onClick={volverALogin} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>
                 &larr; Volver
@@ -391,7 +429,7 @@ export default function LoginV2Page() {
             </div>
           )}
 
-          {show2FATotp && (
+          {!showWelcome && show2FATotp && (
             <div className="panel-swap">
               <button onClick={volverALogin} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>
                 &larr; Volver
