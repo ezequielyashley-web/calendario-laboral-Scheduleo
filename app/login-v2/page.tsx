@@ -110,11 +110,15 @@ export default function LoginV2Page() {
       <div style={{ position: "absolute", top: "25%", left: "25%", width: 384, height: 384, background: "rgba(59,130,246,0.08)", borderRadius: "50%", filter: "blur(80px)" }} />
       <div style={{ position: "absolute", bottom: "25%", right: "25%", width: 320, height: 320, background: "rgba(59,130,246,0.06)", borderRadius: "50%", filter: "blur(80px)" }} />
 
-      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 28px 80px rgba(23,67,151,0.18)" }}>
+      <style>{`
+        @keyframes logo-pulse-v2 { 0%,100% { box-shadow: 0 6px 20px rgba(59,130,246,0.5); transform: scale(1); } 50% { box-shadow: 0 12px 35px rgba(59,130,246,0.9); transform: scale(1.08); } }
+        .logo-v2 { animation: logo-pulse-v2 2.5s ease-in-out infinite; }
+      `}</style>
+      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
 
         <div style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
-            <img src="/design-system/login/scheduleo-logo.svg" alt="Scheduleo" style={{ width: 56, height: 56 }} />
+            <img src="/design-system/login/scheduleo-logo.svg" alt="Scheduleo" className="logo-v2" style={{ width: 56, height: 56, borderRadius: 14 }} />
             <div>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A" }}>Scheduleo</div>
               <div style={{ fontSize: 12, color: "#64748B" }}>Gestion inteligente de personal</div>
