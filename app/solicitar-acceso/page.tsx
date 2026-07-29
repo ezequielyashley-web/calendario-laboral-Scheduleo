@@ -3,6 +3,7 @@ import { useState } from "react"
 import Link from "next/link"
 
 export default function SolicitarAccesoPage() {
+  const [aceptaTratamiento, setAceptaTratamiento] = useState(false)
   const [aceptado, setAceptado] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [error, setError] = useState("")
@@ -16,7 +17,7 @@ export default function SolicitarAccesoPage() {
     setEnviando(true)
     const res = await fetch("/api/solicitar-acceso", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify({ ...form, aceptaTratamiento: true })
     })
     const data = await res.json()
     setEnviando(false)
@@ -28,23 +29,44 @@ export default function SolicitarAccesoPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F4F5F7", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <div style={{ width: "100%", maxWidth: 480, background: "#fff", borderRadius: 20, border: "1px solid #E2E4E9", padding: "36px 32px", boxShadow: "0 8px 32px rgba(15,23,42,0.08)" }}>
+      <div style={{ width: "100%", maxWidth: 540, background: "#fff", borderRadius: 20, border: "1px solid #E2E4E9", padding: "36px 32px", boxShadow: "0 8px 32px rgba(15,23,42,0.08)" }}>
 
         {!aceptado && !enviado && (
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: "0 0 4px" }}>Solicitar acceso a Scheduleo</h1>
-            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Antes de continuar, lee esta nota</p>
+            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Antes de continuar, lee esta informacion sobre el tratamiento de tus datos</p>
 
-            <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 12, padding: "16px 18px", marginBottom: 20, fontSize: 13, color: "#78350F", lineHeight: 1.7 }}>
-              <strong>Esto es una funcion en fase de prueba.</strong> Por ahora, el formulario de "Solicitar acceso" registra tu peticion en nuestro sistema, pero no crea una cuenta de forma automatica ni inmediata. Un administrador revisara tu solicitud manualmente y, si procede, te enviara una invitacion por email para completar el registro.
-              <br /><br />
-              Los datos que introduzcas (nombre, email, empresa y motivo) se guardan unicamente para gestionar esta solicitud. No se usan con ningun otro fin, no se comparten con terceros, y puedes pedir que se eliminen en cualquier momento escribiendo al administrador de tu organizacion.
-              <br /><br />
-              Al continuar, confirmas que los datos que vas a introducir son tuyos y correctos, y aceptas que se utilicen exclusivamente para valorar tu solicitud de acceso.
+            <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 12, padding: "14px 16px", marginBottom: 16, fontSize: 12.5, color: "#78350F", lineHeight: 1.6 }}>
+              <strong>Esta funcion esta en fase de prueba.</strong> El formulario registra tu peticion, pero no crea una cuenta de forma automatica: un administrador la revisara manualmente y, si procede, recibiras una invitacion por email.
             </div>
 
-            <button onClick={() => setAceptado(true)} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 12 }}>
-              Entendido, continuar
+            <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 12, padding: "16px 18px", marginBottom: 20, fontSize: 12.5, color: "#334155", lineHeight: 1.7, maxHeight: 260, overflowY: "auto" }}>
+              <div style={{ fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>Informacion sobre proteccion de datos (RGPD)</div>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Responsable del tratamiento:</strong> la empresa titular de esta instancia de Scheduleo, como responsable de sus propios datos laborales, con Scheduleo como plataforma tecnologica que presta el servicio.</p>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Finalidad:</strong> gestionar tu solicitud de acceso a Scheduleo, contactarte sobre su resolucion y, en caso de ser aprobada, generar la invitacion para crear tu cuenta de usuario.</p>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Base legal (art. 6 RGPD):</strong> el consentimiento que otorgas al enviar este formulario (art. 6.1.a) y la necesidad de aplicar, a peticion tuya, las medidas previas a un posible acceso al sistema (art. 6.1.b).</p>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Datos tratados:</strong> nombre, correo electronico, empresa y el motivo que indiques, unicamente los que aportas en este formulario.</p>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Conservacion:</strong> mientras se resuelve la solicitud y durante un plazo razonable posterior para justificar la decision tomada, o hasta que solicites su eliminacion.</p>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Destinatarios:</strong> no se ceden datos a terceros. Se almacenan en la infraestructura tecnica que usa Scheduleo para operar (base de datos y correo transaccional).</p>
+
+              <p style={{ margin: "0 0 8px" }}><strong>Tus derechos:</strong> puedes acceder, rectificar, suprimir, oponerte, limitar el tratamiento o pedir la portabilidad de tus datos (arts. 15 a 22 RGPD), asi como retirar este consentimiento en cualquier momento, escribiendo al administrador de la empresa que gestiona esta instancia de Scheduleo.</p>
+
+              <p style={{ margin: 0 }}>Al marcar la casilla inferior y enviar el formulario, confirmas que los datos son tuyos y correctos, y aceptas expresamente este tratamiento con la finalidad descrita.</p>
+            </div>
+
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#334155", marginBottom: 20, cursor: "pointer" }}>
+              <input type="checkbox" checked={aceptaTratamiento} onChange={e => setAceptaTratamiento(e.target.checked)} style={{ marginTop: 3 }} />
+              He leido la informacion anterior y acepto el tratamiento de mis datos por Scheduleo con la finalidad descrita.
+            </label>
+
+            <button onClick={() => setAceptado(true)} disabled={!aceptaTratamiento} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: aceptaTratamiento ? "pointer" : "default", opacity: aceptaTratamiento ? 1 : 0.5, marginBottom: 12 }}>
+              Continuar
             </button>
             <Link href="/login" style={{ display: "block", textAlign: "center", fontSize: 13, color: "#64748B", textDecoration: "none" }}>Volver al inicio de sesion</Link>
           </div>
