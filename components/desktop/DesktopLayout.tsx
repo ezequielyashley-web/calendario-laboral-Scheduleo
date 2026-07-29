@@ -368,7 +368,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
-        .sidebar-texto-legible, .sidebar-texto-legible * { text-shadow: 0 1px 3px rgba(0,0,0,0.55); }
         ${!sidebarPersonalizado ? `.light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }` : ``}
         .light-mode .nav-item:hover { background: #F3F4F6 !important; }
         .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
@@ -390,7 +389,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           className={isLight ? 'light-mode' : ''}>
           <div style={{ position:'absolute', inset:0, backgroundImage:'url(/design-system/00-global/backgrounds/workspace-background-default.png)', backgroundSize:'cover', backgroundPosition:'center', zIndex:0 }} />
           <div style={{ position:'absolute', inset:0, background: hexToRgba(sidebarBg, 0.2), zIndex:1 }} />
-          <div className="sidebar-texto-legible" style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
+          <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
 
         {/* Nombre empresa */}
         <div style={{ padding: open ? '18px 14px 12px' : '18px 0 12px', display:'flex', alignItems:'center', gap:10, justifyContent: open ? 'flex-start' : 'center', flexShrink:0 }}>
