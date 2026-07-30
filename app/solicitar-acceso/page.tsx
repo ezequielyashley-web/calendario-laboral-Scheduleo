@@ -33,6 +33,12 @@ function SolicitarAccesoInner() {
     return () => clearInterval(t)
   }, [suspendido, segundosRestantes])
 
+  useEffect(() => {
+    if (!aceptado || enviado) return
+    const t = setTimeout(() => { setAceptado(false) }, 60000)
+    return () => clearTimeout(t)
+  }, [aceptado, enviado, form])
+
   const enviar = async (e: any) => {
     e.preventDefault()
     setError("")
@@ -104,6 +110,9 @@ function SolicitarAccesoInner() {
 
         {aceptado && !enviado && (
           <div>
+            <button onClick={() => setAceptado(false)} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 16, display: "flex", alignItems: "center", gap: 4 }}>
+              &larr; Volver
+            </button>
             <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: "0 0 4px" }}>Solicitar acceso</h1>
             <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Rellena tus datos y te contactaremos</p>
 
