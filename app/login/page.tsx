@@ -11,6 +11,16 @@ export default function LoginV2Page() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [emailExiste, setEmailExiste] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (!email.trim() || !password.trim() || !validarEmail(email)) { setEmailExiste(null); return }
+    const t = setTimeout(async () => {
+      const res = await fetch("/api/auth/existe-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) })
+      const data = await res.json()
+      setEmailExiste(!!data.existe)
+    }, 500)
+    return () => clearTimeout(t)
+  }, [email, password])
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
