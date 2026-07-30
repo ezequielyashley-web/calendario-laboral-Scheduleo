@@ -4,10 +4,10 @@ import InspectorBanner from "@/components/desktop/InspectorBanner"
 import { useState, useEffect } from "react"
 
 const kpis = [
-  { label:"Empleados activos", trend:"",   up:true,  color:"#6366f1", bg:"#ede9fe", icon:"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
-  { label:"En vacaciones",     trend:"",   up:false, color:"#ec4899", bg:"#fce7f3", icon:"M18 3a3 3 0 0 0-3 3l-7 3a3 3 0 0 0 0 6l7 3a3 3 0 1 0 3-3l-7-3 7-3A3 3 0 0 0 18 3z" },
-  { label:"Solicitudes",       trend:"",   up:false, color:"#d97706", bg:"#fef9c3", icon:"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" },
-  { label:"Horas este mes",    trend:"",   up:true,  color:"#fff",    bg:"linear-gradient(135deg,#6366f1,#8b5cf6)", gradient:true, icon:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2" },
+  { label:"Empleados activos", trend:"",   up:true,  color:"var(--paleta-acento)", bg:"var(--paleta-fondo)", icon:"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+  { label:"En vacaciones",     trend:"",   up:false, color:"var(--paleta-acento)", bg:"var(--paleta-fondo)", icon:"M18 3a3 3 0 0 0-3 3l-7 3a3 3 0 0 0 0 6l7 3a3 3 0 1 0 3-3l-7-3 7-3A3 3 0 0 0 18 3z" },
+  { label:"Solicitudes",       trend:"",   up:false, color:"var(--paleta-acento)", bg:"var(--paleta-fondo)", icon:"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" },
+  { label:"Horas este mes",    trend:"",   up:true,  color:"#fff",    bg:"linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", gradient:true, icon:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2" },
 ]
 
 const asistencia = [
@@ -56,7 +56,7 @@ export default function DashboardDesktop() {
       setGruposReal(gruposActualizados)
 
       const act: any[] = []
-      vacaciones.slice(0,2).forEach((v:any) => act.push({ icon:"M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0", txt:'Solicitud vacaciones', emp:v.nombreEmpleado||v.empleado?.nombre||'Empleado', tiempo:'Reciente', color:'#6366f1', bg:'#ede9fe' }))
+      vacaciones.slice(0,2).forEach((v:any) => act.push({ icon:"M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0", txt:'Solicitud vacaciones', emp:v.nombreEmpleado||v.empleado?.nombre||'Empleado', tiempo:'Reciente', color:'var(--paleta-acento)', bg:'var(--paleta-fondo)' }))
       cambiosArr.slice(0,1).forEach((c:any) => act.push({ icon:"M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3", txt:'Cambio de turno', emp:c.empleadoOrigen?.nombre||'Empleado', tiempo:'Reciente', color:'#16a34a', bg:'#dcfce7' }))
       bajasArr.slice(0,1).forEach((b:any) => act.push({ icon:"M22 12h-4l-3 9L9 3l-3 9H2", txt:'Baja medica', emp:b.nombreEmpleado||'Empleado', tiempo:'Reciente', color:'#d97706', bg:'#fef9c3' }))
       setActividadReal(act)
@@ -104,8 +104,8 @@ export default function DashboardDesktop() {
       <div className="dashboard-panels-grid" style={{ display:"grid", gridTemplateColumns:"1.6fr 1fr", gap:16, marginBottom:16 }}>
         <div style={{ background:"#fff", borderRadius:16, padding:20, border:"0.5px solid #e8eaf0", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-            <div style={{ fontSize:14, fontWeight:500, color:"#1e1b4b" }}>Asistencia semanal</div>
-            <span style={{ fontSize:11, color:"#6366f1", background:"#ede9fe", padding:"4px 10px", borderRadius:20 }}>Esta semana</span>
+            <div style={{ fontSize:14, fontWeight:500, color:"var(--paleta-texto)" }}>Asistencia semanal</div>
+            <span style={{ fontSize:11, color:"var(--paleta-acento)", background:"var(--paleta-fondo)", padding:"4px 10px", borderRadius:20 }}>Esta semana</span>
           </div>
           <div style={{ display:"flex", alignItems:"flex-end", gap:10, height:120 }}>
             {asistencia.map((d, i) => (
@@ -123,7 +123,7 @@ export default function DashboardDesktop() {
         </div>
 
         <div style={{ background:"#fff", borderRadius:16, padding:20, border:"0.5px solid #e8eaf0", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
-          <div style={{ fontSize:14, fontWeight:500, color:"#1e1b4b", marginBottom:16 }}>Distribucion por turno</div>
+          <div style={{ fontSize:14, fontWeight:500, color:"var(--paleta-texto)", marginBottom:16 }}>Distribucion por turno</div>
           {gruposReal.map((g, i) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
               <span style={{ fontSize:12, color:"#718096", width:32 }}>{g.nombre}</span>
@@ -138,7 +138,7 @@ export default function DashboardDesktop() {
 
       {/* Actividad reciente */}
       <div style={{ background:"#fff", borderRadius:16, padding:20, border:"0.5px solid #e8eaf0", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
-        <div style={{ fontSize:14, fontWeight:500, color:"#1e1b4b", marginBottom:16 }}>Actividad reciente</div>
+        <div style={{ fontSize:14, fontWeight:500, color:"var(--paleta-texto)", marginBottom:16 }}>Actividad reciente</div>
         {actividadReal.length === 0 ? (
           <div style={{ textAlign:"center", padding:"32px 0", color:"#a0aec0", fontSize:13 }}>
             No hay actividad reciente
@@ -153,7 +153,7 @@ export default function DashboardDesktop() {
                   </svg>
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:13, fontWeight:500, color:"#1e1b4b", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{a.txt}</div>
+                  <div style={{ fontSize:13, fontWeight:500, color:"var(--paleta-texto)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{a.txt}</div>
                   <div style={{ fontSize:11, color:"#a0aec0" }}>{a.emp} · {a.tiempo}</div>
                 </div>
               </div>
