@@ -12,7 +12,7 @@ function SolicitarAccesoInner() {
   const [enviado, setEnviado] = useState(false)
   const [error, setError] = useState("")
   const [enviando, setEnviando] = useState(false)
-  const [form, setForm] = useState({ nombre: "", apellidos: "", email: emailInicial, telefono: "", cargo: "", direccion: "", empresa: "", motivo: "" })
+  const [form, setForm] = useState({ nombre: "", apellidos: "", email: emailInicial, telefono: "", prefijoPais: "+34", tieneWhatsapp: false, cargo: "", direccion: "", motivo: "" })
   const [suspendido, setSuspendido] = useState(false)
   const [segundosRestantes, setSegundosRestantes] = useState(0)
 
@@ -79,7 +79,7 @@ function SolicitarAccesoInner() {
 
               <p style={{ margin: "0 0 8px" }}><strong>Base legal (art. 6 RGPD):</strong> el consentimiento que otorgas al enviar este formulario (art. 6.1.a) y la necesidad de aplicar, a peticion tuya, las medidas previas a un posible acceso al sistema (art. 6.1.b).</p>
 
-              <p style={{ margin: "0 0 8px" }}><strong>Datos tratados:</strong> nombre, apellidos, correo electronico, telefono, cargo solicitado, direccion, empresa y motivo, unicamente los que aportas en este formulario.</p>
+              <p style={{ margin: "0 0 8px" }}><strong>Datos tratados:</strong> nombre, apellidos, correo electronico, telefono, cargo solicitado, direccion y motivo, unicamente los que aportas en este formulario.</p>
 
               <p style={{ margin: "0 0 8px" }}><strong>Conservacion:</strong> mientras se resuelve la solicitud y durante un plazo razonable posterior para justificar la decision tomada, o hasta que solicites su eliminacion.</p>
 
@@ -138,7 +138,25 @@ function SolicitarAccesoInner() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Telefono *</label>
-                  <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="600 000 000" />
+                  <div style={{ display: "flex", gap: 6, marginBottom: form.tieneWhatsapp ? 4 : 14 }}>
+                    <select value={form.prefijoPais} onChange={e => setForm(p => ({ ...p, prefijoPais: e.target.value }))} disabled={suspendido} style={{ width: 92, height: 44, border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 13, color: "#0F172A", background: "#fff", opacity: suspendido ? 0.45 : 1 }}>
+                      <option value="+34">🇪🇸 +34</option>
+                      <option value="+33">🇫🇷 +33</option>
+                      <option value="+351">🇵🇹 +351</option>
+                      <option value="+39">🇮🇹 +39</option>
+                      <option value="+49">🇩🇪 +49</option>
+                      <option value="+44">🇬🇧 +44</option>
+                      <option value="+52">🇲🇽 +52</option>
+                      <option value="+54">🇦🇷 +54</option>
+                      <option value="+57">🇨🇴 +57</option>
+                      <option value="+1">🇺🇸 +1</option>
+                    </select>
+                    <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value.replace(/[^0-9 ]/g, "") }))} disabled={suspendido} style={{ ...inputStyle, marginBottom: 0, flex: 1, textDecoration: form.tieneWhatsapp ? "underline" : "none", textDecorationColor: "#25D366", textDecorationThickness: 2, opacity: suspendido ? 0.45 : 1 }} placeholder="600 000 000" />
+                  </div>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "#475569", marginBottom: 14, cursor: "pointer" }}>
+                    <input type="checkbox" checked={form.tieneWhatsapp} onChange={e => setForm(p => ({ ...p, tieneWhatsapp: e.target.checked }))} disabled={suspendido} />
+                    Este numero tiene WhatsApp
+                  </label>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Cargo que solicitas *</label>
@@ -148,9 +166,6 @@ function SolicitarAccesoInner() {
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Direccion</label>
               <input value={form.direccion} onChange={e => setForm(p => ({ ...p, direccion: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu direccion" />
-
-              <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Empresa</label>
-              <input value={form.empresa} onChange={e => setForm(p => ({ ...p, empresa: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Nombre de tu empresa" />
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Motivo de la solicitud</label>
               <textarea value={form.motivo} onChange={e => setForm(p => ({ ...p, motivo: e.target.value }))} rows={3} disabled={suspendido} style={{ ...inputStyle, height: "auto", padding: "10px 14px", resize: "vertical" as const, opacity: suspendido ? 0.45 : 1 }} placeholder="Cuentanos brevemente por que necesitas acceso" />

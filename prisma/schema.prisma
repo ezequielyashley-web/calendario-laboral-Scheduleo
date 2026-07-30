@@ -485,6 +485,8 @@ model SolicitudAccesoPublica {
   apellidos   String?
   email       String
   telefono    String?
+  prefijoPais String?   @default("+34")
+  tieneWhatsapp Boolean @default(false)
   cargo       String?
   direccion   String?
   empresa     String?
