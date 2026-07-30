@@ -5,23 +5,24 @@ import { useRouter } from "next/navigation"
 function validarEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) }
 function formatMMSS(s: number) { const m = Math.floor(s / 60); const r = s % 60; return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0") }
 
-const PAISES: [string, string][] = [
-  ["🇦🇫","+93"],["🇦🇱","+355"],["🇩🇿","+213"],["🇦🇩","+376"],["🇦🇴","+244"],["🇦🇷","+54"],["🇦🇲","+374"],["🇦🇺","+61"],["🇦🇹","+43"],["🇦🇿","+994"],
-  ["🇧🇸","+1"],["🇧🇭","+973"],["🇧🇩","+880"],["🇧🇾","+375"],["🇧🇪","+32"],["🇧🇿","+501"],["🇧🇴","+591"],["🇧🇦","+387"],["🇧🇷","+55"],["🇧🇬","+359"],
-  ["🇨🇲","+237"],["🇨🇦","+1"],["🇨🇱","+56"],["🇨🇳","+86"],["🇨🇴","+57"],["🇨🇷","+506"],["🇭🇷","+385"],["🇨🇺","+53"],["🇨🇾","+357"],["🇨🇿","+420"],
-  ["🇩🇰","+45"],["🇩🇴","+1"],["🇪🇨","+593"],["🇪🇬","+20"],["🇸🇻","+503"],["🇪🇪","+372"],["🇪🇹","+251"],
-  ["🇫🇮","+358"],["🇫🇷","+33"],["🇬🇦","+241"],["🇩🇪","+49"],["🇬🇭","+233"],["🇬🇷","+30"],["🇬🇹","+502"],
-  ["🇭🇳","+504"],["🇭🇰","+852"],["🇭🇺","+36"],["🇮🇸","+354"],["🇮🇳","+91"],["🇮🇩","+62"],["🇮🇷","+98"],["🇮🇶","+964"],["🇮🇪","+353"],["🇮🇱","+972"],["🇮🇹","+39"],
-  ["🇯🇲","+1"],["🇯🇵","+81"],["🇯🇴","+962"],["🇰🇿","+7"],["🇰🇪","+254"],["🇰🇷","+82"],["🇰🇼","+965"],
-  ["🇱🇻","+371"],["🇱🇧","+961"],["🇱🇾","+218"],["🇱🇮","+423"],["🇱🇹","+370"],["🇱🇺","+352"],
-  ["🇲🇾","+60"],["🇲🇹","+356"],["🇲🇽","+52"],["🇲🇩","+373"],["🇲🇨","+377"],["🇲🇦","+212"],
-  ["🇳🇱","+31"],["🇳🇿","+64"],["🇳🇮","+505"],["🇳🇬","+234"],["🇳🇴","+47"],
-  ["🇴🇲","+968"],["🇵🇰","+92"],["🇵🇦","+507"],["🇵🇾","+595"],["🇵🇪","+51"],["🇵🇭","+63"],["🇵🇱","+48"],["🇵🇹","+351"],
-  ["🇵🇷","+1"],["🇶🇦","+974"],["🇷🇴","+40"],["🇷🇺","+7"],
-  ["🇸🇦","+966"],["🇷🇸","+381"],["🇸🇬","+65"],["🇸🇰","+421"],["🇸🇮","+386"],["🇿🇦","+27"],["🇸🇪","+46"],["🇨🇭","+41"],
-  ["🇹🇼","+886"],["🇹🇭","+66"],["🇹🇳","+216"],["🇹🇷","+90"],
-  ["🇺🇦","+380"],["🇦🇪","+971"],["🇬🇧","+44"],["🇺🇸","+1"],["🇺🇾","+598"],
-  ["🇻🇪","+58"],["🇻🇳","+84"],["🇾🇪","+967"],
+const PAISES: [string, string, string][] = [
+  ["es","🇪🇸","+34"],
+  ["af","🇦🇫","+93"],["al","🇦🇱","+355"],["dz","🇩🇿","+213"],["ad","🇦🇩","+376"],["ao","🇦🇴","+244"],["ar","🇦🇷","+54"],["am","🇦🇲","+374"],["au","🇦🇺","+61"],["at","🇦🇹","+43"],["az","🇦🇿","+994"],
+  ["bs","🇧🇸","+1"],["bh","🇧🇭","+973"],["bd","🇧🇩","+880"],["by","🇧🇾","+375"],["be","🇧🇪","+32"],["bz","🇧🇿","+501"],["bo","🇧🇴","+591"],["ba","🇧🇦","+387"],["br","🇧🇷","+55"],["bg","🇧🇬","+359"],
+  ["cm","🇨🇲","+237"],["ca","🇨🇦","+1"],["cl","🇨🇱","+56"],["cn","🇨🇳","+86"],["co","🇨🇴","+57"],["cr","🇨🇷","+506"],["hr","🇭🇷","+385"],["cu","🇨🇺","+53"],["cy","🇨🇾","+357"],["cz","🇨🇿","+420"],
+  ["dk","🇩🇰","+45"],["do","🇩🇴","+1"],["ec","🇪🇨","+593"],["eg","🇪🇬","+20"],["sv","🇸🇻","+503"],["ee","🇪🇪","+372"],["et","🇪🇹","+251"],
+  ["fi","🇫🇮","+358"],["fr","🇫🇷","+33"],["ga","🇬🇦","+241"],["de","🇩🇪","+49"],["gh","🇬🇭","+233"],["gr","🇬🇷","+30"],["gt","🇬🇹","+502"],
+  ["hn","🇭🇳","+504"],["hk","🇭🇰","+852"],["hu","🇭🇺","+36"],["is","🇮🇸","+354"],["in","🇮🇳","+91"],["id","🇮🇩","+62"],["ir","🇮🇷","+98"],["iq","🇮🇶","+964"],["ie","🇮🇪","+353"],["il","🇮🇱","+972"],["it","🇮🇹","+39"],
+  ["jm","🇯🇲","+1"],["jp","🇯🇵","+81"],["jo","🇯🇴","+962"],["kz","🇰🇿","+7"],["ke","🇰🇪","+254"],["kr","🇰🇷","+82"],["kw","🇰🇼","+965"],
+  ["lv","🇱🇻","+371"],["lb","🇱🇧","+961"],["ly","🇱🇾","+218"],["li","🇱🇮","+423"],["lt","🇱🇹","+370"],["lu","🇱🇺","+352"],
+  ["my","🇲🇾","+60"],["mt","🇲🇹","+356"],["mx","🇲🇽","+52"],["md","🇲🇩","+373"],["mc","🇲🇨","+377"],["ma","🇲🇦","+212"],
+  ["nl","🇳🇱","+31"],["nz","🇳🇿","+64"],["ni","🇳🇮","+505"],["ng","🇳🇬","+234"],["no","🇳🇴","+47"],
+  ["om","🇴🇲","+968"],["pk","🇵🇰","+92"],["pa","🇵🇦","+507"],["py","🇵🇾","+595"],["pe","🇵🇪","+51"],["ph","🇵🇭","+63"],["pl","🇵🇱","+48"],["pt","🇵🇹","+351"],
+  ["pr","🇵🇷","+1"],["qa","🇶🇦","+974"],["ro","🇷🇴","+40"],["ru","🇷🇺","+7"],
+  ["sa","🇸🇦","+966"],["rs","🇷🇸","+381"],["sg","🇸🇬","+65"],["sk","🇸🇰","+421"],["si","🇸🇮","+386"],["za","🇿🇦","+27"],["se","🇸🇪","+46"],["ch","🇨🇭","+41"],
+  ["tw","🇹🇼","+886"],["th","🇹🇭","+66"],["tn","🇹🇳","+216"],["tr","🇹🇷","+90"],
+  ["ua","🇺🇦","+380"],["ae","🇦🇪","+971"],["gb","🇬🇧","+44"],["us","🇺🇸","+1"],["uy","🇺🇾","+598"],
+  ["ve","🇻🇪","+58"],["vn","🇻🇳","+84"],["ye","🇾🇪","+967"],
 ]
 
 export default function LoginPage() {
@@ -68,7 +69,8 @@ export default function LoginPage() {
   // ---- Flujo de solicitud de acceso (embebido en el propio login) ----
   const [flujoAcceso, setFlujoAcceso] = useState<"normal" | "consentimiento" | "formulario" | "enviado">("normal")
   const [aceptaTratamiento, setAceptaTratamiento] = useState(false)
-  const [formSol, setFormSol] = useState({ nombre: "", apellidos: "", email: "", telefono: "", prefijoPais: "+34", tieneWhatsapp: false, cargo: "", direccion: "", motivo: "" })
+  const [formSol, setFormSol] = useState({ nombre: "", apellidos: "", email: "", telefono: "", prefijoPais: "+34", prefijoIso: "es", tieneWhatsapp: false, cargo: "", direccion: "", motivo: "" })
+  const [prefijoAbierto, setPrefijoAbierto] = useState(false)
   const [errorSol, setErrorSol] = useState("")
   const [enviandoSol, setEnviandoSol] = useState(false)
   const [suspendido, setSuspendido] = useState(false)
@@ -309,10 +311,10 @@ export default function LoginPage() {
         .tooltip-acceso .tooltip-box strong { color: #fff; font-size: 12px; display: block; margin-bottom: 4px; }
         .tooltip-acceso .tooltip-box::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 6px; border-style: solid; border-color: #0F172A transparent transparent transparent; }
         .tooltip-acceso:hover .tooltip-box { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-        @keyframes panel-swap-in { from { opacity: 0; transform: translateX(24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        .panel-swap { animation: panel-swap-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
-        @keyframes panel-swap-in-left { from { opacity: 0; transform: translateX(-24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        .panel-swap-left { animation: panel-swap-in-left 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes panel-swap-in { from { opacity: 0; transform: translateX(32px) scale(0.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .panel-swap { animation: panel-swap-in 1.1s cubic-bezier(0.34,1.56,0.64,1) both; }
+        @keyframes panel-swap-in-left { from { opacity: 0; transform: translateX(-32px) scale(0.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .panel-swap-left { animation: panel-swap-in-left 1.1s cubic-bezier(0.34,1.56,0.64,1) both; }
         @keyframes otp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes shake-otp { 0%{transform:translateX(0)} 14%{transform:translateX(-4px)} 28%{transform:translateX(4px)} 42%{transform:translateX(-3px)} 57%{transform:translateX(3px)} 71%{transform:translateX(-2px)} 85%{transform:translateX(2px)} 100%{transform:translateX(0)} }
         .shake-otp { animation: shake-otp 0.26s ease-in-out; }
@@ -535,12 +537,22 @@ export default function LoginPage() {
                   <div>
                     <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Telefono *</label>
                     <div style={{ display: "flex", gap: 6, marginBottom: formSol.tieneWhatsapp ? 4 : 14 }}>
-                      <select value={formSol.prefijoPais} onChange={e => setFormSol(p => ({ ...p, prefijoPais: e.target.value }))} disabled={suspendido} style={{ width: 92, height: 44, border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 13, color: "#0F172A", background: "#fff", opacity: suspendido ? 0.45 : 1 }}>
-                        <option value="+34">🇪🇸 +34</option>
-                        {PAISES.map(([bandera, codigo]) => (
-                          <option key={bandera + codigo} value={codigo}>{bandera} {codigo}</option>
-                        ))}
-                      </select>
+                      <div style={{ position: "relative" }}>
+                        <button type="button" onClick={() => setPrefijoAbierto(o => !o)} disabled={suspendido} style={{ display: "flex", alignItems: "center", gap: 6, width: 92, height: 44, border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 13, color: "#0F172A", background: "#fff", opacity: suspendido ? 0.45 : 1, cursor: suspendido ? "default" : "pointer", padding: "0 8px" }}>
+                          <img src={"https://flagcdn.com/24x18/" + formSol.prefijoIso + ".png"} alt="" style={{ width: 20, height: 15, objectFit: "cover", borderRadius: 2 }} />
+                          <span>{formSol.prefijoPais}</span>
+                        </button>
+                        {prefijoAbierto && (
+                          <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 40, width: 210, maxHeight: 220, overflowY: "auto", background: "#fff", border: "1px solid #E2E8F0", borderRadius: 10, boxShadow: "0 12px 30px rgba(15,23,42,0.15)" }}>
+                            {PAISES.map(([iso, emoji, codigo]) => (
+                              <button key={iso + codigo} type="button" onClick={() => { setFormSol(p => ({ ...p, prefijoPais: codigo, prefijoIso: iso })); setPrefijoAbierto(false) }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#0F172A", textAlign: "left" as const }}>
+                                <img src={"https://flagcdn.com/24x18/" + iso + ".png"} alt="" style={{ width: 20, height: 15, objectFit: "cover", borderRadius: 2, flexShrink: 0 }} />
+                                {codigo}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <input value={formSol.telefono} onChange={e => setFormSol(p => ({ ...p, telefono: e.target.value.replace(/[^0-9 ]/g, "") }))} disabled={suspendido} style={{ ...inputSolStyle, marginBottom: 0, flex: 1, textDecoration: formSol.tieneWhatsapp ? "underline" : "none", textDecorationColor: "#25D366", textDecorationThickness: 2, opacity: suspendido ? 0.45 : 1 }} placeholder="600 000 000" />
                     </div>
                     <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "#475569", marginBottom: 14, cursor: "pointer" }}>
