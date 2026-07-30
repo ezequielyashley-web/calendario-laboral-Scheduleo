@@ -1,5 +1,6 @@
 "use client"
 import { useApariencia } from "@/components/providers/AparienciaProvider"
+import { PALETAS } from "@/lib/paletas"
 
 
 import { useState, useEffect, useRef, Fragment } from "react"
@@ -1674,9 +1675,23 @@ export default function ConfiguracionPage() {
               )}
 
               {subApariencia === "tema" && (
-                <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                  <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Elige si la aplicacion se ve en modo claro, oscuro, o segun la preferencia del dispositivo de cada usuario.</p>
-                  <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Elige si la aplicacion se ve en modo claro, oscuro, o segun la preferencia del dispositivo de cada usuario.</p>
+                    <SelectorTema toggleTemaActivo={toggleTemaActivo} setToggleTemaActivo={setToggleTemaActivo} />
+                  </div>
+                  <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Elige la paleta de color que usara todo el sistema. Se aplica igual en todas las pantallas (el menu lateral no cambia).</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                      {Object.entries(PALETAS).map(([key, p]) => (
+                        <button key={key} type="button" onClick={() => { set("paletaColor", key); setPreview({ paletaColor: key }) }}
+                          style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, cursor: "pointer", background: "#fff", border: (empresa.paletaColor || "azul") === key ? "2px solid " + p.acento : "1px solid #E5E7EB" }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg," + p.gradInicio + "," + p.gradFin + ")", flexShrink: 0 }} />
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>{p.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
 
