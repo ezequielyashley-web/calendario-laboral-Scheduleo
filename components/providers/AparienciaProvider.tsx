@@ -12,6 +12,7 @@ type AparienciaState = {
   fondoMenu?: string
   fondoMenuOpacidad?: number
   fondoMenuBrillo?: number
+  paletaColor?: string
 }
 
 const AparienciaContext = createContext<{
@@ -40,6 +41,7 @@ export function AparienciaProvider({ children }: { children: React.ReactNode }) 
         fondoMenu: d?.fondoMenu,
         fondoMenuOpacidad: d?.fondoMenuOpacidad,
         fondoMenuBrillo: d?.fondoMenuBrillo,
+        paletaColor: d?.paletaColor,
       })
     }).catch(() => {})
   }

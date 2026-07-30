@@ -77,6 +77,7 @@ export async function PATCH(req: NextRequest) {
         "fondoMenu" = COALESCE(${datos.fondoMenu}, "fondoMenu"),
         "fondoMenuOpacidad" = COALESCE(${datos.fondoMenuOpacidad}, "fondoMenuOpacidad"),
         "fondoMenuBrillo" = COALESCE(${datos.fondoMenuBrillo}, "fondoMenuBrillo"),
+        "paletaColor" = COALESCE(${datos.paletaColor}, "paletaColor"),
         plan = COALESCE(${datos.plan}, plan),
         "updatedAt" = NOW()
       WHERE id = 'empresa-001'

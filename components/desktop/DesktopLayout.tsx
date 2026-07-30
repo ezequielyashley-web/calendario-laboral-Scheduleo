@@ -12,6 +12,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications"
 import { useNotifications } from "@/components/providers/NotificationProvider"
 import { useNotificaciones } from "@/hooks/useNotificaciones"
 import { useApariencia } from "@/components/providers/AparienciaProvider"
+import { getPaleta } from "@/lib/paletas"
 
 const Icons = {
   dashboard:      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
@@ -367,8 +368,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const fondoWorkspace = empresa?.fondoWorkspace || "/design-system/00-global/backgrounds/workspace-background-default.png"
   const fondoOpacidad = empresa?.fondoOpacidad ?? 88
   const fondoBrillo = empresa?.fondoBrillo ?? 100
+  const paleta = getPaleta(empresa?.paletaColor)
   return (
-    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor } as React.CSSProperties}>
+    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor, '--paleta-acento': paleta.acento, '--paleta-grad-inicio': paleta.gradInicio, '--paleta-grad-fin': paleta.gradFin, '--paleta-fondo': paleta.fondo, '--paleta-texto': paleta.texto } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
         ${!sidebarPersonalizado ? `.light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }` : ``}

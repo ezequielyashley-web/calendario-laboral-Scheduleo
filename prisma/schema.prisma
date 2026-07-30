@@ -60,6 +60,7 @@ model Empresa {
   fondoMenu                 String?
   fondoMenuOpacidad         Int?
   fondoMenuBrillo           Int?
+  paletaColor               String?   @default("azul")
   direccion                 String?
   telefono                  String?
   email                     String?
