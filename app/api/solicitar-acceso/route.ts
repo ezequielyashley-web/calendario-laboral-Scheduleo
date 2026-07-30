@@ -12,14 +12,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Ya se envio una solicitud desde esta conexion recientemente. Intentalo de nuevo en unos 30 minutos." }, { status: 429 })
     }
 
-    const { nombre, email, empresa, motivo, aceptaTratamiento } = await req.json()
+    const { nombre, apellidos, email, telefono, cargo, direccion, empresa, motivo, aceptaTratamiento } = await req.json()
 
     if (!nombre || !nombre.trim()) return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 })
+    if (!apellidos || !apellidos.trim()) return NextResponse.json({ error: "Los apellidos son obligatorios" }, { status: 400 })
     if (!email || !validarEmail(email)) return NextResponse.json({ error: "Introduce un email valido" }, { status: 400 })
+    if (!telefono || !telefono.trim()) return NextResponse.json({ error: "El telefono es obligatorio" }, { status: 400 })
+    if (!cargo || !cargo.trim()) return NextResponse.json({ error: "El cargo que solicitas es obligatorio" }, { status: 400 })
     if (aceptaTratamiento !== true) return NextResponse.json({ error: "Debes aceptar el tratamiento de datos para continuar" }, { status: 400 })
 
     const emailLimpio = email.toLowerCase().trim()
-    
 
     const rateLimitEmail = checkRateLimit("solicitar-acceso_email_" + emailLimpio, 1, 30 * 60 * 1000)
     if (!rateLimitEmail.success) {
@@ -41,7 +43,11 @@ export async function POST(req: NextRequest) {
     await prisma.solicitudAccesoPublica.create({
       data: {
         nombre: nombre.trim().slice(0, 120),
+        apellidos: apellidos.trim().slice(0, 120),
         email: emailLimpio,
+        telefono: telefono.trim().slice(0, 30),
+        cargo: cargo.trim().slice(0, 120),
+        direccion: direccion ? direccion.trim().slice(0, 200) : null,
         empresa: empresa ? empresa.trim().slice(0, 160) : null,
         motivo: motivo ? motivo.trim().slice(0, 600) : null,
       }

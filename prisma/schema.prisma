@@ -482,7 +482,11 @@ model ConfiguracionAIProveedor {
 model SolicitudAccesoPublica {
   id          String    @id @default(cuid())
   nombre      String
+  apellidos   String?
   email       String
+  telefono    String?
+  cargo       String?
+  direccion   String?
   empresa     String?
   motivo      String?
   estado      String    @default("pendiente")

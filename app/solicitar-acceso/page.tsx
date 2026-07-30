@@ -1,14 +1,18 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 
-export default function SolicitarAccesoPage() {
+function SolicitarAccesoInner() {
+  const searchParams = useSearchParams()
+  const emailInicial = searchParams.get("email") || ""
+
   const [aceptaTratamiento, setAceptaTratamiento] = useState(false)
   const [aceptado, setAceptado] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [error, setError] = useState("")
   const [enviando, setEnviando] = useState(false)
-  const [form, setForm] = useState({ nombre: "", email: "", empresa: "", motivo: "" })
+  const [form, setForm] = useState({ nombre: "", apellidos: "", email: emailInicial, telefono: "", cargo: "", direccion: "", empresa: "", motivo: "" })
   const [suspendido, setSuspendido] = useState(false)
   const [segundosRestantes, setSegundosRestantes] = useState(0)
 
@@ -20,6 +24,10 @@ export default function SolicitarAccesoPage() {
   }
 
   useEffect(() => {
+    if (emailInicial) consultarEstadoEmail(emailInicial)
+  }, [emailInicial])
+
+  useEffect(() => {
     if (!suspendido || segundosRestantes <= 0) { if (suspendido && segundosRestantes <= 0) setSuspendido(false); return }
     const t = setInterval(() => setSegundosRestantes(s => Math.max(0, s - 1)), 1000)
     return () => clearInterval(t)
@@ -28,7 +36,10 @@ export default function SolicitarAccesoPage() {
   const enviar = async (e: any) => {
     e.preventDefault()
     setError("")
-    if (!form.nombre.trim() || !form.email.trim()) { setError("Nombre y email son obligatorios"); return }
+    if (!form.nombre.trim() || !form.apellidos.trim() || !form.email.trim() || !form.telefono.trim() || !form.cargo.trim()) {
+      setError("Nombre, apellidos, email, telefono y cargo son obligatorios")
+      return
+    }
     setEnviando(true)
     const res = await fetch("/api/solicitar-acceso", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -48,7 +59,7 @@ export default function SolicitarAccesoPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F4F5F7", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <div style={{ width: "100%", maxWidth: 540, background: "#fff", borderRadius: 20, border: "1px solid #E2E4E9", padding: "36px 32px", boxShadow: "0 8px 32px rgba(15,23,42,0.08)" }}>
+      <div style={{ width: "100%", maxWidth: 560, background: "#fff", borderRadius: 20, border: "1px solid #E2E4E9", padding: "36px 32px", boxShadow: "0 8px 32px rgba(15,23,42,0.08)" }}>
 
         {!aceptado && !enviado && (
           <div>
@@ -56,7 +67,7 @@ export default function SolicitarAccesoPage() {
             <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Antes de continuar, lee esta informacion sobre el tratamiento de tus datos</p>
 
             <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 12, padding: "14px 16px", marginBottom: 16, fontSize: 12.5, color: "#78350F", lineHeight: 1.6 }}>
-              <strong>Esta funcion esta en fase de prueba.</strong> El formulario registra tu peticion, pero no crea una cuenta de forma automatica: un administrador la revisara manualmente y, si procede, recibiras una invitacion por email.
+              <strong>Esta funcion esta en fase de prueba.</strong> El formulario registra tu peticion, pero no crea una cuenta de forma automatica: un administrador la revisara manualmente. Si es aceptada, se concertara una entrevista con Recursos Humanos donde se completara tu ficha, y recibiras una invitacion por email para crear tu cuenta.
             </div>
 
             <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 12, padding: "16px 18px", marginBottom: 20, fontSize: 12.5, color: "#334155", lineHeight: 1.7, maxHeight: 260, overflowY: "auto" }}>
@@ -64,11 +75,11 @@ export default function SolicitarAccesoPage() {
 
               <p style={{ margin: "0 0 8px" }}><strong>Responsable del tratamiento:</strong> la empresa titular de esta instancia de Scheduleo, como responsable de sus propios datos laborales, con Scheduleo como plataforma tecnologica que presta el servicio.</p>
 
-              <p style={{ margin: "0 0 8px" }}><strong>Finalidad:</strong> gestionar tu solicitud de acceso a Scheduleo, contactarte sobre su resolucion y, en caso de ser aprobada, generar la invitacion para crear tu cuenta de usuario.</p>
+              <p style={{ margin: "0 0 8px" }}><strong>Finalidad:</strong> gestionar tu solicitud de acceso a Scheduleo, contactarte sobre su resolucion, concertar una entrevista con Recursos Humanos si procede, y en caso de ser aprobada, generar la invitacion para crear tu cuenta de usuario e iniciar tu ficha de empleado.</p>
 
               <p style={{ margin: "0 0 8px" }}><strong>Base legal (art. 6 RGPD):</strong> el consentimiento que otorgas al enviar este formulario (art. 6.1.a) y la necesidad de aplicar, a peticion tuya, las medidas previas a un posible acceso al sistema (art. 6.1.b).</p>
 
-              <p style={{ margin: "0 0 8px" }}><strong>Datos tratados:</strong> nombre, correo electronico, empresa y el motivo que indiques, unicamente los que aportas en este formulario.</p>
+              <p style={{ margin: "0 0 8px" }}><strong>Datos tratados:</strong> nombre, apellidos, correo electronico, telefono, cargo solicitado, direccion, empresa y motivo, unicamente los que aportas en este formulario.</p>
 
               <p style={{ margin: "0 0 8px" }}><strong>Conservacion:</strong> mientras se resuelve la solicitud y durante un plazo razonable posterior para justificar la decision tomada, o hasta que solicites su eliminacion.</p>
 
@@ -99,11 +110,20 @@ export default function SolicitarAccesoPage() {
             <form onSubmit={enviar}>
               {error && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error}</div>}
 
-              <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Nombre completo *</label>
-              <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu nombre" />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Nombre *</label>
+                  <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu nombre" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Apellidos *</label>
+                  <input value={form.apellidos} onChange={e => setForm(p => ({ ...p, apellidos: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tus apellidos" />
+                </div>
+              </div>
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Correo electronico *</label>
               <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} onBlur={e => consultarEstadoEmail(e.target.value)} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="tu@empresa.com" />
+              <p style={{ fontSize: 11.5, color: "#64748B", margin: "-8px 0 14px" }}>Confirma que este es tu correo correcto: si tu solicitud es aprobada, el codigo de acceso y la invitacion se enviaran aqui.</p>
 
               {suspendido && (
                 <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: "12px 14px", marginBottom: 16, textAlign: "center" }}>
@@ -114,6 +134,20 @@ export default function SolicitarAccesoPage() {
                   <div style={{ fontSize: 11.5, color: "#B91C1C", marginTop: 4 }}>Podras volver a intentarlo cuando termine la cuenta atras.</div>
                 </div>
               )}
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Telefono *</label>
+                  <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="600 000 000" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Cargo que solicitas *</label>
+                  <input value={form.cargo} onChange={e => setForm(p => ({ ...p, cargo: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Ej. Dependiente/a" />
+                </div>
+              </div>
+
+              <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Direccion</label>
+              <input value={form.direccion} onChange={e => setForm(p => ({ ...p, direccion: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu direccion" />
 
               <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Empresa</label>
               <input value={form.empresa} onChange={e => setForm(p => ({ ...p, empresa: e.target.value }))} disabled={suspendido} style={{ ...inputStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Nombre de tu empresa" />
@@ -134,12 +168,20 @@ export default function SolicitarAccesoPage() {
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2F63F4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
             </div>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", margin: "0 0 8px" }}>Solicitud enviada</h2>
-            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Un administrador la revisara y, si procede, recibiras un email con los siguientes pasos.</p>
+            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Un administrador la revisara. Si es aceptada, te contactaremos para una entrevista con Recursos Humanos y recibiras un email con los siguientes pasos.</p>
             <Link href="/login" style={{ display: "inline-block", fontSize: 13, color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Volver al inicio de sesion</Link>
           </div>
         )}
 
       </div>
     </div>
+  )
+}
+
+export default function SolicitarAccesoPage() {
+  return (
+    <Suspense fallback={null}>
+      <SolicitarAccesoInner />
+    </Suspense>
   )
 }

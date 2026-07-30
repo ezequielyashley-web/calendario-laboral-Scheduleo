@@ -326,7 +326,7 @@ export default function LoginV2Page() {
                 No tienes cuenta?{" "}
                 <span className="tooltip-acceso" style={{ display: "inline-block" }}>
                   {emailExiste === false && email.trim() && password.trim() ? (
-                    <a href="/solicitar-acceso" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                    <a href={"/solicitar-acceso?email=" + encodeURIComponent(email)} style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
                   ) : (
                     <span style={{ color: "#94A3B8", fontWeight: 600, cursor: "not-allowed" }}>Solicita acceso</span>
                   )}
