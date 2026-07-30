@@ -5,7 +5,26 @@ import { useRouter } from "next/navigation"
 function validarEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) }
 function formatMMSS(s: number) { const m = Math.floor(s / 60); const r = s % 60; return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0") }
 
-export default function LoginV2Page() {
+const PAISES: [string, string][] = [
+  ["🇦🇫","+93"],["🇦🇱","+355"],["🇩🇿","+213"],["🇦🇩","+376"],["🇦🇴","+244"],["🇦🇷","+54"],["🇦🇲","+374"],["🇦🇺","+61"],["🇦🇹","+43"],["🇦🇿","+994"],
+  ["🇧🇸","+1"],["🇧🇭","+973"],["🇧🇩","+880"],["🇧🇾","+375"],["🇧🇪","+32"],["🇧🇿","+501"],["🇧🇴","+591"],["🇧🇦","+387"],["🇧🇷","+55"],["🇧🇬","+359"],
+  ["🇨🇲","+237"],["🇨🇦","+1"],["🇨🇱","+56"],["🇨🇳","+86"],["🇨🇴","+57"],["🇨🇷","+506"],["🇭🇷","+385"],["🇨🇺","+53"],["🇨🇾","+357"],["🇨🇿","+420"],
+  ["🇩🇰","+45"],["🇩🇴","+1"],["🇪🇨","+593"],["🇪🇬","+20"],["🇸🇻","+503"],["🇪🇪","+372"],["🇪🇹","+251"],
+  ["🇫🇮","+358"],["🇫🇷","+33"],["🇬🇦","+241"],["🇩🇪","+49"],["🇬🇭","+233"],["🇬🇷","+30"],["🇬🇹","+502"],
+  ["🇭🇳","+504"],["🇭🇰","+852"],["🇭🇺","+36"],["🇮🇸","+354"],["🇮🇳","+91"],["🇮🇩","+62"],["🇮🇷","+98"],["🇮🇶","+964"],["🇮🇪","+353"],["🇮🇱","+972"],["🇮🇹","+39"],
+  ["🇯🇲","+1"],["🇯🇵","+81"],["🇯🇴","+962"],["🇰🇿","+7"],["🇰🇪","+254"],["🇰🇷","+82"],["🇰🇼","+965"],
+  ["🇱🇻","+371"],["🇱🇧","+961"],["🇱🇾","+218"],["🇱🇮","+423"],["🇱🇹","+370"],["🇱🇺","+352"],
+  ["🇲🇾","+60"],["🇲🇹","+356"],["🇲🇽","+52"],["🇲🇩","+373"],["🇲🇨","+377"],["🇲🇦","+212"],
+  ["🇳🇱","+31"],["🇳🇿","+64"],["🇳🇮","+505"],["🇳🇬","+234"],["🇳🇴","+47"],
+  ["🇴🇲","+968"],["🇵🇰","+92"],["🇵🇦","+507"],["🇵🇾","+595"],["🇵🇪","+51"],["🇵🇭","+63"],["🇵🇱","+48"],["🇵🇹","+351"],
+  ["🇵🇷","+1"],["🇶🇦","+974"],["🇷🇴","+40"],["🇷🇺","+7"],
+  ["🇸🇦","+966"],["🇷🇸","+381"],["🇸🇬","+65"],["🇸🇰","+421"],["🇸🇮","+386"],["🇿🇦","+27"],["🇸🇪","+46"],["🇨🇭","+41"],
+  ["🇹🇼","+886"],["🇹🇭","+66"],["🇹🇳","+216"],["🇹🇷","+90"],
+  ["🇺🇦","+380"],["🇦🇪","+971"],["🇬🇧","+44"],["🇺🇸","+1"],["🇺🇾","+598"],
+  ["🇻🇪","+58"],["🇻🇳","+84"],["🇾🇪","+967"],
+]
+
+export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -45,6 +64,76 @@ export default function LoginV2Page() {
   const [errorTotp, setErrorTotp] = useState("")
   const [verifyingTotp, setVerifyingTotp] = useState(false)
   const totpErrorTimeoutRef = useRef<any>(null)
+
+  // ---- Flujo de solicitud de acceso (embebido en el propio login) ----
+  const [flujoAcceso, setFlujoAcceso] = useState<"normal" | "consentimiento" | "formulario" | "enviado">("normal")
+  const [aceptaTratamiento, setAceptaTratamiento] = useState(false)
+  const [formSol, setFormSol] = useState({ nombre: "", apellidos: "", email: "", telefono: "", prefijoPais: "+34", tieneWhatsapp: false, cargo: "", direccion: "", motivo: "" })
+  const [errorSol, setErrorSol] = useState("")
+  const [enviandoSol, setEnviandoSol] = useState(false)
+  const [suspendido, setSuspendido] = useState(false)
+  const [segundosRestantes, setSegundosRestantes] = useState(0)
+
+  const consultarEstadoEmailSol = async (correo: string) => {
+    if (!correo || !correo.includes("@")) return
+    const res = await fetch("/api/solicitar-acceso/estado?email=" + encodeURIComponent(correo.toLowerCase().trim()))
+    const data = await res.json()
+    if (data.bloqueado) { setSuspendido(true); setSegundosRestantes(data.segundosRestantes) }
+  }
+
+  useEffect(() => {
+    if (!suspendido || segundosRestantes <= 0) { if (suspendido && segundosRestantes <= 0) setSuspendido(false); return }
+    const t = setInterval(() => setSegundosRestantes(s => Math.max(0, s - 1)), 1000)
+    return () => clearInterval(t)
+  }, [suspendido, segundosRestantes])
+
+  useEffect(() => {
+    if (flujoAcceso !== "formulario") return
+    const t = setTimeout(() => { setFlujoAcceso("normal") }, 60000)
+    return () => clearTimeout(t)
+  }, [flujoAcceso, formSol])
+
+  const iniciarSolicitud = () => {
+    setFormSol(p => ({ ...p, email }))
+    setAceptaTratamiento(false)
+    setErrorSol("")
+    setFlujoAcceso("consentimiento")
+  }
+
+  const continuarASolicitud = () => {
+    setFlujoAcceso("formulario")
+    if (formSol.email) consultarEstadoEmailSol(formSol.email)
+  }
+
+  const cancelarSolicitud = () => {
+    setFlujoAcceso("normal")
+    setSuspendido(false)
+  }
+
+  const enviarSolicitud = async (e: any) => {
+    e.preventDefault()
+    setErrorSol("")
+    if (!formSol.nombre.trim() || !formSol.apellidos.trim() || !formSol.email.trim() || !formSol.telefono.trim() || !formSol.cargo.trim()) {
+      setErrorSol("Nombre, apellidos, email, telefono y cargo son obligatorios")
+      return
+    }
+    setEnviandoSol(true)
+    const res = await fetch("/api/solicitar-acceso", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...formSol, aceptaTratamiento: true })
+    })
+    const data = await res.json()
+    setEnviandoSol(false)
+    if (data.error) {
+      setErrorSol(data.error)
+      if (data.bloqueadoEmail) { await consultarEstadoEmailSol(formSol.email) }
+      return
+    }
+    setFlujoAcceso("enviado")
+  }
+
+  const inputSolStyle: React.CSSProperties = { width: "100%", height: 44, padding: "0 14px", border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 14, color: "#0F172A", outline: "none", background: "#fff", boxSizing: "border-box", marginBottom: 14 }
+  // ---- fin flujo de solicitud ----
 
   useEffect(() => {
     if (!show2FA || estadoOtp === "expired") return
@@ -222,6 +311,8 @@ export default function LoginV2Page() {
         .tooltip-acceso:hover .tooltip-box { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
         @keyframes panel-swap-in { from { opacity: 0; transform: translateX(24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         .panel-swap { animation: panel-swap-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes panel-swap-in-left { from { opacity: 0; transform: translateX(-24px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .panel-swap-left { animation: panel-swap-in-left 0.45s cubic-bezier(0.22,1,0.36,1) both; }
         @keyframes otp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes shake-otp { 0%{transform:translateX(0)} 14%{transform:translateX(-4px)} 28%{transform:translateX(4px)} 42%{transform:translateX(-3px)} 57%{transform:translateX(3px)} 71%{transform:translateX(-2px)} 85%{transform:translateX(2px)} 100%{transform:translateX(0)} }
         .shake-otp { animation: shake-otp 0.26s ease-in-out; }
@@ -230,51 +321,86 @@ export default function LoginV2Page() {
       `}</style>
       <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
 
-        <div style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
-            <img src="/design-system/login/scheduleo-logo.svg" alt="Scheduleo" className="logo-v2" style={{ width: 56, height: 56, borderRadius: 14 }} />
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A" }}>Scheduleo</div>
-              <div style={{ fontSize: 12, color: "#64748B" }}>Gestion inteligente de personal</div>
-            </div>
-          </div>
+        <div style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Bienvenido</h1>
-          <div style={{ width: 40, height: 4, background: "#2F63F4", borderRadius: 2, marginBottom: 16 }} />
-          <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6, marginBottom: 24 }}>
-            La plataforma completa para el control de asistencia, horarios, grupos laborales y cumplimiento normativo.
-          </p>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
-            {[
-              { title: "Control de Asistencia", text: "Registra y controla la jornada laboral en tiempo real.", icon: "icon-control-asistencia.svg" },
-              { title: "Gestion de Horarios", text: "Planifica turnos y coberturas de forma inteligente.", icon: "icon-gestion-horarios.svg" },
-              { title: "Grupos Laborales", text: "Organiza equipos por departamentos, centros y turnos.", icon: "icon-grupos-laborales.svg" },
-              { title: "Asistencia de Hacienda", text: "Genera informes y reportes para cumplir con la normativa.", icon: "icon-asistencia-hacienda.svg" },
-            ].map(f => (
-              <div key={f.title} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16 }}>
-                <div style={{ width: 46, height: 46, borderRadius: 12, background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                  <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 34, height: 34 }} />
+          {flujoAcceso !== "consentimiento" ? (
+            <div key="izq-normal" className="panel-swap-left" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+                <img src="/design-system/login/scheduleo-logo.svg" alt="Scheduleo" className="logo-v2" style={{ width: 56, height: 56, borderRadius: 14 }} />
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A" }}>Scheduleo</div>
+                  <div style={{ fontSize: 12, color: "#64748B" }}>Gestion inteligente de personal</div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>{f.title}</div>
-                <div style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>{f.text}</div>
               </div>
-            ))}
-          </div>
 
-          <div style={{ marginTop: "auto", background: "#2F63F4", borderRadius: 14, padding: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
-            <img src="/design-system/login/icon-security-shield.svg" alt="" style={{ width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 4 }}>Seguro, confiable y siempre disponible</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>Tus datos y los de tu empresa estan protegidos con los mas altos estandares de seguridad.</div>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Bienvenido</h1>
+              <div style={{ width: 40, height: 4, background: "#2F63F4", borderRadius: 2, marginBottom: 16 }} />
+              <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6, marginBottom: 24 }}>
+                La plataforma completa para el control de asistencia, horarios, grupos laborales y cumplimiento normativo.
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+                {[
+                  { title: "Control de Asistencia", text: "Registra y controla la jornada laboral en tiempo real.", icon: "icon-control-asistencia.svg" },
+                  { title: "Gestion de Horarios", text: "Planifica turnos y coberturas de forma inteligente.", icon: "icon-gestion-horarios.svg" },
+                  { title: "Grupos Laborales", text: "Organiza equipos por departamentos, centros y turnos.", icon: "icon-grupos-laborales.svg" },
+                  { title: "Asistencia de Hacienda", text: "Genera informes y reportes para cumplir con la normativa.", icon: "icon-asistencia-hacienda.svg" },
+                ].map(f => (
+                  <div key={f.title} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16 }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 12, background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                      <img src={"/design-system/login/" + f.icon} alt="" style={{ width: 34, height: 34 }} />
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>{f.title}</div>
+                    <div style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>{f.text}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: "auto", background: "#2F63F4", borderRadius: 14, padding: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <img src="/design-system/login/icon-security-shield.svg" alt="" style={{ width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 4 }}>Seguro, confiable y siempre disponible</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>Tus datos y los de tu empresa estan protegidos con los mas altos estandares de seguridad.</div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div key="izq-consentimiento" className="panel-swap-left" style={{ display: "flex", flexDirection: "column" }}>
+              <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: "0 0 4px" }}>Solicitar acceso a Scheduleo</h1>
+              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Antes de continuar, lee esta informacion sobre el tratamiento de tus datos</p>
+
+              <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 12, padding: "14px 16px", marginBottom: 16, fontSize: 12.5, color: "#78350F", lineHeight: 1.6 }}>
+                <strong>Esta funcion esta en fase de prueba.</strong> El formulario registra tu peticion, pero no crea una cuenta de forma automatica: un administrador la revisara manualmente. Si es aceptada, se concertara una entrevista con Recursos Humanos donde se completara tu ficha, y recibiras una invitacion por email para crear tu cuenta.
+              </div>
+
+              <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 12, padding: "14px 16px", marginBottom: 16, fontSize: 12, color: "#334155", lineHeight: 1.65, maxHeight: 230, overflowY: "auto" }}>
+                <div style={{ fontWeight: 700, color: "#0F172A", marginBottom: 6 }}>Informacion sobre proteccion de datos (RGPD)</div>
+                <p style={{ margin: "0 0 6px" }}><strong>Responsable:</strong> la empresa titular de esta instancia de Scheduleo, con Scheduleo como plataforma tecnologica que presta el servicio.</p>
+                <p style={{ margin: "0 0 6px" }}><strong>Finalidad:</strong> gestionar tu solicitud, contactarte sobre su resolucion, concertar una entrevista con RRHH si procede, y en caso de aprobacion, generar tu invitacion y ficha de empleado.</p>
+                <p style={{ margin: "0 0 6px" }}><strong>Base legal:</strong> tu consentimiento (art. 6.1.a RGPD) y la aplicacion, a tu peticion, de medidas previas a un posible acceso (art. 6.1.b).</p>
+                <p style={{ margin: "0 0 6px" }}><strong>Datos tratados:</strong> nombre, apellidos, email, telefono, cargo solicitado, direccion y motivo.</p>
+                <p style={{ margin: "0 0 6px" }}><strong>Conservacion:</strong> mientras se resuelve la solicitud y un plazo razonable posterior, o hasta que pidas su eliminacion.</p>
+                <p style={{ margin: "0 0 6px" }}><strong>Destinatarios:</strong> ninguno externo; se almacenan en la infraestructura tecnica de Scheduleo.</p>
+                <p style={{ margin: 0 }}><strong>Tus derechos:</strong> acceder, rectificar, suprimir, oponerte, limitar o pedir la portabilidad de tus datos (arts. 15-22 RGPD), escribiendo al administrador de esta instancia.</p>
+              </div>
+
+              <label style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#334155", marginBottom: 20, cursor: "pointer" }}>
+                <input type="checkbox" checked={aceptaTratamiento} onChange={e => setAceptaTratamiento(e.target.checked)} style={{ marginTop: 3 }} />
+                He leido la informacion anterior y acepto el tratamiento de mis datos por Scheduleo con la finalidad descrita.
+              </label>
+
+              <button onClick={continuarASolicitud} disabled={!aceptaTratamiento} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: aceptaTratamiento ? "pointer" : "default", opacity: aceptaTratamiento ? 1 : 0.5, marginBottom: 12 }}>
+                Continuar
+              </button>
+              <button onClick={cancelarSolicitud} style={{ background: "none", border: "none", color: "#64748B", fontSize: 13, cursor: "pointer", width: "100%" }}>Cancelar y volver al login</button>
+            </div>
+          )}
         </div>
 
         <div style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
-          {!show2FA && !show2FATotp && (
-            <div className="panel-swap" style={{ display: "contents" }}>
+          {flujoAcceso === "normal" && !show2FA && !show2FATotp && (
+            <div key="der-login" className="panel-swap" style={{ display: "contents" }}>
               <div style={{ textAlign: "center", marginBottom: 28 }}>
                 <h2 style={{ fontSize: 24, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Iniciar sesion</h2>
                 <p style={{ fontSize: 13, color: "#64748B", margin: 0 }}>Accede a tu cuenta para continuar</p>
@@ -336,7 +462,7 @@ export default function LoginV2Page() {
                 No tienes cuenta?{" "}
                 <span className="tooltip-acceso" style={{ display: "inline-block" }}>
                   {emailExiste === false && email.trim() && password.trim() ? (
-                    <a href={"/solicitar-acceso?email=" + encodeURIComponent(email)} style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                    <button type="button" onClick={iniciarSolicitud} style={{ background: "none", border: "none", color: "#2F63F4", textDecoration: "none", fontWeight: 600, cursor: "pointer", fontSize: 13, padding: 0 }}>Solicita acceso</button>
                   ) : (
                     <span style={{ color: "#94A3B8", fontWeight: 600, cursor: "not-allowed" }}>Solicita acceso</span>
                   )}
@@ -356,6 +482,99 @@ export default function LoginV2Page() {
                   <div style={{ fontSize: 11, color: "#475569" }}>Tus datos estan protegidos con cifrado de extremo a extremo.</div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {flujoAcceso === "consentimiento" && (
+            <div key="der-esperando" className="panel-swap" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, textAlign: "center" }}>
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2F63F4" strokeWidth="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+              </div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Confirma a la izquierda</h2>
+              <p style={{ fontSize: 13, color: "#64748B", maxWidth: 280 }}>Lee la informacion sobre tratamiento de datos y marca la casilla para continuar con tu solicitud de acceso.</p>
+            </div>
+          )}
+
+          {flujoAcceso === "formulario" && (
+            <div key="der-formulario" className="panel-swap">
+              <button onClick={() => setFlujoAcceso("consentimiento")} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 16, display: "flex", alignItems: "center", gap: 4 }}>
+                &larr; Volver
+              </button>
+              <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: "0 0 4px" }}>Solicitar acceso</h1>
+              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Rellena tus datos y te contactaremos</p>
+
+              <form onSubmit={enviarSolicitud}>
+                {errorSol && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{errorSol}</div>}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Nombre *</label>
+                    <input value={formSol.nombre} onChange={e => setFormSol(p => ({ ...p, nombre: e.target.value }))} disabled={suspendido} style={{ ...inputSolStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu nombre" />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Apellidos *</label>
+                    <input value={formSol.apellidos} onChange={e => setFormSol(p => ({ ...p, apellidos: e.target.value }))} disabled={suspendido} style={{ ...inputSolStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tus apellidos" />
+                  </div>
+                </div>
+
+                <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Correo electronico *</label>
+                <input type="email" value={formSol.email} onChange={e => setFormSol(p => ({ ...p, email: e.target.value }))} onBlur={e => consultarEstadoEmailSol(e.target.value)} disabled={suspendido} style={{ ...inputSolStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="tu@empresa.com" />
+                <p style={{ fontSize: 11.5, color: "#64748B", margin: "-8px 0 14px" }}>Confirma que este es tu correo correcto: si tu solicitud es aprobada, el codigo de acceso y la invitacion se enviaran aqui.</p>
+
+                {suspendido && (
+                  <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: "12px 14px", marginBottom: 16, textAlign: "center" }}>
+                    <div style={{ fontSize: 12.5, color: "#B91C1C", fontWeight: 700, marginBottom: 4 }}>Formulario suspendido temporalmente</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "#991B1B", fontVariantNumeric: "tabular-nums" as const }}>
+                      {String(Math.floor(segundosRestantes / 60)).padStart(2, "0")}:{String(segundosRestantes % 60).padStart(2, "0")}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: "#B91C1C", marginTop: 4 }}>Podras volver a intentarlo cuando termine la cuenta atras.</div>
+                  </div>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Telefono *</label>
+                    <div style={{ display: "flex", gap: 6, marginBottom: formSol.tieneWhatsapp ? 4 : 14 }}>
+                      <select value={formSol.prefijoPais} onChange={e => setFormSol(p => ({ ...p, prefijoPais: e.target.value }))} disabled={suspendido} style={{ width: 92, height: 44, border: "1px solid #E2E8F0", borderRadius: 10, fontSize: 13, color: "#0F172A", background: "#fff", opacity: suspendido ? 0.45 : 1 }}>
+                        <option value="+34">🇪🇸 +34</option>
+                        {PAISES.map(([bandera, codigo]) => (
+                          <option key={bandera + codigo} value={codigo}>{bandera} {codigo}</option>
+                        ))}
+                      </select>
+                      <input value={formSol.telefono} onChange={e => setFormSol(p => ({ ...p, telefono: e.target.value.replace(/[^0-9 ]/g, "") }))} disabled={suspendido} style={{ ...inputSolStyle, marginBottom: 0, flex: 1, textDecoration: formSol.tieneWhatsapp ? "underline" : "none", textDecorationColor: "#25D366", textDecorationThickness: 2, opacity: suspendido ? 0.45 : 1 }} placeholder="600 000 000" />
+                    </div>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "#475569", marginBottom: 14, cursor: "pointer" }}>
+                      <input type="checkbox" checked={formSol.tieneWhatsapp} onChange={e => setFormSol(p => ({ ...p, tieneWhatsapp: e.target.checked }))} disabled={suspendido} />
+                      Este numero tiene WhatsApp
+                    </label>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Cargo que solicitas *</label>
+                    <input value={formSol.cargo} onChange={e => setFormSol(p => ({ ...p, cargo: e.target.value }))} disabled={suspendido} style={{ ...inputSolStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Ej. Dependiente/a" />
+                  </div>
+                </div>
+
+                <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Direccion</label>
+                <input value={formSol.direccion} onChange={e => setFormSol(p => ({ ...p, direccion: e.target.value }))} disabled={suspendido} style={{ ...inputSolStyle, opacity: suspendido ? 0.45 : 1 }} placeholder="Tu direccion" />
+
+                <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Motivo de la solicitud</label>
+                <textarea value={formSol.motivo} onChange={e => setFormSol(p => ({ ...p, motivo: e.target.value }))} rows={3} disabled={suspendido} style={{ ...inputSolStyle, height: "auto", padding: "10px 14px", resize: "vertical" as const, opacity: suspendido ? 0.45 : 1 }} placeholder="Cuentanos brevemente por que necesitas acceso" />
+
+                <button type="submit" disabled={enviandoSol || suspendido} style={{ width: "100%", height: 46, background: "linear-gradient(135deg,#3b82f6,#1e40af)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (enviandoSol || suspendido) ? "default" : "pointer", opacity: (enviandoSol || suspendido) ? 0.5 : 1, marginTop: 6 }}>
+                  {enviandoSol ? "Enviando..." : "Enviar solicitud"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {flujoAcceso === "enviado" && (
+            <div key="der-enviado" className="panel-swap" style={{ textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#EFF4FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2F63F4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+              </div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", margin: "0 0 8px" }}>Solicitud enviada</h2>
+              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>Un administrador la revisara. Si es aceptada, te contactaremos para una entrevista con Recursos Humanos y recibiras un email con los siguientes pasos.</p>
+              <button onClick={() => setFlujoAcceso("normal")} style={{ background: "none", border: "none", color: "#2F63F4", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Volver al inicio de sesion</button>
             </div>
           )}
 
