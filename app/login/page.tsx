@@ -10,6 +10,7 @@ export default function LoginV2Page() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [emailExiste, setEmailExiste] = useState<boolean | null>(null)
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -324,10 +325,16 @@ export default function LoginV2Page() {
               <div style={{ textAlign: "center", fontSize: 13, color: "#64748B", marginBottom: 16 }}>
                 No tienes cuenta?{" "}
                 <span className="tooltip-acceso" style={{ display: "inline-block" }}>
-                  <a href="/solicitar-acceso" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                  {emailExiste === false && email.trim() && password.trim() ? (
+                    <a href="/solicitar-acceso" style={{ color: "#2F63F4", textDecoration: "none", fontWeight: 600 }}>Solicita acceso</a>
+                  ) : (
+                    <span style={{ color: "#94A3B8", fontWeight: 600, cursor: "not-allowed" }}>Solicita acceso</span>
+                  )}
                   <span className="tooltip-box">
                     <strong>Antes de solicitar acceso</strong>
-                    Solo puedes tener una solicitud activa por correo electronico: si ya enviaste una, espera a que se resuelva antes de enviar otra. Por seguridad, tambien limitamos el numero de solicitudes desde una misma conexion en un periodo corto de tiempo.
+                    {emailExiste === true
+                      ? "Ya existe una cuenta con ese email. Si no recuerdas tu contrasena, usa el enlace de recuperacion."
+                      : "Escribe tu email y contrasena arriba primero: si esa cuenta no existe, se activara este enlace. Solo puedes tener una solicitud activa por correo, y limitamos el numero de solicitudes desde una misma conexion en poco tiempo."}
                   </span>
                 </span>
               </div>
