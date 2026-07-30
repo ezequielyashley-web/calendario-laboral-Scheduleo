@@ -47,7 +47,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{
           __html: `
             (function() {
-              var rutasPublicas = ["/login", "/forgot-password", "/reset-password", "/inspeccion", "/invitacion", "/instalacion"];
+              var rutasPublicas = ["/login", "/forgot-password", "/reset-password", "/inspeccion", "/invitacion", "/instalacion", "/solicitar-acceso"];
               var esPublica = rutasPublicas.some(function(r) { return window.location.pathname.indexOf(r) === 0 });
               if (!esPublica && !sessionStorage.getItem("2fa_verified")) {
                 window.location.replace("/login");
