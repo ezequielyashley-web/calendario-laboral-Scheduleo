@@ -227,7 +227,7 @@ export default function LibranzasDesktop() {
           <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", minWidth: 40, textAlign: "center" }}>{anno}</span>
           <button onClick={() => setAnno(a => a + 1)} style={{ background: "var(--surface-2)", border: "1px solid var(--border-strong)", borderRadius: 8, width: 34, height: 34, cursor: "pointer", fontSize: 16, color: "var(--text-primary)" }}>›</button>
           <button onClick={() => setShowAutoModal(true)}
-            style={{ background: "#ede9fe", color: "#6d28d9", border: "1px solid #c4b5fd", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+            style={{ background: "var(--paleta-fondo)", color: "var(--paleta-acento)", border: "1px solid var(--paleta-acento)", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
             ⚡ Distribución automática
           </button>
         </div>
@@ -346,8 +346,8 @@ export default function LibranzasDesktop() {
                       fontWeight: esLibre || hoy ? 700 : 400,
                       color: esLibre ? "#fff" : esFestivo ? "#7c3aed" : esDomingo ? "#ef4444" : esSabado ? "#9ca3af" : "var(--text-primary)",
                       cursor: esDomingo || esFestivo ? "default" : "pointer",
-                      border: `1px solid ${esLibre ? grupoSeleccionado.color : esFestivo ? "#ddd6fe" : hoy ? "#6366f1" : "#f3f4f6"}`,
-                      outline: hoy ? "2px solid #6366f1" : "none",
+                      border: `1px solid ${esLibre ? grupoSeleccionado.color : esFestivo ? "#ddd6fe" : hoy ? "var(--paleta-acento)" : "#f3f4f6"}`,
+                      outline: hoy ? "2px solid var(--paleta-acento)" : "none",
                       outlineOffset: 1,
                       transition: "all .1s",
                       userSelect: "none"
@@ -456,8 +456,8 @@ export default function LibranzasDesktop() {
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.5)" }}
           onClick={e => { if (e.target === e.currentTarget) setShowAutoModal(false) }}>
           <div style={{ background: "var(--surface)", borderRadius: 14, boxShadow: "var(--shadow-lg)", width: "100%", maxWidth: 460 }}>
-            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "#ede9fe", borderRadius: "14px 14px 0 0" }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#6d28d9", margin: 0 }}>⚡ Distribución automática de libranzas</p>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "var(--paleta-fondo)", borderRadius: "14px 14px 0 0" }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "var(--paleta-acento)", margin: 0 }}>⚡ Distribución automática de libranzas</p>
             </div>
             <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ background: "var(--surface-2)", borderRadius: 8, padding: 12, fontSize: 12, color: "var(--text-secondary)" }}>
@@ -478,7 +478,7 @@ export default function LibranzasDesktop() {
             <div style={{ padding: "12px 20px", borderTop: "1px solid var(--border)", display: "flex", gap: 8 }}>
               <button onClick={() => setShowAutoModal(false)} className="btn-secondary flex-1 py-2 text-sm">Cancelar</button>
               <button onClick={distribucionAutomatica}
-                style={{ flex: 1, padding: "8px", fontSize: 13, fontWeight: 700, background: "#6d28d9", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
+                style={{ flex: 1, padding: "8px", fontSize: 13, fontWeight: 700, background: "var(--paleta-acento)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
                 Calcular distribución
               </button>
             </div>

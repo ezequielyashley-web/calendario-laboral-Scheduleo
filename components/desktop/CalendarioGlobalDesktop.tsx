@@ -9,7 +9,7 @@ type DayConfig = {
 }
 
 const grupoColors: Record<string,{ solid:string }> = {
-  G1A:{solid:'#6366f1'}, G1B:{solid:'#4f46e5'}, G2A:{solid:'#0891b2'}, G2B:{solid:'#0e7490'},
+  G1A:{solid:'var(--paleta-acento)'}, G1B:{solid:'#4f46e5'}, G2A:{solid:'#0891b2'}, G2B:{solid:'#0e7490'},
   G3A:{solid:'#16a34a'}, G3B:{solid:'#15803d'}, L1:{solid:'#d97706'}, L2:{solid:'#ca8a04'}, L3:{solid:'#dc2626'},
 }
 
@@ -70,7 +70,7 @@ function getDayBg(tipo: string) {
 function getDayColor(tipo: string) {
   if (tipo === 'festivo') return '#7c3aed'
   if (tipo === 'domingo') return '#dc2626'
-  return '#1e1b4b'
+  return 'var(--paleta-texto)'
 }
 
 function getDaysInMonthCount(year: number, month: number) {
@@ -99,7 +99,7 @@ export default function CalendarioGlobalDesktop() {
   const volverAMensual = () => setVista('mensual')
   const daysMes = getDaysInMonth(anio, mes)
 
-  const inputStyle = { padding: '7px 12px', border: '1px solid #e8eaf0', borderRadius: 8, fontSize: 13, background: '#fff', color: '#1e1b4b', outline: 'none' }
+  const inputStyle = { padding: '7px 12px', border: '1px solid #e8eaf0', borderRadius: 8, fontSize: 13, background: '#fff', color: 'var(--paleta-texto)', outline: 'none' }
 
   const esHoyCheck = (d: DayConfig | null, m: number) =>
     d !== null && hoy.getDate() === d.day && hoy.getMonth() === m && hoy.getFullYear() === anio
@@ -118,24 +118,24 @@ export default function CalendarioGlobalDesktop() {
       {/* Header */}
       <div className="calendario-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={volverAAnual} style={{ background: vista === 'anual' ? '#6366f1' : '#f0f4ff', color: vista === 'anual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{anio}</button>
+          <button onClick={volverAAnual} style={{ background: vista === 'anual' ? 'var(--paleta-acento)' : 'var(--paleta-fondo)', color: vista === 'anual' ? '#fff' : 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{anio}</button>
           {(vista === 'mensual' || vista === 'agenda') && (
             <><span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
-            <button onClick={volverAMensual} style={{ background: vista === 'mensual' ? '#6366f1' : '#f0f4ff', color: vista === 'mensual' ? '#fff' : '#6366f1', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{meses[mes]}</button></>
+            <button onClick={volverAMensual} style={{ background: vista === 'mensual' ? 'var(--paleta-acento)' : 'var(--paleta-fondo)', color: vista === 'mensual' ? '#fff' : 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{meses[mes]}</button></>
           )}
           {vista === 'agenda' && diaSeleccionado && (
             <><span style={{ color: '#a0aec0', fontSize: 14 }}>›</span>
-            <span style={{ background: '#6366f1', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500 }}>{diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</span></>
+            <span style={{ background: 'var(--paleta-acento)', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500 }}>{diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</span></>
           )}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {vista === 'anual' && (<>
-            <button onClick={() => setAnio(a => a - 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
-            <button onClick={() => setAnio(a => a + 1)} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
+            <button onClick={() => setAnio(a => a - 1)} style={{ background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
+            <button onClick={() => setAnio(a => a + 1)} style={{ background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
           </>)}
           {vista === 'mensual' && (<>
-            <button onClick={() => { if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
-            <button onClick={() => { if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
+            <button onClick={() => { if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }} style={{ background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>←</button>
+            <button onClick={() => { if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }} style={{ background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 14, cursor: 'pointer' }}>→</button>
           </>)}
           <select value={filterSede} onChange={e => setFilterSede(e.target.value)} style={inputStyle}>
             <option value="todas">Todas las sedes</option>
@@ -157,13 +157,13 @@ export default function CalendarioGlobalDesktop() {
             const esMesHoy = hoy.getFullYear() === anio && hoy.getMonth() === m
             return (
               <div key={m} onClick={() => irAMes(m)}
-                style={{ background: '#fff', border: esMesHoy ? '1.5px solid #6366f1' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+                style={{ background: '#fff', border: esMesHoy ? '1.5px solid var(--paleta-acento)' : '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.15)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: esMesHoy ? '#6366f1' : '#1e1b4b' }}>{meses[m]}</div>
-                  {esMesHoy && <span style={{ background: '#6366f1', color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>Hoy</span>}
+                  <div style={{ fontSize: 14, fontWeight: 600, color: esMesHoy ? 'var(--paleta-acento)' : 'var(--paleta-texto)' }}>{meses[m]}</div>
+                  {esMesHoy && <span style={{ background: 'var(--paleta-acento)', color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>Hoy</span>}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 10 }}>
                   {['L','M','X','J','V','S','D'].map(d => (
@@ -171,7 +171,7 @@ export default function CalendarioGlobalDesktop() {
                   ))}
                   {getDaysInMonth(anio, m).map((d, i) => {
                     const esHoyDia = esHoyCheck(d, m)
-                    const bg = esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent'
+                    const bg = esHoyDia ? 'var(--paleta-acento)' : d?.tipo === 'domingo' ? '#fff5f5' : d?.tipo === 'festivo' ? '#f5f3ff' : 'transparent'
                     const col = !d ? 'transparent' : esHoyDia ? '#fff' : d.tipo === 'domingo' ? '#dc2626' : d.tipo === 'festivo' ? '#7c3aed' : '#374151'
                     return (
                       <div key={i} style={{ textAlign: 'center', fontSize: 12, padding: '3px 1px', borderRadius: esHoyDia ? '50%' : 2, background: bg, color: col, fontWeight: esHoyDia ? 700 : 400 }}>
@@ -181,7 +181,7 @@ export default function CalendarioGlobalDesktop() {
                   })}
                 </div>
                 <div style={{ display: 'flex', gap: 6, borderTop: '0.5px solid #e8eaf0', paddingTop: 8 }}>
-                  <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: '#6366f1' }}>{stats.laborales}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Labor.</div></div>
+                  <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: 'var(--paleta-acento)' }}>{stats.laborales}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Labor.</div></div>
                   <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: '#7c3aed' }}>{stats.festivos}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Festiv.</div></div>
                   <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: 15, fontWeight: 600, color: '#dc2626' }}>{stats.domingos}</div><div style={{ fontSize: 9, color: '#a0aec0' }}>Dom.</div></div>
                 </div>
@@ -197,7 +197,7 @@ export default function CalendarioGlobalDesktop() {
           <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', border: '0.5px solid #e8eaf0', borderRadius: 16, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '0.5px solid #e8eaf0' }}>
               {diasCortos.map((d, i) => (
-                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 13, fontWeight: 600, color: i === 5 ? '#6366f1' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>{d}</div>
+                <div key={d} style={{ textAlign: 'center', padding: '10px 0', fontSize: 13, fontWeight: 600, color: i === 5 ? 'var(--paleta-acento)' : i === 6 ? '#dc2626' : '#718096', borderRight: i < 6 ? '0.5px solid #e8eaf0' : 'none' }}>{d}</div>
               ))}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
@@ -206,17 +206,17 @@ export default function CalendarioGlobalDesktop() {
                 const gruposFiltrados = d ? (filterGrupo === 'todos' ? d.grupos : d.grupos.filter(g => g === filterGrupo)) : []
                 return (
                   <div key={i} onClick={() => d && irADia(d)}
-                    style={{ minHeight: 110, padding: '10px 8px', background: !d ? '#f8f9ff' : esHoyDia ? '#ede9fe' : getDayBg(d.tipo), border: `0.5px solid ${esHoyDia ? '#6366f1' : d?.tipo === 'domingo' ? '#fca5a5' : d?.tipo === 'festivo' ? '#c4b5fd' : '#e8eaf0'}`, cursor: d ? 'pointer' : 'default', position: 'relative', transition: 'all 0.12s' }}
+                    style={{ minHeight: 110, padding: '10px 8px', background: !d ? '#f8f9ff' : esHoyDia ? 'var(--paleta-fondo)' : getDayBg(d.tipo), border: `0.5px solid ${esHoyDia ? 'var(--paleta-acento)' : d?.tipo === 'domingo' ? '#fca5a5' : d?.tipo === 'festivo' ? '#c4b5fd' : '#e8eaf0'}`, cursor: d ? 'pointer' : 'default', position: 'relative', transition: 'all 0.12s' }}
                     onMouseEnter={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'brightness(0.96)' }}
                     onMouseLeave={e => { if (d) (e.currentTarget as HTMLDivElement).style.filter = 'none' }}
                   >
                     {d && (
                       <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                          <div style={{ width: esHoyDia ? 32 : 'auto', height: esHoyDia ? 32 : 'auto', background: esHoyDia ? '#6366f1' : 'transparent', borderRadius: esHoyDia ? '50%' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: esHoyDia ? 700 : 400, color: esHoyDia ? '#fff' : getDayColor(d.tipo) }}>
+                          <div style={{ width: esHoyDia ? 32 : 'auto', height: esHoyDia ? 32 : 'auto', background: esHoyDia ? 'var(--paleta-acento)' : 'transparent', borderRadius: esHoyDia ? '50%' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: esHoyDia ? 700 : 400, color: esHoyDia ? '#fff' : getDayColor(d.tipo) }}>
                             {d.day}
                           </div>
-                          {d.tipo === 'festivo' && <span style={{ fontSize: 9, background: '#ede9fe', color: '#6366f1', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Festivo</span>}
+                          {d.tipo === 'festivo' && <span style={{ fontSize: 9, background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Festivo</span>}
                           {d.tipo === 'domingo' && <span style={{ fontSize: 9, background: '#fff5f5', color: '#dc2626', padding: '1px 5px', borderRadius: 10, fontWeight: 600 }}>Dom</span>}
                         </div>
                         {gruposFiltrados.length > 0 && (
@@ -226,7 +226,7 @@ export default function CalendarioGlobalDesktop() {
                             ))}
                           </div>
                         )}
-                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: d.tipo === 'festivo' ? '#7c3aed' : d.tipo === 'domingo' ? '#dc2626' : '#6366f1', opacity: 0.25 }} />
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: d.tipo === 'festivo' ? '#7c3aed' : d.tipo === 'domingo' ? '#dc2626' : 'var(--paleta-acento)', opacity: 0.25 }} />
                       </>
                     )}
                   </div>
@@ -242,7 +242,7 @@ export default function CalendarioGlobalDesktop() {
               </div>
             ))}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
-              {[{ label: 'Laboral', color: '#6366f1' }, { label: 'Festivo', color: '#7c3aed' }, { label: 'Domingo', color: '#dc2626' }].map(l => (
+              {[{ label: 'Laboral', color: 'var(--paleta-acento)' }, { label: 'Festivo', color: '#7c3aed' }, { label: 'Domingo', color: '#dc2626' }].map(l => (
                 <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <div style={{ width: 10, height: 4, borderRadius: 2, background: l.color, opacity: 0.4 }} />
                   <span style={{ fontSize: 12, color: '#718096' }}>{l.label}</span>
@@ -251,7 +251,7 @@ export default function CalendarioGlobalDesktop() {
             </div>
           </div>
           <div style={{ marginTop: 16, background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 12, padding: '20px 24px' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 16 }}>¿Qué puedes hacer en esta vista?</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--paleta-texto)', marginBottom: 16 }}>¿Qué puedes hacer en esta vista?</div>
             <div className="calendario-tips-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {[
                 { icon: '📅', titulo: 'Navegar por días', desc: 'Haz click en cualquier día para ver el detalle completo de grupos, turnos y empleados asignados.' },
@@ -264,7 +264,7 @@ export default function CalendarioGlobalDesktop() {
                 <div key={i} style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', border: '0.5px solid #e8eaf0', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <div style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>{item.titulo}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--paleta-texto)', marginBottom: 4 }}>{item.titulo}</div>
                     <div style={{ fontSize: 12, color: '#718096', lineHeight: 1.5 }}>{item.desc}</div>
                   </div>
                 </div>
@@ -278,21 +278,21 @@ export default function CalendarioGlobalDesktop() {
       {vista === 'agenda' && diaSeleccionado && (
         <div className="calendario-agenda-grid" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
           <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 16, height: 'fit-content' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 12 }}>{meses[mes]} {anio}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--paleta-texto)', marginBottom: 12 }}>{meses[mes]} {anio}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 8 }}>
               {['L','M','X','J','V','S','D'].map(d => (
                 <div key={d} style={{ textAlign: 'center', fontSize: 9, color: '#64748b', fontWeight: 700, padding: '2px 0', background: '#e8eaf4', borderRadius: 2 }}>{d}</div>
               ))}
               {daysMes.map((d, i) => (
                 <div key={i} onClick={() => d && irADia(d)}
-                  style={{ textAlign: 'center', fontSize: 11, padding: '4px 2px', borderRadius: 4, cursor: d ? 'pointer' : 'default', background: d && diaSeleccionado.day === d.day ? '#6366f1' : d?.tipo === 'festivo' ? '#f5f3ff' : d?.tipo === 'domingo' ? '#fff5f5' : 'transparent', color: d && diaSeleccionado.day === d.day ? '#fff' : d?.tipo === 'domingo' ? '#dc2626' : d?.tipo === 'festivo' ? '#7c3aed' : '#718096', fontWeight: d && diaSeleccionado.day === d.day ? 700 : 400 }}>
+                  style={{ textAlign: 'center', fontSize: 11, padding: '4px 2px', borderRadius: 4, cursor: d ? 'pointer' : 'default', background: d && diaSeleccionado.day === d.day ? 'var(--paleta-acento)' : d?.tipo === 'festivo' ? '#f5f3ff' : d?.tipo === 'domingo' ? '#fff5f5' : 'transparent', color: d && diaSeleccionado.day === d.day ? '#fff' : d?.tipo === 'domingo' ? '#dc2626' : d?.tipo === 'festivo' ? '#7c3aed' : '#718096', fontWeight: d && diaSeleccionado.day === d.day ? 700 : 400 }}>
                   {d ? d.day : ''}
                 </div>
               ))}
             </div>
             <div style={{ borderTop: '0.5px solid #e8eaf0', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {[
-                { label: 'Días laborales', valor: daysMes.filter(d => d?.tipo === 'trabajo').length, color: '#6366f1' },
+                { label: 'Días laborales', valor: daysMes.filter(d => d?.tipo === 'trabajo').length, color: 'var(--paleta-acento)' },
                 { label: 'Festivos', valor: daysMes.filter(d => d?.tipo === 'festivo').length, color: '#7c3aed' },
                 { label: 'Domingos', valor: daysMes.filter(d => d?.tipo === 'domingo').length, color: '#dc2626' },
               ].map(s => (
@@ -308,17 +308,17 @@ export default function CalendarioGlobalDesktop() {
             <div style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20, marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#1e1b4b', textTransform: 'capitalize' }}>{diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--paleta-texto)', textTransform: 'capitalize' }}>{diaSeleccionado.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
                   <div style={{ fontSize: 13, color: '#a0aec0', marginTop: 2 }}>{diaSeleccionado.tipo === 'festivo' ? '🎉 Día festivo' : diaSeleccionado.tipo === 'domingo' ? '📅 Domingo' : '💼 Día laboral'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => { const dias = daysMes.filter(d => d !== null) as DayConfig[]; const idx = dias.findIndex(d => d.day === diaSeleccionado.day); if (idx > 0) setDiaSeleccionado(dias[idx - 1]) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>← Anterior</button>
-                  <button onClick={() => { const dias = daysMes.filter(d => d !== null) as DayConfig[]; const idx = dias.findIndex(d => d.day === diaSeleccionado.day); if (idx < dias.length - 1) setDiaSeleccionado(dias[idx + 1]) }} style={{ background: '#f0f4ff', color: '#6366f1', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>Siguiente →</button>
+                  <button onClick={() => { const dias = daysMes.filter(d => d !== null) as DayConfig[]; const idx = dias.findIndex(d => d.day === diaSeleccionado.day); if (idx > 0) setDiaSeleccionado(dias[idx - 1]) }} style={{ background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>← Anterior</button>
+                  <button onClick={() => { const dias = daysMes.filter(d => d !== null) as DayConfig[]; const idx = dias.findIndex(d => d.day === diaSeleccionado.day); if (idx < dias.length - 1) setDiaSeleccionado(dias[idx + 1]) }} style={{ background: 'var(--paleta-fondo)', color: 'var(--paleta-acento)', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, cursor: 'pointer' }}>Siguiente →</button>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {[
-                  { label: 'Grupos activos', valor: diaSeleccionado.grupos.length, color: '#6366f1', bg: '#ede9fe' },
+                  { label: 'Grupos activos', valor: diaSeleccionado.grupos.length, color: 'var(--paleta-acento)', bg: 'var(--paleta-fondo)' },
                   { label: 'Empleados est.', valor: diaSeleccionado.grupos.length * 12, color: '#059669', bg: '#d1fae5' },
                   { label: 'Libranzas', valor: diaSeleccionado.libranzas.length, color: '#d97706', bg: '#fef9c3' },
                 ].map(k => (
@@ -335,7 +335,7 @@ export default function CalendarioGlobalDesktop() {
                   <div key={g} style={{ background: '#fff', border: '0.5px solid #e8eaf0', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div style={{ width: 4, height: 48, background: grupoColors[g]?.solid, borderRadius: 2, flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>{g}</div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--paleta-texto)', marginBottom: 4 }}>{g}</div>
                       <div style={{ fontSize: 12, color: '#a0aec0' }}>Turno asignado · 12 empleados estimados</div>
                     </div>
                     <span style={{ background: grupoColors[g]?.solid + '20', color: grupoColors[g]?.solid, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>Activo</span>
