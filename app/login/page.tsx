@@ -320,10 +320,15 @@ export default function LoginPage() {
         .shake-otp { animation: shake-otp 0.26s ease-in-out; }
         @keyframes checkmark-pop-v2 { 0% { transform: scale(0) rotate(-180deg); } 100% { transform: scale(1) rotate(0deg); } }
         @keyframes pulse-dot-v2 { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.5); opacity: 1; } }
+        @media (max-width: 768px) {
+          .login-shell { grid-template-columns: 1fr !important; width: 92% !important; max-width: 480px !important; min-height: auto !important; margin: 24px auto 80px auto !important; }
+          .login-left-panel { display: none !important; }
+          .login-right-panel { padding: 32px 24px 28px !important; }
+        }
       `}</style>
-      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
+      <div className="login-shell" style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 1040, minHeight: 760, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.08fr", borderRadius: 28, overflow: "hidden", background: "rgba(255,255,255,0.90)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.72)", boxShadow: "0 40px 100px rgba(23,67,151,0.28), 0 15px 40px rgba(23,67,151,0.18)" }}>
 
-        <div style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div className="login-left-panel" style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
           {flujoAcceso !== "consentimiento" ? (
             <div key="izq-normal" className="panel-swap-left" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
@@ -399,7 +404,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <div style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div className="login-right-panel" style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
           {flujoAcceso === "normal" && !show2FA && !show2FATotp && (
             <div key="der-login" className="panel-swap" style={{ display: "contents" }}>
