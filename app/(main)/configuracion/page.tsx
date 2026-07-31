@@ -1120,7 +1120,7 @@ function SuperAdminSidebar({ usuario }: { usuario: any, onCambiarEmail: () => vo
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Super Admin</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>Administrador</div>
             <div style={{ fontSize: 11, color: "#a0aec0", marginTop: 1 }}>Ver mi perfil completo</div>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2">
@@ -1148,7 +1148,7 @@ function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any,
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👑</div>
         <div>
-          <div style={{ fontSize: 16, fontWeight: 700 }}>Super Administrador</div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>Administrador</div>
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>Acceso total al sistema</div>
         </div>
         <span style={{ marginLeft: "auto", background: "rgba(99,102,241,0.3)", border: "1px solid rgba(99,102,241,0.5)", color: "#a5b4fc", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20 }}>SUPER_ADMIN</span>
@@ -1974,7 +1974,7 @@ export default function ConfiguracionPage() {
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Solicitud enviada correctamente</div>
-            <div style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, maxWidth: 320 }}>La solicitud ha sido enviada al Super Admin para su revision.<br/>Pronto recibiras una notificacion con el acceso temporal.</div>
+            <div style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, maxWidth: 320 }}>La solicitud ha sido enviada al Administrador para su revision.<br/>Pronto recibiras una notificacion con el acceso temporal.</div>
           </div>
         </div>
       )}
@@ -2074,7 +2074,7 @@ export default function ConfiguracionPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>DATOS DEL PUESTO</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Director de area"/></div>
-                  <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div><div><label style={labelStyle}>Rol</label><select value={form.rol||"GERENCIAL"} onChange={e=>setForm((p:any)=>({...p,rol:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}><option value="GERENCIAL">Agente gerencial</option><option value="SUPER_ADMIN">Super Admin</option></select></div>
+                  <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div><div><label style={labelStyle}>Rol</label><select value={form.rol||"GERENCIAL"} onChange={e=>setForm((p:any)=>({...p,rol:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}><option value="GERENCIAL">Agente gerencial</option><option value="SUPER_ADMIN">Administrador</option></select></div>
                   <div><label style={labelStyle}>Sueldo base *</label><div style={{position:"relative"}}><span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#64748b",fontSize:14,pointerEvents:"none",zIndex:1}}>€</span><input type="text" inputMode="numeric" value={form.sueldoBase||""} onChange={e=>setForm((p:any)=>({...p,sueldoBase:e.target.value.replace(/[^0-9]/g,"")}))} style={{...inputStyle,paddingLeft:26}} placeholder="Ej: 2000" autoComplete="off" name="sueldobase" id="sueldobase"/></div></div>
                   <div><label style={labelStyle}>Tipo de contrato</label>
                     <select value={form.tipoContrato||"indefinido"} onChange={e=>setForm((p:any)=>({...p,tipoContrato:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}>
@@ -2193,7 +2193,7 @@ export default function ConfiguracionPage() {
               </div>
             ) : (
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Contraseña SUPER_ADMIN para confirmar</label>
+                <label style={labelStyle}>Contraseña de Administrador para confirmar</label>
                 <input type="password" value={modalPin} onChange={e => setModalPin(e.target.value)} placeholder="Contraseña master" style={inputStyle} />
               </div>
             )}

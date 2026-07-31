@@ -22,7 +22,7 @@ async function notificarSolicitud(planActual: string, planSolicitado: string, me
       <p><strong>Plan actual:</strong> ${planActual}</p>
       <p><strong>Plan solicitado:</strong> ${planSolicitado}</p>
       ${mensaje ? `<p><strong>Mensaje:</strong> ${mensaje}</p>` : ""}
-      <p style="color:#6B7280;font-size:13px">Genera la clave de activacion desde el panel de Super Admin cuando corresponda.</p>
+      <p style="color:#6B7280;font-size:13px">Genera la clave de activacion desde el panel de Administrador cuando corresponda.</p>
     </div>`
   }))
 }

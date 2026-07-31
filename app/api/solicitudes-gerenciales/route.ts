@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 
       await prisma.$executeRaw`
         INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor")
-        VALUES (gen_random_uuid()::text, ${id}, ${nombre}, ${emailLimpio}, ${cargo||""}, 'aprobada automatica', 'Creacion manual con activacion automatica', 'Super Admin')
+        VALUES (gen_random_uuid()::text, ${id}, ${nombre}, ${emailLimpio}, ${cargo||""}, 'aprobada automatica', 'Creacion manual con activacion automatica', 'Administrador')
       `
 
       return NextResponse.json({ ok: true, tempPassword: rawPassword, emailEnviado: true })
@@ -163,7 +163,7 @@ export async function PATCH(req: NextRequest) {
       const aprobada = "aprobada"
       await prisma.$executeRaw`UPDATE "SolicitudGerencial" SET estado = ${aprobada}, "resueltaEn" = NOW() WHERE id = ${id}`
       const accionStr = "aprobada"
-      const realizadoPor = "Super Admin"
+      const realizadoPor = "Administrador"
       const motivoStr = ""
       await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
 
@@ -185,7 +185,7 @@ export async function PATCH(req: NextRequest) {
       const rechazada = "rechazada"
       await prisma.$executeRaw`UPDATE "SolicitudGerencial" SET estado = ${rechazada}, "resueltaEn" = NOW() WHERE id = ${id}`
       const accionStr = "rechazada"
-      const realizadoPor = "Super Admin"
+      const realizadoPor = "Administrador"
       const motivoStr = motivo || ""
       await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
       return NextResponse.json({ ok: true })
@@ -196,7 +196,7 @@ export async function PATCH(req: NextRequest) {
       if (usuario) await prisma.user.delete({ where: { id: usuario.id } })
       await prisma.$executeRaw`DELETE FROM "SolicitudGerencial" WHERE id = ${id}`
       const accionStr = "eliminado"
-      const realizadoPor = "Super Admin"
+      const realizadoPor = "Administrador"
       const motivoStr = motivo || ""
       await prisma.$executeRaw`INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor") VALUES (gen_random_uuid()::text, ${id}, ${sol.nombre}, ${sol.email}, ${sol.cargo||""}, ${accionStr}, ${motivoStr}, ${realizadoPor})`
       return NextResponse.json({ ok: true })

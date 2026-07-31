@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
   if (auth.role !== "SUPER_ADMIN") {
-    return NextResponse.json({ error: "Solo el Super Admin puede hacer esto" }, { status: 403 })
+    return NextResponse.json({ error: "Solo el Administrador puede hacer esto" }, { status: 403 })
   }
   try {
     await Promise.all([

@@ -37,7 +37,7 @@ function getSaludo(genero?: string) {
 }
 
 function getRolLabel(role: string) {
-  if (role === "SUPER_ADMIN") return { icon: "👑", label: "Super Administrador" }
+  if (role === "SUPER_ADMIN") return { icon: "👑", label: "Administrador" }
   if (role === "ADMIN") return { icon: "💼", label: "Usuario gerencial" }
   return { icon: "👤", label: "Empleado" }
 }

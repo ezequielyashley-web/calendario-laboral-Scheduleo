@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const auth = await requireAuth(req)
     if (isUnauthorized(auth)) return auth
     if (auth.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Solo el Super Admin puede ver esto" }, { status: 403 })
+      return NextResponse.json({ error: "Solo el Administrador puede ver esto" }, { status: 403 })
     }
 
     const proveedores = await prisma.configuracionAIProveedor.findMany({
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const auth = await requireAuth(req)
     if (isUnauthorized(auth)) return auth
     if (auth.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Solo el Super Admin puede modificar esto" }, { status: 403 })
+      return NextResponse.json({ error: "Solo el Administrador puede modificar esto" }, { status: 403 })
     }
 
     const { proveedor, apiKey } = await req.json()

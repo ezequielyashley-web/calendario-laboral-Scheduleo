@@ -443,7 +443,7 @@ export default function FichaEjecutivoPage() {
                   <div style={{ background: '#F5F3FF', border: '0.5px solid #DDD6FE', borderRadius: '10px', padding: '32px', textAlign: 'center' }}>
                     <div style={{ fontSize: '32px', marginBottom: '8px' }}>👑</div>
                     <div style={{ color: '#6366F1', fontWeight: 500, fontSize: '15px' }}>Acceso total al sistema</div>
-                    <div style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>Super Admin tiene acceso completo a todos los módulos</div>
+                    <div style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>Administrador tiene acceso completo a todos los módulos</div>
                   </div>
                 ) : (
                   <>
@@ -527,7 +527,7 @@ export default function FichaEjecutivoPage() {
             {tab === 'notas' && esSuperAdmin && (
               <div>
                 <div style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '4px' }}>Notas privadas</div>
-                <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>Solo visible para Super Admins</div>
+                <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>Solo visible para Administradores</div>
                 <div style={{ background: '#fff', border: '0.5px solid #E5E7EB', borderRadius: '10px', padding: '16px', boxShadow: '0 4px 16px rgba(99,102,241,0.18), 0 1px 4px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
                   <textarea value={nuevaNota} onChange={e => setNuevaNota(e.target.value)}
                     placeholder="Escribe una nota privada..." rows={3}

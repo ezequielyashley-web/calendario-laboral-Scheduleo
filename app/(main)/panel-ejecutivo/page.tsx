@@ -290,7 +290,7 @@ export default function PanelEjecutivoPage() {
               <div onClick={() => setFiltroRolPanel(filtroRolPanel === "SUPER_ADMIN" ? "todos" : "SUPER_ADMIN")}
                 style={{ flex: 1, cursor: "pointer", background: filtroRolPanel === "SUPER_ADMIN" ? "#F5F3FF" : "#fff", border: `1px solid ${filtroRolPanel === "SUPER_ADMIN" ? "#673DE6" : "#E2E4E9"}`, borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: "#673DE6" }}>{superAdmins.length}</div>
-                <div style={{ fontSize: 9, color: "#64748B", fontWeight: 600 }}>Super Admin{superAdmins.length === 1 ? "" : "s"}</div>
+                <div style={{ fontSize: 9, color: "#64748B", fontWeight: 600 }}>Administrador{superAdmins.length === 1 ? "" : "es"}</div>
               </div>
               <div onClick={() => setFiltroRolPanel(filtroRolPanel === "GERENCIAL" ? "todos" : "GERENCIAL")}
                 style={{ flex: 1, cursor: "pointer", background: filtroRolPanel === "GERENCIAL" ? "#EFF6FF" : "#fff", border: `1px solid ${filtroRolPanel === "GERENCIAL" ? "#2563EB" : "#E2E4E9"}`, borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
@@ -359,7 +359,7 @@ export default function PanelEjecutivoPage() {
               </div>
               <div style={{ background: "#FAFBFC", border: "1px solid #EEF0F3", borderRadius: 10, padding: 12 }}>
                 <div style={{ fontSize: 10, color: "#94A3B8", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 4 }}>Rol</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A" }}>{usuarioSeleccionado.role || "Super Admin"}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A" }}>{usuarioSeleccionado.role || "Administrador"}</div>
               </div>
             </div>
 
@@ -412,7 +412,7 @@ export default function PanelEjecutivoPage() {
                   </div>
                 ) : (
                   <div>
-                    <div style={{ fontSize: 13, color: "#64748B", marginBottom: 12 }}>Este es tu perfil de Super Admin. Puedes editar tus datos.</div>
+                    <div style={{ fontSize: 13, color: "#64748B", marginBottom: 12 }}>Este es tu perfil de Administrador. Puedes editar tus datos.</div>
                     <button
                       onClick={() => {
                         setFormPerfil({ name: usuarioSeleccionado.name || "", email: usuarioSeleccionado.email || "", cargo: usuarioSeleccionado.cargo || "", departamento: usuarioSeleccionado.departamento || "" })

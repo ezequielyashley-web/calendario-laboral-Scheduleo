@@ -88,7 +88,7 @@ export default function InstalacionPage() {
         <div style={{ background: "#fff", borderRadius: 16, padding: 32, maxWidth: 420, textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.06)" }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>✅</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 8 }}>La instalacion ya se completo</div>
-          <div style={{ fontSize: 13, color: gris, marginBottom: 20 }}>Ya existe un Super Admin en este sistema. Ve a la pantalla de inicio de sesion.</div>
+          <div style={{ fontSize: 13, color: gris, marginBottom: 20 }}>Ya existe un Administrador en este sistema. Ve a la pantalla de inicio de sesion.</div>
           <a href="/login" style={{ display: "inline-block", background: violeta, color: "#fff", textDecoration: "none", padding: "10px 24px", borderRadius: 8, fontSize: 13, fontWeight: 600 }}>Ir al login</a>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function InstalacionPage() {
           <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 52, height: 52, borderRadius: 14, background: violeta, marginBottom: 12 }}>
             <span style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>S</span>
           </div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#111827" }}>Configura tu Super Admin</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#111827" }}>Configura tu Administrador</div>
           <div style={{ fontSize: 12.5, color: gris, marginTop: 4 }}>Esta pantalla solo funciona una vez, para crear la primera cuenta del sistema.</div>
         </div>
 
@@ -158,7 +158,7 @@ export default function InstalacionPage() {
           onClick={enviar}
           disabled={enviando}
           style={{ width: "100%", height: 44, background: violeta, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: enviando ? "not-allowed" : "pointer", opacity: enviando ? 0.6 : 1 }}>
-          {enviando ? "Creando cuenta..." : "Crear cuenta Super Admin"}
+          {enviando ? "Creando cuenta..." : "Crear cuenta de Administrador"}
         </button>
       </div>
     </div>

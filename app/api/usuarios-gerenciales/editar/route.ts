@@ -62,14 +62,14 @@ export async function POST(req: NextRequest) {
     if (permisosStr !== permisosAntesStr) {
       await prisma.$executeRaw`
         INSERT INTO "HistorialPermisos" (id, "usuarioId", "usuarioNombre", "usuarioEmail", "permisosAntes", "permisosDespues", "modificadoPor")
-        VALUES (gen_random_uuid()::text, ${usuario.id}, ${nombre}, ${email.toLowerCase()}, ${JSON.stringify(permisosAntes)}::jsonb, ${JSON.stringify(permisos||{})}::jsonb, ${"Super Admin"})
+        VALUES (gen_random_uuid()::text, ${usuario.id}, ${nombre}, ${email.toLowerCase()}, ${JSON.stringify(permisosAntes)}::jsonb, ${JSON.stringify(permisos||{})}::jsonb, ${"Administrador"})
       `
     }
 
     // Registrar en historial gerencial
     await prisma.$executeRaw`
       INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor")
-      VALUES (gen_random_uuid()::text, ${solicitudId||null}, ${nombre}, ${email.toLowerCase()}, ${cargo||""}, ${"editado"}, ${"Datos actualizados por Super Admin"}, ${"Super Admin"})
+      VALUES (gen_random_uuid()::text, ${solicitudId||null}, ${nombre}, ${email.toLowerCase()}, ${cargo||""}, ${"editado"}, ${"Datos actualizados por Administrador"}, ${"Administrador"})
     `
 
     return NextResponse.json({ ok: true })

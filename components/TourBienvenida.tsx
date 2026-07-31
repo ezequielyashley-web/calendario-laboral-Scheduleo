@@ -47,9 +47,9 @@ type Paso = {
 const PASOS_POR_ROL: Record<string, Paso[]> = {
   SUPER_ADMIN: [
     {
-      badge: "Tu rol: Super Admin",
+      badge: "Tu rol: Administrador",
       titulo: "Control total del sistema",
-      intro: "Como Super Admin tienes control total del sistema. Estas son tus funciones principales:",
+      intro: "Como Administrador tienes control total del sistema. Estas son tus funciones principales:",
       funciones: [
         { icono: "users", titulo: "Aprobar y gestionar agentes gerenciales", texto: "revisar solicitudes, asignar permisos" },
         { icono: "building", titulo: "Configurar la empresa", texto: "datos fiscales, puestos, grupos de trabajo" },

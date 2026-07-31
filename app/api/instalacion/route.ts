@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   try {
     const existeSuperAdmin = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } })
     if (existeSuperAdmin) {
-      return NextResponse.json({ error: "Ya existe un Super Admin. Esta instalacion ya se completo." }, { status: 403 })
+      return NextResponse.json({ error: "Ya existe un Administrador. Esta instalacion ya se completo." }, { status: 403 })
     }
 
     const body = await req.json()
@@ -68,6 +68,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ error: "Error al crear el Super Admin" }, { status: 500 })
+    return NextResponse.json({ error: "Error al crear el Administrador" }, { status: 500 })
   }
 }

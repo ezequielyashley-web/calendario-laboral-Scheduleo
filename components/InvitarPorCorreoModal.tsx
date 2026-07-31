@@ -100,7 +100,7 @@ export default function InvitarPorCorreoModal({ onCerrar }: { onCerrar: () => vo
             <label style={labelStyle}>Rol</label>
             <select value={rol} onChange={e => setRol(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
               <option value="GERENCIAL">Agente gerencial</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
+              <option value="SUPER_ADMIN">Administrador</option>
             </select>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>

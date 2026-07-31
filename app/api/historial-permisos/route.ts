@@ -57,12 +57,12 @@ export async function POST(req: NextRequest) {
     // Registrar en historial
     await prisma.$executeRaw`
       INSERT INTO "HistorialPermisos" (id, "usuarioId", "usuarioNombre", "usuarioEmail", "permisosAntes", "permisosDespues", "modificadoPor")
-      VALUES (gen_random_uuid()::text, ${usuario.id}, ${usuario.name}, ${usuario.email}, ${JSON.stringify(permisosAntes)}::jsonb, ${JSON.stringify(permisosNuevos)}::jsonb, ${"Super Admin"})
+      VALUES (gen_random_uuid()::text, ${usuario.id}, ${usuario.name}, ${usuario.email}, ${JSON.stringify(permisosAntes)}::jsonb, ${JSON.stringify(permisosNuevos)}::jsonb, ${"Administrador"})
     `
     // Registrar en historial gerencial
     await prisma.$executeRaw`
       INSERT INTO "HistorialGerencial" (id, "solicitudId", nombre, email, cargo, accion, motivo, "realizadoPor")
-      VALUES (gen_random_uuid()::text, ${null}, ${usuario.name}, ${usuario.email}, ${usuario.cargo||""}, ${"permisos_modificados"}, ${"Permisos actualizados por Super Admin"}, ${"Super Admin"})
+      VALUES (gen_random_uuid()::text, ${null}, ${usuario.name}, ${usuario.email}, ${usuario.cargo||""}, ${"permisos_modificados"}, ${"Permisos actualizados por Administrador"}, ${"Administrador"})
     `
     return NextResponse.json({ ok: true, permisosAntes, permisosDespues: permisosNuevos })
   } catch (error) {

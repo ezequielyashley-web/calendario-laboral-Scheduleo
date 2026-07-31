@@ -14,7 +14,7 @@ export async function GET() {
     return NextResponse.json({ usuario, superAdmins })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ error: "Error al obtener super admins" }, { status: 500 })
+    return NextResponse.json({ error: "Error al obtener administradores" }, { status: 500 })
   }
 }
 
@@ -71,6 +71,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, tempPassword: rawPassword })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ error: "Error al crear super admin" }, { status: 500 })
+    return NextResponse.json({ error: "Error al crear administrador" }, { status: 500 })
   }
 }

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     const auth = await requireAuth(req)
     if (isUnauthorized(auth)) return auth
     if (auth.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Solo el Super Admin puede validar claves" }, { status: 403 })
+      return NextResponse.json({ error: "Solo el Administrador puede validar claves" }, { status: 403 })
     }
 
     const { proveedor, apiKey } = await req.json()

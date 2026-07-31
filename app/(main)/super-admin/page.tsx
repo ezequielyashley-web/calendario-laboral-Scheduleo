@@ -111,7 +111,7 @@ export default function SuperAdminPage() {
         email: data.usuario.email || "",
         telefono: data.usuario.telefono || "",
         telefonoCorp: data.usuario.telefonoCorp || "",
-        cargo: data.usuario.cargo || "Super Administrador",
+        cargo: data.usuario.cargo || "Administrador",
         departamento: data.usuario.departamento || "",
         dni: data.usuario.dni || "",
         fechaNacimiento: data.usuario.fechaNacimiento || "",
@@ -151,7 +151,7 @@ export default function SuperAdminPage() {
     })
     const data = await res.json()
     if (data.error) { mostrarMensaje(data.error, "error"); return }
-    mostrarMensaje(`Super Admin creado. Contraseña temporal: ${data.tempPassword}`)
+    mostrarMensaje(`Administrador creado. Contraseña temporal: ${data.tempPassword}`)
     setModalNuevo(false)
     setFormNuevo({ name: "", email: "", cargo: "", telefono: "" })
     cargar()
@@ -174,7 +174,7 @@ export default function SuperAdminPage() {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.1em", marginBottom: 8 }}>ACCESO RESTRINGIDO</div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>Panel Super Admin</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>Panel de Administrador</h2>
           <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 28px", lineHeight: 1.6 }}>Introduce tu contraseña master para acceder al panel de administracion</p>
           <input type="password" value={pin} onChange={e => setPin(e.target.value)}
             onKeyDown={e => e.key === "Enter" && verificar()}
@@ -206,7 +206,7 @@ export default function SuperAdminPage() {
               <h1 style={{ fontSize: 24, fontWeight: 700, color: "#fff", margin: 0 }}>{form.name || "Administrador"}</h1>
               <span style={{ background: "rgba(99,102,241,0.3)", border: "1px solid rgba(99,102,241,0.5)", color: "#a5b4fc", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20, letterSpacing: "0.05em" }}>SUPER_ADMIN</span>
             </div>
-            <div style={{ fontSize: 13, color: "#94a3b8" }}>{form.cargo || "Super Administrador"} · Acceso total al sistema</div>
+            <div style={{ fontSize: 13, color: "#94a3b8" }}>{form.cargo || "Administrador"} · Acceso total al sistema</div>
             <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{form.email}</div>
           </div>
           <div style={{ textAlign: "right" }}>
@@ -233,7 +233,7 @@ export default function SuperAdminPage() {
         {[
           { key: "perfil", label: "Datos del perfil", icon: "👤" },
           { key: "seguridad", label: "Acceso y seguridad", icon: "🔒" },
-          { key: "superadmins", label: "Super Admins", icon: "👑" },
+          { key: "superadmins", label: "Administradores", icon: "👑" },
           { key: "solicitudes", label: "Solicitudes", icon: "📋", badge: solicitudes.filter((s:any) => s.estado === "pendiente").length },
           { key: "historial", label: "Historial", icon: "📜" },
         ].map(t => (
@@ -377,17 +377,17 @@ export default function SuperAdminPage() {
         </div>
       )}
 
-      {/* TAB: Super Admins */}
+      {/* TAB: Administradores */}
       {tab === "superadmins" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Super Administradores</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Administradores</div>
               <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{superAdmins.length} en el sistema</div>
             </div>
             <button onClick={() => setModalNuevo(true)}
               style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-              + Nuevo Super Admin
+              + Nuevo Administrador
             </button>
           </div>
 
@@ -877,11 +877,11 @@ export default function SuperAdminPage() {
         </div>
       )}
 
-      {/* Modal nuevo Super Admin */}
+      {/* Modal nuevo Administrador */}
       {modalNuevo && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: 440, maxWidth: "90vw" }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 20px" }}>Nuevo Super Admin</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 20px" }}>Nuevo Administrador</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {[
                 { label: "Nombre completo", key: "name" },
@@ -904,7 +904,7 @@ export default function SuperAdminPage() {
               </button>
               <button onClick={crearSuperAdmin}
                 style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                Crear Super Admin
+                Crear Administrador
               </button>
             </div>
           </div>

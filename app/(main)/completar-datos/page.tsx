@@ -65,7 +65,7 @@ export default function CompletarDatosPage() {
       <div style={{ maxWidth: 480, margin: "60px auto", background: "#fff", border: "1px solid #E5E7EB", borderRadius: 16, padding: 32, textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
         <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 6 }}>Tus datos están en revisión</div>
-        <div style={{ fontSize: 13, color: "#6B7280" }}>El Super Admin revisará la información enviada. Te avisaremos cuando se confirme.</div>
+        <div style={{ fontSize: 13, color: "#6B7280" }}>El Administrador revisará la información enviada. Te avisaremos cuando se confirme.</div>
       </div>
     )
   }
@@ -82,7 +82,7 @@ export default function CompletarDatosPage() {
   return (
     <div style={{ maxWidth: 480, margin: "40px auto", background: "#fff", border: "1px solid #E5E7EB", borderRadius: 16, padding: 28 }}>
       <div style={{ fontSize: 17, fontWeight: 700, color: "#111827", marginBottom: 4 }}>Completa tus datos personales</div>
-      <div style={{ fontSize: 12.5, color: "#6B7280", marginBottom: 20 }}>Esta información es necesaria para tu ficha de empleado. Un Super Admin revisará los datos antes de confirmarlos.</div>
+      <div style={{ fontSize: 12.5, color: "#6B7280", marginBottom: 20 }}>Esta información es necesaria para tu ficha de empleado. Un Administrador revisará los datos antes de confirmarlos.</div>
 
       {estado?.estadoDatosPersonales === "rechazado" && (
         <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: 12, marginBottom: 16, fontSize: 12.5, color: "#991B1B" }}>

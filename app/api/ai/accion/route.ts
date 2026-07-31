@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
   if (auth.role !== "SUPER_ADMIN") {
-    return NextResponse.json({ error: "No tienes permisos suficientes para realizar esta accion. Solo el Super Admin puede ejecutar acciones desde ScheduleoAI." }, { status: 403 })
+    return NextResponse.json({ error: "No tienes permisos suficientes para realizar esta accion. Solo el Administrador puede ejecutar acciones desde ScheduleoAI." }, { status: 403 })
   }
   try {
     const { tipo, datos } = await req.json()
