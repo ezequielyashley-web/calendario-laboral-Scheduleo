@@ -83,58 +83,42 @@ export default function DeudasPage() {
 
       {loading ? (
         <div style={{ textAlign: "center", padding: 60, color: "#a0aec0" }}>Cargando...</div>
+      ) : empleadosConDeudas.length === 0 ? (
+        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, padding: 40, textAlign: "center", color: "#a0aec0" }}>No hay empleados con deudas activas</div>
       ) : (
-        <div className="deudas-table-wrap" style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 16, overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#f8f9ff" }}>
-                {["Empleado", "Anticipo", "Producto", "Descuento", "Total pendiente"].map(h => (
-                  <th key={h} style={{ padding: "10px 16px", textAlign: h === "Total pendiente" ? "right" : "left", fontSize: 12, fontWeight: 500, color: "#718096", borderBottom: "0.5px solid #e8eaf0" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {empleadosConDeudas.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>No hay empleados con deudas activas</td></tr>
-              ) : empleadosConDeudas.map((e, i) => {
-                const pAnticipo = getPendiente(e.id, "ANTICIPO")
-                const pProducto = getPendiente(e.id, "PRODUCTO")
-                const pDescuento = getPendiente(e.id, "DESCUENTO")
-                const total = getPendiente(e.id)
+        <div className="deudas-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(480px, 1fr))", gap: 12 }}>
+          {empleadosConDeudas.map((e) => {
+            const pAnticipo = getPendiente(e.id, "ANTICIPO")
+            const pProducto = getPendiente(e.id, "PRODUCTO")
+            const pDescuento = getPendiente(e.id, "DESCUENTO")
+            const total = getPendiente(e.id)
 
-                return (
-                  <tr key={e.id}
-                    onClick={() => router.push(`/empleados/${e.id}?tab=deudas`)}
-                    style={{ borderBottom: "0.5px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
-                    onMouseEnter={el => el.currentTarget.style.background = "var(--accent-dim)"}
-                    onMouseLeave={el => el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"}
-                  >
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
-                          {e.nombre[0]}{e.apellidos[0]}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b" }}>{e.nombre} {e.apellidos}</div>
-                          <div style={{ fontSize: 11, color: "#a0aec0" }}>Nº {e.numeroEmpleado}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {pAnticipo > 0 ? <span style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {pProducto > 0 ? <span style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {pDescuento > 0 ? <span style={{ background: "#fef9c3", color: "#d97706", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pDescuento.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
-                    </td>
-                    <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 15, fontWeight: 500, color: "#dc2626" }}>{total.toFixed(2)}€</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+            return (
+              <div key={e.id}
+                onClick={() => router.push(`/empleados/${e.id}?tab=deudas`)}
+                style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 14, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer", transition: "background .15s" }}
+                onMouseEnter={el => el.currentTarget.style.background = "var(--accent-dim)"}
+                onMouseLeave={el => el.currentTarget.style.background = "#fff"}
+              >
+                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 500, flexShrink: 0 }}>
+                  {e.nombre[0]}{e.apellidos[0]}
+                </div>
+                <div style={{ minWidth: 130, flexShrink: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.nombre} {e.apellidos}</div>
+                  <div style={{ fontSize: 11, color: "#a0aec0" }}>Nº {e.numeroEmpleado}</div>
+                </div>
+                <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center", flexWrap: "wrap" }}>
+                  {pAnticipo > 0 && <span style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>Anticipo {pAnticipo.toFixed(2)}€</span>}
+                  {pProducto > 0 && <span style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>Producto {pProducto.toFixed(2)}€</span>}
+                  {pDescuento > 0 && <span style={{ background: "#fef9c3", color: "#d97706", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>Descuento {pDescuento.toFixed(2)}€</span>}
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0, minWidth: 80 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#dc2626" }}>{total.toFixed(2)}€</div>
+                  <div style={{ fontSize: 10, color: "#a0aec0" }}>pendiente</div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
