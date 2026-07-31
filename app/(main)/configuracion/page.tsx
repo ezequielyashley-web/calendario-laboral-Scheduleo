@@ -1433,63 +1433,67 @@ export default function ConfiguracionPage() {
     return (
       <div style={{ position: "relative", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
         <style>{`
-          @keyframes hex-spin-config { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          @keyframes lock-float-spin-config { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
+          @keyframes hex-trace-config { to { stroke-dashoffset: -270; } }
+          @keyframes lock-float-pulse-config { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
         `}</style>
-        <div style={{ position: "fixed", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
-        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 680, minHeight: 460, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 24, overflow: "hidden", background: "rgba(255,255,255,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.3)", boxShadow: "0 30px 80px rgba(15,23,42,0.25)" }}>
+        <div style={{ position: "fixed", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -2 }} />
+        <div style={{ position: "fixed", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.35), rgba(15,23,42,0.55))", zIndex: -1 }} />
+        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, minHeight: 480, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 26, overflow: "hidden", background: "rgba(255,255,255,0.97)", border: "1px solid rgba(255,255,255,0.5)", boxShadow: "0 40px 100px rgba(0,0,0,0.45)" }}>
 
           <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-            <div style={{ position: "relative", width: 88, height: 88, marginBottom: 20 }}>
-              <div style={{ position: "absolute", inset: 0, clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)", background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
-                <div style={{ position: "absolute", inset: "-60%", background: "conic-gradient(from 0deg, transparent 0deg 280deg, rgba(255,255,255,0.2) 320deg, rgba(255,255,255,0.95) 350deg, transparent 360deg)", animation: "hex-spin-config 2.2s linear infinite" }} />
-              </div>
-              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", animation: "lock-float-spin-config 3s ease-in-out infinite" }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 64 64" fill="none">
-                  <rect x="18" y="28" width="28" height="22" rx="5" stroke="#fff" strokeWidth="2.5"/>
-                  <path d="M24 28v-7a8 8 0 0 1 16 0v7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
-                  <circle cx="32" cy="39" r="2.3" fill="#fff"/>
+            <div style={{ position: "relative", width: 110, height: 110, marginBottom: 22 }}>
+              <svg width="110" height="110" viewBox="0 0 100 100" style={{ position: "absolute", inset: 0 }}>
+                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="rgba(255,255,255,0.12)" />
+                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
+                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                  strokeDasharray="50 220" style={{ animation: "hex-trace-config 2.6s linear infinite" }} />
+              </svg>
+              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", animation: "lock-float-pulse-config 2.6s ease-in-out infinite" }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 64 64" fill="none">
+                  <rect x="18" y="28" width="28" height="22" rx="5" stroke="#fff" strokeWidth="3"/>
+                  <path d="M24 28v-7a8 8 0 0 1 16 0v7" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>
+                  <circle cx="32" cy="39" r="2.6" fill="#fff"/>
                 </svg>
               </div>
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Acceso restringido</h2>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: "0 0 24px", maxWidth: 200 }}>Esta sección requiere permisos elevados</p>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", gap: 6 }}>
-              <img src="/design-system/icons/icon-shield.svg" alt="" style={{ width: 14, height: 14, filter: "brightness(0) invert(1)" }} />
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Acceso restringido</h2>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210 }}>Esta sección requiere permisos elevados</p>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7 }}>
+              <img src="/design-system/icons/icon-shield.svg" alt="" style={{ width: 18, height: 18, filter: "brightness(0) invert(1)" }} />
               Zona de configuración avanzada · Solo personal autorizado
             </div>
           </div>
 
-          <div style={{ padding: "40px 36px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--paleta-fondo)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-              <img src="/design-system/icons/icon-lock-circle.svg" alt="" style={{ width: 22, height: 22 }} />
+          <div style={{ padding: "44px 40px", display: "flex", flexDirection: "column", justifyContent: "center", background: "#fff", boxShadow: "-12px 0 30px rgba(0,0,0,0.05)", position: "relative", zIndex: 2 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 14, background: "var(--paleta-fondo)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+              <img src="/design-system/icons/icon-lock-circle.svg" alt="" style={{ width: 30, height: 30 }} />
             </div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--paleta-texto)", margin: "0 0 6px" }}>Verificación de seguridad</h2>
-            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 14px" }}>Para continuar, verifica tu identidad con tu contraseña de administrador.</p>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--paleta-fondo)", color: "var(--accent)", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 600, width: "fit-content", marginBottom: 18 }}>
-              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 13, height: 13 }} />
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--paleta-texto)", margin: "0 0 6px" }}>Verificación de seguridad</h2>
+            <p style={{ fontSize: 14, color: "#64748B", margin: "0 0 16px" }}>Para continuar, verifica tu identidad con tu contraseña de administrador.</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "var(--paleta-fondo)", color: "var(--accent)", borderRadius: 20, padding: "5px 14px", fontSize: 13, fontWeight: 600, width: "fit-content", marginBottom: 20 }}>
+              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 17, height: 17 }} />
               Administrador
             </div>
             <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
               onKeyDown={e => e.key === "Enter" && verificarAcceso()}
               placeholder="Contraseña master"
-              style={{ ...inputStyle, marginBottom: 12, fontSize: 14, padding: "12px 14px" }} />
+              style={{ ...inputStyle, marginBottom: 12, fontSize: 14, padding: "13px 15px" }} />
             {errorAcceso && (
               <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
             )}
             <button onClick={verificarAcceso} disabled={verificando || !pinAcceso}
-              style={{ width: "100%", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 18 }}>
+              style={{ width: "100%", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
               {verificando ? "Verificando..." : "Acceder"}
-              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 14, height: 14, filter: "brightness(0) invert(1)" }} />
+              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 18, height: 18, filter: "brightness(0) invert(1)" }} />
             </button>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
                 { icon: "icon-lock.svg", txt: "Acceso cifrado y protegido" },
                 { icon: "icon-shield-check.svg", txt: "Actividad registrada y monitoreada" },
                 { icon: "icon-people.svg", txt: "Permisos verificados" },
               ].map(item => (
-                <div key={item.txt} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#64748B" }}>
-                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 14, height: 14 }} />
+                <div key={item.txt} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#64748B" }}>
+                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 19, height: 19 }} />
                   {item.txt}
                 </div>
               ))}
