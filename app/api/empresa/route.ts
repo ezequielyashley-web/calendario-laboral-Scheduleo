@@ -3,6 +3,9 @@ import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit"
+import { Resend } from "resend"
+import { runAsync } from "@/lib/asyncTask"
+const resend = new Resend(process.env.RESEND_API_KEY)
 import { unstable_cache, revalidateTag } from "next/cache"
 
 const getCachedEmpresa = unstable_cache(
@@ -44,7 +47,36 @@ export async function PATCH(req: NextRequest) {
     if (!admin) return NextResponse.json({ error: "No se encontró admin" }, { status: 401 })
 
     const ok = await bcrypt.compare(masterPassword, admin.password)
-    if (!ok) return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
+    if (!ok) {
+      const empresaActual = await prisma.$queryRaw`SELECT "configIntentosFallidos" FROM "Empresa" WHERE id = ${"empresa-001"} LIMIT 1` as any[]
+      const intentosActuales = (empresaActual[0]?.configIntentosFallidos || 0) + 1
+      const bloqueadoAhora = intentosActuales >= 3
+      await prisma.$executeRaw`UPDATE "Empresa" SET "configIntentosFallidos" = ${intentosActuales}, "configAccesoBloqueado" = ${bloqueadoAhora} WHERE id = ${"empresa-001"}`
+
+      if (auth.userId !== admin.id) {
+        const empleadoActual = await prisma.user.findUnique({ where: { id: auth.userId } })
+        const ahora = new Date()
+        const fechaStr = ahora.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid" })
+        const horaStr = ahora.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" })
+        runAsync("aviso-intento-configuracion", async () => {
+          await prisma.mensajePanelEjecutivo.create({
+            data: { remitenteId: auth.userId, destinatarioId: admin.id, texto: `Intento de acceso no autorizado a Configuracion avanzada — ${empleadoActual?.name || "Empleado"}, el ${fechaStr} a las ${horaStr}.` }
+          })
+          if (admin.email) {
+            await resend.emails.send({
+              from: "Scheduleo <verificacion@scheduleo.es>",
+              to: admin.email,
+              subject: "Intento de acceso no autorizado a Configuracion avanzada",
+              html: `<p>Se ha intentado acceder a la seccion de Configuracion avanzada sin la contrasena correcta.</p><p><strong>Empleado con sesion iniciada:</strong> ${empleadoActual?.name || "Desconocido"}</p><p><strong>Fecha:</strong> ${fechaStr}<br/><strong>Hora:</strong> ${horaStr}</p>`
+            })
+          }
+        })
+      }
+
+      return NextResponse.json({ error: "Contraseña incorrecta", bloqueado: bloqueadoAhora, intentos: intentosActuales }, { status: 401 })
+    }
+
+    await prisma.$executeRaw`UPDATE "Empresa" SET "configIntentosFallidos" = 0, "configAccesoBloqueado" = false WHERE id = ${"empresa-001"}`
     resetRateLimit(rateLimitId)
 
     await prisma.$executeRaw`
