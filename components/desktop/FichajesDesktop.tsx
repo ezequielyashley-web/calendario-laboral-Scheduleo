@@ -110,7 +110,7 @@ export default function FichajesDesktop() {
           { label:'Correctos',  value: cargando ? '...' : correctos, color:'#16a34a' },
           { label:'Tardios',    value: cargando ? '...' : tardios,   color:'#d97706' },
           { label:'Sin salida', value: cargando ? '...' : sinSalida, color:'#b91c1c' },
-          { label:'Ausentes',   value: cargando ? '...' : ausentes,  color:'#6366f1' },
+          { label:'Ausentes',   value: cargando ? '...' : ausentes,  color:'var(--accent)' },
         ].map((k,i) => (
           <div key={i} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:6, padding:'16px 20px', borderLeft:`3px solid ${k.color}`, boxShadow:'var(--shadow-sm)' }}>
             <p style={{ fontSize:11, color:'var(--text-muted)', marginBottom:6 }}>{k.label}</p>
