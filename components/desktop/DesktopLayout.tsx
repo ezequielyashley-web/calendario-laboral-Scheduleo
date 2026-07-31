@@ -370,7 +370,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   const fondoBrillo = empresa?.fondoBrillo ?? 100
   const paleta = getPaleta(empresa?.paletaColor)
   return (
-    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--accent': accentColor, '--paleta-acento': paleta.acento, '--paleta-grad-inicio': paleta.gradInicio, '--paleta-grad-fin': paleta.gradFin, '--paleta-fondo': paleta.fondo, '--paleta-texto': paleta.texto } as React.CSSProperties}>
+    <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--paleta-acento': paleta.acento, '--paleta-grad-inicio': paleta.gradInicio, '--paleta-grad-fin': paleta.gradFin, '--paleta-fondo': paleta.fondo, '--paleta-texto': paleta.texto, '--accent': paleta.acento, '--accent-hover': paleta.gradFin, '--accent-dim': paleta.acento + '1a' } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
         ${!sidebarPersonalizado ? `.light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }` : ``}
