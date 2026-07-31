@@ -1446,7 +1446,6 @@ export default function ConfiguracionPage() {
     return (
       <div style={{ position: "relative", height: "100%", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flex: 1 }}>
         <style>{`
-          @keyframes hex-trace-config { to { stroke-dashoffset: -270; } }
           @keyframes lock-float-pulse-config { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
           @keyframes shake-lock-config { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
         `}</style>
@@ -1455,20 +1454,9 @@ export default function ConfiguracionPage() {
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, minHeight: 480, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 26, overflow: "hidden", background: "rgba(255,255,255,0.97)", border: "1px solid rgba(255,255,255,0.5)", boxShadow: "0 40px 100px rgba(0,0,0,0.45)" }}>
 
           <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-            <div style={{ position: "relative", width: 110, height: 110, marginBottom: 22 }}>
-              <svg width="110" height="110" viewBox="0 0 100 100" style={{ position: "absolute", inset: 0 }}>
-                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="rgba(255,255,255,0.12)" />
-                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
-                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke={colorEstado} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                  strokeDasharray="50 220" style={{ animation: "hex-trace-config 2.6s linear infinite", transition: "stroke 0.3s" }} />
-              </svg>
-              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="62" height="62" viewBox="0 0 64 64" fill="none">
-                  <rect x="18" y="28" width="28" height="22" rx="5" stroke="#fff" strokeWidth="3"/>
-                  <path d="M24 28v-7a8 8 0 0 1 16 0v7" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>
-                  <circle cx="32" cy="39" r="2.6" fill="#fff"/>
-                </svg>
-              </div>
+            <div style={{ position: "relative", width: 140, height: 140, marginBottom: 18 }}>
+              <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : "/design-system/security/acceso-cerrado-rojo.png"} alt=""
+                style={{ width: "100%", height: "100%", objectFit: "contain", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
             </div>
             <h2 style={{ fontSize: 24, fontWeight: 800, color: estadoIntento === "incorrecto" ? "#F87171" : "#fff", margin: "0 0 8px", transition: "color 0.3s" }}>{tituloEstado}</h2>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210 }}>Esta sección requiere permisos elevados</p>
