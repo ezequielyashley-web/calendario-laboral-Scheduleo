@@ -126,7 +126,7 @@ export default function CoberturaDesktop() {
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={() => { setModalPuesto({ id: null }); setFormPuesto({ nombre: "", descripcion: "" }) }}
-            style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             + Nuevo puesto
           </button>
         </div>
@@ -159,7 +159,7 @@ export default function CoberturaDesktop() {
             onDragOver={e => { e.preventDefault(); setDragOverPuesto(puesto.id) }}
             onDragLeave={() => setDragOverPuesto(null)}
             onDrop={() => onDrop(puesto.id)}
-            style={{ background: "var(--surface)", border: `2px solid ${dragOverPuesto === puesto.id ? "#0284c7" : "var(--border)"}`, borderRadius: 14, padding: 20, transition: "all 0.2s", boxShadow: dragOverPuesto === puesto.id ? "0 0 0 4px rgba(2,132,199,0.15)" : "var(--shadow-sm)", borderTop: `3px solid ${COLORES[idx % COLORES.length]}` }}>
+            style={{ background: "var(--surface)", border: `2px solid ${dragOverPuesto === puesto.id ? "var(--accent)" : "var(--border)"}`, borderRadius: 14, padding: 20, transition: "all 0.2s", boxShadow: dragOverPuesto === puesto.id ? "0 0 0 4px var(--accent-dim)" : "var(--shadow-sm)", borderTop: `3px solid ${COLORES[idx % COLORES.length]}` }}>
 
             {/* Header puesto */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
@@ -236,7 +236,7 @@ export default function CoberturaDesktop() {
                 Cancelar
               </button>
               <button onClick={confirmarAccion} disabled={guardando}
-                style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 {guardando ? "Guardando..." : "Confirmar"}
               </button>
             </div>
@@ -273,7 +273,7 @@ export default function CoberturaDesktop() {
                 Cancelar
               </button>
               <button onClick={confirmarPuesto} disabled={guardando || !formPuesto.nombre}
-                style={{ background: "#0284c7", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: !formPuesto.nombre ? 0.6 : 1 }}>
+                style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", opacity: !formPuesto.nombre ? 0.6 : 1 }}>
                 {guardando ? "Guardando..." : modalPuesto.id ? "Guardar cambios" : "Crear puesto"}
               </button>
             </div>
