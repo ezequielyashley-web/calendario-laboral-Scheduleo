@@ -1287,14 +1287,13 @@ export default function ConfiguracionPage() {
       setErrorAcceso("Contraseña incorrecta")
       if (data.bloqueado) setBloqueadoGlobal(true)
       setEstadoIntento("incorrecto")
-      setTimeout(() => setEstadoIntento("idle"), 900)
       return
     }
     setBloqueadoGlobal(false)
     setEstadoIntento("correcto")
     setMasterPassword(pinAcceso)
     cargar()
-    setTimeout(() => { setAcceso(true) }, 1500)
+    setTimeout(() => { setAcceso(true) }, 3000)
   }
 
   const cargar = async () => {
@@ -1473,7 +1472,7 @@ export default function ConfiguracionPage() {
               <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 26, height: 26 }} />
               Administrador
             </div>
-            <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
+            <input type="password" value={pinAcceso} onChange={e => { setPinAcceso(e.target.value); if (estadoIntento === "incorrecto") { setEstadoIntento("idle"); setErrorAcceso("") } }}
               onKeyDown={e => e.key === "Enter" && verificarAcceso()}
               placeholder="Contraseña del administrador"
               style={{ ...inputStyle, marginBottom: 8, fontSize: 14, padding: "13px 15px" }} />
@@ -1509,7 +1508,8 @@ export default function ConfiguracionPage() {
 
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando configuración...</div>
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", animation: "fadeInConfigPanel 0.6s ease" }}>
+      <style>{`@keyframes fadeInConfigPanel { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       {mensaje.texto && (
         <div style={{ padding: "10px 24px", background: mensaje.tipo === "error" ? "#fee2e2" : "#d1fae5", fontSize: 13, color: mensaje.tipo === "error" ? "#991b1b" : "#065f46", borderBottom: "1px solid #E5E7EB" }}>
           {mensaje.texto}

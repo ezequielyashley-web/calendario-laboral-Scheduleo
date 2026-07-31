@@ -1,0 +1,51 @@
+{
+  "framework": "Next.js 15 App Router",
+  "language": "TypeScript",
+  "styles": "Tailwind CSS",
+  "scope": "Modificar solo el Sidebar.",
+  "dimensions": {
+    "desktop": "320px",
+    "tablet": "288px",
+    "height": "100dvh",
+    "padding": "20px"
+  },
+  "colors": {
+    "top": "#F3F1FF",
+    "middle": "#EDEBFF",
+    "bottom": "#DFDCFF",
+    "primary": "#5B5CF6",
+    "dark": "#4F46E5",
+    "text": "#111827",
+    "secondary": "#46506A",
+    "section": "#5F6791",
+    "online": "#10B981"
+  },
+  "shadows": {
+    "sidebar": "0 18px 45px rgba(79,70,229,.18)",
+    "executive": "0 10px 22px rgba(79,70,229,.14)",
+    "profile": "0 9px 20px rgba(79,70,229,.12)",
+    "logout": "0 7px 14px rgba(79,70,229,.10)"
+  },
+  "radii": {
+    "sidebar": "28px",
+    "button": "18px",
+    "card": "20px"
+  },
+  "typography": {
+    "font": "Inter",
+    "brand": "28px 700",
+    "section": "12px 700 uppercase",
+    "item": "15px 600",
+    "status": "12px 600"
+  },
+  "routes": {
+    "assets": "/design-system/sidebar"
+  },
+  "rules": [
+    "No inventar iconos.",
+    "Usar sidebar-background.svg.",
+    "Usar active-menu-item.svg para el activo.",
+    "No tocar Header ni contenido principal.",
+    "Mantener las sombras indicadas."
+  ]
+}
