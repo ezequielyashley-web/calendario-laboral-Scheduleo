@@ -52,6 +52,7 @@ export async function PATCH(req: NextRequest) {
       const intentosActuales = (empresaActual[0]?.configIntentosFallidos || 0) + 1
       const bloqueadoAhora = intentosActuales >= 3
       await prisma.$executeRaw`UPDATE "Empresa" SET "configIntentosFallidos" = ${intentosActuales}, "configAccesoBloqueado" = ${bloqueadoAhora} WHERE id = ${"empresa-001"}`
+      revalidateTag("empresa", { expire: 0 })
 
       if (auth.userId !== admin.id) {
         const empleadoActual = await prisma.user.findUnique({ where: { id: auth.userId } })
@@ -77,6 +78,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     await prisma.$executeRaw`UPDATE "Empresa" SET "configIntentosFallidos" = 0, "configAccesoBloqueado" = false WHERE id = ${"empresa-001"}`
+    revalidateTag("empresa", { expire: 0 })
     resetRateLimit(rateLimitId)
 
     await prisma.$executeRaw`
