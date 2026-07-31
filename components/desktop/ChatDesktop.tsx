@@ -193,7 +193,7 @@ export default function ChatDesktop() {
         </div>
         <div style={{ display:"flex", borderBottom:"1px solid #dde3ea" }}>
           {[{k:"empleados",l:"Empleados"},{k:"chats",l:"Chats"},{k:"historial",l:"Historial"}].map(t => (
-            <button key={t.k} onClick={()=>setTab(t.k as any)} style={{ flex:1, padding:"8px 0", fontSize:11, border:"none", background:"none", cursor:"pointer", color:tab===t.k?"#3b82f6":"#6b7280", borderBottom:tab===t.k?"2px solid #3b82f6":"2px solid transparent", fontWeight:tab===t.k?600:400, display:"flex", alignItems:"center", justifyContent:"center", gap:4 }}>
+            <button key={t.k} onClick={()=>setTab(t.k as any)} style={{ flex:1, padding:"8px 0", fontSize:11, border:"none", background:"none", cursor:"pointer", color:tab===t.k?"var(--accent)":"#6b7280", borderBottom:tab===t.k?"2px solid var(--accent)":"2px solid transparent", fontWeight:tab===t.k?600:400, display:"flex", alignItems:"center", justifyContent:"center", gap:4 }}>
               {t.l}
               {t.k==="chats" && totalNoLeidos>0 && <span style={{ background:"#ef4444", color:"#fff", fontSize:9, fontWeight:700, minWidth:14, height:14, borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", padding:"0 3px" }}>{totalNoLeidos>9?"9+":totalNoLeidos}</span>}
               {t.k==="empleados" && solicitudes.length>0 && <span style={{ width:7, height:7, borderRadius:"50%", background:"#ef4444", display:"inline-block", marginTop:-6 }} />}
@@ -225,7 +225,7 @@ export default function ChatDesktop() {
                         {cnt>0?`${cnt} mensaje${cnt>1?"s":""} nuevo${cnt>1?"s":""}`:tieneChat?"Chat activo":tieneSolicitud?"Solicitud pendiente":emp.grupoNombre||"Sin grupo"}
                       </div>
                     </div>
-                    <span style={{ fontSize:10, background:tieneChat?"#f0fdf4":"#eff6ff", color:tieneChat?"#10b981":"#3b82f6", padding:"2px 8px", borderRadius:10, border:`1px solid ${tieneChat?"#bbf7d0":"#bfdbfe"}`, flexShrink:0 }}>
+                    <span style={{ fontSize:10, background:tieneChat?"#f0fdf4":"#eff6ff", color:tieneChat?"#10b981":"var(--accent)", padding:"2px 8px", borderRadius:10, border:`1px solid ${tieneChat?"#bbf7d0":"#bfdbfe"}`, flexShrink:0 }}>
                       {tieneChat?"Ver":"Iniciar"}
                     </span>
                   </div>
@@ -269,7 +269,7 @@ export default function ChatDesktop() {
                     <div style={{ fontSize:12, fontWeight:cnt>0?700:500, color:"#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{conv.nombre}</div>
                     <div style={{ fontSize:11, color:cnt>0?"#374151":"#6b7280", fontWeight:cnt>0?600:400, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", marginTop:1 }}>{conv.ultimoMensaje||"Sin mensajes"}</div>
                   </div>
-                  {conv.ultimoMensajeEn && <div style={{ fontSize:10, color:"#3b82f6", flexShrink:0 }}>{new Date(conv.ultimoMensajeEn).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})}</div>}
+                  {conv.ultimoMensajeEn && <div style={{ fontSize:10, color:"var(--accent)", flexShrink:0 }}>{new Date(conv.ultimoMensajeEn).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})}</div>}
                 </div>
               )})}
             </>
@@ -283,7 +283,7 @@ export default function ChatDesktop() {
                     style={{ flex:1, padding:"5px 8px", border:"1px solid #e2e8f0", borderRadius:6, fontSize:11, background:"#fff", color:"#374151" }} />
                   {filtroFecha && <button onClick={()=>setFiltroFecha("")} style={{ fontSize:11, padding:"4px 8px", background:"#fee2e2", color:"#dc2626", border:"none", borderRadius:6, cursor:"pointer" }}>✕</button>}
                 </div>
-                <button onClick={()=>setNuevaCom(true)} style={{ width:"100%", marginTop:6, padding:"6px", background:"#eff6ff", color:"#3b82f6", border:"1px solid #bfdbfe", borderRadius:7, fontSize:11, cursor:"pointer", fontWeight:500 }}>+ Nuevo aviso</button>
+                <button onClick={()=>setNuevaCom(true)} style={{ width:"100%", marginTop:6, padding:"6px", background:"#eff6ff", color:"var(--accent)", border:"1px solid #bfdbfe", borderRadius:7, fontSize:11, cursor:"pointer", fontWeight:500 }}>+ Nuevo aviso</button>
               </div>
               <div style={{ padding:"5px 12px", fontSize:10, fontWeight:700, color:"#6b7280", letterSpacing:"0.07em", background:"#e8edf2", borderBottom:"1px solid #dde3ea" }}>{comsFiltrados.length} AVISOS {filtroFecha?"EN ESTA FECHA":"EN TOTAL"}</div>
               {comsFiltrados.length === 0 ? (
@@ -318,7 +318,7 @@ export default function ChatDesktop() {
               <div style={{ padding:"10px 14px", background:"#fff", borderBottom:"1px solid #dde3ea", display:"flex", alignItems:"center", gap:10 }}>
                 {isMobile && (
                   <button onClick={()=>setConvActiva(null)} style={{ background:"none", border:"none", cursor:"pointer", padding:4, marginLeft:-4, display:"flex", alignItems:"center" }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </button>
                 )}
                 <Avatar nombre={convActiva.nombre||"?"} size={32} />
@@ -345,10 +345,10 @@ export default function ChatDesktop() {
                     <div key={m.id} style={{ display:"flex", gap:6, maxWidth:"80%", alignSelf:esMio?"flex-end":"flex-start", flexDirection:esMio?"row-reverse":"row" }}>
                       {!esMio && <Avatar nombre={m.autorNombre} size={24} />}
                       <div>
-                        <div style={{ padding:"7px 11px", borderRadius:esMio?"12px 4px 12px 12px":"4px 12px 12px 12px", background:esMio?"#673DE6":"#fff", color:esMio?"#fff":"#111827", fontSize:12, lineHeight:1.5, boxShadow:"0 1px 2px rgba(0,0,0,0.1)" }}>{m.contenido}</div>
+                        <div style={{ padding:"7px 11px", borderRadius:esMio?"12px 4px 12px 12px":"4px 12px 12px 12px", background:esMio?"var(--accent)":"#fff", color:esMio?"#fff":"#111827", fontSize:12, lineHeight:1.5, boxShadow:"0 1px 2px rgba(0,0,0,0.1)" }}>{m.contenido}</div>
                         <div style={{ fontSize:10, color:"#9ca3af", marginTop:2, textAlign:esMio?"right":"left" }}>
                           {new Date(m.creadoEn).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})}
-                          {esMio && <span style={{ color:"#673DE6", marginLeft:3 }}>✓✓</span>}
+                          {esMio && <span style={{ color:"var(--accent)", marginLeft:3 }}>✓✓</span>}
                         </div>
                       </div>
                     </div>
@@ -361,7 +361,7 @@ export default function ChatDesktop() {
                   placeholder="Escribe un mensaje..." autoComplete="off"
                   style={{ flex:1, background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:24, padding:"9px 16px", color:"#111827", fontSize:12, outline:"none" }} />
                 <button onClick={enviar} disabled={!texto.trim()}
-                  style={{ width:36, height:36, borderRadius:"50%", background:texto.trim()?"#3b82f6":"#e2e8f0", border:"none", cursor:texto.trim()?"pointer":"default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  style={{ width:36, height:36, borderRadius:"50%", background:texto.trim()?"var(--accent)":"#e2e8f0", border:"none", cursor:texto.trim()?"pointer":"default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={texto.trim()?"#fff":"#9ca3af"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
               </div>
@@ -466,7 +466,7 @@ export default function ChatDesktop() {
             </label>
             <div style={{ display:"flex", gap:8, justifyContent:"flex-end" }}>
               <button onClick={()=>setNuevaCom(false)} style={{ padding:"8px 16px", background:"#f9fafb", border:"1px solid #e2e8f0", borderRadius:8, fontSize:13, cursor:"pointer", color:"#374151" }}>Cancelar</button>
-              <button onClick={publicarCom} style={{ padding:"8px 16px", background:"#3b82f6", color:"#fff", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:500 }}>Publicar</button>
+              <button onClick={publicarCom} style={{ padding:"8px 16px", background:"var(--accent)", color:"#fff", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:500 }}>Publicar</button>
             </div>
           </div>
         </div>
