@@ -134,7 +134,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       <div
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
-        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#673DE6,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 4px 20px rgba(103,61,230,0.45)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
+        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 4px 20px rgba(103,61,230,0.45)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
         {/* Icono S de Scheduleo con rayo AI */}
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <text x="5" y="20" fontFamily="Arial Black, sans-serif" fontSize="18" fontWeight="900" fill="white">S</text>
@@ -148,7 +148,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
         <div className="ai-panel-responsive" style={{ position: "fixed", bottom: pos.y + 64, right: pos.x, width: 360, height: 480, background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)", border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
 
           {/* Header */}
-          <div style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
                 <text x="3" y="18" fontFamily="Arial Black, sans-serif" fontSize="16" fontWeight="900" fill="white">S</text>
@@ -182,11 +182,11 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
               if (accionMatch) { try { accionTipo = accionMatch[1]; accionDatos = JSON.parse(accionMatch[2]) } catch {} }
               return (
               <div key={i} style={{ display: "flex", justifyContent: m.rol === "user" ? "flex-end" : "flex-start" }}>
-                <div style={{ maxWidth: "82%", background: m.rol === "user" ? "linear-gradient(135deg,#673DE6,#8B5CF6)" : "#fff", border: m.rol === "user" ? "none" : "1px solid #E5E7EB", borderRadius: m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "9px 12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                <div style={{ maxWidth: "82%", background: m.rol === "user" ? "var(--chat-propio)" : "var(--chat-ajeno)", border: m.rol === "user" ? "none" : "1px solid #E5E7EB", borderRadius: m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "9px 12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                   <div style={{ fontSize: 13, color: m.rol === "user" ? "#fff" : "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", overflowWrap: "break-word" }}>{textoLimpio}</div>
                   {navRuta && navTexto && (
                     <button onClick={() => { if(navRuta) window.history.pushState({}, "", navRuta); window.dispatchEvent(new PopStateEvent("popstate")) }}
-                      style={{ marginTop: 8, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, width: "100%" }}>
+                      style={{ marginTop: 8, background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", color: "#fff", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, width: "100%" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                       {navTexto}
                     </button>
@@ -231,7 +231,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
             {cargando && (
               <div style={{ display: "flex", justifyContent: "flex-start" }}>
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: "12px 12px 12px 2px", padding: "10px 14px", display: "flex", gap: 4, alignItems: "center" }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#673DE6", animation: `bounce-dot 1.2s ease-in-out ${i*0.2}s infinite` }} />)}
+                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", animation: `bounce-dot 1.2s ease-in-out ${i*0.2}s infinite` }} />)}
                 </div>
               </div>
             )}
@@ -253,7 +253,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
             </button>
             <style>{`@keyframes pulse-mic { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }`}</style>
             <button onClick={enviar} disabled={cargando || !input.trim()}
-              style={{ width: 36, height: 36, background: "linear-gradient(135deg,#673DE6,#8B5CF6)", border: "none", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: !input.trim() ? 0.5 : 1, flexShrink: 0 }}>
+              style={{ width: 36, height: 36, background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", border: "none", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: !input.trim() ? 0.5 : 1, flexShrink: 0 }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
