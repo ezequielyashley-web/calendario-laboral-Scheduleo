@@ -1622,6 +1622,7 @@ export default function ConfiguracionPage() {
                   { key: "tema", label: "Tema", p: "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" },
                   { key: "fondo", label: "Fondo", p: "M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" },
                   { key: "menu", label: "Menu", p: "M3 12h18M3 6h18M3 18h18" },
+                  { key: "chat", label: "Chat", p: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
                 ].map(t => (
                   <button key={t.key} type="button" onClick={() => setSubApariencia(t.key)}
                     style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 8, cursor: "pointer", background: subApariencia === t.key ? "#673DE6" : "#fff", border: subApariencia === t.key ? "1px solid #673DE6" : "1px solid #E5E7EB" }}>
@@ -1771,6 +1772,32 @@ export default function ConfiguracionPage() {
                     <input type="range" min="0" max="100" value={empresa.fondoMenuOpacidad ?? 80} onChange={e => { const v = Number(e.target.value); set("fondoMenuOpacidad", v); setPreview({ fondoMenuOpacidad: v }) }} style={{ width: "100%", height: 4, marginBottom: 10 }} />
                     <label style={{ ...labelStyle, fontSize: 11 }}>Brillo de la imagen ({empresa.fondoMenuBrillo ?? 100}%)</label>
                     <input type="range" min="50" max="150" value={empresa.fondoMenuBrillo ?? 100} onChange={e => { const v = Number(e.target.value); set("fondoMenuBrillo", v); setPreview({ fondoMenuBrillo: v }) }} style={{ width: "100%", height: 4 }} />
+                  </div>
+                </div>
+              )}
+
+              {subApariencia === "chat" && (
+                <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                  <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Elige los dos tonos de las burbujas del chat (estilo WhatsApp): el color de tus propios mensajes y el de los mensajes de la otra persona. Se aplica igual en el chat real y en el chat de prueba de ScheduleoAI.</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+                    <div>
+                      <label style={labelStyle}>Tus mensajes</label>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <input type="color" value={empresa.chatColorPropio || "#2F63F4"} onChange={e => { set("chatColorPropio", e.target.value); setPreview({ chatColorPropio: e.target.value }) }} style={{ width: 44, height: 36, border: "1px solid #E5E7EB", borderRadius: 8, padding: 0, cursor: "pointer" }} />
+                        <input value={empresa.chatColorPropio || "#2F63F4"} onChange={e => { set("chatColorPropio", e.target.value); setPreview({ chatColorPropio: e.target.value }) }} style={{ ...inputStyle, flex: 1 }} />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Mensajes de la otra persona</label>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <input type="color" value={empresa.chatColorAjeno || "#ffffff"} onChange={e => { set("chatColorAjeno", e.target.value); setPreview({ chatColorAjeno: e.target.value }) }} style={{ width: 44, height: 36, border: "1px solid #E5E7EB", borderRadius: 8, padding: 0, cursor: "pointer" }} />
+                        <input value={empresa.chatColorAjeno || "#ffffff"} onChange={e => { set("chatColorAjeno", e.target.value); setPreview({ chatColorAjeno: e.target.value }) }} style={{ ...inputStyle, flex: 1 }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ background: "#e5ddd5", borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ alignSelf: "flex-start", background: empresa.chatColorAjeno || "#ffffff", color: "#111827", padding: "7px 11px", borderRadius: "4px 12px 12px 12px", fontSize: 12, maxWidth: "70%", boxShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>Hola, como va todo?</div>
+                    <div style={{ alignSelf: "flex-end", background: empresa.chatColorPropio || "#2F63F4", color: "#fff", padding: "7px 11px", borderRadius: "12px 4px 12px 12px", fontSize: 12, maxWidth: "70%", boxShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>Todo bien, gracias</div>
                   </div>
                 </div>
               )}
