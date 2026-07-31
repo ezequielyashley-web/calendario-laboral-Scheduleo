@@ -99,7 +99,7 @@ export default function EmpleadosPage() {
   const labelStyle = { display: "block", fontSize: 12, color: "#6b7280", marginBottom: 4, fontWeight: 500 }
 
   return (
-    <div className="empleados-responsive-wrap" style={{ padding: 24, maxWidth: 1200, margin: "0 auto", width: "100%" }}>
+    <div className="empleados-responsive-wrap" style={{ padding: 24, maxWidth: 1200, margin: "0 auto", width: "100%", background: "rgba(255,255,255,0.92)", borderRadius: 20, boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }}>
       <style>{`
         @media (max-width: 768px) {
           .empleados-responsive-wrap { padding: 14px !important; }
@@ -128,20 +128,20 @@ export default function EmpleadosPage() {
 
       <div className="empleados-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#6366f1", margin: 0 }}>Empleados</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--accent)", margin: 0 }}>Empleados</h1>
           <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>{empleados.length} empleados {modoDemo ? "de demostracion" : "en total"}</p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..." className="empleados-search-input"
             style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 14, width: 220, outline: "none" }} />
           <a href="/api/reportes/excel-empleados"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "9px 16px", fontSize: 13, fontWeight: 600, color: "#673DE6", textDecoration: "none", marginRight: 8 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent-dim)", border: "1px solid var(--accent)", borderRadius: 8, padding: "9px 16px", fontSize: 13, fontWeight: 600, color: "var(--accent)", textDecoration: "none", marginRight: 8 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Exportar a Excel
           </a>
           {!modoDemo && (
             <button onClick={() => setModalAlta(true)}
-              style={{ background: "#0369a1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+              style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
               + Nuevo empleado
             </button>
           )}
@@ -203,7 +203,7 @@ export default function EmpleadosPage() {
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: "100%", maxWidth: 600, maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <div>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0369a1", margin: 0 }}>Nuevo empleado real</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--accent)", margin: 0 }}>Nuevo empleado real</h2>
                 <p style={{ fontSize: 12, color: "#6b7280", margin: "4px 0 0" }}>Los datos sensibles se cifran con AES-256-GCM</p>
               </div>
               <button onClick={() => { setModalAlta(false); setForm(formInicial); setErrorAlta("") }}
@@ -316,7 +316,7 @@ export default function EmpleadosPage() {
                 Cancelar
               </button>
               <button onClick={crearEmpleado} disabled={guardando}
-                style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: guardando ? "#93c5fd" : "#0369a1", color: "#fff", fontSize: 14, fontWeight: 600, cursor: guardando ? "not-allowed" : "pointer" }}>
+                style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: guardando ? "#93c5fd" : "var(--accent)", color: "#fff", fontSize: 14, fontWeight: 600, cursor: guardando ? "not-allowed" : "pointer" }}>
                 {guardando ? "Guardando..." : "Crear empleado"}
               </button>
             </div>
