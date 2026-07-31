@@ -45,7 +45,7 @@ export default function DeudasPage() {
   }
 
   return (
-    <div className="deudas-responsive-wrap" style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+    <div className="deudas-responsive-wrap" style={{ padding: 24, maxWidth: 1100, margin: "0 auto", background: "rgba(255,255,255,0.92)", borderRadius: 20, boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }}>
       <style>{`
         @media (max-width: 768px) {
           .deudas-responsive-wrap { padding: 14px !important; }
@@ -60,6 +60,7 @@ export default function DeudasPage() {
       `}</style>
       <div className="deudas-header-responsive" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--accent)", margin: 0 }}>Deudas y Anticipos</h1>
           <p style={{ fontSize: 13, color: "#a0aec0", margin: "4px 0 0" }}>{empleadosConDeudas.length} empleados con deudas activas</p>
         </div>
         <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado..."
@@ -69,8 +70,8 @@ export default function DeudasPage() {
       <div className="deudas-kpis-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
         {[
           { label: "Total pendiente", valor: totalPendiente.toFixed(2) + "€", color: "#dc2626", bg: "#fee2e2" },
-          { label: "Anticipos", valor: totalAnticipos.toFixed(2) + "€", color: "#6366f1", bg: "#ede9fe" },
-          { label: "Productos", valor: totalProductos.toFixed(2) + "€", color: "#0284c7", bg: "#dbeafe" },
+          { label: "Anticipos", valor: totalAnticipos.toFixed(2) + "€", color: "var(--accent)", bg: "var(--accent-dim)" },
+          { label: "Productos", valor: totalProductos.toFixed(2) + "€", color: "var(--accent)", bg: "var(--accent-dim)" },
           { label: "Descuentos", valor: totalDescuentos.toFixed(2) + "€", color: "#d97706", bg: "#fef9c3" },
         ].map(k => (
           <div key={k.label} style={{ background: k.bg, borderRadius: 12, padding: "14px 16px" }}>
@@ -105,12 +106,12 @@ export default function DeudasPage() {
                   <tr key={e.id}
                     onClick={() => router.push(`/empleados/${e.id}?tab=deudas`)}
                     style={{ borderBottom: "0.5px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#fafafa", cursor: "pointer" }}
-                    onMouseEnter={el => el.currentTarget.style.background = "#f0f4ff"}
+                    onMouseEnter={el => el.currentTarget.style.background = "var(--accent-dim)"}
                     onMouseLeave={el => el.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"}
                   >
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
                           {e.nombre[0]}{e.apellidos[0]}
                         </div>
                         <div>
@@ -120,10 +121,10 @@ export default function DeudasPage() {
                       </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
-                      {pAnticipo > 0 ? <span style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                      {pAnticipo > 0 ? <span style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pAnticipo.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
                     </td>
                     <td style={{ padding: "12px 16px" }}>
-                      {pProducto > 0 ? <span style={{ background: "#dbeafe", color: "#0284c7", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
+                      {pProducto > 0 ? <span style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pProducto.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       {pDescuento > 0 ? <span style={{ background: "#fef9c3", color: "#d97706", padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>{pDescuento.toFixed(2)}€</span> : <span style={{ color: "#d1d5db" }}>—</span>}
