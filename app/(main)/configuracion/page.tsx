@@ -1431,7 +1431,7 @@ export default function ConfiguracionPage() {
 
   if (!acceso) {
     return (
-      <div style={{ position: "relative", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+      <div style={{ position: "relative", height: "100%", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flex: 1 }}>
         <style>{`
           @keyframes hex-trace-config { to { stroke-dashoffset: -270; } }
           @keyframes lock-float-pulse-config { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
