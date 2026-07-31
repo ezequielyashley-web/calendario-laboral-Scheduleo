@@ -243,7 +243,7 @@ export default function EmpleadosDesktop() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label:'Total empleados', value:empleadosData.length,                                    color:'#6366f1' },
+          { label:'Total empleados', value:empleadosData.length,                                    color:'var(--accent)' },
           { label:'Activos',         value:empleadosData.filter(e=>e.estado==='activo').length,     color:'#16a34a' },
           { label:'Vacaciones',      value:empleadosData.filter(e=>e.estado==='vacaciones').length, color:'#d97706' },
           { label:'De baja',         value:empleadosData.filter(e=>e.estado==='baja').length,       color:'#b91c1c' },
