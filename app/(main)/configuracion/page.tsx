@@ -1431,24 +1431,70 @@ export default function ConfiguracionPage() {
 
   if (!acceso) {
     return (
-      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 20, padding: 40, width: 380, textAlign: "center", boxShadow: "0 4px 24px rgba(99,102,241,0.08)" }}>
-          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 24 }}>
-            🔒
+      <div style={{ position: "relative", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+        <style>{`
+          @keyframes hex-spin-config { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          @keyframes lock-float-spin-config { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
+        `}</style>
+        <div style={{ position: "fixed", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
+        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 680, minHeight: 460, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 24, overflow: "hidden", background: "rgba(255,255,255,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.3)", boxShadow: "0 30px 80px rgba(15,23,42,0.25)" }}>
+
+          <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+            <div style={{ position: "relative", width: 88, height: 88, marginBottom: 20 }}>
+              <div style={{ position: "absolute", inset: 0, clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)", background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
+                <div style={{ position: "absolute", inset: "-60%", background: "conic-gradient(from 0deg, transparent 0deg 280deg, rgba(255,255,255,0.2) 320deg, rgba(255,255,255,0.95) 350deg, transparent 360deg)", animation: "hex-spin-config 2.2s linear infinite" }} />
+              </div>
+              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", animation: "lock-float-spin-config 3s ease-in-out infinite" }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 64 64" fill="none">
+                  <rect x="18" y="28" width="28" height="22" rx="5" stroke="#fff" strokeWidth="2.5"/>
+                  <path d="M24 28v-7a8 8 0 0 1 16 0v7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+                  <circle cx="32" cy="39" r="2.3" fill="#fff"/>
+                </svg>
+              </div>
+            </div>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Acceso restringido</h2>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: "0 0 24px", maxWidth: 200 }}>Esta sección requiere permisos elevados</p>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", gap: 6 }}>
+              <img src="/design-system/icons/icon-shield.svg" alt="" style={{ width: 14, height: 14, filter: "brightness(0) invert(1)" }} />
+              Zona de configuración avanzada · Solo personal autorizado
+            </div>
           </div>
-          <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1e1b4b", margin: "0 0 6px" }}>Acceso restringido</h2>
-          <p style={{ fontSize: 13, color: "#a0aec0", margin: "0 0 24px" }}>Esta sección requiere contraseña SUPER_ADMIN</p>
-          <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && verificarAcceso()}
-            placeholder="Contraseña master"
-            style={{ ...inputStyle, marginBottom: 12, textAlign: "center", fontSize: 16, letterSpacing: 4 }} />
-          {errorAcceso && (
-            <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
-          )}
-          <button onClick={verificarAcceso} disabled={verificando || !pinAcceso}
-            style={{ width: "100%", background: "#6366f1", color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1 }}>
-            {verificando ? "Verificando..." : "Acceder"}
-          </button>
+
+          <div style={{ padding: "40px 36px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--paleta-fondo)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <img src="/design-system/icons/icon-lock-circle.svg" alt="" style={{ width: 22, height: 22 }} />
+            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--paleta-texto)", margin: "0 0 6px" }}>Verificación de seguridad</h2>
+            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 14px" }}>Para continuar, verifica tu identidad con tu contraseña de administrador.</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--paleta-fondo)", color: "var(--accent)", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 600, width: "fit-content", marginBottom: 18 }}>
+              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 13, height: 13 }} />
+              Administrador
+            </div>
+            <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && verificarAcceso()}
+              placeholder="Contraseña master"
+              style={{ ...inputStyle, marginBottom: 12, fontSize: 14, padding: "12px 14px" }} />
+            {errorAcceso && (
+              <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
+            )}
+            <button onClick={verificarAcceso} disabled={verificando || !pinAcceso}
+              style={{ width: "100%", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 18 }}>
+              {verificando ? "Verificando..." : "Acceder"}
+              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 14, height: 14, filter: "brightness(0) invert(1)" }} />
+            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { icon: "icon-lock.svg", txt: "Acceso cifrado y protegido" },
+                { icon: "icon-shield-check.svg", txt: "Actividad registrada y monitoreada" },
+                { icon: "icon-people.svg", txt: "Permisos verificados" },
+              ].map(item => (
+                <div key={item.txt} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#64748B" }}>
+                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 14, height: 14 }} />
+                  {item.txt}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
