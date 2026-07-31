@@ -1,0 +1,43 @@
+{
+  "screen": "Acceso restringido — Configuración avanzada",
+  "route": "/configuracion/avanzada",
+  "framework": "Next.js 15 App Router",
+  "styles": "Tailwind CSS",
+  "basePath": "/design-system",
+  "assets": {
+    "background": "/design-system/backgrounds/workspace-bg-v1.png",
+    "leftPanel": "/design-system/security/access-left-panel.png",
+    "pattern": "/design-system/security/security-pattern.svg",
+    "divider": "/design-system/security/security-divider.svg",
+    "glow": "/design-system/security/security-glow.svg",
+    "icons": [
+      "/design-system/icons/icon-lock-circle.svg",
+      "/design-system/icons/icon-user.svg",
+      "/design-system/icons/icon-eye.svg",
+      "/design-system/icons/icon-shield.svg",
+      "/design-system/icons/icon-lock.svg",
+      "/design-system/icons/icon-shield-check.svg",
+      "/design-system/icons/icon-people.svg",
+      "/design-system/icons/icon-fingerprint.svg",
+      "/design-system/icons/icon-calendar.svg",
+      "/design-system/icons/icon-document.svg",
+      "/design-system/icons/icon-chart.svg",
+      "/design-system/icons/icon-location.svg",
+      "/design-system/icons/icon-arrow-right.svg"
+    ]
+  },
+  "colors": {
+    "primary": "#6366F1",
+    "primaryDark": "#4F46E5",
+    "primaryLight": "#A5B4FC",
+    "textPrimary": "#0F172A",
+    "textSecondary": "#64748B"
+  },
+  "implementationRules": [
+    "No redibujar ni sustituir los recursos.",
+    "Usar las rutas exactas indicadas.",
+    "Mantener el fondo fijo con object-cover.",
+    "Card principal con bg-white/85, backdrop-blur-xl, border-white/20 y radius 24px.",
+    "No modificar menú lateral ni header."
+  ]
+}
