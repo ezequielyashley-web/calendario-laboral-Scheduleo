@@ -1436,8 +1436,8 @@ export default function ConfiguracionPage() {
           @keyframes hex-trace-config { to { stroke-dashoffset: -270; } }
           @keyframes lock-float-pulse-config { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
         `}</style>
-        <div style={{ position: "fixed", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -2 }} />
-        <div style={{ position: "fixed", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.35), rgba(15,23,42,0.55))", zIndex: -1 }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -2 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.35), rgba(15,23,42,0.55))", zIndex: -1 }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, minHeight: 480, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 26, overflow: "hidden", background: "rgba(255,255,255,0.97)", border: "1px solid rgba(255,255,255,0.5)", boxShadow: "0 40px 100px rgba(0,0,0,0.45)" }}>
 
           <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
@@ -1465,13 +1465,10 @@ export default function ConfiguracionPage() {
           </div>
 
           <div style={{ padding: "44px 40px", display: "flex", flexDirection: "column", justifyContent: "center", background: "#fff", boxShadow: "-12px 0 30px rgba(0,0,0,0.05)", position: "relative", zIndex: 2 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 14, background: "var(--paleta-fondo)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-              <img src="/design-system/icons/icon-lock-circle.svg" alt="" style={{ width: 30, height: 30 }} />
-            </div>
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--paleta-texto)", margin: "0 0 6px" }}>Verificación de seguridad</h2>
             <p style={{ fontSize: 14, color: "#64748B", margin: "0 0 16px" }}>Para continuar, verifica tu identidad con tu contraseña de administrador.</p>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "var(--paleta-fondo)", color: "var(--accent)", borderRadius: 20, padding: "5px 14px", fontSize: 13, fontWeight: 600, width: "fit-content", marginBottom: 20 }}>
-              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 43, height: 43 }} />
+              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 20, height: 20 }} />
               Administrador
             </div>
             <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
@@ -1484,7 +1481,7 @@ export default function ConfiguracionPage() {
             <button onClick={verificarAcceso} disabled={verificando || !pinAcceso}
               style={{ width: "100%", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
               {verificando ? "Verificando..." : "Acceder"}
-              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
+              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 20, height: 20, filter: "brightness(0) invert(1)" }} />
             </button>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -1493,7 +1490,7 @@ export default function ConfiguracionPage() {
                 { icon: "icon-people.svg", txt: "Permisos verificados" },
               ].map(item => (
                 <div key={item.txt} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#64748B" }}>
-                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 48, height: 48 }} />
+                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 22, height: 22 }} />
                   {item.txt}
                 </div>
               ))}
