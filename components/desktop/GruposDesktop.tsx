@@ -200,7 +200,7 @@ export default function GruposDesktop() {
             </button>
           )}
           <button onClick={() => setShowHistorial(!showHistorial)}
-            style={{ background: showHistorial ? "#ede9fe" : "var(--surface-2)", color: showHistorial ? "#6d28d9" : "var(--text-secondary)", border: `1px solid ${showHistorial ? "#c4b5fd" : "var(--border-strong)"}`, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+            style={{ background: showHistorial ? "var(--accent-dim)" : "var(--surface-2)", color: showHistorial ? "var(--accent)" : "var(--text-secondary)", border: `1px solid ${showHistorial ? "var(--accent)" : "var(--border-strong)"}`, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
             📋 Historial {historial.length > 0 && `(${historial.length})`}
           </button>
 
@@ -356,7 +356,7 @@ export default function GruposDesktop() {
               <button onClick={() => { setPendiente(null); setMasterPassword(""); setErrorMaster("") }}
                 className="btn-secondary flex-1 py-2 text-sm">Cancelar</button>
               <button onClick={confirmarCambio} disabled={guardando}
-                style={{ flex: 1, padding: "8px", fontSize: 13, fontWeight: 700, background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>
+                style={{ flex: 1, padding: "8px", fontSize: 13, fontWeight: 700, background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>
                 {guardando ? "Guardando..." : "Confirmar cambio"}
               </button>
             </div>
@@ -379,7 +379,7 @@ export default function GruposDesktop() {
                   <span style={{ color: "#dc2626", fontWeight: 600, fontSize: 11 }}>{h.de}</span>
                   <span style={{ color: "var(--text-muted)" }}>→</span>
                   <span style={{ color: "#16a34a", fontWeight: 600, fontSize: 11 }}>{h.a}</span>
-                  <span style={{ marginLeft: "auto", background: h.tipo === "lunes" ? "#fef9c3" : "#ede9fe", color: h.tipo === "lunes" ? "#854d0e" : "#6d28d9", borderRadius: 4, padding: "1px 8px", fontSize: 10, fontWeight: 700 }}>
+                  <span style={{ marginLeft: "auto", background: h.tipo === "lunes" ? "#fef9c3" : "var(--accent-dim)", color: h.tipo === "lunes" ? "#854d0e" : "var(--accent)", borderRadius: 4, padding: "1px 8px", fontSize: 10, fontWeight: 700 }}>
                     {h.tipo === "lunes" ? "Lunes" : "Entre semana"}
                   </span>
                 </div>
