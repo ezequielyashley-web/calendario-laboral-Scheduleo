@@ -124,7 +124,7 @@ export default function ChatDesktop() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior:"smooth" }) }, [mensajes])
 
   const iniciarChat = async (emp: Empleado) => {
-    const convExistente = conversaciones.find(c => c.receptor_id === (emp.userId||emp.id) || c.solicitante_id === (emp.userId||emp.id))
+    const convExistente = [...conversaciones, ...solicitudes].find(c => c.receptor_id === (emp.userId||emp.id) || c.solicitante_id === (emp.userId||emp.id))
     if (convExistente) { setConvActiva(convExistente); setTab("chats"); return }
     const res = await fetch("/api/conversaciones", {
       method:"POST", headers:{"Content-Type":"application/json"},
@@ -209,7 +209,7 @@ export default function ChatDesktop() {
               {empsFiltrados.length === 0 ? (
                 <div style={{ padding:20, textAlign:"center", color:"#9ca3af", fontSize:12 }}><div style={{ fontSize:28, marginBottom:6 }}>👥</div>Cargando empleados...</div>
               ) : empsFiltrados.map(emp => {
-                const convEmp = conversaciones.find(c => c.receptor_id===(emp.userId||emp.id) || c.solicitante_id===(emp.userId||emp.id))
+                const convEmp = [...conversaciones, ...solicitudes].find(c => c.receptor_id===(emp.userId||emp.id) || c.solicitante_id===(emp.userId||emp.id))
                 const tieneChat = !!convEmp
                 const tieneSolicitud = empConSolicitud(emp)
                 const cnt = convEmp ? (noLeidos[convEmp.id] || 0) : 0
