@@ -1459,7 +1459,7 @@ export default function ConfiguracionPage() {
             <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Acceso restringido</h2>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210 }}>Esta sección requiere permisos elevados</p>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7 }}>
-              <img src="/design-system/icons/icon-shield.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
+              <img src="/design-system/icons/icon-fingerprint.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
               Zona de configuración avanzada · Solo personal autorizado
             </div>
           </div>
@@ -1468,20 +1468,21 @@ export default function ConfiguracionPage() {
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--paleta-texto)", margin: "0 0 6px" }}>Verificación de seguridad</h2>
             <p style={{ fontSize: 14, color: "#64748B", margin: "0 0 16px" }}>Para continuar, verifica tu identidad con tu contraseña de administrador.</p>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "var(--paleta-fondo)", color: "var(--accent)", borderRadius: 20, padding: "5px 14px", fontSize: 13, fontWeight: 600, width: "fit-content", marginBottom: 20 }}>
-              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 20, height: 20 }} />
+              <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 26, height: 26 }} />
               Administrador
             </div>
             <input type="password" value={pinAcceso} onChange={e => setPinAcceso(e.target.value)}
               onKeyDown={e => e.key === "Enter" && verificarAcceso()}
-              placeholder="Contraseña master"
-              style={{ ...inputStyle, marginBottom: 12, fontSize: 14, padding: "13px 15px" }} />
+              placeholder="Contraseña del administrador"
+              style={{ ...inputStyle, marginBottom: 8, fontSize: 14, padding: "13px 15px" }} />
+            <p style={{ fontSize: 11.5, color: "#94A3B8", margin: "0 0 12px" }}>Solo el administrador del sistema puede acceder aquí.</p>
             {errorAcceso && (
               <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
             )}
             <button onClick={verificarAcceso} disabled={verificando || !pinAcceso}
               style={{ width: "100%", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
               {verificando ? "Verificando..." : "Acceder"}
-              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 20, height: 20, filter: "brightness(0) invert(1)" }} />
+              <img src="/design-system/icons/icon-arrow-right.svg" alt="" style={{ width: 26, height: 26, filter: "brightness(0) invert(1)" }} />
             </button>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -1490,7 +1491,7 @@ export default function ConfiguracionPage() {
                 { icon: "icon-people.svg", txt: "Permisos verificados" },
               ].map(item => (
                 <div key={item.txt} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#64748B" }}>
-                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 22, height: 22 }} />
+                  <img src={"/design-system/icons/" + item.icon} alt="" style={{ width: 26, height: 26 }} />
                   {item.txt}
                 </div>
               ))}
