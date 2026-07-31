@@ -1210,6 +1210,8 @@ export default function ConfiguracionPage() {
   const [pinAcceso, setPinAcceso] = useState("")
   const [errorAcceso, setErrorAcceso] = useState("")
   const [verificando, setVerificando] = useState(false)
+  const [estadoIntento, setEstadoIntento] = useState<"idle"|"correcto"|"incorrecto">("idle")
+  const [bloqueadoGlobal, setBloqueadoGlobal] = useState(false)
   const [seccion, setSeccion] = useState("identidad")
   const [submenuColapsado, setSubmenuColapsado] = useState(false)
   const [mostrarInvitarModal, setMostrarInvitarModal] = useState(false)
@@ -1223,6 +1225,10 @@ export default function ConfiguracionPage() {
     return () => mql.removeEventListener("change", check)
   }, [submenuTocadoManual])
   const [empresa, setEmpresa] = useState<any>({})
+
+  useEffect(() => {
+    fetch("/api/empresa").then(r => r.json()).then(d => { if (d?.configAccesoBloqueado) setBloqueadoGlobal(true) }).catch(() => {})
+  }, [])
   const [loading, setLoading] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [masterPassword, setMasterPassword] = useState("")
@@ -1279,11 +1285,16 @@ export default function ConfiguracionPage() {
     setVerificando(false)
     if (data.error && data.error === "Contraseña incorrecta") {
       setErrorAcceso("Contraseña incorrecta")
+      if (data.bloqueado) setBloqueadoGlobal(true)
+      setEstadoIntento("incorrecto")
+      setTimeout(() => setEstadoIntento("idle"), 900)
       return
     }
-    setAcceso(true)
+    setBloqueadoGlobal(false)
+    setEstadoIntento("correcto")
     setMasterPassword(pinAcceso)
     cargar()
+    setTimeout(() => { setAcceso(true) }, 1500)
   }
 
   const cargar = async () => {
@@ -1430,11 +1441,14 @@ export default function ConfiguracionPage() {
   const labelStyle = { display: "block" as const, fontSize: 12, color: "#a0aec0", marginBottom: 4, fontWeight: 500 as const }
 
   if (!acceso) {
+    const colorEstado = estadoIntento === "correcto" ? "#22C55E" : estadoIntento === "incorrecto" ? "#EF4444" : "#ffffff"
+    const tituloEstado = estadoIntento === "correcto" ? "Bienvenido, Administrador" : estadoIntento === "incorrecto" ? "Acceso denegado" : "Acceso restringido"
     return (
       <div style={{ position: "relative", height: "100%", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flex: 1 }}>
         <style>{`
           @keyframes hex-trace-config { to { stroke-dashoffset: -270; } }
           @keyframes lock-float-pulse-config { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
+          @keyframes shake-lock-config { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
         `}</style>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -2 }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.35), rgba(15,23,42,0.55))", zIndex: -1 }} />
@@ -1445,10 +1459,10 @@ export default function ConfiguracionPage() {
               <svg width="110" height="110" viewBox="0 0 100 100" style={{ position: "absolute", inset: 0 }}>
                 <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="rgba(255,255,255,0.12)" />
                 <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
-                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                  strokeDasharray="50 220" style={{ animation: "hex-trace-config 2.6s linear infinite" }} />
+                <polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="none" stroke={colorEstado} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                  strokeDasharray="50 220" style={{ animation: "hex-trace-config 2.6s linear infinite", transition: "stroke 0.3s" }} />
               </svg>
-              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", animation: "lock-float-pulse-config 2.6s ease-in-out infinite" }}>
+              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="62" height="62" viewBox="0 0 64 64" fill="none">
                   <rect x="18" y="28" width="28" height="22" rx="5" stroke="#fff" strokeWidth="3"/>
                   <path d="M24 28v-7a8 8 0 0 1 16 0v7" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>
@@ -1456,7 +1470,7 @@ export default function ConfiguracionPage() {
                 </svg>
               </div>
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Acceso restringido</h2>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: estadoIntento === "incorrecto" ? "#F87171" : "#fff", margin: "0 0 8px", transition: "color 0.3s" }}>{tituloEstado}</h2>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210 }}>Esta sección requiere permisos elevados</p>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7 }}>
               <img src="/design-system/icons/icon-fingerprint.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
@@ -1478,6 +1492,9 @@ export default function ConfiguracionPage() {
             <p style={{ fontSize: 11.5, color: "#94A3B8", margin: "0 0 12px" }}>Solo el administrador del sistema puede acceder aquí.</p>
             {errorAcceso && (
               <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
+            )}
+            {bloqueadoGlobal && (
+              <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 12.5, marginBottom: 12, fontWeight: 600 }}>Acceso bloqueado tras varios intentos fallidos. Introduce la contraseña correcta del administrador para desbloquear.</div>
             )}
             <button onClick={verificarAcceso} disabled={verificando || !pinAcceso}
               style={{ width: "100%", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer", opacity: !pinAcceso ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
