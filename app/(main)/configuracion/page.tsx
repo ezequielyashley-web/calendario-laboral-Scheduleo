@@ -1212,6 +1212,7 @@ export default function ConfiguracionPage() {
   const [verificando, setVerificando] = useState(false)
   const [estadoIntento, setEstadoIntento] = useState<"idle"|"correcto"|"incorrecto">("idle")
   const [bloqueadoGlobal, setBloqueadoGlobal] = useState(false)
+  const [mostrarPinAcceso, setMostrarPinAcceso] = useState(false)
   const [seccion, setSeccion] = useState("identidad")
   const [submenuColapsado, setSubmenuColapsado] = useState(false)
   const [mostrarInvitarModal, setMostrarInvitarModal] = useState(false)
@@ -1442,6 +1443,8 @@ export default function ConfiguracionPage() {
   if (!acceso) {
     const colorEstado = estadoIntento === "correcto" ? "#22C55E" : estadoIntento === "incorrecto" ? "#EF4444" : "#ffffff"
     const tituloEstado = estadoIntento === "correcto" ? "Bienvenido, Administrador" : estadoIntento === "incorrecto" ? "Acceso denegado" : "Acceso restringido"
+    const subtituloEstado = estadoIntento === "correcto" ? "Bienvenido al panel de Configuración" : "Esta sección requiere permisos elevados"
+    const fondoPanelIzq = estadoIntento === "correcto" ? "linear-gradient(135deg,#BBF7D0,#86EFAC)" : estadoIntento === "incorrecto" ? "linear-gradient(135deg,#FECACA,#FCA5A5)" : "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))"
     return (
       <div style={{ position: "relative", height: "100%", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flex: 1 }}>
         <style>{`
@@ -1452,7 +1455,7 @@ export default function ConfiguracionPage() {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.35), rgba(15,23,42,0.55))", zIndex: -1 }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, minHeight: 480, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 26, overflow: "hidden", background: "rgba(255,255,255,0.97)", border: "1px solid rgba(255,255,255,0.5)", boxShadow: "0 40px 100px rgba(0,0,0,0.45)" }}>
 
-          <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+          <div style={{ background: fondoPanelIzq, transition: "background 0.3s", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
             <div style={{ position: "relative", width: 140, height: 140, marginBottom: 18 }}>
               <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : estadoIntento === "incorrecto" ? "/design-system/security/acceso-cerrado-rojo.png" : "/design-system/security/acceso-normal-azul.png"} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain", filter: estadoIntento === "correcto" ? "drop-shadow(0 0 22px rgba(34,197,94,0.85))" : estadoIntento === "incorrecto" ? "drop-shadow(0 0 22px rgba(239,68,68,0.85))" : "drop-shadow(0 0 22px rgba(59,130,246,0.85))", transition: "filter 0.3s", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
@@ -1472,10 +1475,15 @@ export default function ConfiguracionPage() {
               <img src="/design-system/icons/icon-user.svg" alt="" style={{ width: 26, height: 26 }} />
               Administrador
             </div>
-            <input type="password" value={pinAcceso} onChange={e => { setPinAcceso(e.target.value); if (estadoIntento === "incorrecto") { setEstadoIntento("idle"); setErrorAcceso("") } }}
-              onKeyDown={e => e.key === "Enter" && verificarAcceso()}
-              placeholder="Contraseña del administrador"
-              style={{ ...inputStyle, marginBottom: 8, fontSize: 14, padding: "13px 15px" }} />
+            <div style={{ position: "relative", marginBottom: 8 }}>
+              <input type={mostrarPinAcceso ? "text" : "password"} value={pinAcceso} onChange={e => { setPinAcceso(e.target.value); if (estadoIntento === "incorrecto") { setEstadoIntento("idle"); setErrorAcceso("") } }}
+                onKeyDown={e => e.key === "Enter" && verificarAcceso()}
+                placeholder="Contraseña del administrador"
+                style={{ ...inputStyle, marginBottom: 0, fontSize: 14, padding: "13px 42px 13px 15px" }} />
+              <button type="button" onClick={() => setMostrarPinAcceso(p => !p)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", opacity: 0.6 }} aria-label="Mostrar contraseña">
+                <img src="/design-system/icons/icon-eye.svg" alt="" style={{ width: 18, height: 18 }} />
+              </button>
+            </div>
             <p style={{ fontSize: 11.5, color: "#94A3B8", margin: "0 0 12px" }}>Solo el administrador del sistema puede acceder aquí.</p>
             {errorAcceso && (
               <div style={{ background: "#fee2e2", color: "#991b1b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 12 }}>{errorAcceso}</div>
