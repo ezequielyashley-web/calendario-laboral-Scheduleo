@@ -1454,8 +1454,8 @@ export default function ConfiguracionPage() {
 
           <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
             <div style={{ position: "relative", width: 140, height: 140, marginBottom: 18 }}>
-              <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : "/design-system/security/acceso-cerrado-rojo.png"} alt=""
-                style={{ width: "100%", height: "100%", objectFit: "contain", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
+              <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : estadoIntento === "incorrecto" ? "/design-system/security/acceso-cerrado-rojo.png" : "/design-system/security/acceso-normal-azul.png"} alt=""
+                style={{ width: "100%", height: "100%", objectFit: "contain", filter: estadoIntento === "correcto" ? "drop-shadow(0 0 22px rgba(34,197,94,0.85))" : estadoIntento === "incorrecto" ? "drop-shadow(0 0 22px rgba(239,68,68,0.85))" : "drop-shadow(0 0 22px rgba(59,130,246,0.85))", transition: "filter 0.3s", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
             </div>
             <h2 style={{ fontSize: 24, fontWeight: 800, color: estadoIntento === "incorrecto" ? "#F87171" : "#fff", margin: "0 0 8px", transition: "color 0.3s" }}>{tituloEstado}</h2>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210 }}>Esta sección requiere permisos elevados</p>
