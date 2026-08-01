@@ -1444,7 +1444,7 @@ export default function ConfiguracionPage() {
     const colorEstado = estadoIntento === "correcto" ? "#22C55E" : estadoIntento === "incorrecto" ? "#EF4444" : "#ffffff"
     const tituloEstado = estadoIntento === "correcto" ? "Bienvenido, Administrador" : estadoIntento === "incorrecto" ? "Acceso denegado" : "Acceso restringido"
     const subtituloEstado = estadoIntento === "correcto" ? "Bienvenido al panel de Configuración" : "Esta sección requiere permisos elevados"
-    const fondoPanelIzq = estadoIntento === "correcto" ? "linear-gradient(135deg,#BBF7D0,#86EFAC)" : estadoIntento === "incorrecto" ? "linear-gradient(135deg,#FECACA,#FCA5A5)" : "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))"
+    const fondoPanelIzq = estadoIntento === "correcto" ? "linear-gradient(135deg,#BBF7D0,#86EFAC)" : estadoIntento === "incorrecto" ? "linear-gradient(135deg,#F87171,#DC2626)" : "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))"
     return (
       <div style={{ position: "relative", height: "100%", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flex: 1 }}>
         <style>{`
@@ -1456,12 +1456,11 @@ export default function ConfiguracionPage() {
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, minHeight: 480, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 26, overflow: "hidden", background: "rgba(255,255,255,0.97)", border: "1px solid rgba(255,255,255,0.5)", boxShadow: "0 40px 100px rgba(0,0,0,0.45)" }}>
 
           <div style={{ background: fondoPanelIzq, transition: "background 0.3s", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-            <div style={{ position: "relative", width: 140, height: 140, marginBottom: 18 }}>
+            <div style={{ position: "relative", width: estadoIntento === "incorrecto" ? 170 : 140, height: estadoIntento === "incorrecto" ? 170 : 140, marginBottom: 18, transition: "width 0.3s, height 0.3s" }}>
               <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : estadoIntento === "incorrecto" ? "/design-system/security/acceso-cerrado-rojo.png" : "/design-system/security/acceso-normal-azul.png"} alt=""
-                style={{ width: "100%", height: "100%", objectFit: "contain", filter: estadoIntento === "correcto" ? "drop-shadow(0 0 22px rgba(34,197,94,0.85))" : estadoIntento === "incorrecto" ? "drop-shadow(0 0 22px rgba(239,68,68,0.85))" : "drop-shadow(0 0 22px rgba(59,130,246,0.85))", transition: "filter 0.3s", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
+                style={{ width: "100%", height: "100%", objectFit: "contain", filter: estadoIntento === "correcto" ? "drop-shadow(0 0 22px rgba(34,197,94,0.85))" : estadoIntento === "incorrecto" ? "drop-shadow(0 0 26px rgba(239,68,68,0.9))" : "drop-shadow(0 0 22px rgba(59,130,246,0.85))", transition: "filter 0.3s", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out, lock-float-pulse-config 2.6s ease-in-out infinite" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: estadoIntento === "incorrecto" ? "#F87171" : "#fff", margin: "0 0 8px", transition: "color 0.3s" }}>{tituloEstado}</h2>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210 }}>Esta sección requiere permisos elevados</p>
+            <p style={{ fontSize: 14, color: estadoIntento === "incorrecto" ? "#991B1B" : estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210, transition: "color 0.3s" }}>{subtituloEstado}</p>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7 }}>
               <img src="/design-system/icons/icon-fingerprint.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
               Zona de configuración avanzada · Solo personal autorizado
