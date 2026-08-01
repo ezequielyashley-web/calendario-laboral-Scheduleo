@@ -1294,7 +1294,7 @@ export default function ConfiguracionPage() {
     setEstadoIntento("correcto")
     setMasterPassword(pinAcceso)
     cargar()
-    setTimeout(() => { setAcceso(true) }, 3000)
+    setTimeout(() => { setAcceso(true) }, 4800)
   }
 
   const cargar = async () => {
@@ -1460,8 +1460,8 @@ export default function ConfiguracionPage() {
               <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : estadoIntento === "incorrecto" ? "/design-system/security/acceso-cerrado-rojo.png" : "/design-system/security/acceso-normal-azul.png"} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain", filter: estadoIntento === "correcto" ? "drop-shadow(0 0 22px rgba(34,197,94,0.85))" : estadoIntento === "incorrecto" ? "drop-shadow(0 0 26px rgba(239,68,68,0.9))" : "drop-shadow(0 0 22px rgba(59,130,246,0.85))", transition: "filter 0.3s", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out, lock-float-pulse-config 2.6s ease-in-out infinite" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
             </div>
-            <p style={{ fontSize: 14, color: estadoIntento === "incorrecto" ? "#991B1B" : estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210, transition: "color 0.3s" }}>{subtituloEstado}</p>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7 }}>
+            <p style={{ fontSize: 14, color: estadoIntento === "incorrecto" ? "#991B1B" : estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 210, transition: "color 0.3s", textShadow: estadoIntento === "incorrecto" ? "-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff" : estadoIntento === "correcto" ? "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" : "none" }}>{subtituloEstado}</p>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7, textShadow: estadoIntento === "incorrecto" ? "-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff" : estadoIntento === "correcto" ? "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" : "none" }}>
               <img src="/design-system/icons/icon-fingerprint.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
               Zona de configuración avanzada · Solo personal autorizado
             </div>
