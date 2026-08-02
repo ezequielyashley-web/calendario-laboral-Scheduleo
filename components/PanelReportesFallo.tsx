@@ -74,7 +74,7 @@ export default function PanelReportesFallo() {
       </p>
 
       <div style={{ marginBottom: 20 }}>
-        <InfoPanel titulo="Como funciona el Modo Pruebas" color="#673DE6" bg="#F1EEFE" border="#DDD6FE" items={[
+        <InfoPanel titulo="Como funciona el Modo Pruebas" color="var(--accent)" bg="var(--accent-dim)" border="var(--accent)" items={[
           { icon: "🧪", titulo: "Con Modo Demo encendido", desc: "El Modo Pruebas se activa solo, automaticamente. Cualquiera que pruebe la app con los 50 empleados ficticios vera el boton rojo de reportar fallos." },
           { icon: "🔴", titulo: "Con base de datos real", desc: "El Modo Pruebas NO se activa solo. Debes encenderlo manualmente aqui abajo cuando quieras que alguien pruebe con los datos reales de tu empresa." },
           { icon: "🐞", titulo: "Como reporta alguien un fallo", desc: "Mientras el Modo Pruebas este activo, aparece un boton flotante rojo en la esquina inferior izquierda de toda la app. Al tocarlo, describen el fallo y se envia aqui." },
@@ -98,7 +98,7 @@ export default function PanelReportesFallo() {
           onClick={toggleManual}
           disabled={modoDemo || guardandoToggle}
           title={modoDemo ? "Se activa solo mientras el Modo Demo esté encendido" : ""}
-          style={{ width: 46, height: 26, borderRadius: 20, border: "none", cursor: modoDemo ? "default" : "pointer", background: modoPruebasActivo ? "#673DE6" : "#E5E7EB", position: "relative", flexShrink: 0, opacity: modoDemo ? 0.6 : 1 }}>
+          style={{ width: 46, height: 26, borderRadius: 20, border: "none", cursor: modoDemo ? "default" : "pointer", background: modoPruebasActivo ? "var(--accent)" : "#E5E7EB", position: "relative", flexShrink: 0, opacity: modoDemo ? 0.6 : 1 }}>
           <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: modoPruebasActivo ? 23 : 3, transition: "left 0.15s" }} />
         </button>
       </div>
@@ -106,7 +106,7 @@ export default function PanelReportesFallo() {
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
         {[{ key: "todos", label: "Todos" }, ...ESTADOS].map(f => (
           <button key={f.key} onClick={() => setFiltro(f.key)}
-            style={{ padding: "7px 14px", fontSize: 12, fontWeight: 600, borderRadius: 8, cursor: "pointer", border: "1px solid #E5E7EB", background: filtro === f.key ? "#673DE6" : "#fff", color: filtro === f.key ? "#fff" : "#374151" }}>
+            style={{ padding: "7px 14px", fontSize: 12, fontWeight: 600, borderRadius: 8, cursor: "pointer", border: "1px solid #E5E7EB", background: filtro === f.key ? "var(--accent)" : "#fff", color: filtro === f.key ? "#fff" : "#374151" }}>
             {f.label}
           </button>
         ))}
