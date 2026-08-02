@@ -35,7 +35,7 @@ export default function ReportesDesktop() {
   if (!datos) return <div style={{ padding:40, textAlign:"center", color:"var(--text-muted)" }}>Cargando reportes...</div>
 
   return (
-    <div className="reportes-responsive-wrap" style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+    <div className="reportes-responsive-wrap" style={{ padding: 24, maxWidth: 1100, margin: "0 auto", background: "rgba(255,255,255,0.92)", borderRadius: 20, boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }}>
       <style>{`
         @media (max-width: 768px) {
           .reportes-responsive-wrap { padding: 14px !important; }
@@ -64,7 +64,7 @@ export default function ReportesDesktop() {
       {/* KPIs generales */}
       <div className="reportes-kpis-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
         {[
-          { label: "Empleados activos", valor: datos.totalEmpleados, color: "#6366f1", bg: "#f5f3ff" },
+          { label: "Empleados activos", valor: datos.totalEmpleados, color: "var(--accent)", bg: "var(--accent-dim)" },
           { label: "Fichajes del mes", valor: datos.fichajes.total, color: "#0891b2", bg: "#f0f9ff" },
           { label: "Días vacaciones aprobados", valor: datos.vacaciones.diasAprobados, color: "#16a34a", bg: "#f0fdf4" },
           { label: "Bajas activas", valor: datos.bajas.enCurso, color: "#dc2626", bg: "#fef2f2" },
@@ -80,7 +80,7 @@ export default function ReportesDesktop() {
       <div className="reportes-tabs-responsive" style={{ display: "flex", gap: 0, borderBottom: "2px solid #e2e8f0", marginBottom: 20 }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            style={{ padding: "10px 18px", border: "none", background: "none", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "#6366f1" : "#64748b", borderBottom: tab === t.key ? "2px solid #6366f1" : "2px solid transparent", marginBottom: -2, cursor: "pointer", whiteSpace: "nowrap" }}>
+            style={{ padding: "10px 18px", border: "none", background: "none", fontSize: 13, fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? "var(--accent)" : "#64748b", borderBottom: tab === t.key ? "2px solid var(--accent)" : "2px solid transparent", marginBottom: -2, cursor: "pointer", whiteSpace: "nowrap" }}>
             {t.label}
           </button>
         ))}
@@ -91,8 +91,8 @@ export default function ReportesDesktop() {
         <>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
           <button onClick={() => visorPDF.abrir("/api/reportes/pdf-fichajes")}
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 600, color: "#673DE6", cursor: "pointer" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent-dim)", border: "1px solid var(--accent)", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 600, color: "var(--accent)", cursor: "pointer" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Descargar fichajes en PDF
           </button>
         </div>
