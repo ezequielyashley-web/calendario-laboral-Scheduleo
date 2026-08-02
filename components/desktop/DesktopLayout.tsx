@@ -402,8 +402,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
         .light-mode .nav-section-label { color: #9CA3AF !important; }
         .nav-item { display:flex; align-items:center; gap:10px; padding:7px 10px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:400; color:var(--sidebar-text); transition:background 0.15s; cursor:pointer; }
-        .nav-item:hover { background:var(--sidebar-hover); }
-        .nav-item.active { background:var(--sidebar-active); font-weight:500; }
+        .nav-item { display:flex; align-items:center; gap:12px; height:48px; padding:0 20px; border-radius:0; text-decoration:none; font-size:15px; font-weight:600; color:#1E1B4B; transition:all 0.2s ease; cursor:pointer; position:relative; }
+        .nav-item:hover { background:var(--paleta-fondo); color:var(--paleta-acento); }
+        .nav-item.active { background:var(--paleta-fondo); color:var(--paleta-acento); font-weight:700; }
+        .nav-item.active::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--paleta-acento); border-radius:0 4px 4px 0; }
         .nav-label { white-space:nowrap; overflow:hidden; transition:opacity 0.2s, width 0.2s; }
       `}</style>
 
