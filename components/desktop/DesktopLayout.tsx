@@ -406,6 +406,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         .nav-item:hover { background:var(--paleta-fondo); color:var(--paleta-acento); }
         .nav-item.active { background:var(--paleta-fondo); color:var(--paleta-acento); font-weight:700; }
         .nav-item.active::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--paleta-acento); border-radius:0 4px 4px 0; }
+        @media (max-width: 1024px) and (min-width: 768px) { .sidebar-nuevo { width:288px !important; } }
         .nav-label { white-space:nowrap; overflow:hidden; transition:opacity 0.2s, width 0.2s; }
       `}</style>
 
@@ -414,7 +415,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       )}
       <aside style={{ width: 320, background: 'transparent', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s', overflow:'hidden', margin: 0, borderRadius: 0,
           boxShadow: '0 18px 45px rgba(79,70,229,0.18)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : '100vh', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
-          className={isLight ? 'light-mode' : ''}>
+          className={`sidebar-nuevo ${isLight ? 'light-mode' : ''}`}>
           <div style={{ position:'absolute', inset:0, background: 'linear-gradient(180deg, #ffffff, var(--paleta-fondo))', zIndex:0 }} />
           <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
 
