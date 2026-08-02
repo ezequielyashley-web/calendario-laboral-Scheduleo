@@ -91,13 +91,13 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
     <div>
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
         <button onClick={() => setVistaLog(false)}
-          style={{ padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: !vistaLog ? 600 : 400, color: !vistaLog ? "#6366f1" : "#718096", background: !vistaLog ? "#ede9fe" : "#f3f4f6", cursor: "pointer" }}>
+          style={{ padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: !vistaLog ? 600 : 400, color: !vistaLog ? "var(--accent)" : "#718096", background: !vistaLog ? "var(--accent-dim)" : "#f3f4f6", cursor: "pointer" }}>
           Tokens activos
         </button>
         <button onClick={() => setVistaLog(true)}
-          style={{ padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: vistaLog ? 600 : 400, color: vistaLog ? "#6366f1" : "#718096", background: vistaLog ? "#ede9fe" : "#f3f4f6", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+          style={{ padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 13, fontWeight: vistaLog ? 600 : 400, color: vistaLog ? "var(--accent)" : "#718096", background: vistaLog ? "var(--accent-dim)" : "#f3f4f6", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
           Log de accesos
-          {log.length > 0 && <span style={{ background: "#6366f1", color: "#fff", borderRadius: 20, fontSize: 10, padding: "1px 6px", fontWeight: 700 }}>{log.length}</span>}
+          {log.length > 0 && <span style={{ background: "var(--accent)", color: "#fff", borderRadius: 20, fontSize: 10, padding: "1px 6px", fontWeight: 700 }}>{log.length}</span>}
         </button>
       </div>
 
@@ -163,7 +163,7 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
                       <div style={{ display: "flex", gap: 8 }}>
                         {!expirado && (
                           <button onClick={() => copiar(urlInspeccion(t.token))}
-                            style={{ background: "#f0f4ff", color: "#6366f1", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
+                            style={{ background: "#f0f4ff", color: "var(--accent)", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
                             Copiar URL
                           </button>
                         )}
@@ -192,7 +192,7 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
                 <div key={i} style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: "14px 16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#6366f1" }}></div>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)" }}></div>
                       <span style={{ fontSize: 13, fontWeight: 500, color: "#1e1b4b" }}>Token: {l.token}</span>
                       <span style={{ fontSize: 11, color: "#a0aec0" }}>IP: {l.ip}</span>
                     </div>
@@ -216,7 +216,7 @@ function GenerarToken({ masterPassword }: { masterPassword: string }) {
                     <div style={{ fontSize: 11, color: "#a0aec0", marginBottom: 6 }}>Secciones consultadas</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       {[...new Set(l.secciones)].map((s: any) => (
-                        <span key={s} style={{ background: "#ede9fe", color: "#6366f1", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>
+                        <span key={s} style={{ background: "var(--accent-dim)", color: "var(--accent)", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>
                           {seccionLabel(s)}
                         </span>
                       ))}
@@ -293,15 +293,15 @@ function SeccionIMAP() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 20 }}><input type="checkbox" id="tls" checked={form.tls} onChange={e => setForm(p => ({ ...p, tls: e.target.checked }))} /><label htmlFor="tls" style={{ fontSize: 13, color: "#1e1b4b", cursor: "pointer" }}>Usar TLS/SSL</label></div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={testConexion} disabled={testando || !form.host || !form.user} style={{ background: "#f0f4ff", color: "#6366f1", border: "1px solid #c7d2fe", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{testando ? "Probando..." : "Probar conexion"}</button>
-          <button onClick={guardar} disabled={loading} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{loading ? "Guardando..." : "Guardar configuracion"}</button>
+          <button onClick={testConexion} disabled={testando || !form.host || !form.user} style={{ background: "#f0f4ff", color: "var(--accent)", border: "1px solid #c7d2fe", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{testando ? "Probando..." : "Probar conexion"}</button>
+          <button onClick={guardar} disabled={loading} style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{loading ? "Guardando..." : "Guardar configuracion"}</button>
         </div>
       </div>
       <div style={{ background: "#fff", border: "0.5px solid #e8eaf0", borderRadius: 12, padding: 24 }}>
         <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e1b4b", margin: "0 0 12px" }}>Como funciona y pasos para activarlo</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[
-            { n: "1", color: "#6366f1", t: "Crea un buzon dedicado", d: "Crea un email especifico (ej: bajas@tuempresa.com) en tu proveedor de hosting para recibir los partes del INSS." },
+            { n: "1", color: "var(--accent)", t: "Crea un buzon dedicado", d: "Crea un email especifico (ej: bajas@tuempresa.com) en tu proveedor de hosting para recibir los partes del INSS." },
             { n: "2", color: "#0891b2", t: "Registralo en Sistema RED", d: "En el portal de la Seguridad Social indica ese email como destinatario de comunicaciones IT de tu empresa." },
             { n: "3", color: "#16a34a", t: "Introduce las credenciales aqui", d: "Rellena el formulario, pulsa Probar conexion y si es correcto guarda la configuracion." },
             { n: "4", color: "#d97706", t: "Recibe partes automaticamente", d: "Scheduleo leera el email cada 30 min. Cuando el INSS envie un parte lo registrara y te enviara notificacion push." },
@@ -403,7 +403,7 @@ function SeccionDemo() {
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
               <button onClick={() => setConfirmacion(null)} style={{ background: "#F3F4F6", color: "#374151", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, cursor: "pointer" }}>Cancelar</button>
               <button onClick={confirmacion === "activarDemo" ? activarDemo : activarReal} disabled={guardando}
-                style={{ background: confirmacion === "activarDemo" ? "#F59E0B" : "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                style={{ background: confirmacion === "activarDemo" ? "#F59E0B" : "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 {guardando ? "Procesando..." : "Confirmar"}
               </button>
             </div>
@@ -430,9 +430,9 @@ function SeccionDemo() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
 
         {/* BD Real */}
-        <div style={{ background: "#fff", border: modoActual === "real" ? "2px solid #673DE6" : "1px solid #E5E7EB", borderRadius: 14, padding: 20, position: "relative", transition: "all 0.2s" }}>
+        <div style={{ background: "#fff", border: modoActual === "real" ? "2px solid var(--accent)" : "1px solid #E5E7EB", borderRadius: 14, padding: 20, position: "relative", transition: "all 0.2s" }}>
           {modoActual === "real" && (
-            <div style={{ position: "absolute", top: 12, right: 12, background: "#673DE6", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>ACTIVA</div>
+            <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>ACTIVA</div>
           )}
           <div style={{ fontSize: 24, marginBottom: 10 }}>🏢</div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 6 }}>Base de datos real</div>
@@ -486,7 +486,7 @@ function SeccionDemo() {
             "Solo una base de datos puede estar activa a la vez.",
           ].map((txt, i) => (
             <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: "#6B7280" }}>
-              <span style={{ color: "#673DE6", fontWeight: 700, flexShrink: 0 }}>✓</span>
+              <span style={{ color: "var(--accent)", fontWeight: 700, flexShrink: 0 }}>✓</span>
               {txt}
             </div>
           ))}
@@ -555,16 +555,16 @@ function SeccionSeguridad() {
             {[['0','Nunca'],['30','30d'],['60','60d'],['90','90d'],['180','180d']].map(([val, label]) => (
               <button key={val} onClick={() => guardar(val)} disabled={guardando}
                 style={{ padding: '8px 14px', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-                  background: expiracion === val ? '#6366f1' : '#fff',
+                  background: expiracion === val ? 'var(--accent)' : '#fff',
                   color: expiracion === val ? '#fff' : '#475569',
-                  border: expiracion === val ? '1px solid #6366f1' : '1px solid #e2e8f0',
+                  border: expiracion === val ? '1px solid var(--accent)' : '1px solid #e2e8f0',
                   boxShadow: expiracion === val ? '0 4px 12px rgba(99,102,241,0.3)' : 'none' }}>
                 {label}
               </button>
             ))}
           </div>
           {expiracion !== '0' && (
-            <div style={{ marginTop: 10, fontSize: 11, color: '#6366f1', background: '#ede9fe', padding: '7px 12px', borderRadius: 8 }}>
+            <div style={{ marginTop: 10, fontSize: 11, color: 'var(--accent)', background: 'var(--accent-dim)', padding: '7px 12px', borderRadius: 8 }}>
               Los usuarios deberan cambiar su contrasena cada {expiracion} dias. Se les avisara 7 dias antes.
             </div>
           )}
@@ -728,7 +728,7 @@ function SeccionPlan() {
         </div>
       )}
 
-      <div style={{ background: "#F5F3FF", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16, fontSize: 12.5, color: "#4C1D95", lineHeight: 1.6 }}>
+      <div style={{ background: "var(--accent-dim)", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16, fontSize: 12.5, color: "#4C1D95", lineHeight: 1.6 }}>
         <strong>¿Que es esto?</strong> El plan de tu empresa determina cuantos empleados reales puedes tener registrados a la vez en Scheduleo. Al llegar al limite de tu plan, el sistema bloqueara la creacion de nuevos empleados hasta que liberes plazas (dando de baja a alguien) o cambies a un plan superior. Los empleados de demostracion no cuentan para este limite.
       </div>
 
@@ -736,10 +736,10 @@ function SeccionPlan() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: ".07em" }}>Plan actual</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#673DE6", marginTop: 4 }}>{NOMBRES[planActual] || planActual}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "var(--accent)", marginTop: 4 }}>{NOMBRES[planActual] || planActual}</div>
           </div>
           {!editando && (
-            <button onClick={() => setEditando(true)} style={{ background: "#F5F3FF", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, color: "#673DE6", cursor: "pointer" }}>Cambiar plan (manual)</button>
+            <button onClick={() => setEditando(true)} style={{ background: "var(--accent-dim)", border: "1px solid var(--accent)", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, color: "var(--accent)", cursor: "pointer" }}>Cambiar plan (manual)</button>
           )}
         </div>
 
@@ -750,7 +750,7 @@ function SeccionPlan() {
           </div>
           {limite !== Infinity && (
             <div style={{ height: 8, background: "#F3F4F6", borderRadius: 999 }}>
-              <div style={{ width: `${porcentaje}%`, height: "100%", background: porcentaje >= 90 ? "#DC2626" : "#673DE6", borderRadius: 999, transition: "width 0.3s" }} />
+              <div style={{ width: `${porcentaje}%`, height: "100%", background: porcentaje >= 90 ? "#DC2626" : "var(--accent)", borderRadius: 999, transition: "width 0.3s" }} />
             </div>
           )}
         </div>
@@ -772,7 +772,7 @@ function SeccionPlan() {
             <input type="password" value={masterPassword} onChange={e => setMasterPassword(e.target.value)} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 12, boxSizing: "border-box" as const }} placeholder="Confirma con tu contrasena maestra" />
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => { setEditando(false); setMasterPassword(""); setNuevoPlan(planActual) }} style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
-              <button onClick={guardarPlan} disabled={guardando} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>{guardando ? "Guardando..." : "Guardar"}</button>
+              <button onClick={guardarPlan} disabled={guardando} style={{ flex: 1, background: "var(--accent)", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardando ? 0.6 : 1 }}>{guardando ? "Guardando..." : "Guardar"}</button>
             </div>
           </div>
         )}
@@ -797,7 +797,7 @@ function SeccionPlan() {
             <textarea value={mensajeSolicitud} onChange={e => setMensajeSolicitud(e.target.value)} rows={2} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, marginBottom: 10, boxSizing: "border-box" as const, fontFamily: "inherit", resize: "vertical" as const }} placeholder="Cuentanos algo si quieres" />
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setSolicitando(false)} style={{ flex: 1, background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
-              <button onClick={enviarSolicitud} disabled={enviandoSolicitud} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: enviandoSolicitud ? 0.6 : 1 }}>{enviandoSolicitud ? "Enviando..." : "Enviar solicitud"}</button>
+              <button onClick={enviarSolicitud} disabled={enviandoSolicitud} style={{ flex: 1, background: "var(--accent)", border: "none", borderRadius: 8, padding: 9, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: enviandoSolicitud ? 0.6 : 1 }}>{enviandoSolicitud ? "Enviando..." : "Enviar solicitud"}</button>
             </div>
           </div>
         )}
@@ -829,7 +829,7 @@ function SeccionPlan() {
                     {clavesGeneradas[s.id]}
                   </div>
                 ) : (
-                  <button onClick={() => generarClave(s)} disabled={generandoClaveId === s.id} style={{ marginTop: 8, background: "#673DE6", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 11.5, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: generandoClaveId === s.id ? 0.6 : 1 }}>
+                  <button onClick={() => generarClave(s)} disabled={generandoClaveId === s.id} style={{ marginTop: 8, background: "var(--accent)", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 11.5, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: generandoClaveId === s.id ? 0.6 : 1 }}>
                     {generandoClaveId === s.id ? "Generando..." : "Generar clave de activacion"}
                   </button>
                 )}
@@ -954,7 +954,7 @@ function SeccionAI() {
       )}
 
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg,#3C3489,#673DE6)", borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ background: "linear-gradient(135deg,#3C3489,var(--accent))", borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
@@ -992,7 +992,7 @@ function SeccionAI() {
           else if (estado?.tieneKey) { etiquetaEstado = "Sin verificar"; colorEstado = "#92400E"; bgEstado = "#FEF3C7" }
 
           return (
-            <div key={p.id} style={{ background: "#fff", border: esActivo ? "2px solid #673DE6" : "1px solid #E5E7EB", borderRadius: 12, padding: 16 }}>
+            <div key={p.id} style={{ background: "#fff", border: esActivo ? "2px solid var(--accent)" : "1px solid #E5E7EB", borderRadius: 12, padding: 16 }}>
               <div onClick={() => setConfig((c: any) => ({ ...c, proveedor: p.id, modelo: p.modelos[0] }))} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 28, height: 28, borderRadius: 8, background: p.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: p.color }}>{p.letra}</div>
@@ -1010,7 +1010,7 @@ function SeccionAI() {
                     placeholder="Pega tu API key aqui" style={{ width: "100%", padding: "8px 10px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 12, fontFamily: "monospace", marginBottom: 8, boxSizing: "border-box" as const }} />
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => setEditando(null)} style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E5E7EB", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>Cancelar</button>
-                    <button onClick={() => guardarClave(p.id)} disabled={guardandoClave[p.id]} style={{ flex: 1, background: "#673DE6", border: "none", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardandoClave[p.id] ? 0.6 : 1 }}>
+                    <button onClick={() => guardarClave(p.id)} disabled={guardandoClave[p.id]} style={{ flex: 1, background: "var(--accent)", border: "none", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", opacity: guardandoClave[p.id] ? 0.6 : 1 }}>
                       {guardandoClave[p.id] ? "Guardando..." : "Guardar clave"}
                     </button>
                   </div>
@@ -1021,7 +1021,7 @@ function SeccionAI() {
                     {estado?.tieneKey ? "Editar clave" : "Anadir clave"}
                   </button>
                   {estado?.tieneKey && (
-                    <button onClick={() => probarConexion(p.id)} disabled={probando[p.id]} style={{ flex: 1, background: "#EEEDFE", border: "1px solid #673DE6", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#3C3489", cursor: "pointer", opacity: probando[p.id] ? 0.6 : 1 }}>
+                    <button onClick={() => probarConexion(p.id)} disabled={probando[p.id]} style={{ flex: 1, background: "#EEEDFE", border: "1px solid var(--accent)", borderRadius: 8, padding: 7, fontSize: 12, fontWeight: 600, color: "#3C3489", cursor: "pointer", opacity: probando[p.id] ? 0.6 : 1 }}>
                       {probando[p.id] ? "Probando..." : "Probar conexion"}
                     </button>
                   )}
@@ -1036,7 +1036,7 @@ function SeccionAI() {
       <div style={{ background: "#fff", border: "1px solid #DDD6FE", borderRadius: 12, padding: 16 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#7C3AED", textTransform: "uppercase" as const, letterSpacing: ".07em", marginBottom: 10 }}>Modelo activo</div>
         <select value={config?.modelo || ""} onChange={e => setConfig((c: any) => ({ ...c, modelo: e.target.value }))}
-          style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #673DE6", borderRadius: 8, fontSize: 13, color: "#673DE6", fontWeight: 600, background: "#F5F3FF", outline: "none" }}>
+          style={{ width: "100%", padding: "9px 12px", border: "1.5px solid var(--accent)", borderRadius: 8, fontSize: 13, color: "var(--accent)", fontWeight: 600, background: "var(--accent-dim)", outline: "none" }}>
           {proveedorActual.modelos.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
@@ -1044,14 +1044,14 @@ function SeccionAI() {
       {/* Probar el asistente en vivo */}
       <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#673DE6" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>Probar el asistente en vivo</span>
           <span style={{ fontSize: 11, color: "#9CA3AF" }}>(usa {proveedorActual.label} · {config?.modelo})</span>
         </div>
         <div style={{ background: "#F8FAFC", borderRadius: 8, padding: 12, minHeight: 70, maxHeight: 220, overflowY: "auto" as const, marginBottom: 10, display: "flex", flexDirection: "column" as const, gap: 10 }}>
           {historialPrueba.length === 0 && <div style={{ fontSize: 12, color: "#9CA3AF", textAlign: "center" as const }}>Escribe un mensaje para probar el asistente</div>}
           {historialPrueba.map((m, i) => m.rol === "user" ? (
-            <div key={i} style={{ alignSelf: "flex-end", background: "#673DE6", color: "#fff", fontSize: 12, padding: "7px 12px", borderRadius: "10px 10px 0 10px", maxWidth: "75%" }}>{m.texto}</div>
+            <div key={i} style={{ alignSelf: "flex-end", background: "var(--accent)", color: "#fff", fontSize: 12, padding: "7px 12px", borderRadius: "10px 10px 0 10px", maxWidth: "75%" }}>{m.texto}</div>
           ) : (
             <div key={i} style={{ display: "flex", alignItems: "flex-end", gap: 8, alignSelf: "flex-start" }}>
               <div className="robot-pensando-icono" style={{ width: 26, height: 26, borderRadius: 8, background: "#EEEDFE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -1073,7 +1073,7 @@ function SeccionAI() {
         <div style={{ display: "flex", gap: 8 }}>
           <input value={mensajePrueba} onChange={e => setMensajePrueba(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarPrueba()}
             placeholder="Escribe un mensaje de prueba..." style={{ flex: 1, border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 12px", fontSize: 12, outline: "none" }} />
-          <button onClick={enviarPrueba} disabled={enviandoPrueba} style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer", opacity: enviandoPrueba ? 0.6 : 1 }}>Enviar</button>
+          <button onClick={enviarPrueba} disabled={enviandoPrueba} style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer", opacity: enviandoPrueba ? 0.6 : 1 }}>Enviar</button>
         </div>
       </div>
 
@@ -1085,7 +1085,7 @@ function SeccionAI() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {[
-            { label: "Consultas hoy", valor: uso.consultas, color: "#673DE6", bg: "#F5F3FF" },
+            { label: "Consultas hoy", valor: uso.consultas, color: "var(--accent)", bg: "var(--accent-dim)" },
             { label: "Tokens usados", valor: uso.tokens.toLocaleString(), color: "#10B981", bg: "#F0FDF4" },
             { label: "Coste estimado", valor: "$0", color: "#D97706", bg: "#FEF9C3" },
           ].map((item, i) => (
@@ -1099,7 +1099,7 @@ function SeccionAI() {
 
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button onClick={guardarConfiguracion} disabled={guardando}
-          style={{ background: "#673DE6", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", opacity: guardando ? 0.7 : 1 }}>
+          style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", opacity: guardando ? 0.7 : 1 }}>
           {guardando ? "Guardando..." : "Guardar cambios"}
         </button>
       </div>
@@ -1146,7 +1146,7 @@ function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any,
   return (
     <div style={{ background: "linear-gradient(135deg,#1e1b4b,#312e81)", borderRadius: 16, padding: 24, color: "#fff" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👑</div>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👑</div>
         <div>
           <div style={{ fontSize: 16, fontWeight: 700 }}>Administrador</div>
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>Acceso total al sistema</div>
@@ -1169,7 +1169,7 @@ function SuperAdminCard({ usuario, onCambiarEmail, onResetPwd }: { usuario: any,
               placeholder="Introduce tu contrasena master"
               style={{ flex: 1, padding: "9px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 13, outline: "none" }} />
             <button onClick={verificarPin}
-              style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+              style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
               Ver mis datos
             </button>
           </div>
@@ -1551,7 +1551,7 @@ export default function ConfiguracionPage() {
             ].map(s => (
               <TooltipIconWrap key={s.key} texto={s.label} activo={submenuColapsado}>
               <button onClick={() => setSeccion(s.key)}
-                style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
+                style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "var(--accent)" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid var(--accent)" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
                 <svg width={submenuColapsado ? 20 : 14} height={submenuColapsado ? 20 : 14} style={{ transition: "all 0.15s", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
                 {!submenuColapsado && s.label}
               </button>
@@ -1572,7 +1572,7 @@ export default function ConfiguracionPage() {
             ].map(s => (
               <TooltipIconWrap key={s.key} texto={s.label} activo={submenuColapsado}>
               <button onClick={() => setSeccion(s.key)}
-                style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "#673DE6" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid #673DE6" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
+                style={{ width: "100%", textAlign: "left", padding: submenuColapsado ? "10px 0" : "9px 12px", border: "none", borderRadius: 8, fontSize: 12, fontWeight: seccion === s.key ? 600 : 400, color: seccion === s.key ? "var(--accent)" : "#6B7280", background: seccion === s.key ? "#fff" : "transparent", cursor: "pointer", marginBottom: 2, borderLeft: seccion === s.key ? "3px solid var(--accent)" : "3px solid transparent", display: "flex", alignItems: "center", justifyContent: submenuColapsado ? "center" : "flex-start", gap: 8 }}>
                 <svg width={submenuColapsado ? 20 : 14} height={submenuColapsado ? 20 : 14} style={{ transition: "all 0.15s", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={s.p} /></svg>
                 {!submenuColapsado && s.label}
               </button>
@@ -1591,7 +1591,7 @@ export default function ConfiguracionPage() {
           <button
             className="config-back-link"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            style={{ display: "none", marginBottom: 14, background: "#F1EEFE", color: "#673DE6", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", alignItems: "center", gap: 6 }}>
+            style={{ display: "none", marginBottom: 14, background: "#F1EEFE", color: "var(--accent)", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", alignItems: "center", gap: 6 }}>
             ← Volver a secciones
           </button>
 
@@ -1685,7 +1685,7 @@ export default function ConfiguracionPage() {
                   { key: "chat", label: "Chat", p: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
                 ].map(t => (
                   <button key={t.key} type="button" onClick={() => setSubApariencia(t.key)}
-                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 8, cursor: "pointer", background: subApariencia === t.key ? "#673DE6" : "#fff", border: subApariencia === t.key ? "1px solid #673DE6" : "1px solid #E5E7EB" }}>
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 8, cursor: "pointer", background: subApariencia === t.key ? "var(--accent)" : "#fff", border: subApariencia === t.key ? "1px solid var(--accent)" : "1px solid #E5E7EB" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={subApariencia === t.key ? "#fff" : "#6B7280"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.p} /></svg>
                     <span style={{ fontSize: 13, fontWeight: 600, color: subApariencia === t.key ? "#fff" : "#374151" }}>{t.label}</span>
                   </button>
@@ -1695,7 +1695,7 @@ export default function ConfiguracionPage() {
               {subApariencia === "identidad" && (
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                   <div style={{ background: empresa.colorSidebar || "#2d2b55", padding: "20px 24px", display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 10, background: empresa.colorAccent || "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 10, background: empresa.colorAccent || "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
                       {empresa.logo ? <img src={empresa.logo} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ color: "#fff", fontSize: 18, fontWeight: 700 }}>{(empresa.nombreComercial || empresa.nombre || "E")[0]?.toUpperCase()}</span>}
                     </div>
                     <div>
@@ -1870,7 +1870,7 @@ export default function ConfiguracionPage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }}>
                 {[
                   { label: "Estado licencia", valor: empresa.licenciaActiva ? "Activa" : "Inactiva", color: empresa.licenciaActiva ? "#059669" : "#dc2626", bg: empresa.licenciaActiva ? "#d1fae5" : "#fee2e2" },
-                  { label: "Expira el", valor: empresa.licenciaExpira ? new Date(empresa.licenciaExpira).toLocaleDateString("es-ES") : "Sin fecha", color: "#6366f1", bg: "#ede9fe" },
+                  { label: "Expira el", valor: empresa.licenciaExpira ? new Date(empresa.licenciaExpira).toLocaleDateString("es-ES") : "Sin fecha", color: "var(--accent)", bg: "var(--accent-dim)" },
                   { label: "Máx. empleados", valor: empresa.maxEmpleados || 100, color: "#0284c7", bg: "#dbeafe" },
                 ].map(k => (
                   <div key={k.label} style={{ background: k.bg, borderRadius: 12, padding: "16px 20px", textAlign: "center" }}>
@@ -1911,10 +1911,10 @@ export default function ConfiguracionPage() {
               <ListaSolicitudesPendientes />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 500, color: "#1e1b4b", margin: 0 }}>Gestión de usuarios</h2>
-                <button onClick={() => abrirModal("crear")} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+                <button onClick={() => abrirModal("crear")} style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
                   + Solicitar usuario gerencial
                 </button>
-                <button onClick={() => setMostrarInvitarModal(true)} style={{ background: "#fff", color: "#673DE6", border: "1px solid #673DE6", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: 8 }}>
+                <button onClick={() => setMostrarInvitarModal(true)} style={{ background: "#fff", color: "var(--accent)", border: "1px solid var(--accent)", borderRadius: 8, padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: 8 }}>
                   Invitar por correo
                 </button>
               </div>
@@ -1971,7 +1971,7 @@ export default function ConfiguracionPage() {
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#F59E0B" }} />
                 <span style={{ fontSize: 11, color: "#9CA3AF" }}>Cambios pendientes de guardar</span>
               </div>
-              <button onClick={guardar} disabled={guardando} style={{ background: "linear-gradient(135deg,#673DE6,#8B5CF6)", color: "#fff", border: "none", borderRadius: 9, padding: "10px 26px", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 2px 8px rgba(103,61,230,0.3)" }}>
+              <button onClick={guardar} disabled={guardando} style={{ background: "linear-gradient(135deg,var(--accent),var(--accent-hover))", color: "#fff", border: "none", borderRadius: 9, padding: "10px 26px", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 2px 8px rgba(103,61,230,0.3)" }}>
                 {guardando ? "Guardando..." : "Guardar cambios"}
               </button>
             </div>
@@ -2001,7 +2001,7 @@ export default function ConfiguracionPage() {
             <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>Revisa bien todos los datos antes de enviar. Una vez enviada no podras modificarla.</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, letterSpacing: "0.05em" }}>DATOS PERSONALES</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", marginBottom: 10, letterSpacing: "0.05em" }}>DATOS PERSONALES</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
                   <div><span style={{ color: "#94a3b8" }}>Nombre: </span><strong>{form.nombre} {form.apellidos}</strong></div>
                   <div><span style={{ color: "#94a3b8" }}>Email: </span><strong>{form.email}</strong></div>
@@ -2010,7 +2010,7 @@ export default function ConfiguracionPage() {
                 </div>
               </div>
               <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, letterSpacing: "0.05em" }}>DATOS DEL PUESTO</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", marginBottom: 10, letterSpacing: "0.05em" }}>DATOS DEL PUESTO</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
                   <div><span style={{ color: "#94a3b8" }}>Cargo: </span><strong>{form.cargo}</strong></div>
                   {form.departamento && <div><span style={{ color: "#94a3b8" }}>Depto: </span><strong>{form.departamento}</strong></div>}
@@ -2021,7 +2021,7 @@ export default function ConfiguracionPage() {
                 </div>
               </div>
               <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, letterSpacing: "0.05em" }}>ACCESO AL SISTEMA</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", marginBottom: 10, letterSpacing: "0.05em" }}>ACCESO AL SISTEMA</div>
                 {form.permisos && Object.keys(form.permisos).filter(k => form.permisos[k]).length > 0 ? (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {Object.keys(form.permisos).filter(k => form.permisos[k]).map(k => (
@@ -2034,7 +2034,7 @@ export default function ConfiguracionPage() {
               </div>
               {form.mensaje && (
                 <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 6 }}>NOTAS</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", marginBottom: 6 }}>NOTAS</div>
                   <div style={{ fontSize: 13, color: "#374151" }}>{form.mensaje}</div>
                 </div>
               )}
@@ -2046,7 +2046,7 @@ export default function ConfiguracionPage() {
               <button onClick={() => setShowRevision(false)} style={{ background: "#f8fafc", color: "#374151", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer" }}>
                 Volver y editar
               </button>
-              <button onClick={enviarSolicitud} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              <button onClick={enviarSolicitud} style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                 Confirmar y enviar solicitud
               </button>
             </div>
@@ -2077,7 +2077,7 @@ export default function ConfiguracionPage() {
             )}
             {modal.tipo === "crear" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "70vh", overflowY: "auto", paddingRight: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em" }}>DATOS PERSONALES</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", letterSpacing: "0.08em" }}>DATOS PERSONALES</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={labelStyle}>Nombre *</label><input value={form.nombre||""} onChange={e=>setForm((p:any)=>({...p,nombre:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Carlos"/></div>
                   <div><label style={labelStyle}>Apellidos *</label><input value={form.apellidos||""} onChange={e=>setForm((p:any)=>({...p,apellidos:e.target.value.replace(/\b\w/g,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Garcia Lopez"/></div><div><label style={labelStyle}>Nombre de usuario *</label><input value={form.username||""} onChange={e=>setForm((p:any)=>({...p,username:e.target.value}))} style={inputStyle} placeholder="Ej: juanp"/>{comprobandoUsername&&<div style={{fontSize:11,color:"#6b7280"}}>Comprobando...</div>}{!comprobandoUsername&&usernameError&&<div style={{fontSize:11,color:"#ef4444"}}>{usernameError}</div>}{!comprobandoUsername&&!usernameError&&form.username&&<div style={{fontSize:11,color:"#16a34a"}}>Disponible</div>}</div>
@@ -2085,7 +2085,7 @@ export default function ConfiguracionPage() {
                   <div><label style={labelStyle}>Telefono</label><input value={form.telefono||""} onChange={e=>setForm((p:any)=>({...p,telefono:e.target.value.replace(/[^0-9+\s]/g,"")}))} style={inputStyle} placeholder="Ej: 600 000 000" maxLength={15}/></div>
                   <div><label style={labelStyle}>DNI / NIE</label><input value={form.dni||""} onChange={e=>setForm((p:any)=>({...p,dni:e.target.value.toUpperCase()}))} style={{...inputStyle,borderColor:form.dni&&!/^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/.test(form.dni)?"#ef4444":"var(--border)"}} placeholder="Ej: 12345678A" maxLength={9}/>{form.dni&&!/^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/.test(form.dni)&&<div style={{fontSize:11,color:"#ef4444"}}>Formato invalido</div>}</div>
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>DATOS DEL PUESTO</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", letterSpacing: "0.08em", marginTop: 6 }}>DATOS DEL PUESTO</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={labelStyle}>Cargo / Puesto *</label><input value={form.cargo||""} onChange={e=>setForm((p:any)=>({...p,cargo:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Director de area"/></div>
                   <div><label style={labelStyle}>Departamento *</label><input value={form.departamento||""} onChange={e=>setForm((p:any)=>({...p,departamento:e.target.value.replace(/^\w/,(c:string)=>c.toUpperCase())}))} style={inputStyle} placeholder="Ej: Recursos humanos"/></div><div><label style={labelStyle}>Rol</label><select value={form.rol||"GERENCIAL"} onChange={e=>setForm((p:any)=>({...p,rol:e.target.value}))} style={{...inputStyle,cursor:"pointer"}}><option value="GERENCIAL">Agente gerencial</option><option value="SUPER_ADMIN">Administrador</option></select></div>
@@ -2113,7 +2113,7 @@ export default function ConfiguracionPage() {
                     </select>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "10px 14px", marginTop: 6 }}><div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>Activacion automatica</div><div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>La cuenta se activara de inmediato, sin pasar por la aprobacion manual habitual.</div></div><input type="checkbox" checked={!!form.activacionAutomatica} onChange={e=>setForm((p:any)=>({...p,activacionAutomatica:e.target.checked}))} style={{ cursor: "pointer", width: 18, height: 18, flexShrink: 0, marginLeft: 12 }} /></div><div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", marginTop: 6 }}>ACCESO AL SISTEMA</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "10px 14px", marginTop: 6 }}><div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>Activacion automatica</div><div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>La cuenta se activara de inmediato, sin pasar por la aprobacion manual habitual.</div></div><input type="checkbox" checked={!!form.activacionAutomatica} onChange={e=>setForm((p:any)=>({...p,activacionAutomatica:e.target.checked}))} style={{ cursor: "pointer", width: 18, height: 18, flexShrink: 0, marginLeft: 12 }} /></div><div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", letterSpacing: "0.08em", marginTop: 6 }}>ACCESO AL SISTEMA</div>
                 <div style={{ background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
                   {/* Header */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0" }}>
@@ -2141,12 +2141,12 @@ export default function ConfiguracionPage() {
                     return (
                       <div key={p.modulo} style={{ display: "grid", gridTemplateColumns: "1fr 100px 100px", borderBottom: i < 11 ? "1px solid #e2e8f0" : "none", background: i % 2 === 0 ? "#fff" : "#f8fafc" }}>
                         <div style={{ padding: "10px 14px", fontSize: 13, fontWeight: activo ? 600 : 400, color: activo ? "#0f172a" : "#475569", display: "flex", alignItems: "center", gap: 8 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: activo ? "#6366f1" : "#e2e8f0", flexShrink: 0 }} />
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: activo ? "var(--accent)" : "#e2e8f0", flexShrink: 0 }} />
                           {p.modulo}
                         </div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
-                          <input type="checkbox" checked={tieneVer} onChange={e=>setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.ver]:e.target.checked}}))} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#6366f1" }} />
-                          <span style={{ fontSize: 9, fontWeight: 700, color: tieneVer ? "#6366f1" : "#e2e8f0" }}>{tieneVer ? "ON" : "OFF"}</span>
+                          <input type="checkbox" checked={tieneVer} onChange={e=>setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.ver]:e.target.checked}}))} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "var(--accent)" }} />
+                          <span style={{ fontSize: 9, fontWeight: 700, color: tieneVer ? "var(--accent)" : "#e2e8f0" }}>{tieneVer ? "ON" : "OFF"}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2, padding: "6px 0" }}>
                           <input type="checkbox" checked={tieneMod} onChange={e=>{const v=e.target.checked;setForm((prev:any)=>({...prev,permisos:{...prev.permisos,[p.mod]:v,...(v?{[p.ver]:true}:{})}}))}} style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#0284c7" }} />
@@ -2223,7 +2223,7 @@ export default function ConfiguracionPage() {
                     else if (modal.tipo === "borrar") borrarUsuario()
                     else accionUsuario(modal.tipo, modal.usuario)
                   }}
-                  style={{ background: modal.tipo === "borrar" ? "#dc2626" : "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
+                  style={{ background: modal.tipo === "borrar" ? "#dc2626" : "var(--accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
                   Confirmar
                 </button>
               )}
