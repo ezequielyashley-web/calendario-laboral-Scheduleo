@@ -187,6 +187,27 @@ const menuSections = [
   ]},
 ]
 
+function IconoMenuSidebar({ href, size = 26 }: { href: string, size?: number }) {
+  const p = { width: size, height: size, viewBox: "0 0 64 64", fill: "none" as const, stroke: "currentColor", strokeWidth: 2.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const }
+  switch (href) {
+    case '/dashboard': return <svg {...p}><rect x="10" y="10" width="16" height="16" rx="2"/><rect x="38" y="10" width="16" height="16" rx="2"/><rect x="10" y="38" width="16" height="16" rx="2"/><rect x="38" y="38" width="16" height="16" rx="2"/></svg>
+    case '/empleados': return <svg {...p}><circle cx="25" cy="22" r="7"/><circle cx="42" cy="25" r="6"/><path d="M10 48c2-8 7-12 15-12s13 4 15 12M36 38c7 0 11 4 13 10"/></svg>
+    case '/calendario-global': return <svg {...p}><rect x="12" y="16" width="40" height="36" rx="5"/><path d="M12 26h40M22 10v12M42 10v12"/></svg>
+    case '/fichajes': return <svg {...p}><circle cx="32" cy="32" r="22"/><path d="M32 18v15l10 6"/></svg>
+    case '/grupos': return <svg {...p}><circle cx="24" cy="23" r="6"/><circle cx="42" cy="25" r="5"/><path d="M11 47c2-7 6-10 13-10s11 3 13 10M37 38c6 0 10 3 12 9"/></svg>
+    case '/libranzas': return <svg {...p}><rect x="12" y="16" width="36" height="34" rx="5"/><path d="M12 25h36M21 10v11M39 10v11M38 42h12M44 36l6 6-6 6"/></svg>
+    case '/cobertura': return <svg {...p}><path d="M32 7 49 14v14c0 12-7 22-17 28-10-6-17-16-17-28V14L32 7Z"/></svg>
+    case '/vacaciones': return <svg {...p}><path d="M12 38 50 18M18 16l6 8M29 12l4 7M13 40l8 6M44 20l8 6M23 33 14 50"/></svg>
+    case '/cambios-turno': return <svg {...p}><path d="M16 22h30l-7-7M48 42H18l7 7M48 22V14M16 42v8"/></svg>
+    case '/bajas': return <svg {...p}><path d="M8 34h11l5-14 8 28 6-14h18"/></svg>
+    case '/chat': return <svg {...p}><path d="M12 14h40v28H25L14 51V42h-2V14Z"/></svg>
+    case '/deudas': return <svg {...p}><path d="M32 10v44M43 18H27a8 8 0 0 0 0 16h10a8 8 0 0 1 0 16H21"/></svg>
+    case '/reportes': return <svg {...p} strokeWidth={3}><path d="M16 50V34M28 50V24M40 50V14M52 50V30"/></svg>
+    case '/configuracion': return <svg {...p}><circle cx="32" cy="32" r="8"/><path d="M32 8v7M32 49v7M8 32h7M49 32h7M15 15l5 5M44 44l5 5M49 15l-5 5M20 44l-5 5"/></svg>
+    default: return null
+  }
+}
+
 const pageTitles: Record<string, string> = {
   '/dashboard':         'Dashboard',
   '/empleados':         'Empleados',
@@ -456,7 +477,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
                   >
-                    <span style={{ flexShrink:0, opacity: isActive ? 1 : (isLight ? 0.8 : 0.75), fontSize: isLight ? '21px' : 'inherit' }}>{item.icon}</span>
+                    <span style={{ flexShrink:0, color: isActive ? "var(--paleta-acento)" : "#6B7280", display:"flex" }}><IconoMenuSidebar href={item.href} /></span>
                     {open && <span className="nav-label">{item.label}</span>}
                     {item.href === '/notificaciones' && noLeidas > 0 && (
                       <span style={{ marginLeft:'auto', background:'#dc2626', color:'#fff', borderRadius:'50%', fontSize:10, fontWeight:700, minWidth:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>
