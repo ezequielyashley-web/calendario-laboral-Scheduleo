@@ -1681,7 +1681,6 @@ export default function ConfiguracionPage() {
                   { key: "identidad", label: "Identidad", p: "M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7" },
                   { key: "tema", label: "Tema", p: "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" },
                   { key: "fondo", label: "Fondo", p: "M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" },
-                  { key: "menu", label: "Menu", p: "M3 12h18M3 6h18M3 18h18" },
                   { key: "chat", label: "Chat", p: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
                 ].map(t => (
                   <button key={t.key} type="button" onClick={() => setSubApariencia(t.key)}
@@ -1795,46 +1794,6 @@ export default function ConfiguracionPage() {
                 </div>
               )}
 
-              {subApariencia === "menu" && (
-                <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                  <div style={{ position: "relative", height: 70, overflow: "hidden", background: empresa.colorSidebar || "#2d2b55" }}>
-                    {empresa.fondoMenu && (
-                      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${empresa.fondoMenu})`, backgroundSize: "cover", backgroundPosition: "center", filter: `brightness(${empresa.fondoMenuBrillo ?? 100}%)` }} />
-                    )}
-                    <div style={{ position: "absolute", inset: 0, background: `rgba(0,0,0,${1 - (empresa.fondoMenuOpacidad ?? 80) / 100})` }} />
-                    <div style={{ position: "relative", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>Asi se vera el menu lateral, en vivo</span>
-                    </div>
-                  </div>
-                  <div style={{ padding: 20 }}>
-                    <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 14px" }}>Sube una imagen de fondo para el menu lateral, independiente del fondo del contenido, con su propio tono y brillo.</p>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: "1px solid #E5E7EB", backgroundImage: empresa.fondoMenu ? `url(${empresa.fondoMenu})` : undefined, background: empresa.fondoMenu ? undefined : "#f3f4f6", backgroundSize: "cover", backgroundPosition: "center" }} />
-                      <label htmlFor="fondoMenuUpload" style={{ flex: 1, border: "2px dashed #D1D5DB", borderRadius: 8, padding: "8px 10px", textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: "#4B5563" }}>Subir fondo del menu</span>
-                        <span style={{ fontSize: 10, color: "#9CA3AF", marginLeft: 6 }}>PNG, JPG o WEBP - Max 4MB</span>
-                      </label>
-                      <input id="fondoMenuUpload" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" style={{ display: "none" }}
-                        onChange={async e => {
-                          const file = e.target.files?.[0]
-                          if (!file) return
-                          if (file.size > 4 * 1024 * 1024) { mostrarMensaje("La imagen no puede superar 4MB", "error"); return }
-                          const formData = new FormData()
-                          formData.append("file", file)
-                          const res = await fetch("/api/empresa/fondo", { method: "POST", body: formData })
-                          const data = await res.json()
-                          if (data.error) { mostrarMensaje(data.error, "error"); return }
-                          set("fondoMenu", data.url)
-                          setPreview({ fondoMenu: data.url })
-                        }} />
-                    </div>
-                    <label style={{ ...labelStyle, fontSize: 11 }}>Tono del overlay ({empresa.fondoMenuOpacidad ?? 80}%)</label>
-                    <input type="range" min="0" max="100" value={empresa.fondoMenuOpacidad ?? 80} onChange={e => { const v = Number(e.target.value); set("fondoMenuOpacidad", v); setPreview({ fondoMenuOpacidad: v }) }} style={{ width: "100%", height: 4, marginBottom: 10 }} />
-                    <label style={{ ...labelStyle, fontSize: 11 }}>Brillo de la imagen ({empresa.fondoMenuBrillo ?? 100}%)</label>
-                    <input type="range" min="50" max="150" value={empresa.fondoMenuBrillo ?? 100} onChange={e => { const v = Number(e.target.value); set("fondoMenuBrillo", v); setPreview({ fondoMenuBrillo: v }) }} style={{ width: "100%", height: 4 }} />
-                  </div>
-                </div>
-              )}
 
               {subApariencia === "chat" && (
                 <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
