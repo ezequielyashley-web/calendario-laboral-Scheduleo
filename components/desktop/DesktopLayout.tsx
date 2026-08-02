@@ -417,6 +417,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           boxShadow: '15px 0 45px rgba(79,70,229,0.35), 6px 0 15px rgba(79,70,229,0.2)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : '100vh', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={`sidebar-nuevo ${isLight ? 'light-mode' : ''}`}>
           <div style={{ position:'absolute', inset:0, background: 'linear-gradient(180deg, #ffffff, var(--paleta-fondo))', zIndex:0 }} />
+          <svg style={{ position:"absolute", inset:0, zIndex:0, pointerEvents:"none" }} width="100%" height="100%" viewBox="0 0 360 1200" preserveAspectRatio="none"><defs><radialGradient id="sbGlow"><stop stopColor="#fff" stopOpacity=".8"/><stop offset="1" stopColor="#fff" stopOpacity="0"/></radialGradient></defs><ellipse cx="300" cy="220" rx="260" ry="300" fill="url(#sbGlow)" /><path d="M-30 390C80 320 160 500 390 400" stroke="#fff" strokeOpacity=".18" strokeWidth="50" fill="none" /><path d="M-20 720C120 640 220 830 390 740" stroke="#fff" strokeOpacity=".12" strokeWidth="44" fill="none" /></svg>
           <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
 
         {/* Nombre empresa */}
