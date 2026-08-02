@@ -440,9 +440,9 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           <Link href="/panel-ejecutivo" style={{
             display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", height: 64, boxSizing: "border-box",
             borderRadius: 18, textDecoration: "none",
-            background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)",
-            border: "1px solid var(--paleta-fondo)",
-            boxShadow: "0 10px 22px rgba(79,70,229,.14)"
+            background: "rgba(255,255,255,0.9)", backdropFilter: "blur(12px)",
+            border: "1.5px solid var(--paleta-acento)",
+            boxShadow: "0 12px 26px rgba(79,70,229,.22)"
           }}>
             <img src="/design-system/sidebar/icons/panel-executive.svg" alt="" style={{ width: 26, height: 26, flexShrink: 0 }} />
             <span style={{ fontSize: 15, color: "var(--paleta-acento)", fontWeight: 600 }}>Panel ejecutivo</span>
@@ -506,7 +506,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
         {/* Perfil de usuario (footer) */}
         <div style={{ padding: "12px 14px", flexShrink: 0 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(255,255,255,0.8)", backdropFilter:"blur(12px)", borderRadius:14, border:"1px solid var(--paleta-fondo)", boxShadow:"0 9px 20px rgba(79,70,229,.12)" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(255,255,255,0.9)", backdropFilter:"blur(12px)", borderRadius:14, border:"1.5px solid var(--paleta-acento)", boxShadow:"0 10px 24px rgba(79,70,229,.20)" }}>
             <div style={{ position:"relative", flexShrink:0 }}>
               <div style={{ width:40, height:40, borderRadius:10, background:accentColor, display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:14, fontWeight:700 }}>
                 {(usuarioActual?.name || "U")[0]?.toUpperCase()}
