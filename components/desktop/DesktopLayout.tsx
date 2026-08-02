@@ -412,34 +412,18 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         </div>
 
         {/* Panel Ejecutivo - acceso destacado */}
-        {open && (
-          <div style={{ padding: "8px 8px 4px" }}>
-            <Link href="/panel-ejecutivo" style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "10px",
-              borderRadius: 8, textDecoration: "none",
-              background: pathname === "/panel-ejecutivo" ? "linear-gradient(90deg, rgba(201,161,77,0.28), rgba(201,161,77,0.08))" : "linear-gradient(90deg, rgba(201,161,77,0.14), rgba(201,161,77,0.03))",
-              border: isLight ? "1px solid #DDD6FE" : (pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)")
-            }}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#673DE6" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
-              </svg>
-              <span style={{ fontSize: 13, color: isLight ? "#5B21B6" : "rgba(255,255,255,0.7)", fontWeight: 500 }}>Panel ejecutivo</span>
-            </Link>
-          </div>
-        )}
-        {!open && (
-          <div style={{ padding: "8px 8px 4px", display: "flex", justifyContent: "center" }}>
-            <Link href="/panel-ejecutivo" title="Panel ejecutivo" style={{
-              width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8,
-              background: pathname === "/panel-ejecutivo" ? "rgba(201,161,77,0.28)" : "rgba(201,161,77,0.12)",
-              border: isLight ? "1px solid #DDD6FE" : (pathname === "/panel-ejecutivo" ? "1px solid #c9a14d" : "1px solid rgba(201,161,77,0.35)")
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#673DE6" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
-              </svg>
-            </Link>
-          </div>
-        )}
+        <div style={{ padding: "16px 20px 8px" }}>
+          <Link href="/panel-ejecutivo" style={{
+            display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", height: 64, boxSizing: "border-box",
+            borderRadius: 18, textDecoration: "none",
+            background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)",
+            border: "1px solid var(--paleta-fondo)",
+            boxShadow: "0 10px 22px rgba(79,70,229,.14)"
+          }}>
+            <img src="/design-system/sidebar/icons/panel-executive.svg" alt="" style={{ width: 26, height: 26, flexShrink: 0 }} />
+            <span style={{ fontSize: 15, color: "var(--paleta-acento)", fontWeight: 600 }}>Panel ejecutivo</span>
+          </Link>
+        </div>
 
 
         {/* Nav */}
