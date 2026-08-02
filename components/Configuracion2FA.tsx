@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 
-const violeta = "#673DE6"
+const violeta = "var(--accent)"
 const gris = "#6B7280"
 const grisClaro = "#E5E7EB"
 const verde = "#16A34A"
