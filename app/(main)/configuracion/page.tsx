@@ -1460,9 +1460,9 @@ export default function ConfiguracionPage() {
               <img src={estadoIntento === "correcto" ? "/design-system/security/acceso-abierto-verde.png" : estadoIntento === "incorrecto" ? "/design-system/security/acceso-cerrado-rojo.png" : "/design-system/security/acceso-normal-azul.png"} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain", filter: estadoIntento === "correcto" ? "drop-shadow(0 0 22px rgba(34,197,94,0.85))" : estadoIntento === "incorrecto" ? "drop-shadow(0 0 26px rgba(239,68,68,0.9))" : "drop-shadow(0 0 22px rgba(59,130,246,0.85))", transition: "filter 0.3s", animation: estadoIntento === "incorrecto" ? "shake-lock-config 0.4s ease-in-out, lock-float-pulse-config 2.6s ease-in-out infinite" : "lock-float-pulse-config 2.6s ease-in-out infinite" }} />
             </div>
-            <p style={{ fontSize: 18, fontWeight: 700, color: estadoIntento === "incorrecto" ? "#991B1B" : estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 220, transition: "color 0.3s", textShadow: "0 1px 3px rgba(0,0,0,0.2)" }}>{subtituloEstado}</p>
-            <div style={{ fontSize: 12, color: estadoIntento === "incorrecto" ? "#991B1B" : estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7, textShadow: "0 1px 3px rgba(0,0,0,0.25)", transition: "color 0.3s" }}>
-              <img src="/design-system/icons/icon-fingerprint.svg" alt="" style={{ width: 45, height: 45, filter: "brightness(0) invert(1)" }} />
+            <p style={{ fontSize: 18, fontWeight: 700, color: estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.9)", margin: "0 0 26px", maxWidth: 220, transition: "color 0.3s", textShadow: "0 1px 3px rgba(0,0,0,0.2)" }}>{subtituloEstado}</p>
+            <div style={{ fontSize: 12, color: estadoIntento === "correcto" ? "#15803D" : "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 7, textShadow: "0 1px 3px rgba(0,0,0,0.25)", transition: "color 0.3s" }}>
+              <img src="/design-system/icons/icon-fingerprint.svg" alt="" style={{ width: 45, height: 45, filter: estadoIntento === "correcto" ? "invert(64%) sepia(84%) saturate(447%) hue-rotate(93deg) brightness(92%) contrast(92%)" : "brightness(0) invert(1)", transition: "filter 0.3s" }} />
               Zona de configuración avanzada · Solo personal autorizado
             </div>
           </div>
