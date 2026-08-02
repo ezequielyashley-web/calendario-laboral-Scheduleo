@@ -414,7 +414,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         <div onClick={() => setMobileOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:40 }} />
       )}
       <aside style={{ width: 320, background: 'transparent', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s', overflow:'hidden', margin: isMobile ? 0 : '12px 0 12px 12px', borderRadius: isMobile ? 0 : 24,
-          boxShadow: '0 20px 50px rgba(79,70,229,0.28)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : '100vh', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
+          boxShadow: '15px 0 45px rgba(79,70,229,0.35), 6px 0 15px rgba(79,70,229,0.2)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : '100vh', zIndex: isMobile ? 50 : 'auto', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={`sidebar-nuevo ${isLight ? 'light-mode' : ''}`}>
           <div style={{ position:'absolute', inset:0, background: 'linear-gradient(180deg, #ffffff, var(--paleta-fondo))', zIndex:0 }} />
           <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', height:'100%', width:'100%' }}>
@@ -441,8 +441,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", height: 64, boxSizing: "border-box",
             borderRadius: 18, textDecoration: "none",
             background: "rgba(255,255,255,0.9)", backdropFilter: "blur(12px)",
-            border: "1.5px solid var(--paleta-acento)",
-            boxShadow: "0 12px 26px rgba(79,70,229,.22)"
+            border: "none",
+            boxShadow: "0 8px 20px rgba(79,70,229,.18), 0 2px 6px rgba(79,70,229,.10)"
           }}>
             <img src="/design-system/sidebar/icons/panel-executive.svg" alt="" style={{ width: 26, height: 26, flexShrink: 0 }} />
             <span style={{ fontSize: 15, color: "var(--paleta-acento)", fontWeight: 600 }}>Panel ejecutivo</span>
@@ -506,7 +506,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
 
         {/* Perfil de usuario (footer) */}
         <div style={{ padding: "12px 14px", flexShrink: 0 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(255,255,255,0.9)", backdropFilter:"blur(12px)", borderRadius:14, border:"1.5px solid var(--paleta-acento)", boxShadow:"0 10px 24px rgba(79,70,229,.20)" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(255,255,255,0.9)", backdropFilter:"blur(12px)", borderRadius:14, border:"none", boxShadow:"0 8px 20px rgba(79,70,229,.18), 0 2px 6px rgba(79,70,229,.10)" }}>
             <div style={{ position:"relative", flexShrink:0 }}>
               <div style={{ width:40, height:40, borderRadius:10, background:accentColor, display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:14, fontWeight:700 }}>
                 {(usuarioActual?.name || "U")[0]?.toUpperCase()}
@@ -518,7 +518,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               <div style={{ fontSize:12, color:"#10B981" }}>● En linea</div>
             </div>
             <button onClick={() => setShowSignOutModal(true)} title="Cerrar sesion"
-              style={{ width:36, height:36, background:"rgba(255,255,255,0.6)", border:"1px solid var(--paleta-fondo)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+              style={{ width:36, height:36, background:"rgba(255,255,255,0.6)", border:"none", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0, boxShadow:"0 4px 10px rgba(79,70,229,.15)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--paleta-acento)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
           </div>
