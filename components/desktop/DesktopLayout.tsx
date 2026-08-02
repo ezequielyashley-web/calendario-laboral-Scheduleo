@@ -524,16 +524,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           </div>
         </div>
 
-        {/* Collapse btn */}
-        <div style={{ padding:'8px', flexShrink:0 }}>
-          <button onClick={() => setOpen(!open)}
-            className="flex items-center justify-center w-full py-1.5 transition-colors duration-150"
-            style={{ borderRadius:4, color:'var(--sidebar-text)', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {open ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
-            </svg>
-          </button>
-        </div>
         </div>
       </aside>
 
