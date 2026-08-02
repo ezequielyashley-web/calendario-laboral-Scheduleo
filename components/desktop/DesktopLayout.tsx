@@ -500,30 +500,6 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
             </div>
           ))}
         </nav>
-        {/* LOGO FULL */}
-        {open && (
-          <div style={{ padding:"16px 14px", borderTop: isLight ? "1px solid #F3F4F6" : "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <LogoAnimado accentColor={accentColor} />
-              <div>
-                <div style={{ color: isLight ? "#111827" : "#fff", fontWeight:700, fontSize:17, letterSpacing:"-0.3px", lineHeight:1.1 }}>Scheduleo</div>
-                <div style={{ color: isLight ? "#9CA3AF" : "rgba(255,255,255,0.35)", fontSize:11, marginTop:3 }}>v2.0</div>
-              </div>
-            </div>
-          </div>
-        )}
-        {!open && (
-          <div style={{ padding:'12px 0', borderTop: isLight ? '1px solid #F3F4F6' : '1px solid rgba(255,255,255,0.06)', display:'flex', justifyContent:'center' }}>
-            <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
-              <rect width="48" height="48" rx="12" fill={accentColor}/>
-              <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
-              <circle cx="24" cy="16" r="5" fill="white"/>
-              <path d="M14 34C14 29 18.5 26 24 26C29.5 26 34 29 34 34" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-              <circle cx="14" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
-              <circle cx="34" cy="20" r="3.5" fill="rgba(255,255,255,0.6)"/>
-            </svg>
-          </div>
-        )}
 
         {/* CERRAR SESION */}
         <div style={{ padding: open ? "10px 12px" : "10px 8px", flexShrink: 0, borderTop: isLight ? "1px solid #E5E7EB" : "1px solid rgba(255,255,255,0.06)" }}>
