@@ -394,16 +394,10 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
     <div className={`flex h-screen overflow-hidden${isLight ? " bg-gray-50" : ""}`} style={{ background: isLight ? undefined : "#1E1B2E", '--sidebar-bg': sidebarBg, '--paleta-acento': paleta.acento, '--paleta-grad-inicio': paleta.gradInicio, '--paleta-grad-fin': paleta.gradFin, '--paleta-fondo': paleta.fondo, '--paleta-texto': paleta.texto, '--accent': paleta.acento, '--accent-hover': paleta.gradFin, '--accent-dim': paleta.acento + '1a', '--chat-propio': empresa?.chatColorPropio || paleta.acento, '--chat-ajeno': empresa?.chatColorAjeno || '#ffffff' } as React.CSSProperties}>
       <style>{`
         :root { --sidebar-text: rgba(255,255,255,0.82); --sidebar-text-muted: rgba(255,255,255,0.4); --sidebar-hover: rgba(255,255,255,0.07); --sidebar-active: rgba(255,255,255,0.13); }
-        ${!sidebarPersonalizado ? `.light-mode .nav-item { color: #111827 !important; font-weight: 600 !important; font-size: 14px !important; }` : ``}
-        .light-mode .nav-item:hover { background: #F3F4F6 !important; }
-        .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
-        
-        .light-mode .nav-item:hover { background: #F3F4F6 !important; color: #111827 !important; }
-        .light-mode .nav-item.active { background: #F0EDFF !important; color: #673DE6 !important; font-weight: 700 !important; }
         .light-mode .nav-section-label { color: #9CA3AF !important; }
         .nav-item { display:flex; align-items:center; gap:12px; height:48px; padding:0 20px; margin:0 8px; width:calc(100% - 16px); border-radius:10px; text-decoration:none; font-size:15px; font-weight:600; color:#1E1B4B; transition:all 0.2s ease; cursor:pointer; box-sizing:border-box; }
-        .nav-item:hover { background:var(--paleta-fondo); color:var(--paleta-acento); }
-        .nav-item.active { background:var(--paleta-fondo); color:var(--paleta-acento); font-weight:700; }
+        .nav-item:hover { background:var(--paleta-fondo); color:var(--paleta-acento); box-shadow:0 2px 8px rgba(79,70,229,.10); }
+        .nav-item.active { background:var(--paleta-fondo); color:var(--paleta-acento); font-weight:700; box-shadow:0 6px 16px rgba(79,70,229,.22), 0 2px 4px rgba(79,70,229,.12); transform:scale(1.035); }
         @media (max-width: 1024px) and (min-width: 768px) { .sidebar-nuevo { width:288px !important; } }
         .nav-label { white-space:nowrap; overflow:hidden; transition:opacity 0.2s, width 0.2s; }
       `}</style>
