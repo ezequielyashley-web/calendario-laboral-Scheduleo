@@ -505,16 +505,30 @@ function SeccionSeguridad() {
   const [bloqueoSistema, setBloqueoSistema] = useState(true)
 
   useEffect(() => {
-    fetch('/api/configuracion')
-      .then(r => r.json())
-      .then(d => {
-        if (d?.expiracionContrasena !== undefined) {
-          setExpiracion(String(d.expiracionContrasena || '0'))
-        }
-        setCargando(false)
-      })
-      .catch(() => setCargando(false))
+    Promise.all([
+      fetch('/api/configuracion').then(r => r.json()),
+      fetch('/api/empresa').then(r => r.json()),
+    ]).then(([d, emp]) => {
+      if (d?.expiracionContrasena !== undefined) {
+        setExpiracion(String(d.expiracionContrasena || '0'))
+      }
+      if (emp?.bloqueoConfigInactividad !== undefined) setBloqueoConfig(emp.bloqueoConfigInactividad)
+      if (emp?.bloqueoSistemaInactividad !== undefined) setBloqueoSistema(emp.bloqueoSistemaInactividad)
+      setCargando(false)
+    }).catch(() => setCargando(false))
   }, [])
+
+  const guardarBloqueo = async (campo: string, valor: boolean) => {
+    if (campo === 'bloqueoConfigInactividad') setBloqueoConfig(valor)
+    else setBloqueoSistema(valor)
+    try {
+      await fetch('/api/empresa', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [campo]: valor })
+      })
+    } catch {}
+  }
 
   const guardar = async (valor: string) => {
     setGuardando(true)
