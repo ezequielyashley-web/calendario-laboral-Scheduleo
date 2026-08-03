@@ -1523,7 +1523,7 @@ export default function ConfiguracionPage() {
 
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#a0aec0" }}>Cargando configuración...</div>
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", animation: "fadeInConfigPanel 0.6s ease" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", animation: "fadeInConfigPanel 0.9s cubic-bezier(0.16,1,0.3,1)" }}>
       <style>{`@keyframes fadeInConfigPanel { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       {mensaje.texto && (
         <div style={{ padding: "10px 24px", background: mensaje.tipo === "error" ? "#fee2e2" : "#d1fae5", fontSize: 13, color: mensaje.tipo === "error" ? "#991b1b" : "#065f46", borderBottom: "1px solid #E5E7EB" }}>
