@@ -1253,6 +1253,7 @@ export default function ConfiguracionPage() {
   const [estadoIntento, setEstadoIntento] = useState<"idle"|"correcto"|"incorrecto">("idle")
   const [bloqueadoGlobal, setBloqueadoGlobal] = useState(false)
   const [mostrarPinAcceso, setMostrarPinAcceso] = useState(false)
+  const [bloqueadoPorInactividad, setBloqueadoPorInactividad] = useState(false)
   const [seccion, setSeccion] = useState("identidad")
   const [submenuColapsado, setSubmenuColapsado] = useState(false)
   const [mostrarInvitarModal, setMostrarInvitarModal] = useState(false)
@@ -1482,8 +1483,8 @@ export default function ConfiguracionPage() {
 
   if (!acceso) {
     const colorEstado = estadoIntento === "correcto" ? "#22C55E" : estadoIntento === "incorrecto" ? "#EF4444" : "#ffffff"
-    const tituloEstado = estadoIntento === "correcto" ? "Bienvenido, Administrador" : estadoIntento === "incorrecto" ? "Acceso denegado" : "Acceso restringido"
-    const subtituloEstado = estadoIntento === "correcto" ? "Bienvenido al panel de Configuración" : "Esta sección requiere permisos elevados"
+    const tituloEstado = estadoIntento === "correcto" ? "Bienvenido, Administrador" : estadoIntento === "incorrecto" ? "Acceso denegado" : bloqueadoPorInactividad ? "Sesión bloqueada" : "Acceso restringido"
+    const subtituloEstado = estadoIntento === "correcto" ? "Bienvenido al panel de Configuración" : bloqueadoPorInactividad ? "Se cerró por inactividad tras 10 minutos sin uso" : "Esta sección requiere permisos elevados"
     const fondoPanelIzq = estadoIntento === "correcto" ? "linear-gradient(135deg,#BBF7D0,#86EFAC)" : estadoIntento === "incorrecto" ? "linear-gradient(135deg,#F87171,#DC2626)" : "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))"
     return (
       <div style={{ position: "relative", height: "100%", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flex: 1 }}>
