@@ -422,7 +422,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
       {isMobile && mobileOpen && (
         <div onClick={() => setMobileOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:40 }} />
       )}
-      <aside style={{ width: isMobile ? 320 : 332, background: 'transparent', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s', overflow:'hidden', padding: isMobile ? 0 : '12px 0 12px 12px', borderRadius: isMobile ? 0 : '16px 0 16px 16px', boxSizing: 'border-box',
+      <aside style={{ width: isMobile ? 320 : 332, background: 'transparent', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.25s', overflow:'hidden', padding: isMobile ? 0 : '12px 0 12px 3px', borderRadius: isMobile ? 0 : '16px 0 16px 16px', boxSizing: 'border-box',
           boxShadow: '15px 0 45px rgba(79,70,229,0.35), 6px 0 15px rgba(79,70,229,0.2)', position: isMobile ? 'fixed' : 'relative', top: isMobile ? 0 : 'auto', left: isMobile ? 0 : 'auto', height: isMobile ? '100vh' : '100vh', zIndex: isMobile ? 50 : 10, isolation: 'isolate', transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none' }}
           className={`sidebar-nuevo ${isLight ? 'light-mode' : ''}`}>
           <div style={{ position:'absolute', inset:0, background: 'linear-gradient(180deg, #ffffff, var(--paleta-fondo))', zIndex:0 }} />
