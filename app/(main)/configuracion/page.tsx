@@ -501,6 +501,8 @@ function SeccionSeguridad() {
   const [guardando, setGuardando] = useState(false)
   const [guardado, setGuardado] = useState(false)
   const [cargando, setCargando] = useState(true)
+  const [bloqueoConfig, setBloqueoConfig] = useState(true)
+  const [bloqueoSistema, setBloqueoSistema] = useState(true)
 
   useEffect(() => {
     fetch('/api/configuracion')

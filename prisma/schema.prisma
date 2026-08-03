@@ -61,6 +61,8 @@ model Empresa {
   fondoMenuOpacidad         Int?
   fondoMenuBrillo           Int?
   paletaColor               String?   @default("azul")
+  bloqueoConfigInactividad  Boolean   @default(true)
+  bloqueoSistemaInactividad Boolean   @default(true)
   direccion                 String?
   telefono                  String?
   email                     String?
