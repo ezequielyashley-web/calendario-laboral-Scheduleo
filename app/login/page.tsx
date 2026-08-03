@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 function validarEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) }
 function formatMMSS(s: number) { const m = Math.floor(s / 60); const r = s % 60; return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0") }
@@ -26,6 +26,8 @@ const PAISES: [string, string, string][] = [
 ]
 
 export default function LoginPage() {
+  const searchParams = useSearchParams()
+  const motivoSalida = searchParams.get("motivo")
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -414,6 +416,7 @@ export default function LoginPage() {
               </div>
 
               <form onSubmit={handleSubmit}>
+                {motivoSalida === "inactividad" && <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#92400E" }}>Tu sesión se cerró por inactividad. Vuelve a iniciar sesión para continuar.</div>}
                 {error && <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#B91C1C" }}>{error}</div>}
 
                 <label style={{ fontSize: 12, color: "#334155", fontWeight: 600, display: "block", marginBottom: 6 }}>Correo electronico</label>
