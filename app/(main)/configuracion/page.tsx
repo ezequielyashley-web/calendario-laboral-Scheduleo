@@ -1254,6 +1254,7 @@ export default function ConfiguracionPage() {
   const [bloqueadoGlobal, setBloqueadoGlobal] = useState(false)
   const [mostrarPinAcceso, setMostrarPinAcceso] = useState(false)
   const [bloqueadoPorInactividad, setBloqueadoPorInactividad] = useState(false)
+
   const [seccion, setSeccion] = useState("identidad")
   const [submenuColapsado, setSubmenuColapsado] = useState(false)
   const [mostrarInvitarModal, setMostrarInvitarModal] = useState(false)
@@ -1267,6 +1268,25 @@ export default function ConfiguracionPage() {
     return () => mql.removeEventListener("change", check)
   }, [submenuTocadoManual])
   const [empresa, setEmpresa] = useState<any>({})
+  useEffect(() => {
+    if (!acceso) return
+    if (empresa?.bloqueoConfigInactividad === false) return
+    let ultimaActividad = Date.now()
+    const marcarActividad = () => { ultimaActividad = Date.now() }
+    const eventos = ["mousemove", "keydown", "click", "scroll"]
+    eventos.forEach(e => window.addEventListener(e, marcarActividad))
+    const intervalo = setInterval(() => {
+      if (Date.now() - ultimaActividad > 10 * 60 * 1000) {
+        setAcceso(false)
+        setBloqueadoPorInactividad(true)
+        setEstadoIntento("idle")
+      }
+    }, 15000)
+    return () => {
+      eventos.forEach(e => window.removeEventListener(e, marcarActividad))
+      clearInterval(intervalo)
+    }
+  }, [acceso, empresa?.bloqueoConfigInactividad])
 
   useEffect(() => {
     fetch("/api/empresa").then(r => r.json()).then(d => { if (d?.configAccesoBloqueado) setBloqueadoGlobal(true) }).catch(() => {})
