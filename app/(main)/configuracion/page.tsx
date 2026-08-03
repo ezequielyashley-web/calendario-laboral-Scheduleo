@@ -1451,8 +1451,6 @@ export default function ConfiguracionPage() {
           @keyframes lock-float-pulse-config { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
           @keyframes shake-lock-config { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
         `}</style>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/design-system/backgrounds/workspace-bg-v1.png)", backgroundSize: "cover", backgroundPosition: "center", zIndex: -2 }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.35), rgba(15,23,42,0.55))", zIndex: -1 }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, height: 560, margin: 20, display: "grid", gridTemplateColumns: "1fr 1.1fr", borderRadius: 26, overflow: "hidden", background: "rgba(255,255,255,0.97)", border: "1px solid rgba(255,255,255,0.5)", boxShadow: "0 40px 100px rgba(0,0,0,0.45)" }}>
 
           <div style={{ background: fondoPanelIzq, transition: "background 0.3s", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
