@@ -397,7 +397,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         .light-mode .nav-section-label { color: #9CA3AF !important; }
         .nav-item { display:flex; align-items:center; gap:12px; height:48px; padding:0 20px; margin:0 8px 4px; width:calc(100% - 16px); border-radius:10px; text-decoration:none; font-size:15px; font-weight:600; color:#1E1B4B; transition:all 0.2s ease; cursor:pointer; box-sizing:border-box; }
         .nav-item:hover { background:var(--paleta-fondo); color:var(--paleta-acento); box-shadow:0 2px 8px rgba(79,70,229,.10); }
-        .nav-item.active { background:var(--paleta-fondo); color:var(--paleta-acento); font-weight:700; box-shadow:0 8px 20px rgba(79,70,229,.20), 0 2px 6px rgba(79,70,229,.12); transform:scale(1.12); z-index:1; }
+        .nav-item.active { background:var(--paleta-fondo); color:var(--paleta-acento); font-weight:700; box-shadow:0 8px 20px rgba(79,70,229,.20), 0 2px 6px rgba(79,70,229,.12); z-index:1; }
+        .nav-item.active .nav-label { display:inline-block; transform:scale(1.18); transform-origin:left center; }
         @media (max-width: 1024px) and (min-width: 768px) { .sidebar-nuevo { width:288px !important; } }
         .nav-label { white-space:nowrap; overflow:hidden; transition:opacity 0.2s, width 0.2s; }
       `}</style>
