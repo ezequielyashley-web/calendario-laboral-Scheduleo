@@ -555,6 +555,30 @@ function SeccionSeguridad() {
 
       <Configuracion2FA />
 
+      {/* Bloqueo por inactividad */}
+      <div style={{ background: '#f8f9ff', border: '0.5px solid #e8eaf0', borderRadius: 14, padding: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>Bloqueo de Configuracion por inactividad</div>
+            <div style={{ fontSize: 12, color: '#718096' }}>Bloquea esta seccion tras 10 minutos sin uso.</div>
+          </div>
+          <button onClick={() => guardarBloqueo('bloqueoConfigInactividad', !bloqueoConfig)}
+            style={{ width: 44, height: 24, borderRadius: 20, border: 'none', cursor: 'pointer', background: bloqueoConfig ? 'var(--accent)' : '#E5E7EB', position: 'relative', flexShrink: 0 }}>
+            <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: bloqueoConfig ? 23 : 3, transition: 'left 0.15s' }} />
+          </button>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b', marginBottom: 4 }}>Bloqueo del sistema por inactividad</div>
+            <div style={{ fontSize: 12, color: '#718096' }}>Cierra la sesion de todo el sistema tras 1 hora sin uso.</div>
+          </div>
+          <button onClick={() => guardarBloqueo('bloqueoSistemaInactividad', !bloqueoSistema)}
+            style={{ width: 44, height: 24, borderRadius: 20, border: 'none', cursor: 'pointer', background: bloqueoSistema ? 'var(--accent)' : '#E5E7EB', position: 'relative', flexShrink: 0 }}>
+            <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: bloqueoSistema ? 23 : 3, transition: 'left 0.15s' }} />
+          </button>
+        </div>
+      </div>
+
       {/* Grid 2 columnas: Expiracion + Requisitos */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
 
