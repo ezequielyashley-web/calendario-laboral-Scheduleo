@@ -367,8 +367,24 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
   }, [])
 
   useEffect(() => {
-    
-  }, [])
+    if (empresa?.bloqueoSistemaInactividad === false) return
+    if (pathname === "/login") return
+    let ultimaActividad = Date.now()
+    const marcarActividad = () => { ultimaActividad = Date.now() }
+    const eventos = ["mousemove", "keydown", "click", "scroll"]
+    eventos.forEach(e => window.addEventListener(e, marcarActividad))
+    const intervalo = setInterval(async () => {
+      if (Date.now() - ultimaActividad > 60 * 60 * 1000) {
+        clearInterval(intervalo)
+        sessionStorage.removeItem("2fa_verified")
+        await signOut({ callbackUrl: "/login?motivo=inactividad" })
+      }
+    }, 30000)
+    return () => {
+      eventos.forEach(e => window.removeEventListener(e, marcarActividad))
+      clearInterval(intervalo)
+    }
+  }, [empresa?.bloqueoSistemaInactividad, pathname])
 
   const handleSignOut = async () => {
     sessionStorage.removeItem('2fa_verified')

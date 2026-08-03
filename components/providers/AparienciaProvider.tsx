@@ -13,6 +13,8 @@ type AparienciaState = {
   fondoMenuOpacidad?: number
   fondoMenuBrillo?: number
   paletaColor?: string
+  bloqueoConfigInactividad?: boolean
+  bloqueoSistemaInactividad?: boolean
   chatColorPropio?: string
   chatColorAjeno?: string
 }
@@ -44,6 +46,8 @@ export function AparienciaProvider({ children }: { children: React.ReactNode }) 
         fondoMenuOpacidad: d?.fondoMenuOpacidad,
         fondoMenuBrillo: d?.fondoMenuBrillo,
         paletaColor: d?.paletaColor,
+        bloqueoConfigInactividad: d?.bloqueoConfigInactividad,
+        bloqueoSistemaInactividad: d?.bloqueoSistemaInactividad,
         chatColorPropio: d?.chatColorPropio,
         chatColorAjeno: d?.chatColorAjeno,
       })
