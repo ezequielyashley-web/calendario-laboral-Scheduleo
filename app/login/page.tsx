@@ -333,8 +333,8 @@ export default function LoginPage() {
         <div className="login-left-panel" style={{ padding: "42px 42px 36px", background: "linear-gradient(180deg, rgba(248,251,255,.96), rgba(240,246,255,.94))", borderRight: "1px solid rgba(47,99,244,.10)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
           {flujoAcceso !== "consentimiento" ? (
-            <div key="izq-normal" className="panel-swap-left" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-              <img src="/design-system/icons/scheduleo-logo-vertical.png" alt="Scheduleo" style={{ height:300, width:"auto", maxWidth:300, marginBottom:8, alignSelf:"center", objectFit:"contain" }} />
+            <div key="izq-normal" className="panel-swap-left" style={{ display: "flex", flexDirection: "column", flex: 1, position: "relative", paddingTop: 190 }}>
+              <img src="/design-system/icons/scheduleo-logo-vertical.png" alt="Scheduleo" style={{ position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", height:260, width:"auto", objectFit:"contain" }} />
 
               <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Bienvenido</h1>
               <div style={{ width: 40, height: 4, background: "#2F63F4", borderRadius: 2, marginBottom: 16 }} />
