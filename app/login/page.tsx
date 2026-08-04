@@ -334,13 +334,7 @@ export default function LoginPage() {
 
           {flujoAcceso !== "consentimiento" ? (
             <div key="izq-normal" className="panel-swap-left" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
-                <img src="/design-system/login/scheduleo-logo.svg" alt="Scheduleo" className="logo-v2" style={{ width: 56, height: 56, borderRadius: 14 }} />
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#0F172A" }}>Scheduleo</div>
-                  <div style={{ fontSize: 12, color: "#64748B" }}>Gestion inteligente de personal</div>
-                </div>
-              </div>
+              <img src="/design-system/icons/scheduleo-logo-vertical.png" alt="Scheduleo" style={{ height:120, width:"auto", marginBottom:32 }} />
 
               <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Bienvenido</h1>
               <div style={{ width: 40, height: 4, background: "#2F63F4", borderRadius: 2, marginBottom: 16 }} />
