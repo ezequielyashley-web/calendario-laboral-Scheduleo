@@ -400,7 +400,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <div className="login-right-panel" style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div className="login-right-panel" style={{ padding: "48px 42px 34px", background: "rgba(255,255,255,.92)", display: "flex", flexDirection: "column", justifyContent: "center", overflowY: "auto" }}>
 
           {flujoAcceso === "normal" && !show2FA && !show2FATotp && (
             <div key="der-login" className="panel-swap" style={{ display: "contents" }}>
