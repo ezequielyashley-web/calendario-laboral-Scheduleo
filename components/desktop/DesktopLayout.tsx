@@ -449,7 +449,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
         <div style={{ padding: "16px 20px 8px" }}>
           <Link href="/panel-ejecutivo" style={{
             display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", height: 64, boxSizing: "border-box",
-            borderRadius: 18, textDecoration: "none",
+            borderRadius: 12, textDecoration: "none",
             background: "rgba(255,255,255,0.9)", backdropFilter: "blur(12px)",
             border: "none",
             boxShadow: "0 8px 20px rgba(79,70,229,.18), 0 2px 6px rgba(79,70,229,.10)"
