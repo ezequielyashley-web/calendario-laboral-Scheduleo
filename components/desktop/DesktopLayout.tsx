@@ -584,13 +584,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 🔔
               </div>
             )}
-            <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
-              <img src="/design-system/sidebar/icons/scheduleo-logo.svg" alt="" style={{ width:34, height:34 }} />
-              <div style={{ display:"flex", flexDirection:"column", lineHeight:1.1 }}>
-                <span style={{ fontSize:15, fontWeight:700, color:"var(--text-primary)" }}>Scheduleo</span>
-                <span style={{ fontSize:10, color:"var(--text-muted)" }}>v2.0</span>
-              </div>
-          </div>
+            <img src="/design-system/sidebar/icons/scheduleo-logo-horizontal.png" alt="Scheduleo" style={{ height:32, width:"auto" }} />
           </div>
         </header>
         <BetaBanner />
