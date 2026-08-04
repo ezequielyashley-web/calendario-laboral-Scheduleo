@@ -334,7 +334,7 @@ export default function LoginPage() {
 
           {flujoAcceso !== "consentimiento" ? (
             <div key="izq-normal" className="panel-swap-left" style={{ display: "flex", flexDirection: "column", flex: 1, position: "relative", paddingTop: 190 }}>
-              <img src="/design-system/icons/scheduleo-logo-vertical.png" alt="Scheduleo" style={{ position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", height:260, width:"auto", objectFit:"contain" }} />
+              <img src="/design-system/icons/scheduleo-logo-vertical.png" alt="Scheduleo" style={{ position: "absolute", top: -60, left: "50%", transform: "translateX(-50%)", height:320, width:"auto", objectFit:"contain" }} />
 
               <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: "0 0 6px" }}>Bienvenido</h1>
               <div style={{ width: 40, height: 4, background: "#2F63F4", borderRadius: 2, marginBottom: 16 }} />
