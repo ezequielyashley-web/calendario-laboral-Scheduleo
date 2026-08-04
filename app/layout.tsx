@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
   let nombreEmpresa = 'Scheduleo'
-  let faviconUrl = '/favicon.ico'
+  let faviconUrl = '/design-system/icons/scheduleo-symbol.png'
   try {
     const { prisma } = await import('@/lib/prisma')
     const empresa: any = await prisma.empresa.findUnique({ where: { id: 'empresa-001' } })
