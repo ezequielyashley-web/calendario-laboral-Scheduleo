@@ -584,7 +584,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
                 🔔
               </div>
             )}
-            <img src="/design-system/icons/scheduleo-logo-horizontal.png" alt="Scheduleo" style={{ height:44, width:"auto" }} />
+            <img src="/design-system/icons/scheduleo-logo-horizontal.png" alt="Scheduleo" style={{ height:64, width:"auto" }} />
           </div>
         </header>
         <BetaBanner />
