@@ -528,7 +528,7 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               <div style={{ fontSize:12, color:"#10B981" }}>● En linea</div>
             </div>
             <button onClick={() => setShowSignOutModal(true)} title="Cerrar sesion"
-              style={{ width:36, height:36, background:"rgba(255,255,255,0.6)", border:"none", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0, boxShadow:"0 4px 10px rgba(79,70,229,.15)" }}>
+              style={{ width:40, height:40, background:"var(--paleta-fondo)", border:"none", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0, boxShadow:"0 4px 10px rgba(79,70,229,.15)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--paleta-acento)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
           </div>
