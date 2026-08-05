@@ -147,12 +147,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
         className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 4px 20px rgba(103,61,230,0.45)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
-        {/* Icono S de Scheduleo con rayo AI */}
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <text x="5" y="20" fontFamily="Arial Black, sans-serif" fontSize="18" fontWeight="900" fill="white">S</text>
-          <circle cx="22" cy="8" r="6" fill="#FBBF24"/>
-          <text x="19" y="12" fontFamily="Arial" fontSize="9" fontWeight="900" fill="#0f0c29">AI</text>
-        </svg>
+        <img src={iconoChat} alt="ScheduleoAI" style={{ width: 34, height: 34, objectFit: "contain" }} />
       </div>
 
       {/* Panel chat */}
@@ -162,11 +157,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-                <text x="3" y="18" fontFamily="Arial Black, sans-serif" fontSize="16" fontWeight="900" fill="white">S</text>
-                <circle cx="22" cy="7" r="5" fill="#FBBF24"/>
-                <text x="19.5" y="10.5" fontFamily="Arial" fontSize="7" fontWeight="900" fill="#0f0c29">AI</text>
-              </svg>
+              <img src={iconoChat} alt="ScheduleoAI" style={{ width: 24, height: 24, objectFit: "contain" }} />
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>ScheduleoAI</div>
