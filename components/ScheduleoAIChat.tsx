@@ -1,6 +1,16 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
+
+const iconosPorPaleta: Record<string, string> = {
+  azul: "/design-system/icons/scheduleo-chat-icon-azul.png",
+  violeta: "/design-system/icons/scheduleo-chat-icon-violeta.png",
+  verde: "/design-system/icons/scheduleo-chat-icon-verde.png",
+  ambar: "/design-system/icons/scheduleo-chat-icon-ambar.png",
+  rosa: "/design-system/icons/scheduleo-chat-icon-rosa.png",
+  gris: "/design-system/icons/scheduleo-chat-icon-gris.png",
+}
 
 interface Mensaje {
   rol: "user" | "assistant"
@@ -10,6 +20,8 @@ interface Mensaje {
 
 export default function ScheduleoAIChat({ userId }: { userId: string }) {
   const router = useRouter()
+  const { apariencia } = useApariencia()
+  const iconoChat = iconosPorPaleta[apariencia?.paletaColor || "azul"] || iconosPorPaleta.azul
   const [abierto, setAbierto] = useState(false)
   const [mensajes, setMensajes] = useState<Mensaje[]>([
     { rol: "assistant", contenido: "Hola! Soy ScheduleoAI. Puedo ayudarte con turnos, empleados, vacaciones, grupos y mucho mas. En que te puedo ayudar?", tiempo: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) }
