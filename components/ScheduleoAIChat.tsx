@@ -135,7 +135,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
     <>
       <style>{`
         @keyframes bounce-dot { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
-        @keyframes pulse-ai { 0%,100%{box-shadow:0 0 0 0 rgba(103,61,230,0.4)} 50%{box-shadow:0 0 0 3px rgba(103,61,230,0)} }
+        @keyframes pulse-ai { 0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--paleta-acento) 40%, transparent)} 50%{box-shadow:0 0 0 7px color-mix(in srgb, var(--paleta-acento) 0%, transparent)} }
         @media (max-width: 640px) {
           .ai-fab-responsive { bottom: 16px !important; right: 16px !important; }
           .ai-panel-responsive { bottom: 82px !important; right: 16px !important; left: 16px !important; width: auto !important; height: 65vh !important; max-height: 520px !important; }
@@ -146,7 +146,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       <div
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
-        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 128, height: 128, borderRadius: "50%", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 2px 8px rgba(103,61,230,0.3)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
+        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 128, height: 128, borderRadius: "50%", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 2px 8px color-mix(in srgb, var(--paleta-acento) 30%, transparent)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
         <img src={iconoChat} alt="ScheduleoAI" style={{ width: 128, height: 128, objectFit: "contain" }} />
       </div>
 
