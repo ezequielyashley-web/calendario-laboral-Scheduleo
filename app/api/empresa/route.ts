@@ -7,6 +7,7 @@ import { Resend } from "resend"
 import { runAsync } from "@/lib/asyncTask"
 const resend = new Resend(process.env.RESEND_API_KEY)
 import { unstable_cache, revalidateTag } from "next/cache"
+export const dynamic = "force-dynamic"
 
 const getCachedEmpresa = unstable_cache(
   async () => {
