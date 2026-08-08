@@ -146,8 +146,8 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       <div
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
-        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 128, height: 128, borderRadius: "50%", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 2px 8px color-mix(in srgb, var(--paleta-acento) 30%, transparent)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
-        <img src={iconoChat} alt="ScheduleoAI" style={{ width: 128, height: 128, objectFit: "contain" }} />
+        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 128, height: 128, borderRadius: "50%", background: "transparent", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 2px 8px color-mix(in srgb, var(--paleta-acento) 30%, transparent)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
+        <img src={iconoChat} alt="ScheduleoAI" style={{ width: 128, height: 128, objectFit: "contain", transform: "scale(1.9)" }} />
       </div>
 
       {/* Panel chat */}
