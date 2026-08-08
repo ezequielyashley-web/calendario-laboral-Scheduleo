@@ -2,9 +2,16 @@
 
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 export default function DeudasPage() {
   const router = useRouter()
+  const { apariencia } = useApariencia()
+  useEffect(() => {
+    if (apariencia?.modulosActivos && !apariencia.modulosActivos.includes("deudas")) {
+      router.push("/dashboard")
+    }
+  }, [apariencia?.modulosActivos])
   const [deudas, setDeudas] = useState([])
   const [empleados, setEmpleados] = useState([])
   const [loading, setLoading] = useState(true)
