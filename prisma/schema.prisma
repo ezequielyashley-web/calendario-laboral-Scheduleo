@@ -75,6 +75,28 @@ model Empresa {
   bajas                     BajaMedica[]
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
+  modulosActivos            EmpresaModulo[]
+}
+
+model Modulo {
+  id          String          @id @default(cuid())
+  clave       String          @unique
+  nombre      String
+  descripcion String?
+  empresas    EmpresaModulo[]
+  createdAt   DateTime        @default(now())
+}
+
+model EmpresaModulo {
+  id          String   @id @default(cuid())
+  empresaId   String
+  empresa     Empresa  @relation(fields: [empresaId], references: [id])
+  moduloId    String
+  modulo      Modulo   @relation(fields: [moduloId], references: [id])
+  activo      Boolean  @default(true)
+  activadoEn  DateTime @default(now())
+
+  @@unique([empresaId, moduloId])
 }
 
 model Empleado {
@@ -151,7 +173,6 @@ model PuestoDeTrabajo {
   configuracionesCobertura  ConfiguracionCobertura[]
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
-
   @@unique([empresaId, nombre])
   @@index([empresaId])
 }
