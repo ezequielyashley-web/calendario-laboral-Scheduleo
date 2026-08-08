@@ -146,8 +146,9 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       <div
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
-        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 88, height: 88, borderRadius: "50%", background: "transparent", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 2px 8px color-mix(in srgb, var(--paleta-acento) 30%, transparent)", zIndex: 1000, animation: "pulse-ai 2.5s ease-in-out infinite", userSelect: "none" }}>
-        <img src={iconoChat} alt="ScheduleoAI" style={{ width: 88, height: 88, objectFit: "contain", transform: "scale(1.7)" }} />
+        className="ai-fab-responsive" style={{ position: "fixed", bottom: pos.y, right: pos.x, width: 88, height: 88, borderRadius: "50%", background: "transparent", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", cursor: dragging ? "grabbing" : "grab", boxShadow: "0 2px 8px color-mix(in srgb, var(--paleta-acento) 30%, transparent)", zIndex: 1000, userSelect: "none" }}>
+        <img src={iconoChat} alt="ScheduleoAI" className="ai-fab-icon-breathe" style={{ width: 88, height: 88, objectFit: "contain" }} />
+        <div style={{ position: "absolute", top: "-50%", left: 0, width: "35%", height: "200%", background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)", transform: "translateX(-120%) rotate(20deg)", animation: "shine-sweep 3s ease-in-out infinite", pointerEvents: "none" }} />
       </div>
 
       {/* Panel chat */}
