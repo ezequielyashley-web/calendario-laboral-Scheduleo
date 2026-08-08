@@ -164,6 +164,12 @@ const PERMISOS_RUTA: Record<string, string> = {
   "/configuracion":     "config_ver",
 }
 
+const MODULO_POR_RUTA: Record<string, string> = {
+  "/deudas": "deudas",
+  "/bajas": "bajas_medicas",
+  "/cambios-turno": "cambios_turno",
+  "/chat": "chat",
+}
 const menuSections = [
   { label: 'Principal', items: [
     { href: '/dashboard',         icon: Icons.dashboard,      label: 'Dashboard'      },
@@ -465,6 +471,8 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
           {menuSections.map(section => ({
             ...section,
             items: section.items.filter(item => {
+              const moduloReq = MODULO_POR_RUTA[item.href]
+              if (moduloReq && empresa?.modulosActivos && !empresa.modulosActivos.includes(moduloReq)) return false
               // SUPER_ADMIN y ADMIN ven todo
               if (!userPermisos || userRole === "SUPER_ADMIN" || userRole === "ADMIN") return true
               // Dashboard siempre visible
