@@ -9,8 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 import { unstable_cache, revalidateTag } from "next/cache"
 export const dynamic = "force-dynamic"
 
-const getCachedEmpresa = unstable_cache(
-  async () => {
+const getCachedEmpresa = async () => {
     const empresa = await prisma.$queryRaw`
       SELECT * FROM "Empresa" WHERE id = 'empresa-001' LIMIT 1
     ` as any[]
@@ -20,10 +19,7 @@ const getCachedEmpresa = unstable_cache(
       WHERE em."empresaId" = 'empresa-001' AND em."activo" = true
     ` as any[]
     return { ...(empresa[0] || {}), modulosActivos: modulos.map((m: any) => m.clave) }
-  },
-  ["empresa-001"],
-  { tags: ["empresa"] }
-)
+  }
 
 export async function GET() {
   try {
