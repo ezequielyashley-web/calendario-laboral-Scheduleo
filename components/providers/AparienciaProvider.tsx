@@ -17,6 +17,7 @@ type AparienciaState = {
   bloqueoSistemaInactividad?: boolean
   chatColorPropio?: string
   chatColorAjeno?: string
+  modulosActivos?: string[]
 }
 
 const AparienciaContext = createContext<{
@@ -50,6 +51,7 @@ export function AparienciaProvider({ children }: { children: React.ReactNode }) 
         bloqueoSistemaInactividad: d?.bloqueoSistemaInactividad,
         chatColorPropio: d?.chatColorPropio,
         chatColorAjeno: d?.chatColorAjeno,
+        modulosActivos: d?.modulosActivos || [],
       })
     }).catch(() => {})
   }
