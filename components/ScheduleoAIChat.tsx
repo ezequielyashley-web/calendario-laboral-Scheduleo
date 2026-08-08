@@ -135,7 +135,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
     <>
       <style>{`
         @keyframes bounce-dot { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
-        @keyframes pulse-ai { 0%,100%{box-shadow:0 0 0 0 rgba(103,61,230,0.4)} 50%{box-shadow:0 0 0 8px rgba(103,61,230,0)} }
+        @keyframes pulse-ai { 0%,100%{box-shadow:0 0 0 0 rgba(103,61,230,0.4)} 50%{box-shadow:0 0 0 3px rgba(103,61,230,0)} }
         @media (max-width: 640px) {
           .ai-fab-responsive { bottom: 16px !important; right: 16px !important; }
           .ai-panel-responsive { bottom: 82px !important; right: 16px !important; left: 16px !important; width: auto !important; height: 65vh !important; max-height: 520px !important; }
