@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
+import { moduloActivo } from "@/lib/modulos"
 
 async function tienePermiso(userId: string, permiso: string): Promise<boolean> {
   const solicitante = await prisma.user.findUnique({ where: { id: userId } })
@@ -12,6 +13,9 @@ export async function GET(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
   try {
+    if (!(await moduloActivo("deudas"))) {
+      return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
+    }
     if (auth.role !== "SUPER_ADMIN" && !(await tienePermiso(auth.userId, "deudas_ver"))) {
       return NextResponse.json({ error: "No autorizado" }, { status: 403 })
     }
