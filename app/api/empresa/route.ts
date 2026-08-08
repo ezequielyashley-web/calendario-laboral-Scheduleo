@@ -13,7 +13,12 @@ const getCachedEmpresa = unstable_cache(
     const empresa = await prisma.$queryRaw`
       SELECT * FROM "Empresa" WHERE id = 'empresa-001' LIMIT 1
     ` as any[]
-    return empresa[0] || {}
+    const modulos = await prisma.$queryRaw`
+      SELECT m."clave" FROM "EmpresaModulo" em
+      JOIN "Modulo" m ON m."id" = em."moduloId"
+      WHERE em."empresaId" = 'empresa-001' AND em."activo" = true
+    ` as any[]
+    return { ...(empresa[0] || {}), modulosActivos: modulos.map((m: any) => m.clave) }
   },
   ["empresa-001"],
   { tags: ["empresa"] }
