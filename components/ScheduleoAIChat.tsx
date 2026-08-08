@@ -143,6 +143,7 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
       `}</style>
 
       {/* Boton flotante arrastrable */}
+      {!abierto && (
       <div
         onMouseDown={onMouseDown}
         onClick={() => !dragging && setAbierto(!abierto)}
@@ -152,14 +153,15 @@ export default function ScheduleoAIChat({ userId }: { userId: string }) {
         <div style={{ position: "absolute", top: "-50%", left: 0, width: "35%", height: "200%", background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)", animation: "shine-sweep-fab 3s ease-in-out infinite", pointerEvents: "none" }} />
       </div>
 
+      )}
       {/* Panel chat */}
       {abierto && (
         <div className="ai-panel-responsive" style={{ position: "fixed", bottom: pos.y + 44, right: pos.x, width: 360, height: 480, background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)", border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
 
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,var(--paleta-grad-inicio),var(--paleta-grad-fin))", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <img src={iconoChat} alt="ScheduleoAI" style={{ width: 24, height: 24, objectFit: "contain" }} />
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <img src={iconoChat} alt="ScheduleoAI" style={{ width: 34, height: 34, objectFit: "contain", transform: "scale(1.7)" }} />
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>ScheduleoAI</div>
