@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { moduloActivo } from "@/lib/modulos"
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    if (!(await moduloActivo("cambios_turno"))) return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
 
     const { searchParams } = new URL(req.url)
     const estado = searchParams.get("estado")
@@ -39,6 +41,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    if (!(await moduloActivo("cambios_turno"))) return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
 
     const body = await req.json()
     const { empleadoOrigenId, empleadoDestinoId, tipo, fechaOrigen, fechaDestino, turnoOrigen, turnoDestino, motivo } = body
