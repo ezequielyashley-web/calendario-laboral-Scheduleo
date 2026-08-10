@@ -49,7 +49,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="ficha-${empleado.nombre}-${empleado.apellidos}.pdf"`
+        "Content-Disposition": `inline; filename="ficha-${empleado.nombre}-${empleado.apellidos}.pdf"`
       }
     })
   } catch (error) {
