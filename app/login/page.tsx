@@ -229,6 +229,7 @@ export default function LoginPage() {
       otpRefs.current[i - 1]?.focus(); setFocusedIdx(i - 1)
     } else if (e.key === "ArrowLeft" && i > 0) { otpRefs.current[i - 1]?.focus(); setFocusedIdx(i - 1) }
     else if (e.key === "ArrowRight" && i < 5) { otpRefs.current[i + 1]?.focus(); setFocusedIdx(i + 1) }
+    else if (e.key === "Enter" && digits.every(d => d !== "")) { verificarCodigo2FA() }
   }
 
   const handlePaste = (e: any) => {
