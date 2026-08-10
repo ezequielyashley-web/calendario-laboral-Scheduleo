@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   try {
     const tokens = await prisma.$queryRaw`
       SELECT * FROM "TokenInspeccion" 
@@ -46,6 +50,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
+  if (auth.role !== "SUPER_ADMIN") return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   try {
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")
