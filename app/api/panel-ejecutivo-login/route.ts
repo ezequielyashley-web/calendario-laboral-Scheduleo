@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json()
     if (!email || !password) return NextResponse.json({ error: "Email y contraseña requeridos" }, { status: 400 })
+    const rl = checkRateLimit("panel-ejecutivo-login_" + email.toLowerCase().trim(), 5, 15 * 60 * 1000)
+    if (!rl.success) return NextResponse.json({ error: "Demasiados intentos. Intenta mas tarde." }, { status: 429 })
 
     const usuario = await prisma.$queryRaw`
       SELECT id, name, email, password, role, permisos, genero
