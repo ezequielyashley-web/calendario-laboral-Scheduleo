@@ -6,7 +6,7 @@ export const colores = {
   textoSecundario: "#6B7280",
   borde: "#E5E7EB",
   fondo: "#FAFAFA",
-  fondoZebra: "#FAFAFF",
+  fondoZebra: "#EFECFC",
   blanco: "#FFFFFF",
 }
 export const estilosBase = StyleSheet.create({
