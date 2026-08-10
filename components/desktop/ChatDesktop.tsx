@@ -1,5 +1,7 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 type Mensaje = { id: string; autorId: string; autorNombre: string; autorRol: string; contenido: string; tipo: string; creadoEn: string }
 type Conversacion = { id: string; nombre: string; tipo: string; ultimoMensaje: string; ultimoMensajeEn: string; estado: string; solicitante_id: string; solicitante_nombre: string; receptor_id: string; receptor_nombre: string }
@@ -38,6 +40,13 @@ const LogoScheduleo = ({ size = 140 }: { size?: number }) => (
 )
 
 export default function ChatDesktop() {
+  const router = useRouter()
+  const { apariencia } = useApariencia()
+  useEffect(() => {
+    if (apariencia?.modulosActivos && !apariencia.modulosActivos.includes("chat")) {
+      router.push("/dashboard")
+    }
+  }, [apariencia?.modulosActivos])
   const [tab, setTab] = useState<"empleados"|"chats"|"historial">("empleados")
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([])
   const [solicitudes, setSolicitudes] = useState<Conversacion[]>([])
