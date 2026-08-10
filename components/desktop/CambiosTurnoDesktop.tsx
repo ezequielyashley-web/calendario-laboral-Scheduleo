@@ -1,5 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 type CambioTurno = {
   id: string
@@ -46,6 +48,13 @@ function Avatar({ nombre, size = 32 }: { nombre: string; size?: number }) {
 }
 
 export default function CambiosTurnoDesktop() {
+  const router = useRouter()
+  const { apariencia } = useApariencia()
+  useEffect(() => {
+    if (apariencia?.modulosActivos && !apariencia.modulosActivos.includes("cambios_turno")) {
+      router.push("/dashboard")
+    }
+  }, [apariencia?.modulosActivos])
   const [cambios, setCambios] = useState<CambioTurno[]>([])
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState("TODOS")
