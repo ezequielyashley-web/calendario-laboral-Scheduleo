@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
+import { moduloActivo } from "@/lib/modulos"
 
 async function esParticipante(conversacionId: string, userId: string): Promise<boolean> {
   const rows = await prisma.$queryRaw`
@@ -11,6 +12,7 @@ async function esParticipante(conversacionId: string, userId: string): Promise<b
 }
 
 export async function GET(req: NextRequest) {
+  if (!(await moduloActivo("chat"))) return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
   try {
