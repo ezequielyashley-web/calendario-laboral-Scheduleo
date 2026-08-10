@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
+import type { JSX } from "react"
 
 const violeta = "#673DE6"
 
