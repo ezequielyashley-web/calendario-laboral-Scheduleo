@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { useApariencia } from "@/components/providers/AparienciaProvider"
 
 type TipoBaja = 'it_comun' | 'it_profesional' | 'at' | 'maternidad' | 'paternidad' | 'menstruacion' | 'semana39' | 'interrupcion_embarazo'
 
@@ -67,6 +68,12 @@ function Avatar({ nombre, size = 32 }: { nombre: string; size?: number }) {
 
 export default function BajasMedicasDesktop() {
   const router = useRouter()
+  const { apariencia } = useApariencia()
+  useEffect(() => {
+    if (apariencia?.modulosActivos && !apariencia.modulosActivos.includes("bajas_medicas")) {
+      router.push("/dashboard")
+    }
+  }, [apariencia?.modulosActivos])
   const [bajas, setBajas] = useState<Baja[]>([])
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('todas')
