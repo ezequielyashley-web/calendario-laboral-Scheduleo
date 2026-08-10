@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
-    const { userId } = await req.json()
-    if (!userId) return NextResponse.json({ error: "userId requerido" }, { status: 400 })
+    const userId = auth.userId
 
     await prisma.$executeRaw`
       UPDATE "User" SET "ultimaActividad" = NOW() WHERE id = ${userId}
