@@ -1,5 +1,4 @@
 import { StyleSheet } from "@react-pdf/renderer"
-
 export const colores = {
   violeta: "#673DE6",
   violetaClaro: "#F5F3FF",
@@ -7,34 +6,52 @@ export const colores = {
   textoSecundario: "#6B7280",
   borde: "#E5E7EB",
   fondo: "#FAFAFA",
+  fondoZebra: "#FAFAFF",
+  blanco: "#FFFFFF",
 }
-
 export const estilosBase = StyleSheet.create({
   pagina: {
-    padding: 32,
+    paddingBottom: 56,
     fontSize: 10,
     color: colores.texto,
     fontFamily: "Helvetica",
   },
-  header: {
+  contenido: {
+    paddingHorizontal: 36,
+  },
+  headerBanda: {
+    backgroundColor: colores.violeta,
+    paddingHorizontal: 36,
+    paddingVertical: 18,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-    paddingBottom: 12,
-    borderBottom: `2px solid ${colores.violeta}`,
+    marginBottom: 24,
   },
   logoTexto: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 700,
+    color: colores.blanco,
+  },
+  headerDerecha: {
+    alignItems: "flex-end",
+  },
+  confidencialPill: {
+    fontSize: 7,
     fontWeight: 700,
     color: colores.violeta,
+    backgroundColor: colores.blanco,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginBottom: 4,
   },
   fechaGeneracion: {
     fontSize: 8,
-    color: colores.textoSecundario,
+    color: "#E0D9FF",
   },
   tituloDocumento: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 700,
     marginBottom: 4,
     color: colores.texto,
@@ -42,25 +59,29 @@ export const estilosBase = StyleSheet.create({
   subtitulo: {
     fontSize: 10,
     color: colores.textoSecundario,
-    marginBottom: 16,
+    marginBottom: 18,
+    paddingBottom: 12,
+    borderBottom: `1px solid ${colores.borde}`,
   },
   seccion: {
     marginBottom: 16,
+    backgroundColor: colores.fondo,
+    borderRadius: 6,
+    padding: 14,
+    border: `1px solid ${colores.borde}`,
   },
   tituloSeccion: {
     fontSize: 11,
     fontWeight: 700,
     color: colores.violeta,
-    marginBottom: 8,
-    paddingBottom: 4,
-    borderBottom: `1px solid ${colores.borde}`,
+    marginBottom: 10,
   },
   fila: {
     flexDirection: "row",
-    marginBottom: 6,
+    marginBottom: 7,
   },
   etiqueta: {
-    width: 140,
+    width: 150,
     fontSize: 9,
     color: colores.textoSecundario,
     fontWeight: 700,
@@ -72,14 +93,19 @@ export const estilosBase = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 24,
-    left: 32,
-    right: 32,
-    textAlign: "center",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 36,
+    paddingVertical: 12,
+    borderTop: `1px solid ${colores.borde}`,
+  },
+  footerTexto: {
     fontSize: 7,
     color: colores.textoSecundario,
-    borderTop: `1px solid ${colores.borde}`,
-    paddingTop: 8,
   },
   tabla: {
     width: "100%",
@@ -87,25 +113,37 @@ export const estilosBase = StyleSheet.create({
   filaTabla: {
     flexDirection: "row",
     borderBottom: `1px solid ${colores.borde}`,
-    paddingVertical: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 8,
+  },
+  filaTablaZebra: {
+    flexDirection: "row",
+    borderBottom: `1px solid ${colores.borde}`,
+    paddingVertical: 7,
+    paddingHorizontal: 8,
+    backgroundColor: colores.fondoZebra,
   },
   filaTablaHeader: {
     flexDirection: "row",
-    backgroundColor: colores.violetaClaro,
-    paddingVertical: 6,
-    fontWeight: 700,
+    backgroundColor: colores.violeta,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
   },
   celda: {
     flex: 1,
     fontSize: 9,
-    paddingHorizontal: 4,
+    color: colores.texto,
+  },
+  celdaHeader: {
+    flex: 1,
+    fontSize: 9,
+    fontWeight: 700,
+    color: colores.blanco,
   },
 })
-
 export function fechaHoy(): string {
   return new Date().toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
 }
-
 export function formatearFecha(fecha: string | Date | null | undefined): string {
   if (!fecha) return "—"
   return new Date(fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })

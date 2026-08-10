@@ -20,35 +20,46 @@ type Props = {
   }
   empresa?: { nombre?: string; nombreComercial?: string }
 }
+function fila(etiqueta: string, valor: string) {
+  return h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, etiqueta), h(Text, { style: estilosBase.valor }, valor))
+}
 export function FichaEmpleadoPDF({ empleado, empresa }: Props) {
   return h(Document, null,
     h(Page, { size: "A4", style: estilosBase.pagina },
-      h(View, { style: estilosBase.header },
+      h(View, { style: estilosBase.headerBanda },
         h(Text, { style: estilosBase.logoTexto }, "Scheduleo"),
-        h(Text, { style: estilosBase.fechaGeneracion }, `Generado el ${fechaHoy()}`)
+        h(View, { style: estilosBase.headerDerecha },
+          h(Text, { style: estilosBase.confidencialPill }, "CONFIDENCIAL"),
+          h(Text, { style: estilosBase.fechaGeneracion }, `Generado el ${fechaHoy()}`)
+        )
       ),
-      h(Text, { style: estilosBase.tituloDocumento }, "Ficha de empleado"),
-      h(Text, { style: estilosBase.subtitulo }, empresa?.nombreComercial || empresa?.nombre || "Empresa"),
-      h(View, { style: estilosBase.seccion },
-        h(Text, { style: estilosBase.tituloSeccion }, "Datos personales"),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Nombre completo"), h(Text, { style: estilosBase.valor }, `${empleado.nombre} ${empleado.apellidos}`)),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Numero de empleado"), h(Text, { style: estilosBase.valor }, empleado.numeroEmpleado || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "DNI / NIE"), h(Text, { style: estilosBase.valor }, empleado.dni || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Seguridad Social (NAF)"), h(Text, { style: estilosBase.valor }, empleado.naf || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Fecha de nacimiento"), h(Text, { style: estilosBase.valor }, formatearFecha(empleado.fechaNacimiento))),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Telefono"), h(Text, { style: estilosBase.valor }, empleado.telefono || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Email"), h(Text, { style: estilosBase.valor }, empleado.email || "—"))
+      h(View, { style: estilosBase.contenido },
+        h(Text, { style: estilosBase.tituloDocumento }, "Ficha de empleado"),
+        h(Text, { style: estilosBase.subtitulo }, empresa?.nombreComercial || empresa?.nombre || "Empresa"),
+        h(View, { style: estilosBase.seccion },
+          h(Text, { style: estilosBase.tituloSeccion }, "Datos personales"),
+          fila("Nombre completo", `${empleado.nombre} ${empleado.apellidos}`),
+          fila("Numero de empleado", empleado.numeroEmpleado || "—"),
+          fila("DNI / NIE", empleado.dni || "—"),
+          fila("Seguridad Social (NAF)", empleado.naf || "—"),
+          fila("Fecha de nacimiento", formatearFecha(empleado.fechaNacimiento)),
+          fila("Telefono", empleado.telefono || "—"),
+          fila("Email", empleado.email || "—")
+        ),
+        h(View, { style: estilosBase.seccion },
+          h(Text, { style: estilosBase.tituloSeccion }, "Datos laborales"),
+          fila("Cargo", empleado.cargo || "—"),
+          fila("Departamento", empleado.departamento || "—"),
+          fila("Puesto de trabajo", empleado.puestoDeTrabajo?.nombre || "—"),
+          fila("Grupo de trabajo", empleado.grupoTrabajo?.nombre || "—"),
+          fila("Fecha de contratacion", formatearFecha(empleado.fechaContratacion)),
+          fila("Salario bruto anual", empleado.salario ? `${empleado.salario} EUR` : "—")
+        )
       ),
-      h(View, { style: estilosBase.seccion },
-        h(Text, { style: estilosBase.tituloSeccion }, "Datos laborales"),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Cargo"), h(Text, { style: estilosBase.valor }, empleado.cargo || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Departamento"), h(Text, { style: estilosBase.valor }, empleado.departamento || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Puesto de trabajo"), h(Text, { style: estilosBase.valor }, empleado.puestoDeTrabajo?.nombre || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Grupo de trabajo"), h(Text, { style: estilosBase.valor }, empleado.grupoTrabajo?.nombre || "—")),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Fecha de contratacion"), h(Text, { style: estilosBase.valor }, formatearFecha(empleado.fechaContratacion))),
-        h(View, { style: estilosBase.fila }, h(Text, { style: estilosBase.etiqueta }, "Salario bruto anual"), h(Text, { style: estilosBase.valor }, empleado.salario ? `${empleado.salario} EUR` : "—"))
-      ),
-      h(Text, { style: estilosBase.footer }, "Documento generado automaticamente por Scheduleo 2.0 \u00b7 Confidencial")
+      h(View, { style: estilosBase.footer, fixed: true },
+        h(Text, { style: estilosBase.footerTexto }, "Documento generado automaticamente por Scheduleo 2.0"),
+        h(Text, { style: estilosBase.footerTexto, render: ({ pageNumber, totalPages }: any) => `Pagina ${pageNumber} de ${totalPages}` })
+      )
     )
   )
 }
