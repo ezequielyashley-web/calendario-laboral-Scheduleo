@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { Resend } from "resend";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -10,6 +11,8 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
+    const rl = checkRateLimit("forgot-password_" + (email || "").toLowerCase().trim(), 3, 15 * 60 * 1000);
+    if (!rl.success) return NextResponse.json({ error: "Demasiados intentos. Intenta mas tarde." }, { status: 429 });
 
     if (!email) {
       return NextResponse.json(
