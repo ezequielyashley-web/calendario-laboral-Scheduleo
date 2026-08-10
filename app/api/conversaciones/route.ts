@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth, isUnauthorized } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
+import { moduloActivo } from "@/lib/modulos"
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
+  if (!(await moduloActivo("chat"))) return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
   try {
     const { searchParams } = new URL(req.url)
     const userId = auth.userId
@@ -35,6 +37,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
+  if (!(await moduloActivo("chat"))) return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
   try {
     const { nombre, tipo, participantes, receptorId, receptorNombre, autoAceptar } = await req.json()
     const solicitante = await prisma.user.findUnique({ where: { id: auth.userId } })
@@ -66,6 +69,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const auth = await requireAuth(req)
   if (isUnauthorized(auth)) return auth
+  if (!(await moduloActivo("chat"))) return NextResponse.json({ error: "Modulo no activo" }, { status: 403 })
   try {
     const { conversacionId, accion } = await req.json()
     if (!conversacionId || !accion) return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
