@@ -10,6 +10,8 @@ async function verificarMaster(masterPassword: string): Promise<boolean> {
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAuth(req)
+  if (isUnauthorized(auth)) return auth
   try {
     const body = await req.json()
     const { action, masterPassword, name, email, role, nuevoEmail } = body
